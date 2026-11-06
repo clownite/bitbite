@@ -8,6 +8,8 @@ import { ForgePathPicker } from "../components/ForgePathPicker";
 import { ForgePathWheel } from "../components/ForgePathWheel";
 import { LabModelRevealCard } from "../components/LabModelRevealCard";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
+import { PetStage } from "../components/PetStage";
+import { addPetXp, getPet, stageGoal, subscribePet, type PetState } from "../pet/petProgress";
 import { ForgeUiErrorBoundary } from "../components/ForgeUiErrorBoundary";
 import { GramDiamondIcon } from "../components/GramDiamondIcon";
 import { LabRankWidget } from "../components/LabRankWidget";
@@ -277,67 +279,41 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
     return t("planetCanvas.assembling");
   }, [forgeRolling, forgePct, forgePlanetBuild, t]);
 
+  const [pet, setPet] = useState<PetState>(getPet());
+  useEffect(() => subscribePet(() => setPet(getPet())), []);
+  useEffect(() => {
+    if (!visible) return;
+    const id = window.setInterval(() => addPetXp(5), 1000);
+    return () => window.clearInterval(id);
+  }, [visible]);
+
   return (
     <div className="relative h-full overflow-hidden">
-      {visible && (
-        <AutoTapWidget
-          hasAutoTap={hasAutoTap}
-          telegramId={telegramId}
-        />
-      )}
-
       <div className="absolute inset-0">
-        <ForgeUiErrorBoundary label="3D forge error">
-        <PlanetCanvas
-          backdrop
-          tapSignal={tapSignal}
-          tapRelaxed={tapRelaxed}
-          progress={taps}
-          goal={goal}
-          accentColor={dynamicColor}
-          pendingPlanet={pendingPlanet}
-          forgePlanetBuild={forgePlanetBuild}
-          labForgeShapeId={labForgeShapeId}
-          labForgePath={labForgePath}
-          forgePhase={forgePhase}
-          forgeRolling={forgeRolling}
-          chromeBottomOffset={bottomChromeOffset}
-          suppressProgressBar
-          visible={visible && !pendingPlanet}
-        />
-        </ForgeUiErrorBoundary>
-
-        <button
-          type="button"
-          onClick={() => {
-            setStudioTitle("");
-            setStudioTitleOpen(true);
-            if (telegramId) {
-              void loadVoxelStudio(telegramId).then((s) => setStudioSaves(s.projects));
-            }
-          }}
-          aria-label="Create your model"
-          title="Create your model"
-          className="absolute z-30 flex items-center justify-center active:scale-95 pointer-events-auto"
-          style={{
-            left: 6,
-            top: "max(56px, calc(env(safe-area-inset-top, 0px) + 50px))",
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            background: "rgba(0, 0, 0, 0.62)",
-            border: "1.5px solid rgba(255, 255, 255, 0.7)",
-            boxShadow: "0 0 0 1px rgba(255,255,255,0.16), 0 0 10px rgba(255,255,255,0.12)",
-            backdropFilter: "blur(10px)",
-            cursor: "pointer",
-            padding: 0,
-            color: "#E8ECF4",
-            fontSize: 18,
-            fontWeight: 800,
-          }}
+        <PetStage pet={pet} onTap={() => addPetXp(25)} />
+        <div
+          className="absolute left-0 right-0 z-20 flex justify-center pointer-events-none"
+          style={{ bottom: 96 }}
         >
-          ▦
-        </button>
+          <div
+            style={{
+              minWidth: 180,
+              padding: "8px 14px",
+              borderRadius: 999,
+              background: "rgba(42, 24, 16, 0.82)",
+              border: "1px solid rgba(240, 177, 90, 0.35)",
+              color: "#fff4e4",
+              textAlign: "center",
+            }}
+          >
+            <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: "0.12em" }}>
+              {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`}
+            </div>
+            <div style={{ marginTop: 4, fontSize: 10, color: "rgba(255,244,228,0.7)" }}>
+              {pet.finished ? "Finished" : `${Math.floor(pet.xp)} / ${stageGoal(pet.stage)} XP`}
+            </div>
+          </div>
+        </div>
 
         <button
           type="button"
@@ -574,7 +550,7 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
               onClose={() => setForgePickerOpen(false)}
             />
           )}
-          {!pendingPlanet && (
+          {false && !pendingPlanet && (
             <button
               className="btn-craft pointer-events-auto"
               onClick={(e) => {

@@ -1,7 +1,7 @@
 export const fil: Record<string, string> = {
   "nav.lab": "LAB",
   "nav.home": "HOME",
-  "nav.farm": "SAKAHAN",
+  "nav.farm": "COLLECTION",
   "nav.market": "MERKADO",
   "nav.pvp": "PVP",
   "nav.earn": "KUMITA",

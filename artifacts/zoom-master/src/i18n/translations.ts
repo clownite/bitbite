@@ -20,7 +20,7 @@ const en: Dict = {
   // nav
   "nav.lab": "LAB",
   "nav.home": "HOME",
-  "nav.farm": "FARM",
+  "nav.farm": "COLLECTION",
   "nav.market": "MARKET",
   "nav.pvp": "PVP",
   "nav.earn": "EARN",
@@ -615,7 +615,7 @@ const en: Dict = {
 const it: Dict = {
   "nav.lab": "LABORATORIO",
   "nav.home": "HOME",
-  "nav.farm": "FATTORIA",
+  "nav.farm": "COLLECTION",
   "nav.market": "MERCATO",
   "nav.pvp": "PVP",
   "nav.earn": "GUADAGNA",
@@ -1196,7 +1196,7 @@ const it: Dict = {
 const ru: Dict = {
   "nav.lab": "ЛАБ",
   "nav.home": "HOME",
-  "nav.farm": "ФЕРМА",
+  "nav.farm": "COLLECTION",
   "nav.market": "РЫНОК",
   "nav.pvp": "PVP",
   "nav.earn": "ЗАРАБОТОК",
@@ -1740,7 +1740,7 @@ const ru: Dict = {
 const uk: Dict = {
   "nav.lab": "LAB",
   "nav.home": "HOME",
-  "nav.farm": "FARM",
+  "nav.farm": "COLLECTION",
   "nav.market": "MARKET",
   "nav.pvp": "PVP",
   "nav.earn": "EARN",

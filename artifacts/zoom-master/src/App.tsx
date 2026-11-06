@@ -10,8 +10,7 @@ import { MaintenanceScreen } from "./components/MaintenanceScreen";
 import { LabPage } from "./pages/LabPage";
 import { ForgeUiErrorBoundary } from "./components/ForgeUiErrorBoundary";
 import { VoxelStudioPage } from "./pages/VoxelStudioPage";
-import { FarmPage } from "./pages/FarmPage";
-import { MarketPage } from "./pages/MarketPage";
+import { CollectionPage } from "./pages/CollectionPage";
 import { EarnPage } from "./pages/EarnPage";
 import { RankPage } from "./pages/RankPage";
 import { ShopPage } from "./pages/ShopPage";
@@ -21,12 +20,11 @@ import { LanguageProvider, useT } from "./i18n/LanguageContext";
 import HistoryModal from "./components/HistoryModal";
 import { fetchMaintenanceStatus, fetchServerTime, fetchStardustLeaderboard, type StardustLeaderboardEntry } from "./utils/api";
 import { useStardust } from "./hooks/useStardust";
-import { Sprout, ShoppingCart, Trophy, Wallet, type LucideIcon } from "lucide-react";
+import { Sprout, Trophy, Wallet, type LucideIcon } from "lucide-react";
 import { GramDiamondIcon } from "./components/GramDiamondIcon";
 import { ZoomCubeIcon } from "./components/ZoomCubeIcon";
 import { WalletPage } from "./pages/WalletPage";
 import { hideHtmlSplash } from "./components/SplashScreen";
-import { FirstRunGuide } from "./components/FirstRunGuide";
 import { SPLASH_MS } from "./utils/bootSplash";
 import { fetchTonPrice } from "./utils/tonPrice";
 import { prefetchShopData } from "./utils/shopPrefetch";
@@ -61,15 +59,14 @@ type Tab = "lab" | "home" | "farm" | "market" | "earn" | "rank" | "shop" | "wall
 const NAV: { id: Tab; labelKey: string; icon: LucideIcon | "zoom-cube" | "gram-diamond" }[] = [
   { id: "lab", labelKey: "nav.lab", icon: "zoom-cube" },
   { id: "farm", labelKey: "nav.farm", icon: Sprout },
-  { id: "market", labelKey: "nav.market", icon: ShoppingCart },
   { id: "earn", labelKey: "nav.earn", icon: "gram-diamond" },
   { id: "rank", labelKey: "nav.rank", icon: Trophy },
   { id: "wallet", labelKey: "nav.wallet", icon: Wallet },
 ];
 
-const ALL_TABS: Tab[] = ["lab", "farm", "market", "earn", "rank", "shop", "wallet"];
+const ALL_TABS: Tab[] = ["lab", "farm", "earn", "rank", "shop", "wallet"];
 /** Tabs that share the Lab void + stars (no grid). */
-const LAB_SPACE_TABS: Tab[] = ["farm", "market", "earn", "rank", "wallet"];
+const LAB_SPACE_TABS: Tab[] = ["farm", "earn", "rank", "wallet"];
 
 function splashElapsedDone(): boolean {
   try {
@@ -858,125 +855,21 @@ function AppShellWithState() {
                 />
               )}
               {t === "farm" && (
-                <FarmPage
-                  visible={tab === "farm" && !studioOpen}
-                  planets={state.planets}
-                  sun={state.sun}
-                  sunCount={state.sunCount}
-                  balance={state.balance}
-                  maxSlots={state.maxSlots}
-                  defectPlanets={state.defectPlanets || []}
-                  telegramId={state.telegramId}
-                  onCollect={collectPlanet}
-                  onBurn={burnPlanet}
-                  onLabFuseApplied={applyLabFuseResult}
-                  onStartFarming={startFarming}
-                  onStopFarming={stopFarming}
-                  onStartSunFarming={startSunFarming}
-                  onStopSunFarming={stopSunFarming}
-                  onBurnSun={burnSun}
-                  onSell={(id, price, currency, sellerWallet) => {
-                    listPlanet(id, price, currency, sellerWallet);
-                    setMarketRevealKey((n) => n + 1);
-                    setTab("market");
+                <CollectionPage
+                  gram={(state.depositBalance || 0) + (state.tonBalance || 0)}
+                  onPay={(cost) => {
+                    const deposit = state.depositBalance || 0;
+                    const earned = state.tonBalance || 0;
+                    if (deposit + earned + 1e-9 < cost) return false;
+                    const fromDeposit = Math.min(deposit, cost);
+                    const rest = cost - fromDeposit;
+                    setState((s) => ({
+                      ...s,
+                      depositBalance: +(deposit - fromDeposit).toFixed(6),
+                      tonBalance: +(earned - rest).toFixed(6),
+                    }));
+                    return true;
                   }}
-                  onUnlist={unlistPlanet}
-                  onRepair={repairPlanet}
-                  stardustBalance={stardust.balance}
-                  tonBalance={state.tonBalance || 0}
-                  depositBalance={state.depositBalance || 0}
-                  onSlotUnlocked={unlockSlot}
-                  onUpgradeSunDuration={upgradeSunFarmDuration}
-                  whiteCollectionUnlocked={!!state.whiteCollectionUnlocked}
-                  whiteCollectionBundles={Number(state.whiteCollectionBundles) || 0}
-                  whitePlanets={state.whitePlanets || []}
-                  earthCollectionUnlocked={!!state.earthCollectionUnlocked}
-                  earthCollectionBundles={Number(state.earthCollectionBundles) || 0}
-                  earthPlanets={state.earthPlanets || []}
-                  blackCollectionUnlocked={!!state.blackCollectionUnlocked}
-                  blackCollectionBundles={Number(state.blackCollectionBundles) || 0}
-                  blackPlanets={state.blackPlanets || []}
-                  supernovaCollectionUnlocked={!!state.supernovaCollectionUnlocked}
-                  supernovaCollectionBundles={Number(state.supernovaCollectionBundles) || 0}
-                  supernovaPlanets={state.supernovaPlanets || []}
-                  stellaRossaCollectionUnlocked={!!state.stellaRossaCollectionUnlocked}
-                  stellaRossaCollectionBundles={Number(state.stellaRossaCollectionBundles) || 0}
-                  stellaPlanets={state.stellaPlanets || []}
-                  redStarBalance={state.redStarBalance || 0}
-                  onRedStarBalanceUpdate={(newBal) => setState((prev) => ({ ...prev, redStarBalance: newBal }))}
-                  onPlaceWhitePlanet={placeWhitePlanet}
-                  onCollectWhitePlanet={collectWhitePlanet}
-                  onReactivateWhitePlanet={reactivateWhitePlanet}
-                  onMarkWhitePlanetReactivated={markWhitePlanetReactivated}
-                  onPlaceEarthPlanet={placeEarthPlanet}
-                  onCollectEarthPlanet={collectEarthPlanet}
-                  onReactivateEarthPlanet={reactivateEarthPlanet}
-                  onMarkEarthPlanetReactivated={markEarthPlanetReactivated}
-                  onPlaceBlackPlanet={placeBlackPlanet}
-                  onCollectBlackPlanet={collectBlackPlanet}
-                  onReactivateBlackPlanet={reactivateBlackPlanet}
-                  onMarkBlackPlanetReactivated={markBlackPlanetReactivated}
-                  onPlaceSupernovaPlanet={placeSupernovaPlanet}
-                  onCollectSupernovaPlanet={collectSupernovaPlanet}
-                  onReactivateSupernovaPlanet={reactivateSupernovaPlanet}
-                  onMarkSupernovaPlanetReactivated={markSupernovaPlanetReactivated}
-                  onPlaceStellaRossaPlanet={placeStellaRossaPlanet}
-                  onCollectStellaRossaPlanet={collectStellaRossaPlanet}
-                  onMarkStellaRossaPlanetReactivated={markStellaRossaPlanetReactivated}
-                  onUpgradeCollectionDuration={upgradeCollectionFarmDuration}
-                  onOpenMarket={() => switchTab("market")}
-                  onOpenStudio={() => {
-                    setStudioSeedTitle(null);
-                    setStudioSeedProjectId(null);
-                    setStudioOpen(true);
-                  }}
-                  items={items}
-                  onSellItem={listItem}
-                  onUnlistItem={unlistItem}
-                  onFlushPlanets={async () => {
-                    // Flush planets to the server immediately so the PvP
-                    // queue route can verify ownership in planets_json even
-                    // for freshly-crafted planets whose debounced save
-                    // hasn't fired yet (mirrors the listing flow).
-                    if (!state.telegramId) return;
-                    await saveRegularPlanets(
-                      state.telegramId,
-                      state.planets as unknown as Array<Record<string, unknown>>,
-                      {
-                        basic: state.claimedBonusBasic ?? 0,
-                        rare: state.claimedBonusRare ?? 0,
-                        epic: state.claimedBonusEpic ?? 0,
-                        gold: state.claimedBonusGold ?? 0,
-                        mythic: state.claimedBonusMythic ?? 0,
-                        plasma: state.claimedBonusPlasma ?? 0,
-                        v1: state.claimedBonusV1 ?? 0,
-                        v1NftPlatinum: state.claimedBonusV1NftPlatinum ?? 0,
-                      },
-                      state.craftsCompleted ?? 0,
-                    );
-                  }}
-                />
-              )}
-              {t === "market" && (
-                <MarketPage
-                  visible={tab === "market"}
-                  depositBalance={state.depositBalance || 0}
-                  earnedBalance={state.tonBalance || 0}
-                  zoomBalance={state.balance}
-                  stardustBalance={state.stardustBalance || 0}
-                  myListings={state.planets}
-                  maxSlots={state.maxSlots}
-                  telegramId={state.telegramId}
-                  onBuy={buyPlanet}
-                  onUnlist={unlistPlanet}
-                  onServerBuyComplete={serverBuyComplete}
-                  onBuyEquipment={buyEquipmentFromMarket}
-                  onUnlistEquipment={unlistEquipment}
-                  onBuyItem={buyItemFromMarket}
-                  onUnlistItem={unlistItem}
-                  focusListingId={marketFocusId}
-                  onFocusConsumed={() => setMarketFocusId(null)}
-                  revealKey={marketRevealKey}
                 />
               )}
               {t === "earn" && (
@@ -1313,13 +1206,6 @@ function AppShellWithState() {
           />
           </ForgeUiErrorBoundary>
         </div>
-      )}
-      {!studioOpen && (
-        <FirstRunGuide
-          planetCount={state.planets.length}
-          tab={tab}
-          onGoTab={(next) => switchTab(next)}
-        />
       )}
       {globalToast && (
         <div
