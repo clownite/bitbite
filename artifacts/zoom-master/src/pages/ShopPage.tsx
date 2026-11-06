@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { PETS, timeForOneCrumb } from "../pet/catalog";
-import { buyPet, getPet, subscribePet, type PetState } from "../pet/petProgress";
+import { buyPet, getPet, PET_SLOTS, subscribePet, type PetState } from "../pet/petProgress";
 
 interface ShopPageProps {
   balance: number;
@@ -42,7 +42,8 @@ export function ShopPage({ gram, onPay }: ShopPageProps) {
       <div style={{ marginTop: 16, display: "flex", flexDirection: "column", gap: 12 }}>
         {PETS.map((item) => {
           const owned = pet.owned.includes(item.id);
-          const canBuy = !owned && item.price > 0 && gram + 1e-9 >= item.price;
+          const slotsFull = pet.owned.length >= PET_SLOTS;
+          const canBuy = !owned && !slotsFull && item.price > 0 && gram + 1e-9 >= item.price;
           return (
             <article
               key={item.id}
@@ -73,6 +74,8 @@ export function ShopPage({ gram, onPay }: ShopPageProps) {
               <div style={{ marginTop: 12 }}>
                 {owned ? (
                   <div style={{ fontSize: 12, fontWeight: 800, color: "#7ad7ff" }}>Owned</div>
+                ) : slotsFull ? (
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(186,220,236,0.45)" }}>5 slots full</div>
                 ) : (
                   <button
                     type="button"

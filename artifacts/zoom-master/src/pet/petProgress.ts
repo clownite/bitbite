@@ -25,6 +25,8 @@ export const INVITE_XP = 12;
 export const PET_TAP_XP = 1;
 export const PET_TAP_MAX = 4;
 export const PET_TAP_GAP_MS = 3000;
+/** Collection holds five pets. The dolphin takes the first slot. */
+export const PET_SLOTS = 5;
 
 export type PetLevel = 1 | 5 | 10;
 
@@ -153,7 +155,7 @@ export function setActivePet(id: PetId) {
 }
 
 export function buyPet(id: PetId) {
-  if (id === "dolphin" || state.owned.includes(id)) return;
+  if (id === "dolphin" || state.owned.includes(id) || state.owned.length >= PET_SLOTS) return;
   settleFarm();
   const core = { ...FRESH };
   state = syncActive({

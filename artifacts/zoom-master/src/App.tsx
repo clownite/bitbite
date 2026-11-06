@@ -20,9 +20,8 @@ import { LanguageProvider, useT } from "./i18n/LanguageContext";
 import HistoryModal from "./components/HistoryModal";
 import { fetchMaintenanceStatus, fetchServerTime, fetchStardustLeaderboard, type StardustLeaderboardEntry } from "./utils/api";
 import { useStardust } from "./hooks/useStardust";
-import { Sprout, Trophy, Wallet, type LucideIcon } from "lucide-react";
-import { GramDiamondIcon } from "./components/GramDiamondIcon";
-import { ZoomCubeIcon } from "./components/ZoomCubeIcon";
+import { House, LayoutGrid, Gem, Medal, UserRound, type LucideIcon } from "lucide-react";
+import { TelegramIdentity } from "./components/TelegramIdentity";
 import { WalletPage } from "./pages/WalletPage";
 import { hideHtmlSplash } from "./components/SplashScreen";
 import { SPLASH_MS } from "./utils/bootSplash";
@@ -56,12 +55,12 @@ const MANIFEST_URL = `${window.location.origin}/tonconnect-manifest.json`;
 
 type Tab = "lab" | "home" | "farm" | "market" | "earn" | "rank" | "shop" | "wallet";
 
-const NAV: { id: Tab; labelKey: string; icon: LucideIcon | "zoom-cube" | "gram-diamond" }[] = [
-  { id: "lab", labelKey: "nav.lab", icon: "zoom-cube" },
-  { id: "farm", labelKey: "nav.farm", icon: Sprout },
-  { id: "earn", labelKey: "nav.earn", icon: "gram-diamond" },
-  { id: "rank", labelKey: "nav.rank", icon: Trophy },
-  { id: "wallet", labelKey: "nav.wallet", icon: Wallet },
+const NAV: { id: Tab; label: string; icon: LucideIcon }[] = [
+  { id: "lab", label: "Home", icon: House },
+  { id: "farm", label: "Collection", icon: LayoutGrid },
+  { id: "earn", label: "Earn", icon: Gem },
+  { id: "rank", label: "TOP 10", icon: Medal },
+  { id: "wallet", label: "Profile", icon: UserRound },
 ];
 
 const ALL_TABS: Tab[] = ["lab", "farm", "earn", "rank", "shop", "wallet"];
@@ -802,6 +801,20 @@ function AppShellWithState() {
         </div>
       )}
 
+      {!studioOpen && (
+        <div
+          style={{
+            position: "absolute",
+            zIndex: 40,
+            left: 14,
+            top: "calc(env(safe-area-inset-top, 0px) + 10px)",
+          }}
+        >
+          <TelegramIdentity />
+        </div>
+      )}
+      {tab !== "lab" && <div style={{ height: 46, flexShrink: 0 }} />}
+
       <main className="flex-1 overflow-hidden relative z-10" style={{ minHeight: 0 }}>
         {ALL_TABS.map((t) => {
           const isActiveTab = tab === t;
@@ -1124,63 +1137,21 @@ function AppShellWithState() {
           borderTop: "none",
         }}
       >
-        <div
-          className="flex h-full"
-          style={{
-            pointerEvents: "auto",
-            borderRadius: 28,
-            background: "rgba(4, 10, 16, 0.94)",
-            border: "1px solid rgba(122, 215, 255, 0.28)",
-            boxShadow: "0 10px 28px rgba(0, 0, 0, 0.45)",
-            overflow: "hidden",
-          }}
-        >
+        <div className="flex h-full" style={{ pointerEvents: "auto" }}>
           {NAV.map((item) => {
             const isActive = tab === item.id;
+            const Icon = item.icon;
             return (
               <button
                 key={item.id}
-                className="flex-1 flex flex-col items-center justify-center gap-0.5 relative"
+                className="flex-1 flex flex-col items-center justify-center gap-1"
                 onClick={() => switchTab(item.id)}
                 data-testid={`nav-${item.id}`}
-                data-tutorial={item.id === "market" ? "nav-market" : undefined}
-                style={{ color: isActive ? "#e8f7ff" : "rgba(186, 220, 236, 0.5)" }}
+                style={{ color: isActive ? "#7ad7ff" : "rgba(186, 220, 236, 0.55)", background: "transparent", border: "none" }}
               >
-                {isActive && (
-                  <div
-                    className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full"
-                    style={{ background: "#7ad7ff", boxShadow: "0 0 8px rgba(122,215,255,0.7)" }}
-                  />
-                )}
-                {item.icon === "zoom-cube" || item.icon === "gram-diamond" ? (
-                  <span
-                    style={{
-                      display: "inline-flex",
-                      transform: isActive ? "scale(1.15)" : "scale(1)",
-                      filter: isActive ? "drop-shadow(0 0 6px rgba(122,215,255,0.65))" : "none",
-                      opacity: isActive ? 1 : 0.7,
-                      transition: "transform 150ms ease, filter 150ms ease, opacity 150ms ease",
-                    }}
-                  >
-                    {item.icon === "zoom-cube" ? (
-                      <ZoomCubeIcon size={20} />
-                    ) : (
-                      <GramDiamondIcon size={20} />
-                    )}
-                  </span>
-                ) : (
-                  <item.icon
-                    size={20}
-                    strokeWidth={isActive ? 2.5 : 1.5}
-                    style={{
-                      transform: isActive ? "scale(1.15)" : "scale(1)",
-                      filter: isActive ? "drop-shadow(0 0 6px rgba(122,215,255,0.65))" : "none",
-                      transition: "transform 150ms ease, filter 150ms ease",
-                    }}
-                  />
-                )}
-                <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "0.08em" }}>
-                  {t(item.labelKey)}
+                <Icon size={22} strokeWidth={isActive ? 2.4 : 1.7} />
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.04em" }}>
+                  {item.label}
                 </div>
               </button>
             );

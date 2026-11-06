@@ -1,11 +1,12 @@
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState } from "react";
 import { PetStage } from "../components/PetStage";
 import { PetFarmPanel } from "../components/PetFarmButton";
-import { PETS, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
+import { petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
 import {
   confirmGramUpgrade,
   getPet,
   gramCost,
+  PET_SLOTS,
   setActivePet,
   stageGoal,
   subscribePet,
@@ -123,59 +124,32 @@ export function CollectionPage({
         </div>
       </article>
 
-      <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 10 }}>
-        {PETS.map((item) => {
-          const owned = pet.owned.includes(item.id);
-          const selected = pet.active === item.id;
+      <div style={{ marginTop: 16, display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
+        {Array.from({ length: PET_SLOTS }, (_, index) => {
+          const id = pet.owned[index] as PetId | undefined;
+          const selected = id != null && id === pet.active;
           return (
-            <article
-              key={item.id}
+            <button
+              key={index}
+              type="button"
+              disabled={!id}
+              onClick={() => { if (id) setActivePet(id); }}
               style={{
-                borderRadius: 22,
-                padding: "14px 14px 12px",
-                background: selected ? "rgba(8, 28, 40, 0.95)" : "rgba(4, 10, 16, 0.8)",
-                border: `1px solid ${selected ? "rgba(122,215,255,0.55)" : "rgba(122,215,255,0.16)"}`,
+                aspectRatio: "1",
+                borderRadius: 16,
+                border: selected ? "1px solid #7ad7ff" : "1px solid rgba(122,215,255,0.16)",
+                background: id ? "rgba(8, 28, 40, 0.9)" : "rgba(255,255,255,0.03)",
+                color: "#e8f7ff",
+                fontSize: 10,
+                fontWeight: 800,
+                padding: 4,
               }}
             >
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                <div style={{ fontWeight: 900, color: "#e8f7ff" }}>{item.name}</div>
-                <div style={{ fontSize: 12, fontWeight: 800, color: "#7ad7ff" }}>
-                  {item.price === 0 ? "Free" : `${item.price} GRAM`}
-                </div>
-              </div>
-              <div style={{ marginTop: 6, fontSize: 12, color: "rgba(255,244,228,0.72)" }}>
-                {item.rates[1].toFixed(2)} / day · lv5 {item.rates[5].toFixed(2)} · lv10 {item.rates[10].toFixed(2)}
-              </div>
-              <div style={{ marginTop: 2, fontSize: 11, color: "rgba(255,244,228,0.45)" }}>
-                1 Crumb in {timeForOneCrumb(item.rates[1])} at level 1, {timeForOneCrumb(item.rates[5])} at level 5, {timeForOneCrumb(item.rates[10])} at level 10.
-              </div>
-              <div style={{ marginTop: 4, fontSize: 11, color: "rgba(255,244,228,0.55)" }}>{item.note}</div>
-              <div style={{ marginTop: 10 }}>
-                {selected ? (
-                  <span style={{ fontSize: 12, fontWeight: 800, color: "#7ad7ff" }}>Selected</span>
-                ) : owned ? (
-                  <button type="button" onClick={() => setActivePet(item.id as PetId)} style={miniBtn}>
-                    Use this pet
-                  </button>
-                ) : (
-                  <span style={{ fontSize: 12, fontWeight: 700, color: "rgba(186,220,236,0.7)" }}>
-                    In the shop · {item.price} GRAM
-                  </span>
-                )}
-              </div>
-            </article>
+              {id ? petDef(id).name : ""}
+            </button>
           );
         })}
       </div>
     </div>
   );
 }
-
-const miniBtn: CSSProperties = {
-  border: "none",
-  borderRadius: 14,
-  padding: "8px 12px",
-  fontWeight: 900,
-  background: "#7ad7ff",
-  color: "#041018",
-};
