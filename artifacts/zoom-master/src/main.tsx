@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { preloadPetModel } from "./pet/petModel";
 import App from "./App";
 import "./index.css";
 import { hapticLight } from "./utils/haptic";
@@ -51,6 +52,7 @@ function configureTelegramViewport() {
 }
 
 configureTelegramViewport();
+preloadPetModel();
 
 try { clearLabForgeTestPizzaFlag(); } catch { /**/ }
 

@@ -1,10 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { PetState } from "../pet/petProgress";
-
-/** Voxel Dolphin by pratamacam, CC BY 4.0. https://sketchfab.com/3d-models/voxel-dolphin-1a99bccffcf74908aeff36ce4fbccf2b */
-const PET_URL = "/models/pet.glb";
+import { takePetClone, whenPetModelReady } from "../pet/petModel";
 
 function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
   const stageBoost = stage === 1 ? 0.86 : stage === 2 ? 1 : 1.12;
@@ -12,23 +9,51 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
   return stageBoost * levelBoost;
 }
 
-/** Shared starter pet: the voxel dolphin. */
+type Frame = "lab" | "collection";
+type View = { x: number; y: number; s: number };
+
+const VIEW_KEY = "biscotto-pet-view";
+const LIMIT = { x: 2.2, y: 1.5, min: 0.45, max: 2.8 };
+
+function clamp(n: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, n));
+}
+
+function loadView(frame: Frame): View {
+  try {
+    const all = JSON.parse(localStorage.getItem(VIEW_KEY) || "{}") as Record<string, Partial<View>>;
+    const v = all[frame] ?? {};
+    return {
+      x: clamp(Number(v.x) || 0, -LIMIT.x, LIMIT.x),
+      y: clamp(Number(v.y) || 0, -LIMIT.y, LIMIT.y),
+      s: clamp(Number(v.s) || 1, LIMIT.min, LIMIT.max),
+    };
+  } catch {
+    return { x: 0, y: 0, s: 1 };
+  }
+}
+
+function saveView(frame: Frame, view: View) {
+  try {
+    const all = JSON.parse(localStorage.getItem(VIEW_KEY) || "{}") as Record<string, View>;
+    all[frame] = view;
+    localStorage.setItem(VIEW_KEY, JSON.stringify(all));
+  } catch { /**/ }
+}
+
+/** Shared dolphin. Drag moves it. Pinch or the wheel resizes it. */
 export function PetStage({
   pet,
-  interactive = true,
-  onTap,
+  frame,
 }: {
   pet: PetState;
-  interactive?: boolean;
-  onTap?: () => void;
+  frame: Frame;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const petRef = useRef(pet);
   petRef.current = pet;
-  const onTapRef = useRef(onTap);
-  onTapRef.current = onTap;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const host = hostRef.current;
     if (!host) return;
 
@@ -44,6 +69,7 @@ export function PetStage({
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
     renderer.domElement.style.display = "block";
+    renderer.domElement.style.touchAction = "none";
     host.appendChild(renderer.domElement);
 
     scene.add(new THREE.AmbientLight(0xfff6ea, 1.35));
@@ -56,49 +82,18 @@ export function PetStage({
 
     const rig = new THREE.Group();
     scene.add(rig);
+    const view = loadView(frame);
 
     let alive = true;
-    const loader = new GLTFLoader();
-    loader.load(
-      PET_URL,
-      (gltf) => {
-        if (!alive) return;
-        const model = gltf.scene;
-        model.updateMatrixWorld(true);
-        model.traverse((obj) => {
-          const mesh = obj as THREE.Mesh;
-          if (!mesh.isMesh) return;
-          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-          for (const mat of mats) {
-            const std = mat as THREE.MeshStandardMaterial;
-            if (std.color) std.color.set(0xffffff);
-            std.vertexColors = true;
-          }
-        });
-        const box = new THREE.Box3().setFromObject(model);
-        const size = new THREE.Vector3();
-        const center = new THREE.Vector3();
-        box.getSize(size);
-        box.getCenter(center);
-        model.position.sub(center);
-        const pivot = new THREE.Group();
-        const maxDim = Math.max(size.x, size.y, size.z) || 1;
-        pivot.scale.setScalar(2.8 / maxDim);
-        // Export stands on its tail, back toward us once it is laid flat.
-        // Tip it, then roll so the eye and belly face the camera.
-        const lay = new THREE.Group();
-        lay.rotation.z = -Math.PI / 2;
-        lay.add(model);
-        pivot.rotation.x = Math.PI / 2;
-        pivot.add(lay);
-        const level = new THREE.Group();
-        level.rotation.z = 0.95;
-        level.add(pivot);
-        rig.add(level);
-      },
-      undefined,
-      () => { /* keep the stage empty if the model cannot load */ },
-    );
+    const mount = () => {
+      if (!alive || rig.children.length > 0) return;
+      const model = takePetClone();
+      if (!model) return;
+      rig.add(model);
+      renderer.render(scene, camera);
+    };
+    mount();
+    const stopWait = whenPetModelReady(mount);
 
     const resize = () => {
       const w = host.clientWidth || 1;
@@ -111,6 +106,64 @@ export function PetStage({
     const observer = new ResizeObserver(resize);
     observer.observe(host);
 
+    const pointers = new Map<number, { x: number; y: number }>();
+    let dragLast: { x: number; y: number } | null = null;
+    let pinchDist = 0;
+
+    const worldPerPixel = () => {
+      const h = host.clientHeight || 1;
+      const worldH = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
+      return worldH / h;
+    };
+    const pinchDistance = () => {
+      const pts = [...pointers.values()];
+      if (pts.length < 2) return 0;
+      return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+    };
+
+    const onDown = (e: PointerEvent) => {
+      try { host.setPointerCapture(e.pointerId); } catch { /**/ }
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 1) dragLast = { x: e.clientX, y: e.clientY };
+      if (pointers.size >= 2) pinchDist = pinchDistance();
+    };
+    const onMove = (e: PointerEvent) => {
+      if (!pointers.has(e.pointerId)) return;
+      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if (pointers.size === 1 && dragLast) {
+        const k = worldPerPixel();
+        view.x = clamp(view.x + (e.clientX - dragLast.x) * k, -LIMIT.x, LIMIT.x);
+        view.y = clamp(view.y - (e.clientY - dragLast.y) * k, -LIMIT.y, LIMIT.y);
+        dragLast = { x: e.clientX, y: e.clientY };
+      } else if (pointers.size >= 2) {
+        const dist = pinchDistance();
+        if (pinchDist > 0 && dist > 0) {
+          view.s = clamp(view.s * (dist / pinchDist), LIMIT.min, LIMIT.max);
+          pinchDist = dist;
+        }
+      }
+    };
+    const onUp = (e: PointerEvent) => {
+      pointers.delete(e.pointerId);
+      if (pointers.size === 0) dragLast = null;
+      if (pointers.size < 2) pinchDist = 0;
+      if (pointers.size === 1) {
+        const only = [...pointers.values()][0];
+        dragLast = { x: only.x, y: only.y };
+      }
+      saveView(frame, view);
+    };
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      view.s = clamp(view.s * Math.exp(-e.deltaY * 0.0012), LIMIT.min, LIMIT.max);
+      saveView(frame, view);
+    };
+    host.addEventListener("pointerdown", onDown);
+    host.addEventListener("pointermove", onMove);
+    host.addEventListener("pointerup", onUp);
+    host.addEventListener("pointercancel", onUp);
+    host.addEventListener("wheel", onWheel, { passive: false });
+
     let raf = 0;
     const clock = new THREE.Clock();
     let t = 0;
@@ -118,10 +171,9 @@ export function PetStage({
       const dt = Math.min(clock.getDelta(), 0.05);
       t += dt;
       const { stage, level } = petRef.current;
-      const s = fitScale(level, stage);
-      rig.scale.setScalar(s);
-      rig.position.y = Math.sin(t * 1.35) * 0.16;
-      rig.position.x = Math.sin(t * 0.55) * 0.12;
+      rig.scale.setScalar(fitScale(level, stage) * view.s);
+      rig.position.x = view.x + Math.sin(t * 0.55) * 0.12;
+      rig.position.y = view.y + Math.sin(t * 1.35) * 0.16;
       rig.rotation.y = Math.sin(t * 0.65) * 0.28;
       rig.rotation.z = Math.sin(t * 1.2) * 0.06;
       rig.rotation.x = Math.sin(t * 1.5) * 0.06;
@@ -132,19 +184,24 @@ export function PetStage({
 
     return () => {
       alive = false;
+      stopWait();
       cancelAnimationFrame(raf);
       observer.disconnect();
+      host.removeEventListener("pointerdown", onDown);
+      host.removeEventListener("pointermove", onMove);
+      host.removeEventListener("pointerup", onUp);
+      host.removeEventListener("pointercancel", onUp);
+      host.removeEventListener("wheel", onWheel);
       renderer.dispose();
-      host.removeChild(renderer.domElement);
+      if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };
-  }, []);
+  }, [frame]);
 
   return (
     <div
       ref={hostRef}
-      onPointerDown={() => { if (interactive) onTapRef.current?.(); }}
-      style={{ position: "absolute", inset: 0, touchAction: "manipulation" }}
-      aria-label="Pet"
+      style={{ position: "absolute", inset: 0, touchAction: "none" }}
+      aria-label="Dolphin. Drag to move, pinch or scroll to resize."
     />
   );
 }

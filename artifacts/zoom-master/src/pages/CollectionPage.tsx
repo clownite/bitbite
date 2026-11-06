@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { PetStage } from "../components/PetStage";
 import {
-  addPetXp,
   confirmGramUpgrade,
   getPet,
   gramCost,
   stageGoal,
   subscribePet,
+  xpLabel,
   LEVEL5_GRAM,
   LEVEL10_GRAM,
   type PetState,
@@ -47,8 +47,8 @@ export function CollectionPage({
         }}
       >
         <div style={{ position: "relative", height: 280, background: "radial-gradient(circle at 50% 60%, #5a321c, #1a0e0a 72%)" }}>
-          <PetStage pet={pet} onTap={() => addPetXp(25)} />
-          <div style={{ position: "absolute", left: 14, top: 14, fontSize: 11, fontWeight: 900, letterSpacing: "0.14em", color: "#ffe7c2" }}>
+          <PetStage pet={pet} frame="collection" />
+          <div style={{ position: "absolute", left: 14, top: 14, fontSize: 11, fontWeight: 900, letterSpacing: "0.14em", color: "#ffe7c2", pointerEvents: "none" }}>
             LEVEL {pet.level}
           </div>
         </div>
@@ -63,7 +63,10 @@ export function CollectionPage({
             <div style={{ width: `${Math.min(100, (pet.xp / goal) * 100)}%`, height: "100%", background: "linear-gradient(90deg, #c47a2e, #f0b15a)" }} />
           </div>
           <div style={{ marginTop: 6, fontSize: 11, color: "rgba(255,244,228,0.55)" }}>
-            {pet.finished ? "Level 10. This one is finished." : `${Math.floor(pet.xp)} / ${goal} XP`}
+            {pet.finished ? "Level 10. This one is finished." : xpLabel(pet)}
+          </div>
+          <div style={{ marginTop: 4, fontSize: 10, color: "rgba(255,244,228,0.4)" }}>
+            Drag to move. Pinch or scroll to resize.
           </div>
 
           {ready && (

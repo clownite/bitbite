@@ -9,7 +9,7 @@ import { ForgePathWheel } from "../components/ForgePathWheel";
 import { LabModelRevealCard } from "../components/LabModelRevealCard";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { PetStage } from "../components/PetStage";
-import { addPetXp, getPet, stageGoal, subscribePet, type PetState } from "../pet/petProgress";
+import { getPet, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { ForgeUiErrorBoundary } from "../components/ForgeUiErrorBoundary";
 import { GramDiamondIcon } from "../components/GramDiamondIcon";
 import { LabRankWidget } from "../components/LabRankWidget";
@@ -281,16 +281,11 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
 
   const [pet, setPet] = useState<PetState>(getPet());
   useEffect(() => subscribePet(() => setPet(getPet())), []);
-  useEffect(() => {
-    if (!visible) return;
-    const id = window.setInterval(() => addPetXp(5), 1000);
-    return () => window.clearInterval(id);
-  }, [visible]);
 
   return (
     <div className="relative h-full overflow-hidden">
       <div className="absolute inset-0">
-        <PetStage pet={pet} onTap={() => addPetXp(25)} />
+        <PetStage pet={pet} frame="lab" />
         <div
           className="absolute left-0 right-0 z-20 flex justify-center pointer-events-none"
           style={{ bottom: 96 }}
@@ -310,7 +305,10 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
               {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`}
             </div>
             <div style={{ marginTop: 4, fontSize: 10, color: "rgba(255,244,228,0.7)" }}>
-              {pet.finished ? "Finished" : `${Math.floor(pet.xp)} / ${stageGoal(pet.stage)} XP`}
+              {xpLabel(pet)}
+            </div>
+            <div style={{ marginTop: 2, fontSize: 9, color: "rgba(255,244,228,0.45)" }}>
+              Drag to move · pinch or scroll to resize
             </div>
           </div>
         </div>
