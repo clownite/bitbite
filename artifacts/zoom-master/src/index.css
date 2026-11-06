@@ -1,0 +1,3419 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,600;0,14..32,700;0,14..32,900;1,14..32,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: var(--sidebar-primary-border);
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: var(--sidebar-accent-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --button-outline: rgba(255,255,255,.08);
+  --badge-outline: rgba(255,255,255,.05);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(255,255,255,.03);
+  --elevate-2: rgba(255,255,255,.06);
+
+  /* Moonlit Vault — Phase 1: chill neutral shell (model rarity colors unchanged) */
+  --background: 222 28% 6%;
+  --foreground: 210 20% 94%;
+  --border: 222 18% 14%;
+  --card: 222 24% 8%;
+  --card-foreground: 210 20% 94%;
+  --card-border: 222 18% 14%;
+  --sidebar: 222 28% 5%;
+  --sidebar-foreground: 210 20% 94%;
+  --sidebar-border: 222 18% 11%;
+  --sidebar-primary: 210 22% 90%;
+  --sidebar-primary-foreground: 222 28% 10%;
+  --sidebar-accent: 222 18% 11%;
+  --sidebar-accent-foreground: 210 20% 94%;
+  --sidebar-ring: 205 45% 72%;
+  --popover: 222 24% 8%;
+  --popover-foreground: 210 20% 94%;
+  --popover-border: 222 18% 14%;
+  --primary: 210 22% 90%;
+  --primary-foreground: 222 28% 10%;
+  --secondary: 222 18% 11%;
+  --secondary-foreground: 210 20% 94%;
+  --muted: 222 20% 9%;
+  --muted-foreground: 215 15% 55%;
+  --accent: 205 45% 72%;
+  --accent-foreground: 222 28% 10%;
+  --destructive: 215 18% 42%;
+  --destructive-foreground: 210 20% 94%;
+  --input: 222 18% 12%;
+  --ring: 205 45% 72%;
+  --chart-1: 205 45% 72%;
+  --chart-2: 210 22% 90%;
+  --chart-3: 215 15% 55%;
+  --chart-4: 222 24% 28%;
+  --chart-5: 205 35% 58%;
+
+  --app-font-sans: 'Inter', sans-serif;
+  --app-font-serif: Georgia, serif;
+  --app-font-mono: Menlo, monospace;
+  --radius: .75rem;
+
+  --shadow-2xs: 0px 2px 8px 0px rgba(0, 8, 20, 0.18);
+  --shadow-xs: 0px 2px 8px 0px rgba(0, 8, 20, 0.22);
+  --shadow-sm: 0px 2px 8px 0px rgba(0, 8, 20, 0.26), 0px 1px 2px -1px rgba(0, 0, 0, 0.5);
+  --shadow: 0px 4px 16px 0px rgba(0, 8, 20, 0.28), 0px 1px 2px -1px rgba(0, 0, 0, 0.55);
+  --shadow-md: 0px 4px 20px 0px rgba(0, 8, 20, 0.32), 0px 2px 4px -1px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0px 8px 30px 0px rgba(0, 8, 20, 0.36), 0px 4px 6px -1px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0px 12px 40px 0px rgba(0, 8, 20, 0.4), 0px 8px 10px -1px rgba(0, 0, 0, 0.65);
+  --shadow-2xl: 0px 20px 60px 0px rgba(0, 8, 20, 0.44);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --primary-border: hsl(var(--primary));
+  --secondary-border: hsl(var(--secondary));
+  --muted-border: hsl(var(--muted));
+  --accent-border: hsl(var(--accent));
+  --destructive-border: hsl(var(--destructive));
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+    overflow: hidden;
+    height: 100dvh;
+    user-select: none;
+    background: hsl(var(--background));
+  }
+  #root {
+    height: 100dvh;
+    overflow: hidden;
+    position: relative;
+  }
+}
+
+/* ======== NEBULA BACKGROUND ======== */
+/* `transform: translateZ(0)` + `will-change: transform` force the nebula
+   onto its OWN GPU compositor layer. Without this, every repaint of the
+   foreground (tab switches, opening menus, scrolling content) also
+   repaints the orbs/stars, causing a visible flicker that interrupts the
+   slow drift+scale "cosmic zoom" animation. With its own layer, the
+   foreground can be re-rasterised independently while the background
+   keeps animating smoothly on the GPU. `isolation: isolate` creates a
+   new stacking context so blend/filter effects inside the page never
+   leak into the background paint. */
+.nebula-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  transform: translateZ(0);
+  will-change: transform;
+  isolation: isolate;
+  contain: layout paint style;
+}
+
+/* Lab forge void — stars only (farm, market, earn, rank, wallet). */
+.lab-space-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  transform: translateZ(0);
+  isolation: isolate;
+  contain: layout paint style;
+}
+
+.lab-space-bg__void {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+}
+
+.lab-space-bg__star {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.lab-space-bg__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 75% 55% at 50% 42%,
+    transparent 0%,
+    rgba(0, 0, 0, 0.35) 72%,
+    rgba(0, 0, 0, 0.72) 100%
+  );
+}
+
+.nebula-orb {
+  position: absolute;
+  border-radius: 50%;
+  /* filter:blur removed — 500-800px blurred divs are the costliest GPU op.
+     The radial-gradient already falls off to transparent at 68%, so the
+     visual softness is preserved without any pixel-shader blur pass. */
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* ── MOONLIT NEBULA — soft blue-lavender ambient (Phase 1) ── */
+
+/* Orb 1: massive deep-crimson cloud, top-left anchor */
+.nebula-orb-1 {
+  width: 800px; height: 800px;
+  background: radial-gradient(circle, rgba(70,100,180,0.07) 0%, rgba(45,65,120,0.03) 40%, transparent 68%);
+  top: -280px; left: -220px;
+  animation: nebula-drift-a 26s ease-in-out infinite alternate;
+}
+/* Orb 2: large deep-red cloud, bottom-right */
+.nebula-orb-2 {
+  width: 700px; height: 700px;
+  background: radial-gradient(circle, rgba(60,85,160,0.08) 0%, rgba(40,55,100,0.03) 42%, transparent 68%);
+  bottom: -180px; right: -200px;
+  animation: nebula-drift-b 21s ease-in-out infinite alternate;
+}
+/* Orb 3: orange-red cloud, upper-center — key "hot gas" accent */
+.nebula-orb-3 {
+  width: 550px; height: 550px;
+  background: radial-gradient(circle, rgba(120,150,220,0.05) 0%, rgba(80,110,180,0.02) 42%, transparent 68%);
+  top: -60px; left: 20%;
+  animation: nebula-drift-c 32s ease-in-out infinite alternate;
+}
+/* Orb 4: amber-orange cloud, mid-right depth layer */
+.nebula-orb-4 {
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, rgba(140,130,200,0.05) 0%, rgba(90,80,150,0.02) 44%, transparent 70%);
+  top: 35%; right: -120px;
+  animation: nebula-drift-d 24s ease-in-out infinite alternate;
+}
+/* Orb 5: bright crimson, lower-left — strong ground accent */
+.nebula-orb-5 {
+  width: 440px; height: 440px;
+  background: radial-gradient(circle, rgba(100,140,210,0.06) 0%, rgba(60,90,160,0.02) 42%, transparent 68%);
+  bottom: -80px; left: -100px;
+  animation: nebula-drift-a 28s ease-in-out infinite alternate-reverse;
+}
+/* Orb 6: dusky maroon, upper-right — cool/dark accent */
+.nebula-orb-6 {
+  width: 360px; height: 360px;
+  background: radial-gradient(circle, rgba(80,95,140,0.05) 0%, rgba(50,60,100,0.02) 45%, transparent 70%);
+  top: 5%; right: 5%;
+  animation: nebula-drift-b 38s ease-in-out infinite alternate-reverse;
+}
+/* Orb 7: wide orange-amber veil, center — ties the cloud masses together */
+.nebula-orb-7 {
+  width: 700px; height: 500px;
+  background: radial-gradient(ellipse, rgba(110,140,200,0.04) 0%, rgba(70,95,150,0.01) 45%, transparent 68%);
+  top: 30%; left: -10%;
+  animation: nebula-drift-c 35s ease-in-out infinite alternate-reverse;
+}
+/* Orb 8: wide deep-red veil, lower-center — fills bottom density */
+.nebula-orb-8 {
+  width: 600px; height: 400px;
+  background: radial-gradient(ellipse, rgba(55,75,130,0.04) 0%, rgba(35,50,90,0.01) 45%, transparent 70%);
+  bottom: 5%; left: 15%;
+  animation: nebula-drift-d 30s ease-in-out infinite alternate;
+}
+
+/* Proto-star — soft warm central glow simulating a stellar nursery */
+.nebula-protostar {
+  position: absolute;
+  width: 300px; height: 300px;
+  border-radius: 50%;
+  top: 42%; left: 50%;
+  transform: translate(-50%, -50%) translateZ(0);
+  background: radial-gradient(circle, rgba(180,210,255,0.035) 0%, rgba(120,160,220,0.018) 35%, transparent 65%);
+  /* filter:blur removed — replaced with a slightly wider gradient stop */
+  animation: protostar-pulse 8s ease-in-out infinite alternate;
+  will-change: opacity;
+  pointer-events: none;
+}
+@keyframes protostar-pulse {
+  0%   { opacity: 0.5; transform: translate(-50%, -50%) translateZ(0) scale(0.9); }
+  100% { opacity: 1.0; transform: translate(-50%, -50%) translateZ(0) scale(1.1); }
+}
+
+/* Distant micro-planets — small glowing dots scattered through the nebula */
+.distant-planet {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  /* only transform+opacity — both GPU-composited, no repaint */
+  will-change: transform, opacity;
+  animation-name: distant-planet-pulse;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+@keyframes distant-planet-pulse {
+  0%   { opacity: 0.5; }
+  100% { opacity: 0.9; }
+}
+
+/* ── Battery / heat savers ──────────────────────────────────────────────────
+   1. When the OS accessibility "Reduce Motion" setting is on, kill all
+      decorative infinite animations.
+   2. When the page is hidden (user switched apps), the JS visibility handler
+      in App.tsx adds .animations-paused to <body> — stops all animations so
+      the GPU/CPU idle completely while backgrounded.
+   ───────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .nebula-orb, .nebula-protostar, .distant-planet, .twinkle-star,
+  .star-field, .comet, .planet-outer-glow, .planet-ring, .planet-sphere,
+  .btn-farm-pulse, .btn-collect-pulse, .pulse-soft, .forge-core,
+  .lab-stars-a, .lab-stars-b, .lab-stars-c {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Global pause when page is hidden — set by App.tsx visibilitychange handler */
+body.animations-paused * {
+  animation-play-state: paused !important;
+}
+
+@keyframes nebula-drift-a {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(70px, 90px, 0) scale(1.2); }
+}
+@keyframes nebula-drift-b {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(-60px, -70px, 0) scale(1.25); }
+}
+@keyframes nebula-drift-c {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(50px, -60px, 0) scale(0.85); }
+}
+@keyframes nebula-drift-d {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  100% { transform: translate3d(-40px, 55px, 0) scale(1.15); }
+}
+
+/* Stars — 3 layers at different depths */
+.star-field {
+  position: absolute;
+  inset: 0;
+}
+.star-field-a {
+  background-image:
+    radial-gradient(1px 1px at 8% 12%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 22% 38%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 48% 6%, rgba(255,255,255,0.8) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 68% 20%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(1px 1px at 83% 52%, rgba(255,255,255,0.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 13% 68%, rgba(255,255,255,0.45) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 38% 82%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 58% 62%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 78%, rgba(255,255,255,0.45) 0%, transparent 100%),
+    radial-gradient(2px 2px at 3% 88%, rgba(255,255,255,0.75) 0%, transparent 100%),
+    radial-gradient(1px 1px at 76% 42%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 31% 58%, rgba(255,255,255,0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 53% 28%, rgba(255,255,255,0.45) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 93% 8%, rgba(255,255,255,0.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 44% 95%, rgba(255,255,255,0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 17% 45%, rgba(255,255,255,0.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 62% 15%, rgba(255,255,255,0.65) 0%, transparent 100%),
+    radial-gradient(1px 1px at 97% 62%, rgba(255,255,255,0.4) 0%, transparent 100%);
+  animation: star-twinkle-a 9s ease-in-out 6 alternate;
+}
+.star-field-b {
+  background-image:
+    radial-gradient(0.8px 0.8px at 5% 35%, rgba(180,200,255,0.45) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 35% 18%, rgba(160,185,240,0.35) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 60% 48%, rgba(180,200,255,0.45) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 80% 32%, rgba(160,185,240,0.30) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 20% 75%, rgba(180,200,255,0.40) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 72% 90%, rgba(160,185,240,0.35) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 45% 55%, rgba(180,200,255,0.30) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 90% 20%, rgba(180,200,255,0.45) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 28% 92%, rgba(160,185,240,0.35) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 55% 72%, rgba(180,200,255,0.40) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 10% 55%, rgba(160,185,240,0.30) 0%, transparent 100%),
+    radial-gradient(0.8px 0.8px at 85% 68%, rgba(180,200,255,0.35) 0%, transparent 100%);
+  animation: star-twinkle-b 13s ease-in-out 4 alternate;
+}
+.star-field-c {
+  background-image:
+    radial-gradient(0.5px 0.5px at 18% 25%, rgba(200,220,255,0.4) 0%, transparent 100%),
+    radial-gradient(0.5px 0.5px at 42% 70%, rgba(200,220,255,0.35) 0%, transparent 100%),
+    radial-gradient(0.5px 0.5px at 75% 12%, rgba(200,220,255,0.45) 0%, transparent 100%),
+    radial-gradient(0.5px 0.5px at 90% 50%, rgba(200,220,255,0.3) 0%, transparent 100%),
+    radial-gradient(0.5px 0.5px at 6% 80%, rgba(200,220,255,0.4) 0%, transparent 100%),
+    radial-gradient(0.5px 0.5px at 65% 85%, rgba(200,220,255,0.35) 0%, transparent 100%),
+    radial-gradient(0.5px 0.5px at 33% 42%, rgba(200,220,255,0.3) 0%, transparent 100%),
+    radial-gradient(0.5px 0.5px at 88% 95%, rgba(200,220,255,0.4) 0%, transparent 100%);
+  animation: star-twinkle-c 17s ease-in-out 3 alternate;
+}
+@keyframes star-twinkle-a {
+  0% { opacity: 0.55; }
+  50% { opacity: 0.85; }
+  100% { opacity: 0.65; }
+}
+@keyframes star-twinkle-b {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+  100% { opacity: 0.5; }
+}
+@keyframes star-twinkle-c {
+  0% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+  100% { opacity: 0.4; }
+}
+
+/* Tiny distant planet — soft icy glow in the cosmic backdrop */
+.red-planet {
+  position: absolute;
+  top: 22%;
+  left: 44%;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #c8e0ff 0%, #7aa8e8 55%, #2a4068 100%);
+  box-shadow:
+    0 0 6px rgba(120, 170, 230, 0.85),
+    0 0 14px rgba(90, 140, 210, 0.55),
+    0 0 28px rgba(60, 100, 180, 0.30);
+  opacity: 0.9;
+  animation: red-planet-glow 2.5s ease-in-out 8 alternate;
+  pointer-events: none;
+  will-change: opacity, box-shadow;
+}
+@keyframes red-planet-glow {
+  0%, 100% {
+    opacity: 0.55;
+    box-shadow:
+      0 0 4px rgba(120, 170, 230, 0.55),
+      0 0 9px rgba(90, 140, 210, 0.35),
+      0 0 18px rgba(60, 100, 180, 0.18);
+  }
+  50% {
+    opacity: 1;
+    box-shadow:
+      0 0 8px rgba(140, 190, 255, 0.95),
+      0 0 18px rgba(110, 160, 230, 0.70),
+      0 0 36px rgba(80, 130, 200, 0.45),
+      0 0 60px rgba(60, 100, 180, 0.20);
+  }
+}
+
+/* Individual twinkling "hero" stars — each pulses on its own timing,
+   driven by inline animationDuration/Delay set in NebulaBackground.tsx,
+   so the sky shimmers asynchronously instead of in lockstep. */
+.twinkle-star {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.4;
+  animation-name: hero-twinkle;
+  animation-iteration-count: 12;
+  animation-timing-function: ease-in-out;
+  will-change: opacity, transform;
+}
+@keyframes hero-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.85); }
+  50%      { opacity: 1;    transform: scale(1.25); }
+}
+
+/* Comets — long animation periods with most of the cycle off-screen so
+   one only crosses the sky every 30-60 seconds. The visible streak lasts
+   about 4 seconds, the rest is dead time. */
+.comet {
+  position: absolute;
+  pointer-events: none;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0) 0%,
+    rgba(255,255,255,0.35) 30%,
+    rgba(180,220,255,0.85) 70%,
+    #ffffff 100%
+  );
+  filter: drop-shadow(0 0 6px rgba(180,220,255,0.85)) drop-shadow(0 0 14px rgba(120,180,255,0.55));
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.comet-1 {
+  width: 180px;
+  top: 18%;
+  left: -200px;
+  transform: rotate(-22deg);
+  animation: comet-fly-a 38s linear 6s 3;
+}
+.comet-2 {
+  width: 140px;
+  top: 58%;
+  left: -180px;
+  transform: rotate(-16deg);
+  animation: comet-fly-b 52s linear 24s 2;
+}
+@keyframes comet-fly-a {
+  0%   { transform: translate3d(0, 0, 0) rotate(-22deg); opacity: 0; }
+  2%   { opacity: 0; }
+  4%   { opacity: 1; }
+  14%  { opacity: 1; }
+  18%  { transform: translate3d(120vw, 38vh, 0) rotate(-22deg); opacity: 0; }
+  100% { transform: translate3d(120vw, 38vh, 0) rotate(-22deg); opacity: 0; }
+}
+@keyframes comet-fly-b {
+  0%   { transform: translate3d(0, 0, 0) rotate(-16deg); opacity: 0; }
+  3%   { opacity: 0; }
+  5%   { opacity: 1; }
+  13%  { opacity: 1; }
+  17%  { transform: translate3d(120vw, 22vh, 0) rotate(-16deg); opacity: 0; }
+  100% { transform: translate3d(120vw, 22vh, 0) rotate(-16deg); opacity: 0; }
+}
+
+/* ======== UFO EASTER EGG ========
+   Subtle saucer that drifts across the starry background on long, irregular
+   cycles. Pure CSS — the saucer body is an inline SVG data URI used as a
+   background-image so we don't add DOM nodes or HTTP requests. The animation
+   keeps the UFO invisible for ~85% of the cycle and only briefly visible
+   while it crosses, so it feels like a rare random sighting. */
+.ufo {
+  position: absolute;
+  pointer-events: none;
+  width: 56px;
+  height: 26px;
+  top: 22%;
+  left: -80px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 30'><defs><radialGradient id='dome' cx='50%25' cy='60%25' r='55%25'><stop offset='0%25' stop-color='%23bff7ff' stop-opacity='0.95'/><stop offset='70%25' stop-color='%2350cfee' stop-opacity='0.6'/><stop offset='100%25' stop-color='%23204a66' stop-opacity='0.3'/></radialGradient><linearGradient id='body' x1='0' x2='0' y1='0' y2='1'><stop offset='0%25' stop-color='%23d8e6f0'/><stop offset='55%25' stop-color='%237b95ad'/><stop offset='100%25' stop-color='%232d3b4d'/></linearGradient></defs><ellipse cx='32' cy='12' rx='14' ry='6' fill='url(%23dome)' stroke='%23a8e7ff' stroke-width='0.5' opacity='0.95'/><ellipse cx='32' cy='17' rx='28' ry='6' fill='url(%23body)' stroke='%231a2a3a' stroke-width='0.5'/><circle cx='14' cy='20' r='1.6' fill='%23ff5252'><animate attributeName='opacity' values='0.3;1;0.3' dur='1.2s' repeatCount='indefinite'/></circle><circle cx='25' cy='21' r='1.4' fill='%2300e676'><animate attributeName='opacity' values='1;0.3;1' dur='1.4s' repeatCount='indefinite'/></circle><circle cx='38' cy='21' r='1.4' fill='%23ffd700'><animate attributeName='opacity' values='0.4;1;0.4' dur='1.0s' repeatCount='indefinite'/></circle><circle cx='49' cy='20' r='1.6' fill='%23ff3355'><animate attributeName='opacity' values='1;0.3;1' dur='1.3s' repeatCount='indefinite'/></circle></svg>");
+  filter: drop-shadow(0 0 6px rgba(120, 220, 255, 0.45)) drop-shadow(0 0 14px rgba(80, 150, 220, 0.25));
+  opacity: 0;
+  will-change: transform, opacity;
+  z-index: 0;
+}
+.ufo-1 {
+  top: 14%;
+  width: 56px;
+  height: 26px;
+  animation: ufo-cross-a 95s linear 18s 2;
+}
+.ufo-2 {
+  top: 64%;
+  width: 44px;
+  height: 22px;
+  animation: ufo-cross-b 145s linear 62s 1;
+}
+@keyframes ufo-cross-a {
+  /* ~13s of visibility per 95s cycle; subtle vertical wobble. */
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  1%   { opacity: 0; }
+  3%   { opacity: 0.9; }
+  5%   { transform: translate3d(15vw, -8px, 0); }
+  9%   { transform: translate3d(45vw, 6px, 0); opacity: 0.9; }
+  13%  { transform: translate3d(75vw, -4px, 0); opacity: 0.9; }
+  16%  { transform: translate3d(110vw, 0, 0); opacity: 0; }
+  100% { transform: translate3d(110vw, 0, 0); opacity: 0; }
+}
+@keyframes ufo-cross-b {
+  /* Reverse direction (right-to-left) with a different wobble pattern. */
+  0%   { transform: translate3d(110vw, 0, 0); opacity: 0; }
+  2%   { opacity: 0; }
+  4%   { opacity: 0.85; }
+  7%   { transform: translate3d(80vw, 7px, 0); }
+  11%  { transform: translate3d(50vw, -6px, 0); opacity: 0.85; }
+  15%  { transform: translate3d(20vw, 5px, 0); opacity: 0.85; }
+  18%  { transform: translate3d(-10vw, 0, 0); opacity: 0; }
+  100% { transform: translate3d(-10vw, 0, 0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ufo { animation: none !important; opacity: 0 !important; }
+}
+
+/* ======== GLASSMORPHISM + BOKEH SYSTEM ======== */
+@keyframes item-float {
+  0%,  100% { transform: translateY(0px);   }
+  50%        { transform: translateY(-5px); }
+}
+@keyframes item-float-slow {
+  0%,  100% { transform: translateY(0px);   }
+  50%        { transform: translateY(-4px); }
+}
+
+/* Float animation wrapper — applied to planet orb containers */
+.planet-float-anim {
+  animation: item-float 3.4s ease-in-out infinite;
+  will-change: transform;
+}
+.planet-float-anim-slow {
+  animation: item-float-slow 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Base glass card — backdrop-blur dark glass */
+.glass {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.glass-strong {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+.glass-neon {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 14px rgba(0,0,0,0.3);
+}
+
+/* Backdrop-blur helpers applied via inline style to not fight with
+   the card's existing border/background inline overrides */
+.glass-blur {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Bokeh radial blob — positioned absolutely behind planet orbs.
+   Set --bokeh-color on the parent element.                       */
+.bokeh-blob {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(22px);
+  opacity: 0.65;
+  width: 100px;
+  height: 100px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  background: radial-gradient(circle, var(--bokeh-color, rgba(255,255,255,0.25)) 0%, transparent 70%);
+}
+.bokeh-blob-sm {
+  width: 72px;
+  height: 72px;
+  filter: blur(16px);
+  opacity: 0.55;
+}
+
+/* Per-rarity bokeh colors (set as --bokeh-color via class) */
+.rarity-bokeh-BASIC   { --bokeh-color: rgba(136,146,176,0.5);  }
+.rarity-bokeh-RARE    { --bokeh-color: rgba( 79,172,254,0.5);  }
+.rarity-bokeh-EPIC    { --bokeh-color: rgba(196,113,237,0.5);  }
+.rarity-bokeh-MYTHIC  { --bokeh-color: rgba(220, 20, 60,0.55); }
+.rarity-bokeh-NOVA    { --bokeh-color: rgba(144, 64,255,0.5);  }
+.rarity-bokeh-PLASMA  { --bokeh-color: rgba(  0,230,118,0.5);  }
+.rarity-bokeh-MUSHROOM{ --bokeh-color: rgba(184, 63,191,0.5);  }
+.rarity-bokeh-GOLD    { --bokeh-color: rgba(255,215,  0,0.55); }
+.rarity-bokeh-V1      { --bokeh-color: rgba(220,232,255,0.45); }
+
+/* ======== NEON UTILITIES ======== */
+.neon-text { color: #e8264a; text-shadow: 0 0 10px rgba(232,38,74,0.5), 0 0 20px rgba(232,38,74,0.22); }
+.gold-text { color: #ffd700; text-shadow: 0 0 12px rgba(255,215,0,0.8), 0 0 24px rgba(255,215,0,0.4); }
+.rare-text { color: #4facfe; text-shadow: 0 0 12px rgba(79,172,254,0.8); }
+.epic-text { color: #c471ed; text-shadow: 0 0 12px rgba(196,113,237,0.8); }
+.basic-text { color: #8892b0; }
+/* MYTHIC — crimson red-fire text/badge. The badge uses the linear
+   gradient #8B0000 → #FF4500 painted as the background; the text
+   itself is white so the label stays legible on the gradient pill. */
+.mythic-text {
+  color: transparent;
+  background: linear-gradient(135deg, #ff7a55 0%, #ff4500 50%, #8b0000 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 0 12px rgba(255,69,0,0.55);
+}
+
+.neon-glow { box-shadow: 0 0 8px rgba(212,40,72,0.35), 0 0 20px rgba(212,40,72,0.15); }
+.gold-glow { box-shadow: 0 0 12px rgba(255,215,0,0.6), 0 0 32px rgba(255,215,0,0.3); }
+
+/* ======== PLANET CSS ======== */
+.planet-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.planet-outer-glow {
+  position: absolute;
+  border-radius: 50%;
+  animation: planet-breathe 3s ease-in-out infinite alternate;
+  pointer-events: none;
+  will-change: opacity;
+}
+@keyframes planet-breathe {
+  /* opacity-only: avoids layout/repaint every frame, GPU-composited on mobile */
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+.planet-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid;
+  opacity: 0.3;
+  transform: rotateX(72deg);
+  pointer-events: none;
+  animation: ring-spin 12s linear infinite;
+}
+@keyframes ring-spin {
+  from { transform: rotateX(72deg) rotateZ(0deg); }
+  to { transform: rotateX(72deg) rotateZ(360deg); }
+}
+.planet-sphere {
+  border-radius: 50%;
+  position: relative;
+  overflow: hidden;
+  animation: planet-rotate 8s linear infinite;
+}
+@keyframes planet-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.planet-highlight {
+  position: absolute;
+  top: 10%; left: 15%;
+  width: 35%;
+  height: 35%;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  filter: blur(4px);
+  pointer-events: none;
+}
+.planet-surface-lines {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0.15;
+}
+
+/* ======== BUTTONS ======== */
+.btn-craft {
+  width: 100%;
+  padding: 18px 24px;
+  border-radius: 20px;
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.1s, box-shadow 0.2s, background 0.2s;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow:
+    0 0 20px rgba(158, 197, 232, 0.12),
+    0 6px 24px rgba(0, 8, 20, 0.45);
+}
+.btn-craft:active {
+  transform: scale(0.96);
+  box-shadow:
+    0 0 12px rgba(158, 197, 232, 0.08),
+    0 4px 16px rgba(0, 8, 20, 0.4);
+}
+.btn-craft:disabled {
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.06);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.btn-widget {
+  flex: 1;
+  padding: 8px 4px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 0.1s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid;
+}
+.btn-widget:active { transform: scale(0.93); }
+
+/* ======== GLASSMORPHISM FARM BUTTONS ======== */
+.btn-glass-farm {
+  background: rgba(8, 38, 22, 0.92);
+  border-color: rgba(0, 255, 136, 0.45) !important;
+  color: #00ff88 !important;
+  box-shadow:
+    0 0 12px rgba(0, 255, 136, 0.18),
+    inset 0 1px 0 rgba(0, 255, 136, 0.15),
+    inset 0 0 16px rgba(0, 255, 136, 0.05);
+  text-shadow: 0 0 8px rgba(0, 255, 136, 0.6);
+}
+.btn-glass-farm:hover {
+  background: rgba(0, 255, 136, 0.12);
+  box-shadow:
+    0 0 20px rgba(0, 255, 136, 0.28),
+    inset 0 1px 0 rgba(0, 255, 136, 0.2),
+    inset 0 0 20px rgba(0, 255, 136, 0.08);
+}
+
+.btn-glass-farm-active {
+  background: rgba(10, 44, 26, 0.94);
+  border-color: rgba(0, 255, 136, 0.55) !important;
+  color: #00ff88 !important;
+  box-shadow:
+    0 0 18px rgba(0, 255, 136, 0.3),
+    inset 0 1px 0 rgba(0, 255, 136, 0.25),
+    inset 0 0 20px rgba(0, 255, 136, 0.08);
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+  animation: btn-farm-pulse 3s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+@keyframes btn-farm-pulse {
+  /* opacity pulse instead of box-shadow — GPU-composited, no repaint per frame */
+  from { opacity: 0.82; }
+  to   { opacity: 1; }
+}
+
+.btn-glass-burn {
+  background: rgba(46, 18, 8, 0.92);
+  border-color: rgba(255, 100, 30, 0.45) !important;
+  color: #ff6420 !important;
+  box-shadow:
+    0 0 12px rgba(255, 100, 30, 0.18),
+    inset 0 1px 0 rgba(255, 140, 0, 0.15),
+    inset 0 0 16px rgba(255, 80, 0, 0.06);
+  text-shadow: 0 0 8px rgba(255, 100, 30, 0.6);
+}
+.btn-glass-burn:hover {
+  background: rgba(255, 100, 30, 0.13);
+  box-shadow:
+    0 0 20px rgba(255, 100, 30, 0.3),
+    inset 0 1px 0 rgba(255, 140, 0, 0.2),
+    inset 0 0 20px rgba(255, 80, 0, 0.09);
+}
+
+.btn-glass-burn-confirm {
+  background: rgba(54, 14, 26, 0.94);
+  border-color: rgba(255, 65, 108, 0.6) !important;
+  color: #ff416c !important;
+  box-shadow:
+    0 0 20px rgba(255, 65, 108, 0.35),
+    inset 0 1px 0 rgba(255, 65, 108, 0.25),
+    inset 0 0 20px rgba(255, 65, 108, 0.1);
+  text-shadow: 0 0 10px rgba(255, 65, 108, 0.9);
+}
+
+.btn-glass-sell {
+  background: rgba(8, 30, 46, 0.92);
+  border-color: rgba(0, 180, 255, 0.45) !important;
+  color: #00b4ff !important;
+  box-shadow:
+    0 0 12px rgba(0, 180, 255, 0.18),
+    inset 0 1px 0 rgba(79, 172, 254, 0.15),
+    inset 0 0 16px rgba(0, 180, 255, 0.05);
+  text-shadow: 0 0 8px rgba(0, 180, 255, 0.6);
+}
+.btn-glass-sell:hover {
+  background: rgba(0, 180, 255, 0.12);
+  box-shadow:
+    0 0 20px rgba(0, 180, 255, 0.28),
+    inset 0 1px 0 rgba(79, 172, 254, 0.2),
+    inset 0 0 20px rgba(0, 180, 255, 0.08);
+}
+
+.btn-glass-collect {
+  background: rgba(46, 30, 6, 0.93);
+  border-color: rgba(255, 165, 0, 0.5) !important;
+  color: #ffa500 !important;
+  box-shadow:
+    0 0 14px rgba(255, 165, 0, 0.22),
+    inset 0 1px 0 rgba(255, 165, 0, 0.18),
+    inset 0 0 16px rgba(255, 165, 0, 0.06);
+  text-shadow: 0 0 8px rgba(255, 165, 0, 0.7);
+  animation: btn-collect-pulse 2.5s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+@keyframes btn-collect-pulse {
+  from { opacity: 0.8; }
+  to   { opacity: 1; }
+}
+
+.btn-glass-listed {
+  background: rgba(46, 38, 6, 0.92);
+  border-color: rgba(255, 215, 0, 0.4) !important;
+  color: #ffd700 !important;
+  box-shadow:
+    0 0 12px rgba(255, 215, 0, 0.16),
+    inset 0 1px 0 rgba(255, 215, 0, 0.14),
+    inset 0 0 14px rgba(255, 215, 0, 0.05);
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6);
+}
+
+/* ======== RARITY BADGES ======== */
+.rarity-basic { color: #8892b0; border-color: rgba(136,146,176,0.3); background: rgba(136,146,176,0.06); }
+.rarity-rare { color: #4facfe; border-color: rgba(79,172,254,0.3); background: rgba(79,172,254,0.06); }
+.rarity-epic { color: #c471ed; border-color: rgba(196,113,237,0.3); background: rgba(196,113,237,0.06); }
+/* MYTHIC pill — solid crimson gradient #8B0000 → #FF4500 with white
+   text so it reads instantly as the new top-tier (between EPIC and GOLD). */
+.rarity-mythic {
+  color: #ffffff;
+  border-color: rgba(255,69,0,0.55);
+  background: linear-gradient(135deg, #8b0000 0%, #ff4500 100%);
+  text-shadow: 0 0 6px rgba(0,0,0,0.45);
+}
+/* PLASMA pill — neon green glow, between MYTHIC and GOLD rarity. */
+.rarity-plasma {
+  color: #ffffff;
+  border-color: rgba(0,230,118,0.55);
+  background: linear-gradient(135deg, #005c2c 0%, #00e676 100%);
+  text-shadow: 0 0 6px rgba(0,0,0,0.45);
+}
+.rarity-gold { color: #ffd700; border-color: rgba(255,215,0,0.3); background: rgba(255,215,0,0.06); }
+
+/* ======== ANIMATIONS ======== */
+.slot-enter { animation: none; }
+@keyframes slot-in {
+  from { transform: scale(0.5) translateY(20px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+.float-up { animation: float-up 1.4s ease-out forwards; }
+@keyframes float-up {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  70% { opacity: 0.8; }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.3); }
+}
+.pulse-soft { animation: pulse-soft 2.5s ease-in-out infinite; }
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+.broken-pop { animation: broken-pop 4s cubic-bezier(0.34,1.56,0.64,1) forwards; transform-origin: center; }
+@keyframes broken-pop {
+  0%   { transform: scale(0.4) rotate(-6deg); opacity: 0; }
+  12%  { transform: scale(1.12) rotate(3deg); opacity: 1; }
+  18%  { transform: scale(0.96) rotate(-2deg); }
+  24%  { transform: scale(1.03) rotate(1.5deg); }
+  30%  { transform: scale(1) rotate(0); }
+  85%  { transform: scale(1) rotate(0); opacity: 1; }
+  100% { transform: scale(0.92) rotate(0); opacity: 0; }
+}
+.reveal-in { animation: reveal-in 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes reveal-in {
+  from { transform: scale(0) rotate(-180deg); opacity: 0; }
+  to { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* ──── Stardust spawn + collect effects ──────────────────────── */
+.stardust-spawn-pop { animation: stardust-pop-in 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards, stardustFloat 2.4s ease-in-out 0.45s infinite; }
+@keyframes stardust-pop-in {
+  0%   { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  60%  { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+@keyframes stardustFloat {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(0deg); }
+  50%      { transform: translate(-50%, -50%) translateY(-6px) rotate(8deg); }
+}
+@keyframes stardustBurst-0 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+@keyframes stardustBurst-1 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+@keyframes stardustBurst-2 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+@keyframes stardustBurst-3 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+@keyframes stardustBurst-4 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+@keyframes stardustBurst-5 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+@keyframes stardustBurst-6 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+@keyframes stardustBurst-7 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+@keyframes stardustBurst-8 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+@keyframes stardustBurst-9 { to { transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); opacity: 0; } }
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255,51,85,0.6), transparent);
+  animation: scan 2.5s linear infinite;
+  pointer-events: none;
+}
+@keyframes scan {
+  from { top: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  to { top: 100%; opacity: 0; }
+}
+
+/* Progress bar glow */
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #ff3355, #4facfe);
+  box-shadow: 0 0 10px rgba(255,51,85,0.7);
+  transition: width 0.2s ease;
+}
+
+/* Activity feed */
+.feed-item {
+  animation: feed-in 0.5s ease forwards;
+}
+@keyframes feed-in {
+  from { transform: translateX(-16px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Nav active indicator */
+.nav-active-dot {
+  position: absolute;
+  bottom: 4px;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #E8ECF4;
+  box-shadow: 0 0 6px rgba(200, 220, 255, 0.55);
+}
+
+@keyframes nebulaPulse {
+  0%, 100% { transform: scale(0.95); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes crackPulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.75; }
+}
+
+@keyframes labFragmentPixelIn {
+  0% {
+    transform: translate(calc(-50% + var(--fx, 0px)), calc(-50% + var(--fy, 0px))) scale(0.35);
+    opacity: 0;
+  }
+  14% { opacity: 1; }
+  78% {
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(1);
+    opacity: 1;
+  }
+  92% {
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(0.85);
+    opacity: 0;
+  }
+}
+@keyframes labFragmentPixelDrift {
+  0% {
+    transform: translate(calc(-50% + var(--fx, 0px)), calc(-50% + var(--fy, 0px))) scale(0.3);
+    opacity: 0;
+  }
+  20% { opacity: 0.85; }
+  82% {
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(0.9);
+    opacity: 0;
+  }
+}
+.lab-fragment--pixel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  contain: strict;
+  animation: labFragmentPixelIn var(--dur, 520ms) cubic-bezier(0.22, 0.85, 0.28, 1) forwards;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.lab-fragment--pixel-calm {
+  animation: labFragmentPixelDrift var(--dur, 900ms) cubic-bezier(0.38, 0.08, 0.22, 1) forwards;
+}
+.lab-fragment--pixel-trail {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  animation: labFragmentPixelIn var(--dur, 520ms) cubic-bezier(0.22, 0.85, 0.28, 1) forwards;
+  animation-delay: var(--delay, 40ms);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  box-shadow: 0 0 5px rgba(255,255,255,0.75);
+}
+
+@keyframes labFragmentFly {
+  0% {
+    transform: translate(calc(-50% + var(--fx, 0px)), calc(-50% + var(--fy, 0px))) rotate(var(--rot, 0deg)) scale(var(--fs, 1));
+    opacity: 0;
+  }
+  10% { opacity: var(--peak, 0.95); }
+  45% {
+    transform: translate(calc(-50% + var(--mx, 0px)), calc(-50% + var(--my, 0px))) rotate(calc(var(--rot, 0deg) + 120deg)) scale(calc(var(--fs, 1) * 0.72));
+    opacity: var(--peak, 0.95);
+  }
+  100% {
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) rotate(calc(var(--rot, 0deg) + 240deg)) scale(0);
+    opacity: 0;
+  }
+}
+.lab-fragment {
+  transform: translate(calc(-50% + var(--fx, 0px)), calc(-50% + var(--fy, 0px))) rotate(var(--rot, 0deg)) scale(var(--fs, 1));
+  opacity: 0;
+  animation: labFragmentFly var(--dur, 680ms) cubic-bezier(.35,.02,.18,1) forwards;
+  animation-delay: var(--delay, 0ms);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+.lab-fragment--chip {
+  border-radius: 2px;
+}
+.lab-fragment--spark {
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--spark, rgba(255,255,255,0.85));
+}
+
+@keyframes labFragmentDrift {
+  0% {
+    transform: translate(calc(-50% + var(--fx, 0px)), calc(-50% + var(--fy, 0px))) rotate(var(--rot, 0deg)) scale(var(--fs, 1));
+    opacity: 0;
+  }
+  18% { opacity: var(--peak, 0.45); }
+  58% {
+    transform: translate(calc(-50% + var(--mx, 0px)), calc(-50% + var(--my, 0px))) rotate(calc(var(--rot, 0deg) + 35deg)) scale(calc(var(--fs, 1) * 0.88));
+    opacity: var(--peak, 0.45);
+  }
+  100% {
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) rotate(calc(var(--rot, 0deg) + 70deg)) scale(0);
+    opacity: 0;
+  }
+}
+.lab-fragment--calm {
+  transform: translate(calc(-50% + var(--fx, 0px)), calc(-50% + var(--fy, 0px))) rotate(var(--rot, 0deg)) scale(var(--fs, 1));
+  opacity: 0;
+  animation: labFragmentDrift var(--dur, 1500ms) cubic-bezier(0.42, 0.08, 0.22, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+@keyframes labFragmentBurst {
+  0% {
+    transform: translate(-50%, -50%) scale(0.15);
+    opacity: 0;
+  }
+  12% { opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(0);
+    opacity: 0;
+  }
+}
+.lab-fragment--burst {
+  transform: translate(-50%, -50%) scale(0.15);
+  opacity: 0;
+  animation: labFragmentBurst var(--dur, 520ms) cubic-bezier(0.12, 0.82, 0.22, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* ─── Forge cinematic animations ───────────────────────────────────
+   The forge sequence runs: idle → flash (220ms) → waiting (2000ms) →
+   revealed. All transforms use translate/rotate/scale only so the GPU
+   compositor handles them and we never trigger a layout reflow. */
+
+@keyframes forgeFlash {
+  0%   { opacity: 0; transform: scale(0.4); }
+  20%  { opacity: 1; transform: scale(1.0); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+.forge-flash {
+  animation: forgeFlash 360ms ease-out forwards;
+}
+
+@keyframes forgeShake {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  10% { transform: translate3d(-2px, 1px, 0); }
+  20% { transform: translate3d(2px, -1px, 0); }
+  30% { transform: translate3d(-2px, 2px, 0); }
+  40% { transform: translate3d(2px, 1px, 0); }
+  50% { transform: translate3d(-1px, -2px, 0); }
+  60% { transform: translate3d(2px, 2px, 0); }
+  70% { transform: translate3d(-2px, -1px, 0); }
+  80% { transform: translate3d(1px, 2px, 0); }
+  90% { transform: translate3d(-1px, -1px, 0); }
+}
+.forge-shake {
+  animation: forgeShake 320ms ease-in-out infinite;
+}
+
+@keyframes forgeConverge {
+  0%   { opacity: 0; transform: rotate(var(--angle, 0deg)) translateY(calc(var(--r, 80px) * -1)) scale(1); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--angle, 0deg)) translateY(0) scale(0.3); }
+}
+.forge-converge {
+  animation: forgeConverge 1.6s cubic-bezier(.55,.05,.55,1) forwards;
+}
+
+@keyframes forgeReveal {
+  0%   { opacity: 0; transform: scale(0.2); }
+  60%  { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1.0); }
+}
+.forge-reveal {
+  animation: forgeReveal 480ms cubic-bezier(.2,.9,.3,1) forwards;
+}
+
+@keyframes forgeClaimFadeIn {
+  0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.92); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.forge-claim-fade-in {
+  animation: forgeClaimFadeIn 360ms cubic-bezier(.2,.9,.3,1) forwards;
+}
+
+@keyframes forgeCompleteCelebrate {
+  0%   { opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { opacity: 0.85; }
+}
+@keyframes forgeCompleteLabel {
+  0%   { opacity: 0; transform: translateY(12px) scale(0.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.forge-complete-celebrate {
+  animation: forgeCompleteCelebrate 1.8s ease-out forwards;
+}
+.forge-complete-label {
+  animation: forgeCompleteLabel 520ms cubic-bezier(.2,.9,.3,1) forwards;
+}
+
+@keyframes forgeWheelEnter {
+  0%   { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.forge-wheel-enter {
+  animation: forgeWheelEnter 480ms cubic-bezier(.2,.9,.3,1) forwards;
+}
+
+/* ─── Lab forge model popups (picker + reveal) ───────────────────────── */
+@keyframes labForgePickerUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes labForgeBackdropIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes labRevealOverlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes labRevealShimmer {
+  0%, 100% { opacity: 0.35; transform: translateX(-120%); }
+  50% { opacity: 0.65; transform: translateX(120%); }
+}
+@keyframes labRevealPulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.04); }
+}
+
+.lab-forge-picker-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  pointer-events: auto;
+  animation: labForgePickerUp 0.34s cubic-bezier(.2,.9,.3,1);
+}
+.lab-forge-picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 44;
+  pointer-events: auto;
+}
+.lab-forge-picker-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background:
+    radial-gradient(ellipse 90% 70% at 50% 68%, rgba(255, 255, 255, 0.12) 0%, rgba(8, 10, 16, 0.78) 58%, rgba(4, 5, 10, 0.92) 100%);
+  backdrop-filter: blur(12px) saturate(1.1);
+  -webkit-backdrop-filter: blur(12px) saturate(1.1);
+  animation: labForgeBackdropIn 0.3s ease-out;
+}
+.lab-forge-picker-anchor {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 78px + 54px);
+  padding: 0 10px;
+  animation: labForgePickerUp 0.36s cubic-bezier(.2,.9,.3,1);
+  pointer-events: none;
+}
+.lab-forge-picker-anchor .lab-forge-picker-sheet {
+  pointer-events: auto;
+}
+.lab-forge-reveal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 38;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.07) 0%, rgba(4, 6, 12, 0.92) 48%, rgba(2, 3, 8, 0.97) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: labRevealOverlayIn 0.42s ease-out;
+}
+.lab-forge-picker-sheet {
+  position: relative;
+  margin: 0 10px;
+  padding: 0 14px 16px;
+  border-radius: 22px 22px 18px 18px;
+  background:
+    linear-gradient(180deg, #12141a 0%, #0a0b10 52%, #07080c 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 18px 48px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  overflow: hidden;
+}
+.lab-forge-picker-sheet::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.35) 50%, rgba(255, 255, 255, 0.92) 100%);
+  pointer-events: none;
+}
+.lab-forge-picker-top {
+  margin: 0 -14px 12px;
+  padding: 14px 14px 12px;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: none;
+}
+.lab-forge-picker-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  padding: 0 2px;
+}
+.lab-forge-picker-kicker {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.55);
+  text-transform: uppercase;
+}
+.lab-forge-picker-title {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  margin-bottom: 6px;
+  padding: 0 2px;
+}
+.lab-forge-picker-title-logo {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 8px;
+  filter: drop-shadow(0 0 10px rgba(123, 237, 159, 0.35));
+}
+.lab-forge-zoom-mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1;
+}
+.lab-forge-zoom-mark span {
+  letter-spacing: 0.12em;
+}
+.lab-forge-path-chip-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.lab-forge-picker-dual {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 2px;
+}
+.lab-forge-picker-dual__zoom {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #1aa85a;
+  display: inline-flex;
+  align-items: center;
+}
+.lab-forge-picker-dual__star {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #c79200;
+}
+.lab-forge-picker-dual__sep {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.55));
+  opacity: 0.9;
+}
+.lab-forge-picker-hold {
+  margin-top: 10px;
+  width: 100%;
+  text-align: left;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 215, 64, 0.08);
+  border: 1px solid rgba(255, 215, 64, 0.28);
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.lab-forge-picker-hold span {
+  display: block;
+}
+.lab-forge-picker-hold__cta {
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffd740;
+}
+.lab-forge-picker-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: transparent;
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: none;
+}
+.lab-forge-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.lab-forge-path-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  border: none;
+  border-radius: 16px;
+  overflow: hidden;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.lab-forge-path-card:not(:disabled):active {
+  transform: scale(0.98);
+}
+.lab-forge-path-card--disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+}
+.lab-forge-path-card__inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 10px 14px;
+  border-radius: 16px;
+  border: 1.5px solid rgba(255, 255, 255, 0.72);
+  background: #0a0b10;
+  box-shadow: none;
+}
+.lab-forge-path-card--zoom .lab-forge-path-card__inner {
+  background: #0a0b10;
+  border-color: rgba(255, 255, 255, 0.82);
+  box-shadow: none;
+}
+.lab-forge-path-card--stardust .lab-forge-path-card__inner {
+  background: #0a0b10;
+  border-color: rgba(255, 255, 255, 0.62);
+  box-shadow: none;
+}
+.lab-forge-path-card__inner::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  opacity: 1;
+  pointer-events: none;
+}
+.lab-forge-path-card__badge {
+  align-self: flex-start;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--lab-path-accent, #ffffff);
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: none;
+  position: relative;
+  z-index: 1;
+}
+.lab-forge-path-card__glow {
+  position: absolute;
+  left: 50%;
+  top: 28%;
+  width: 120px;
+  height: 120px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--lab-path-glow, transparent) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0.45;
+}
+.lab-forge-path-card__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.lab-forge-path-card__name {
+  font-size: 13px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  text-align: center;
+}
+.lab-forge-path-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+.lab-forge-path-chip {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  font-variant-numeric: tabular-nums;
+  position: relative;
+  z-index: 1;
+}
+.lab-forge-path-card--zoom .lab-forge-path-chip {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.lab-forge-path-card--stardust .lab-forge-path-chip {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.lab-reveal-card {
+  position: relative;
+  width: min(92vw, 300px);
+  border-radius: 22px;
+  overflow: hidden;
+  background: #06060a;
+  border: 1px solid var(--lab-reveal-border, rgba(255,255,255,0.14));
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 20px 56px rgba(0, 0, 0, 0.62),
+    0 0 48px var(--lab-reveal-glow, rgba(255,255,255,0.08));
+}
+.lab-reveal-card__hero {
+  position: relative;
+  padding: 16px 16px 8px;
+  background:
+    linear-gradient(180deg, var(--lab-reveal-hero-a, rgba(255,255,255,0.12)) 0%, rgba(6, 8, 14, 0.15) 72%, #06060a 100%);
+  overflow: hidden;
+}
+.lab-reveal-card__hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.07) 50%, transparent 60%);
+  animation: labRevealShimmer 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+.lab-reveal-card__kicker {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--lab-reveal-accent, #fff);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32);
+  border: 1px solid var(--lab-reveal-border, rgba(255,255,255,0.14));
+}
+.lab-reveal-card__kicker-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lab-reveal-accent, #fff);
+  box-shadow: 0 0 10px var(--lab-reveal-accent, #fff);
+}
+.lab-reveal-card__stage {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+}
+.lab-reveal-card__stage-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 78%;
+  height: 78%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid var(--lab-reveal-border, rgba(255,255,255,0.14));
+  box-shadow: 0 0 28px var(--lab-reveal-glow, transparent);
+  animation: labRevealPulse 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+.lab-reveal-card__body {
+  padding: 12px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.lab-reveal-card__title {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: #fff;
+  text-transform: uppercase;
+  text-align: center;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+}
+.lab-reveal-card__float {
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.62);
+}
+.lab-reveal-card__stats {
+  display: flex;
+  width: 100%;
+  max-width: 240px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.28);
+}
+.lab-reveal-card__stat {
+  flex: 1;
+  padding: 8px 10px;
+  text-align: center;
+}
+.lab-reveal-card__stat + .lab-reveal-card__stat {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lab-reveal-card__stat-label {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.38);
+  margin-bottom: 3px;
+}
+.lab-reveal-card__stat-value {
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.lab-reveal-card__stat-value--accent {
+  color: var(--lab-reveal-accent, #fff);
+}
+
+.lab-forge-claim-btn {
+  padding: 14px 32px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 8px 28px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease;
+}
+.lab-forge-claim-btn:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lab-forge-picker-wrap { animation: none; }
+  .lab-forge-picker-overlay .lab-forge-picker-backdrop { animation: none; }
+  .lab-forge-picker-anchor { animation: none; }
+  .lab-forge-reveal-overlay { animation: none; }
+  .lab-reveal-card__hero::after { animation: none; }
+  .lab-reveal-card__stage-ring { animation: none; }
+}
+
+@keyframes rarityWheelGlow {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.92; }
+}
+.rarity-wheel-spinning {
+  animation: rarityWheelGlow 3.2s ease-in-out infinite;
+}
+
+@keyframes forgeCorePulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+.forge-core {
+  animation: forgeCorePulse 1.6s ease-in-out infinite;
+}
+
+@keyframes labPlanetBump {
+  0% { transform: scale(1); }
+  35% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.lab-planet-bump {
+  animation: none;
+}
+
+.lab-stars-a, .lab-stars-b {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.6), transparent 60%),
+    radial-gradient(1px 1px at 38% 72%, rgba(255,255,255,0.4), transparent 60%),
+    radial-gradient(1px 1px at 62% 28%, rgba(255,255,255,0.5), transparent 60%),
+    radial-gradient(1px 1px at 84% 64%, rgba(255,255,255,0.55), transparent 60%),
+    radial-gradient(1px 1px at 22% 88%, rgba(255,255,255,0.35), transparent 60%),
+    radial-gradient(1px 1px at 71% 12%, rgba(255,255,255,0.5), transparent 60%);
+}
+.lab-stars-a { animation: star-twinkle-a 5s ease-in-out infinite; }
+.lab-stars-b {
+  background-image:
+    radial-gradient(1px 1px at 28% 42%, rgba(255,255,255,0.4), transparent 60%),
+    radial-gradient(1px 1px at 56% 84%, rgba(255,255,255,0.45), transparent 60%),
+    radial-gradient(1px 1px at 8% 56%, rgba(255,255,255,0.4), transparent 60%),
+    radial-gradient(1px 1px at 92% 32%, rgba(255,255,255,0.5), transparent 60%);
+  animation: star-twinkle-b 7s ease-in-out infinite;
+}
+
+/* ─── HOME — astronaut + bird life animations ─────────────────────────
+   Pixel-art friendly. We keep all transforms on integer-pixel-ish steps
+   so the sprite stays crisp on retina + scaled rooms. */
+
+/* Credible stroll cycle (14 s): the astronaut walks one direction,
+   PAUSES for a beat as if looking around, turns, walks the other way,
+   PAUSES again, then repeats. The pauses are explicit hold frames in
+   the keyframe (% values that share the same translateX) so the
+   character is not a relentless ping-pong machine. */
+@keyframes home-astro-walk {
+  /* Walking RIGHT — 0%..28% of the cycle (~3.9s) */
+  0%   { transform: translateX(-78px) scaleX(1); }
+  28%  { transform: translateX( 78px) scaleX(1); }
+  /* Pause facing right — 28%..46% (~2.5s of stillness) */
+  46%  { transform: translateX( 78px) scaleX(1); }
+  /* Turn around (snap, 1% of the cycle) */
+  47%  { transform: translateX( 78px) scaleX(-1); }
+  /* Walking LEFT — 47%..75% (~3.9s) */
+  75%  { transform: translateX(-78px) scaleX(-1); }
+  /* Pause facing left — 75%..98% (~3.2s of stillness) */
+  98%  { transform: translateX(-78px) scaleX(-1); }
+  /* Turn back to facing right for the next loop */
+  100% { transform: translateX(-78px) scaleX(1); }
+}
+@keyframes home-astro-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+/* Speech bubble for the visiting astronaut. Pulses gently so the
+   "Ciao!" feels alive without being distracting. */
+@keyframes home-visitor-bubble {
+  0%, 100% { transform: translate(-50%, -4px) scale(1); }
+  50%      { transform: translate(-50%, -7px) scale(1.06); }
+}
+/* Welcome wave — small hand rocks back and forth like a greeting. */
+@keyframes home-astro-wave {
+  0%, 100% { transform: rotate(-25deg); }
+  50%      { transform: rotate(25deg); }
+}
+/* Annoyed-astronaut smoke puffs: rise, drift sideways, fade out. */
+@keyframes home-annoyed-smoke {
+  0%   { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { transform: translate(6px, -28px) scale(1.4); opacity: 0; }
+}
+/* Painter brush — sweeps left↔right like a wrist stroke. */
+@keyframes home-astro-paint {
+  0%, 100% { transform: rotate(-12deg); }
+  50%      { transform: rotate(22deg); }
+}
+/* Drumsticks tapping the table — quick down-up motion. */
+@keyframes home-astro-drumstick {
+  0%, 100% { transform: rotate(-15deg) translateY(0); }
+  50%      { transform: rotate( 15deg) translateY(2px); }
+}
+/* Astronaut tap — single quick hop straight up. Used by the room
+   resident's click easter egg in HomePage. 0.6s one-shot. */
+@keyframes home-astro-jump {
+  0%, 100% { transform: translateY(0); }
+  35%      { transform: translateY(-12px); }
+  60%      { transform: translateY(-6px); }
+  85%      { transform: translateY(-2px); }
+}
+/* PC binary-rain easter egg — falling 0/1 columns over the monitor. */
+@keyframes home-binary-fall {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+/* PC screen color flash while the binary rain is playing — cycles
+   through cyan / green / magenta. Pulsing background for the overlay. */
+@keyframes home-pc-flash {
+  0%   { background: rgba(0, 30, 0, 0.85); }
+  25%  { background: rgba(0, 60, 90, 0.85); }
+  50%  { background: rgba(60, 0, 80, 0.85); }
+  75%  { background: rgba(0, 60, 30, 0.85); }
+  100% { background: rgba(0, 0, 0, 0); }
+}
+/* Bedside lamp glow — gentle warm-yellow pulse so the lit shade and
+   the radial bloom on the floor breathe in sync. 4s loop. */
+@keyframes home-lamp-glow {
+  0%, 100% { opacity: 0.85; }
+  50%      { opacity: 1; }
+}
+/* Plant happy shake — quick wiggle when the player waters the plant.
+   Combined with the blue droplet burst it reads as "the plant is
+   delighted". 0.45s × 2 iterations covers the full reaction. */
+@keyframes home-plant-shake {
+  0%, 100% { transform: rotate(0deg)   translateY(0); }
+  20%      { transform: rotate(-8deg)  translateY(-2px); }
+  40%      { transform: rotate(7deg)   translateY(0); }
+  60%      { transform: rotate(-5deg)  translateY(-1px); }
+  80%      { transform: rotate(4deg)   translateY(0); }
+}
+/* Water droplet — appears briefly at the plant, falls a few pixels
+   while fading out. One-shot, ~0.7s. */
+@keyframes home-water-drop {
+  0%   { opacity: 0;    transform: translateY(-6px) scale(0.6); }
+  20%  { opacity: 1;    transform: translateY(-2px) scale(1); }
+  100% { opacity: 0;    transform: translateY(10px) scale(0.8); }
+}
+/* Meteor shower behind the window — rare animated streaks that travel
+   diagonally across the sky panel. Each meteor is a thin tapered line
+   that fades in, crosses the window in ~1.2s and fades out. */
+@keyframes home-meteor {
+  0%   { transform: translate(0, 0)        rotate(35deg); opacity: 0; }
+  10%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translate(180px, 130px) rotate(35deg); opacity: 0; }
+}
+/* Push-ups — 3 reps then rest. The body bobs DOWN (push) and back UP
+   3 times in the first ~5.4 s of the 8 s loop, then holds the up
+   position for the final rest beat (during which the sweat drop
+   appears). translateY moves the lying body up/down a few px. */
+@keyframes home-astro-pushup {
+  0%    { transform: translateY(0px); }
+  /* Rep 1 */
+   8%   { transform: translateY(6px); }
+  16%   { transform: translateY(0px); }
+  /* Rep 2 */
+  24%   { transform: translateY(6px); }
+  32%   { transform: translateY(0px); }
+  /* Rep 3 */
+  40%   { transform: translateY(6px); }
+  48%   { transform: translateY(0px); }
+  /* Rest beat — held flat while the sweat drop appears */
+  100%  { transform: translateY(0px); }
+}
+/* Sweat drop — invisible during the 3 reps, fades in + drips down
+   during the rest beat at the END of each cycle. */
+@keyframes home-astro-sweat {
+  0%, 55%  { opacity: 0; transform: translateY(0px); }
+  62%      { opacity: 1; transform: translateY(0px); }
+  85%      { opacity: 1; transform: translateY(8px); }
+  95%, 100% { opacity: 0; transform: translateY(12px); }
+}
+/* Plant cheer — small bouncing "tifo" when the astronaut does
+   push-ups near the plant. Two quick hops then settles. */
+@keyframes home-plant-cheer {
+  0%, 100%  { transform: translateY(0)   scale(1); }
+  20%       { transform: translateY(-6px) scale(1.05); }
+  35%       { transform: translateY(0)   scale(1); }
+  50%       { transform: translateY(-4px) scale(1.04); }
+  65%       { transform: translateY(0)   scale(1); }
+}
+/* TV screen — soft cycling color bands so the active TV reads as
+   playing something. Loops slowly to avoid being distracting. */
+@keyframes home-tv-flicker {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 24px; }
+}
+@keyframes home-z-float {
+  0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translate(8px, -22px) scale(1.1); opacity: 0; }
+}
+@keyframes home-steam-rise {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  20%  { opacity: 0.9; }
+  100% { transform: translate(2px, -16px) scale(1.4); opacity: 0; }
+}
+@keyframes home-chew {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.6); }
+}
+@keyframes home-bird-ltr {
+  0%   { transform: translateX(-20px); }
+  100% { transform: translateX(calc(100% + 20px)); }
+}
+@keyframes home-bird-rtl {
+  0%   { transform: translateX(calc(100% + 20px)) scaleX(-1); }
+  100% { transform: translateX(-20px) scaleX(-1); }
+}
+@keyframes home-bird-flap {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(-0.8); }
+}
+
+/* ─── HOME — extra animation frames for walking + jumping jacks ─────
+   Pure 2-frame sprite swaps using `steps(1)` so the toggle is crisp,
+   never crossfaded — pixel-art friendly. */
+
+@keyframes home-astro-step-a {
+  0%, 49.999% { opacity: 1; }
+  50%, 100%   { opacity: 0; }
+}
+@keyframes home-astro-step-b {
+  0%, 49.999% { opacity: 0; }
+  50%, 100%   { opacity: 1; }
+}
+
+/* ─── HOME — water drops for the SHOWER activity ─────────────────────
+   Each drop falls from the showerhead toward the floor and fades out.
+   Pixel-friendly: linear timing, no easing. */
+@keyframes home-water-drop {
+  0%   { transform: translateY(0);    opacity: 0.95; }
+  90%  { opacity: 0.6; }
+  100% { transform: translateY(48px); opacity: 0; }
+}
+
+/* Fridge "open" door wiggle / drink sip cycle */
+@keyframes home-fridge-sip {
+  0%, 40%   { transform: translateY(0); }
+  50%, 90%  { transform: translateY(-2px); }
+  100%      { transform: translateY(0); }
+}
+
+/* ─── HOME — pet float / blink (Space Slime companion) ──────────────
+   Gentle vertical bob that suggests hovering. Pure transform = GPU. */
+@keyframes home-pet-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+@keyframes home-pet-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94%, 98%      { transform: scaleY(0.1); }
+}
+
+/* ─── HOME — gentle window-watching sway ────────────────────────────
+   Subtle horizontal lean (±1 px) used while the astronaut is at the
+   window. Replaces a previous full-body turn that the player found
+   unnatural. Pure transform = GPU friendly. */
+/* Slow twinkle for the night-sky stars in the bedroom window.
+   Drifts opacity from a soft 30% glow to bright 100% and back. The
+   per-star animation-delay (set inline) staggers the cycle so the
+   sky doesn't pulse in unison. */
+@keyframes home-star-pulse {
+  0%, 100% { opacity: 0.30; }
+  50%      { opacity: 1.00; }
+}
+/* Music note floating up while the astronaut LISTENS to music.
+   Drifts upward and slightly outward, fades out at the top. */
+@keyframes home-music-note {
+  0%   { transform: translate(0, 0) rotate(-6deg); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translate(4px, -28px) rotate(8deg); opacity: 0; }
+}
+/* Music note flying OUT of the singing astronaut — bigger arc and
+   faster fade, suggesting volume rather than passive listening. */
+@keyframes home-sing-note {
+  0%   { transform: translate(0, 0) scale(0.6) rotate(-10deg); opacity: 0; }
+  15%  { opacity: 1; }
+  70%  { opacity: 1; }
+  100% { transform: translate(8px, -34px) scale(1.2) rotate(14deg); opacity: 0; }
+}
+/* Heart drifting up between astronaut and pet during the "play"
+   activity — pops in, floats up, fades out. */
+@keyframes home-play-heart {
+  0%   { transform: translate(0, 0) scale(0.6); opacity: 0; }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { transform: translate(-6px, -22px) scale(1.1); opacity: 0; }
+}
+@keyframes home-astro-window-sway {
+  0%, 100% { transform: translateX(-1px); }
+  50%      { transform: translateX(1px);  }
+}
+
+/* ─── V1 NFT Platinum Edition — premium visual upgrade ─────────────
+   Three coordinated effects make the legendary Moon NFT feel alive:
+     1. `nft-chrome-shine`  — chrome/metallic shimmer that sweeps a
+                              pure-white highlight across the orb.
+     2. `nft-border-spin`   — silver light that travels around the
+                              card perimeter via a conic-gradient on
+                              a pseudo-element border.
+     3. `nft-sparkle-*`     — four small star particles fading in
+                              and out at staggered intervals.                ── */
+@keyframes nft-chrome-shine {
+  0%   { transform: translate(-30%, -30%) rotate(0deg);   opacity: 0.55; }
+  50%  { transform: translate(-50%, -50%) rotate(180deg); opacity: 0.95; }
+  100% { transform: translate(-30%, -30%) rotate(360deg); opacity: 0.55; }
+}
+@keyframes nft-border-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes nft-sparkle-1 {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  20%      { opacity: 1; transform: scale(1)   rotate(45deg); }
+  40%      { opacity: 0; transform: scale(0.5) rotate(90deg); }
+}
+@keyframes nft-sparkle-2 {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  60%      { opacity: 1; transform: scale(1.1) rotate(60deg); }
+  80%      { opacity: 0; transform: scale(0.5) rotate(120deg); }
+}
+@keyframes nft-sparkle-3 {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  40%      { opacity: 1; transform: scale(0.9) rotate(30deg); }
+  65%      { opacity: 0; transform: scale(0.5) rotate(80deg); }
+}
+@keyframes nft-sparkle-4 {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  35%      { opacity: 1; transform: scale(1)   rotate(50deg); }
+  55%      { opacity: 0; transform: scale(0.5) rotate(110deg); }
+}
+
+/* The card body itself uses `position: relative` already (inline).
+   We attach the rotating silver border via a ::before pseudo-element
+   that lives behind the card content with a thin 1.5px ring effect.
+   `mask-composite: xor` carves out the inside so only the rim glows. */
+.nft-card-glow {
+  position: relative;
+  isolation: isolate;
+}
+.nft-card-glow::before {
+  content: "";
+  position: absolute;
+  /* inset: 0 (not -1px) so the ring stays inside cards that use
+     `overflow: hidden` (e.g. the Marketplace listing card). */
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255,255,255,0.05) 0deg,
+    rgba(220,232,255,0.95) 60deg,
+    rgba(255,255,255,1)   90deg,
+    rgba(160,200,255,0.85) 120deg,
+    rgba(255,255,255,0.05) 200deg,
+    rgba(255,255,255,0.05) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: nft-border-spin 4.5s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.nft-card-glow > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── Perfect-float card glow (float === 1.000 only) ──────────────────
+   Lighter cousin of `.nft-card-glow` for normal rarities that rolled
+   an essentially-1.000 Float. Same masked rotating ring trick but the
+   conic gradient uses warm gold/white tones instead of platinum, and
+   the rotation is a bit slower so cards don't fight the NFT for
+   attention. Inset 0 so it survives `overflow: hidden` cards.       ── */
+@keyframes perfect-border-spin { to { transform: rotate(360deg); } }
+.perfect-card-glow {
+  position: relative;
+  isolation: isolate;
+}
+.perfect-card-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.25px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255,255,255,0.04)  0deg,
+    rgba(255,238,180,0.85) 70deg,
+    rgba(255,255,255,1)   100deg,
+    rgba(255,210,120,0.80) 130deg,
+    rgba(255,255,255,0.04) 220deg,
+    rgba(255,255,255,0.04) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: perfect-border-spin 6s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.perfect-card-glow > * { position: relative; z-index: 1; }
+
+/* Deep-link focus pulse — applied to a Market listing card when the app is
+   opened via a `mkt_<id>` share link, drawing the eye to the shared planet. */
+@keyframes deeplink-focus-pulse {
+  0%   { box-shadow: 0 0 18px rgba(0,230,255,0.35); }
+  50%  { box-shadow: 0 0 32px rgba(0,230,255,0.75); }
+  100% { box-shadow: 0 0 18px rgba(0,230,255,0.35); }
+}
+.deeplink-focus-glow {
+  animation: deeplink-focus-pulse 1.1s ease-in-out infinite;
+}
+
+/* ─── Platinum/chrome NAME for V1_NFT ─────────────────────────────────
+   Silver-chrome gradient text used in Farm + Marketplace for the planet
+   name when the planet is V1_NFT. Pairs with the .nft-card-glow border
+   and the chrome orb so the whole card feels cohesively "platinum". */
+.nft-platinum-text {
+  background: linear-gradient(
+    135deg,
+    #f6faff 0%,
+    #c7d4e6 25%,
+    #ffffff 50%,
+    #9fb3d1 75%,
+    #e8eef9 100%
+  );
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  text-shadow: 0 0 14px rgba(200,220,255,0.35);
+  letter-spacing: 0.5px;
+}
+
+/* ─── "NFT NFT NFT" decorative watermark on V1_NFT cards ─────────────
+   Very subtle repeating diagonal text behind the card content so the
+   collectible status reads at a glance without competing with the
+   foreground info. Sits on the card root via ::after, behind children. */
+@keyframes nft-watermark-scroll {
+  from { background-position: 0 0; }
+  to   { background-position: 180px 90px; }
+}
+.nft-card-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  /* Inline SVG so glyphs stay crisp; tile size matches the keyframe
+     translation (180×90) so the loop is seamless. */
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='90'><text x='0' y='40' font-family='Inter,Arial,sans-serif' font-weight='900' font-size='22' fill='%23dce8ff' fill-opacity='0.08' transform='rotate(-22 0 40)'>NFT · NFT · NFT</text><text x='0' y='80' font-family='Inter,Arial,sans-serif' font-weight='900' font-size='22' fill='%23dce8ff' fill-opacity='0.08' transform='rotate(-22 0 80)'>NFT · NFT · NFT</text></svg>");
+  background-repeat: repeat;
+  mask-image: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%);
+  -webkit-mask-image: linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 100%);
+  animation: nft-watermark-scroll 18s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nft-card-glow::after { animation: none; }
+}
+
+/* Small "NFT" pill badge that floats over the planet orb on V1_NFT
+   cards. Mirrors the platinum chrome palette so the card reads as a
+   single themed unit. */
+.nft-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 900;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #0b1226;
+  background: linear-gradient(135deg, #ffffff 0%, #c7d4e6 50%, #ffffff 100%);
+  box-shadow:
+    0 0 8px rgba(220,232,255,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.9),
+    inset 0 -1px 0 rgba(80,100,140,0.35);
+  border: 1px solid rgba(255,255,255,0.6);
+}
+
+/* ─── 3D orbiting "NFT" text ring around V1_NFT planet sprite ────────
+   Slow horizontal orbit (kept tilted on X so the ring reads as an
+   ellipse, not a flat line). 16s loop = a calm, premium pace. */
+@keyframes nft-orbit-spin {
+  from { transform: rotateX(18deg) rotateY(0deg); }
+  to   { transform: rotateX(18deg) rotateY(360deg); }
+}
+.nft-orbit-ring {
+  animation: nft-orbit-spin 16s linear infinite;
+  transform: rotateX(18deg);
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nft-orbit-ring { animation: none; }
+}
+
+/* ─── V1_NFT pulsing platinum halo ────────────────────────────────────
+   Replaces the old four-sparkle treatment — the planet itself now
+   "breathes light" via a slow chrome-blue radial halo behind the orb. */
+@keyframes nft-pulse-halo {
+  0%, 100% { opacity: 0.45; transform: scale(0.92); }
+  50%      { opacity: 1.00; transform: scale(1.10); }
+}
+.nft-pulse-halo {
+  animation: nft-pulse-halo 3.2s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nft-pulse-halo { animation: none; opacity: 0.7; }
+}
+
+/* ─── THE SUN card — white / cyan 3D slab ───────────────────────────── */
+@keyframes sun-border-spin { to { transform: rotate(360deg); } }
+@keyframes sun-card-pulse {
+  0%, 100% { opacity: 0.45; transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.04); }
+}
+@keyframes stardust-coin-spin {
+  from { transform: perspective(420px) rotateY(0deg); }
+  to   { transform: perspective(420px) rotateY(360deg); }
+}
+.stardust-coin-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stardust-coin-3d {
+  transform: perspective(420px) rotateY(-18deg);
+}
+.stardust-coin-3d--spin {
+  animation: stardust-coin-spin 4.5s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .stardust-coin-3d--spin { animation: none; }
+}
+
+.sun-card-3d {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(152deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(190, 245, 255, 0.1) 18%,
+      rgba(12, 32, 48, 0.94) 48%,
+      rgba(4, 10, 18, 0.98) 100%);
+  border: 1px solid rgba(170, 235, 255, 0.38);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 -2px 0 rgba(0, 50, 70, 0.45) inset,
+    0 14px 32px rgba(0, 0, 0, 0.48),
+    0 0 28px rgba(120, 220, 255, 0.14);
+  transform: perspective(880px) translateZ(0);
+}
+.sun-card-3d::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from 210deg,
+    rgba(255, 255, 255, 0.06) 0deg,
+    rgba(200, 250, 255, 0.95) 55deg,
+    rgba(255, 255, 255, 1) 85deg,
+    rgba(80, 210, 255, 0.88) 115deg,
+    rgba(255, 255, 255, 0.08) 200deg,
+    rgba(255, 255, 255, 0.06) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: sun-border-spin 5.5s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.sun-card-3d::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(180, 240, 255, 0.05) 28%,
+    transparent 52%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+.sun-card-3d > .sun-card-3d__body {
+  position: relative;
+  z-index: 1;
+}
+.sun-card-3d__sheen {
+  position: absolute;
+  top: -18%;
+  right: -8%;
+  width: 52%;
+  height: 58%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.22) 0%, rgba(120, 230, 255, 0.12) 38%, transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+  animation: sun-card-pulse 4.2s ease-in-out infinite;
+}
+.sun-card-3d--active {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.32) inset,
+    0 -2px 0 rgba(0, 50, 70, 0.45) inset,
+    0 16px 36px rgba(0, 0, 0, 0.5),
+    0 0 36px rgba(100, 230, 255, 0.28),
+    0 0 64px rgba(80, 200, 255, 0.12);
+}
+.sun-card-3d--expired {
+  border-color: rgba(255, 255, 255, 0.1);
+  background:
+    linear-gradient(152deg,
+      rgba(255, 255, 255, 0.06) 0%,
+      rgba(120, 160, 180, 0.05) 22%,
+      rgba(8, 12, 18, 0.96) 100%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.1) inset,
+    0 8px 20px rgba(0, 0, 0, 0.4);
+}
+.sun-card-3d--expired::before {
+  opacity: 0.35;
+  animation: none;
+}
+.sun-card-3d--expired .sun-card-3d__sheen {
+  animation: none;
+  opacity: 0.25;
+}
+.sun-title-3d {
+  color: #f4fcff;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85),
+    0 0 14px rgba(160, 240, 255, 0.75),
+    0 0 28px rgba(80, 200, 255, 0.35);
+  letter-spacing: 0.06em;
+}
+.sun-badge-cyan {
+  background: rgba(180, 240, 255, 0.12);
+  color: #d8f7ff;
+  border: 1px solid rgba(160, 230, 255, 0.38);
+}
+@media (prefers-reduced-motion: reduce) {
+  .sun-card-3d::before { animation: none; }
+  .sun-card-3d__sheen { animation: none; }
+}
+
+/* ─── Farm planet detail — white / cyan 3D panels & buttons ─────────── */
+.farm-panel-3d {
+  position: relative;
+  isolation: isolate;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background:
+    linear-gradient(152deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(185, 245, 255, 0.09) 22%,
+      rgba(10, 24, 36, 0.94) 100%);
+  border: 1px solid rgba(165, 235, 255, 0.34);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 -1px 0 rgba(0, 45, 65, 0.4) inset,
+    0 8px 22px rgba(0, 0, 0, 0.38),
+    0 0 18px rgba(100, 220, 255, 0.1);
+  transform: perspective(640px) translateZ(0);
+}
+.farm-panel-3d::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from 210deg,
+    rgba(255, 255, 255, 0.05) 0deg,
+    rgba(195, 248, 255, 0.85) 55deg,
+    rgba(255, 255, 255, 0.95) 85deg,
+    rgba(80, 210, 255, 0.75) 115deg,
+    rgba(255, 255, 255, 0.06) 200deg,
+    rgba(255, 255, 255, 0.05) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  animation: sun-border-spin 6.5s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+.farm-panel-3d::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(170, 235, 255, 0.04) 30%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+.farm-panel-3d > * {
+  position: relative;
+  z-index: 1;
+}
+.farm-panel-3d__title {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  color: #d8f7ff;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55),
+    0 0 10px rgba(140, 230, 255, 0.45);
+  margin-bottom: 8px;
+}
+.farm-panel-3d--static::before {
+  animation: none;
+  opacity: 0.42;
+}
+
+.farm-btn-3d {
+  position: relative;
+  isolation: isolate;
+  border-radius: 12px;
+  background:
+    linear-gradient(145deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(150, 225, 255, 0.08) 38%,
+      rgba(6, 14, 22, 0.92) 100%);
+  border: 1px solid rgba(170, 235, 255, 0.36);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.24) inset,
+    0 -1px 0 rgba(0, 40, 58, 0.35) inset,
+    0 4px 12px rgba(0, 0, 0, 0.32),
+    0 0 14px rgba(90, 210, 255, 0.08);
+  color: #e8fbff;
+  text-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35),
+    0 0 8px rgba(120, 220, 255, 0.35);
+  transform: perspective(520px) translateZ(0);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+.farm-btn-3d::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, transparent 48%);
+  pointer-events: none;
+}
+.farm-btn-3d:not(:disabled):active {
+  transform: perspective(520px) translateY(1px);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 2px 6px rgba(0, 0, 0, 0.28);
+}
+.farm-btn-3d--tier {
+  padding: 5px 2px;
+  border-radius: 8px;
+  font-size: 9px;
+  font-weight: 900;
+  text-align: center;
+  line-height: 1.3;
+  cursor: pointer;
+}
+.farm-btn-3d--tier > div:last-child {
+  font-weight: 700;
+  font-size: 8px;
+  opacity: 0.85;
+}
+.farm-btn-3d--current {
+  border-color: rgba(120, 255, 210, 0.55);
+  color: #b8ffe8;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.26) inset,
+    0 0 16px rgba(80, 255, 180, 0.18),
+    0 4px 12px rgba(0, 0, 0, 0.32);
+}
+.farm-btn-3d--disabled,
+.farm-btn-3d:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  border-color: rgba(170, 235, 255, 0.14);
+  color: rgba(200, 240, 255, 0.35);
+  text-shadow: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 2px 6px rgba(0, 0, 0, 0.22);
+}
+.farm-btn-3d--burn-confirm {
+  border-color: rgba(255, 120, 120, 0.55);
+  color: #ffb8b8;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.22) inset,
+    0 0 18px rgba(255, 80, 80, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.32);
+}
+@media (prefers-reduced-motion: reduce) {
+  .farm-panel-3d::before { animation: none; }
+}
+
+/* Farm / Market voxel planet thumbs — crisp blocky WebGL */
+.planet-voxel-thumb canvas,
+.planet-voxel-thumb--hifi canvas {
+  display: block;
+  background: transparent !important;
+  max-width: 100%;
+  max-height: 100%;
+}
+.planet-voxel-thumb--hifi canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.lab-market-card__orb canvas {
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+  image-rendering: auto;
+}
+.object-thumb canvas {
+  display: block;
+  image-rendering: auto;
+}
+
+/* ======== BOOT SPLASH (Telegram launch) ======== */
+.zoom-splash-screen,
+#splash-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #060810;
+  opacity: 1;
+  isolation: isolate;
+  transform: translateZ(0);
+}
+#splash-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: none !important;
+}
+.zoom-splash-inner,
+#splash-screen .splash-inner {
+  text-align: center;
+  animation: zoomSplashIn 0.6s ease-out both;
+}
+@keyframes zoomSplashIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.zoom-splash-spinner,
+#splash-screen .splash-spinner {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 3px solid rgba(158, 197, 232, 0.14);
+  border-top-color: #9ec5e8;
+  border-right-color: rgba(158, 197, 232, 0.55);
+  animation: zoomSplashSpin 0.9s linear infinite;
+  box-shadow: 0 0 24px rgba(158, 197, 232, 0.22);
+}
+@keyframes zoomSplashSpin {
+  to { transform: rotate(360deg); }
+}
+.zoom-splash-title,
+#splash-screen .splash-title {
+  margin-top: 22px;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 900;
+  font-size: 26px;
+  letter-spacing: 0.22em;
+  color: #e0e6ff;
+  text-shadow: 0 0 12px rgba(138, 180, 255, 0.4), 0 0 32px rgba(106, 90, 205, 0.28);
+}
+.zoom-splash-sub,
+#splash-screen .splash-sub {
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: rgba(158, 197, 232, 0.55);
+  text-transform: uppercase;
+  animation: zoomSplashPulse 1.6s ease-in-out infinite;
+}
+@keyframes zoomSplashPulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+.zoom-splash-sub-maint {
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.55;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: none;
+  white-space: pre-wrap;
+}
+.zoom-splash-bar-wrap,
+#splash-screen .splash-bar-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: max(28px, env(safe-area-inset-bottom, 0px));
+  padding: 0 32px;
+}
+.zoom-splash-bar-track,
+#splash-screen .splash-bar-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) inset;
+}
+.zoom-splash-bar-fill,
+#splash-screen .splash-bar-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #7a9ec8, #9ec5e8, #c9d6e8);
+  box-shadow: 0 0 12px rgba(158, 197, 232, 0.45);
+  transform-origin: left center;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .zoom-splash-spinner,
+  #splash-screen .splash-spinner {
+    animation: none;
+    border-top-color: #9ec5e8;
+  }
+  .zoom-splash-sub,
+  #splash-screen .splash-sub {
+    animation: none;
+    opacity: 0.7;
+  }
+}
+
+/* ── Lab Market (ZOOM / Stardust only) ─────────────────────────── */
+.lab-market {
+  background: transparent;
+}
+.lab-market__kicker {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(232, 236, 244, 0.42);
+  margin: 0 0 4px;
+}
+.lab-market__title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #f2f5fb;
+  margin: 0;
+}
+.lab-market__sub {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 1.35;
+  color: rgba(232, 236, 244, 0.48);
+  max-width: 28rem;
+}
+.rank-zoom-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(255, 215, 64, 0.16);
+  border: 1px solid rgba(255, 215, 64, 0.45);
+  animation: rank-zoom-pulse 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes rank-zoom-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 6px rgba(255,215,64,0.25); }
+  50% { transform: scale(1.12); box-shadow: 0 0 16px rgba(255,215,64,0.55); }
+}
+
+.lab-market__tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 14px;
+}
+.lab-market__tab {
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.4);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+.lab-market__tab.is-active {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #e8ecf4;
+}
+.lab-market__tab--live.is-active {
+  background: rgba(0, 230, 118, 0.1);
+  border-color: rgba(0, 230, 118, 0.35);
+  color: #00e676;
+}
+.lab-market__live-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: 6px;
+  background: #00e676;
+  box-shadow: 0 0 10px #00e676;
+  animation: lab-market-pulse 1.6s ease-in-out infinite;
+}
+.lab-market__filters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 4px 0 14px;
+}
+.lab-market__filter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 10, 16, 0.55);
+  text-align: left;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+.lab-market__filter-label {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.55);
+}
+.lab-market__filter-hint {
+  font-size: 9px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.28);
+}
+.lab-market__filter.is-active {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+.lab-market__filter--all.is-active {
+  border-color: rgba(232, 236, 244, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+}
+.lab-market__filter--all.is-active .lab-market__filter-label { color: #e8ecf4; }
+.lab-market__filter--zoom.is-active {
+  border-color: rgba(46, 213, 115, 0.45);
+  background: linear-gradient(160deg, rgba(46, 213, 115, 0.16), rgba(8, 10, 16, 0.7));
+}
+.lab-market__filter--zoom.is-active .lab-market__filter-label { color: #7bed9f; }
+.lab-market__filter--stardust.is-active {
+  border-color: rgba(255, 215, 64, 0.45);
+  background: linear-gradient(160deg, rgba(255, 215, 64, 0.14), rgba(8, 10, 16, 0.7));
+}
+.lab-market__filter--stardust.is-active .lab-market__filter-label { color: #ffd740; }
+.lab-market__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -8px 0 12px;
+}
+.lab-market__search {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 17px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 10, 16, 0.7);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 12px;
+  font-weight: 600;
+  outline: none;
+}
+.lab-market__search::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+  font-weight: 600;
+}
+.lab-market__search:focus {
+  border-color: rgba(158, 197, 232, 0.45);
+  box-shadow: 0 0 0 3px rgba(158, 197, 232, 0.12);
+}
+.lab-market__sorts {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  flex-shrink: 0;
+}
+.lab-market__sort-dot {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(8, 10, 16, 0.7);
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+.lab-market__sort-dot.is-active {
+  border-color: rgba(158, 197, 232, 0.5);
+  background: rgba(158, 197, 232, 0.16);
+  color: #c8eeff;
+  box-shadow: 0 0 12px rgba(158, 197, 232, 0.18);
+}
+.lab-market__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.lab-market__empty {
+  text-align: center;
+  padding: 48px 16px 24px;
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 13px;
+}
+.lab-market__empty-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.25);
+}
+.lab-market__toast {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  z-index: 40;
+  padding: 10px 16px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  backdrop-filter: blur(12px);
+  animation: lab-market-toast-in 0.28s ease;
+}
+.lab-market__toast.is-ok {
+  background: rgba(46, 213, 115, 0.18);
+  border: 1px solid rgba(46, 213, 115, 0.4);
+  color: #7bed9f;
+}
+.lab-market__toast.is-err {
+  background: rgba(255, 80, 80, 0.16);
+  border: 1px solid rgba(255, 80, 80, 0.35);
+  color: #ff8f8f;
+}
+
+.lab-market-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: 20px;
+  overflow: hidden;
+  opacity: 1;
+  border: 1px solid color-mix(in srgb, var(--mkt-accent) 42%, transparent);
+  background: #08080c;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+    0 14px 32px rgba(0, 0, 0, 0.42),
+    0 0 24px var(--mkt-accent-a);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.lab-market-card:active {
+  transform: scale(0.985);
+}
+.lab-market-card--evo {
+  border-color: color-mix(in srgb, #f5e6b8 52%, var(--mkt-accent));
+  box-shadow:
+    0 0 0 1px rgba(255, 230, 180, 0.2) inset,
+    0 14px 32px rgba(0, 0, 0, 0.42),
+    0 0 28px color-mix(in srgb, #c9a227 38%, var(--mkt-accent-a));
+}
+.lab-market-card--evo .lab-market-card__stage {
+  background:
+    radial-gradient(70% 80% at 50% 35%, color-mix(in srgb, #fff6c8 42%, var(--mkt-glow)), transparent 70%),
+    linear-gradient(125deg,
+      color-mix(in srgb, #9be7ff 50%, var(--mkt-accent)) 0%,
+      color-mix(in srgb, #f5c6ff 48%, var(--mkt-accent)) 38%,
+      color-mix(in srgb, #ffe08a 68%, var(--mkt-accent)) 72%,
+      rgba(8, 8, 12, 0.2) 100%);
+}
+.lab-market-card--evo2 {
+  border-color: color-mix(in srgb, #e8f6ff 58%, var(--mkt-accent));
+  box-shadow:
+    0 0 0 1px rgba(180, 230, 255, 0.28) inset,
+    0 14px 32px rgba(0, 0, 0, 0.42),
+    0 0 32px color-mix(in srgb, #9be7ff 42%, var(--mkt-accent-a));
+}
+.lab-market-card--evo2 .lab-market-card__stage {
+  background:
+    radial-gradient(70% 80% at 50% 35%, color-mix(in srgb, #e8f6ff 48%, var(--mkt-glow)), transparent 70%),
+    linear-gradient(125deg,
+      color-mix(in srgb, #9be7ff 62%, var(--mkt-accent)) 0%,
+      color-mix(in srgb, #c9a227 40%, var(--mkt-accent)) 40%,
+      color-mix(in srgb, #f5e6b8 70%, var(--mkt-accent)) 78%,
+      rgba(8, 8, 12, 0.2) 100%);
+}
+.lab-market-card--evo2 .lab-market-card__evo {
+  background: linear-gradient(135deg, #e8f6ff 0%, #9be7ff 45%, #c9a227 100%);
+}
+.lab-market-card__evo {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: #08080c;
+  background: linear-gradient(135deg, #f5e6b8 0%, #c9a227 45%, #9be7ff 100%);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+.lab-market-card--focus {
+  box-shadow: 0 0 0 2px rgba(0, 230, 255, 0.65), 0 0 28px rgba(0, 230, 255, 0.35);
+}
+.lab-market-card__stage {
+  position: relative;
+  height: 168px;
+  background:
+    radial-gradient(70% 80% at 50% 35%, color-mix(in srgb, var(--mkt-glow) 55%, transparent), transparent 70%),
+    linear-gradient(180deg, color-mix(in srgb, var(--mkt-accent) 88%, #08080c) 0%, rgba(8, 8, 12, 0.2) 72%, #08080c 100%);
+}
+.lab-market-card__orb {
+  position: absolute;
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+  width: 132px;
+  height: 132px;
+  overflow: hidden;
+  background: transparent;
+  animation: lab-market-float 4.2s ease-in-out infinite;
+}
+.lab-market-card__path {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  padding: 4px 8px 4px 4px;
+  border-radius: 999px;
+  color: #08080c;
+  background: var(--mkt-accent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+.lab-market-card__zoom-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  flex-shrink: 0;
+}
+.lab-market-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 12px 12px;
+  flex: 1;
+}
+.lab-market-card__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #f4f7ff;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+}
+.lab-market-card__name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lab-market-card__float {
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.62);
+}
+.lab-market-card__code {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: rgba(158, 197, 232, 0.55);
+}
+.lab-market-card__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: baseline;
+}
+.lab-market-card__yield {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--mkt-accent);
+}
+.lab-market-card__yield .zoom-cube-icon,
+.lab-market-card__yield .zoom-cube-icon img {
+  background: transparent;
+  filter: none;
+}
+.lab-market-card__price {
+  font-size: 11px;
+  font-weight: 900;
+  color: #fff;
+}
+.lab-market-card__seller {
+  margin: 0;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lab-market-card__actions {
+  display: flex;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 6px;
+}
+.lab-market-card__buy,
+.lab-market-card__delist,
+.lab-market-card__status {
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  padding: 10px 12px;
+}
+.lab-market-card__buy {
+  flex: 1;
+  background: #fff;
+  color: #0a0a0f;
+  border: 0;
+}
+.lab-market-card__buy:disabled {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.28);
+}
+.lab-market-card__delist {
+  flex: 1;
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  color: #ffd700;
+  background: rgba(255, 215, 0, 0.08);
+}
+.lab-market-card__delist:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.4);
+}
+.lab-market-card__status {
+  flex: 1;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.farm-inventory-card__reactivate {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 100%;
+  border-radius: 12px;
+  padding: 14px 0;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid color-mix(in srgb, var(--farm-reactivate, var(--mkt-accent)) 65%, transparent);
+  color: var(--farm-reactivate, var(--mkt-accent));
+}
+.farm-inventory-card__reactivate-cost {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+.lab-market-card--compact .farm-inventory-card__reactivate {
+  padding: 9px 0;
+  font-size: 10px;
+}
+.lab-market-card--compact .farm-inventory-card__reactivate-cost {
+  font-size: 7px;
+}
+.lab-market-card--compact .lab-market-card__stage {
+  height: 148px;
+}
+.lab-market-card--compact .lab-market-card__orb {
+  width: 112px;
+  height: 112px;
+  top: 14px;
+}
+.lab-market-card--empty,
+.lab-market-card--locked {
+  min-height: 276px;
+}
+.lab-market-card--empty:active {
+  transform: none;
+}
+.lab-market-card--empty .lab-market-card__stage,
+.lab-market-card--locked .lab-market-card__stage {
+  flex: 1;
+  min-height: 168px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lab-market-card__plus {
+  font-size: 44px;
+  font-weight: 200;
+  line-height: 1;
+  color: color-mix(in srgb, var(--mkt-accent) 70%, #fff);
+}
+
+@keyframes lab-market-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@keyframes lab-market-float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-6px); }
+}
+@keyframes lab-market-card-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes lab-market-toast-in {
+  from { opacity: 0; transform: translate(-50%, 8px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lab-market__live-dot,
+  .lab-market-card__orb,
+  .lab-market-card,
+  .lab-market__toast {
+    animation: none;
+  }
+}
+
+/* ─── Earn page ─────────────────────────────────────────────────────── */
+.earn-page {
+  --earn-ink: #E8ECF4;
+  --earn-muted: rgba(232, 236, 244, 0.55);
+  --earn-cyan: #9EC5E8;
+  --earn-cyan-dim: rgba(158, 197, 232, 0.14);
+  --earn-gold: #ffd740;
+  --earn-ok: #00e676;
+  --earn-panel: rgba(10, 16, 28, 0.55);
+  --earn-line: rgba(158, 197, 232, 0.2);
+  position: relative;
+  background: transparent;
+}
+.earn-page > * { position: relative; z-index: 1; }
+
+.earn-hero {
+  border-radius: 16px;
+  padding: 10px 10px 8px;
+  background:
+    linear-gradient(155deg, rgba(158, 197, 232, 0.14) 0%, rgba(12, 18, 32, 0.5) 48%, rgba(255, 215, 64, 0.06) 100%);
+  border: 1px solid var(--earn-line);
+  box-shadow: 0 6px 18px rgba(0, 6, 18, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.earn-steps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.earn-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.earn-step__num {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 900;
+  background: rgba(0, 0, 0, 0.35);
+}
+.earn-section-kicker {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.earn-panel {
+  border-radius: 16px;
+  padding: 12px;
+  background: var(--earn-panel);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 6px 16px rgba(0, 4, 14, 0.24);
+}
+.earn-day {
+  border-radius: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.earn-day--next {
+  animation: earn-pulse 1.8s ease-in-out infinite;
+}
+@keyframes earn-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(158, 197, 232, 0.25); }
+  50% { box-shadow: 0 0 14px 1px rgba(158, 197, 232, 0.45); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .earn-day--next { animation: none; }
+}
+.earn-reward-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  background: rgba(158, 197, 232, 0.12);
+  border: 1px solid rgba(158, 197, 232, 0.28);
+  color: var(--earn-ink);
+  white-space: nowrap;
+}
+.earn-reward-chip--gold {
+  background: rgba(255, 215, 64, 0.12);
+  border-color: rgba(255, 215, 64, 0.35);
+  color: #ffe082;
+}
+.earn-reward-chip--ok {
+  background: rgba(0, 230, 118, 0.1);
+  border-color: rgba(0, 230, 118, 0.28);
+  color: var(--earn-ok);
+}
+.earn-cta {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+.earn-cta:active:not(:disabled) { transform: scale(0.97); }
+.earn-cta--primary {
+  background: linear-gradient(135deg, #F2F5FA 0%, #9EC5E8 100%);
+  color: #0a1220;
+  box-shadow: 0 8px 22px rgba(0, 8, 20, 0.4);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.earn-cta--ghost {
+  background: rgba(158, 197, 232, 0.12);
+  color: var(--earn-cyan);
+  border-color: rgba(158, 197, 232, 0.28);
+}
+.earn-cta:disabled {
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(255, 255, 255, 0.22);
+  box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.06);
+  cursor: not-allowed;
+}
+.earn-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+.earn-row--ready {
+  border-color: rgba(158, 197, 232, 0.38);
+  background: rgba(158, 197, 232, 0.07);
+}
+.earn-row--done {
+  border-color: rgba(0, 230, 118, 0.22);
+  background: rgba(0, 230, 118, 0.05);
+}
+.earn-progress {
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.06);
+}
+.earn-progress > i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #7a9ec8, #c5daf0);}
+

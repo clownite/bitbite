@@ -1,0 +1,93 @@
+modules = ["nodejs-24", "python-3.11", "postgresql-16"]
+
+[deployment]
+router = "application"
+deploymentTarget = "gce"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 80
+
+[[ports]]
+localPort = 8082
+externalPort = 3001
+
+[[ports]]
+localPort = 8083
+externalPort = 3003
+
+[[ports]]
+localPort = 8084
+externalPort = 5173
+
+[[ports]]
+localPort = 8085
+externalPort = 6800
+
+[[ports]]
+localPort = 8086
+externalPort = 8008
+
+[[ports]]
+localPort = 8087
+externalPort = 8081
+
+[[ports]]
+localPort = 23677
+externalPort = 3000
+
+[[ports]]
+localPort = 23678
+externalPort = 3002
+
+[[ports]]
+localPort = 23679
+externalPort = 4200
+
+[[ports]]
+localPort = 23680
+externalPort = 5000
+
+[[ports]]
+localPort = 23681
+externalPort = 6000
+
+[[ports]]
+localPort = 23682
+externalPort = 8000
+
+[[ports]]
+localPort = 23683
+externalPort = 8099
+
+[[ports]]
+localPort = 23684
+externalPort = 9000
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+# Token removed from this copy. It was committed in the public repo — revoke it in BotFather.
+BOT_TOKEN = ""

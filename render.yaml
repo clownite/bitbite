@@ -1,0 +1,29 @@
+# Free API hosting: https://render.com → New → Blueprint → connect this repo
+services:
+  - type: web
+    name: zoomverse-api
+    runtime: node
+    plan: free
+    buildCommand: pnpm install --config.production=false && pnpm --filter @workspace/api-server run build
+    startCommand: node --enable-source-maps artifacts/api-server/dist/index.mjs
+    healthCheckPath: /api/healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TG_AUTH_MODE
+        value: soft
+      - key: REPLIT_DEPLOYMENT
+        value: "1"
+      - key: DATABASE_URL
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      # Dashboard secret — 12 or 24 words of the treasury TON wallet.
+      # Must be listed here or a Blueprint deploy wipes it and airdrop claim
+      # fails with "TREASURY_MNEMONIC not set".
+      - key: TREASURY_MNEMONIC
+        sync: false
+      - key: TONAPI_TOKEN
+        sync: false
+      - key: TONCENTER_API_KEY
+        sync: false
