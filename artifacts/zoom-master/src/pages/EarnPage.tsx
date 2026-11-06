@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { claimDailyReward, fetchTasksState, peekTasksState, bumpTasksPlanetsBuilt, claimTask, type TasksState, redeemServerCode } from "../utils/api";
 import { useGlobalStore, refreshDailyStatus, applyDailyClaimResult } from "../store/globalStore";
-import { addPetXp, claimDailyPetXp, CYCLE_XP, DAILY_XP, DAILY_XP_WEEK, dailyXpStatus, getPet, INVITE_XP, LEVEL10_GRAM, LEVEL5_GRAM, subscribePet, syncReferralXp, xpFromCrumbs, type PetState } from "../pet/petProgress";
+import { addPetXp, basePetStageDays, claimDailyPetXp, claimInteractTask, claimOnceTask, CYCLE_XP, DAILY_XP, DAILY_XP_WEEK, dailyXpStatus, getPet, interactTaskStatus, INVITE_XP, LEVEL10_GRAM, LEVEL5_GRAM, markTaskOpened, subscribePet, syncReferralXp, TASK_INTERACT_XP, TASK_INVITE_ONCE_XP, TASK_ONCE_XP, xpFromCrumbs, type PetState } from "../pet/petProgress";
 import { useT } from "../i18n/LanguageContext";
 import { SpaceTicketIcon, SpeedBoltIcon } from "../components/icons/GameIcons";
 
@@ -169,6 +169,10 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
   // WebApp.initDataUnsafe.start_param, where /referral/register picks it
   // up and credits the inviter (+20 ZOOM, +1 referralCount, milestones).
   const referralLink = `https://t.me/ZoomVerse_bot?startapp=${referralCode}`;
+  const communityUrl = "https://t.me/ZoomVerse";
+  const chatUrl = "https://t.me/ZoomVerse_Chat";
+  const stageDays = basePetStageDays();
+  const interact = interactTaskStatus();
 
   const handleRedeem = async () => {
     const raw = redeemInput.trim();
@@ -477,6 +481,82 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
           <p className="mt-2.5 text-[10px] text-center leading-snug" style={{ color: "rgba(255,255,255,0.34)" }}>
             {t("earn.dailyPizzaHint")} {CYCLE_XP.toLocaleString()} XP reaches the next GRAM gate. A week of claims is {DAILY_XP_WEEK.toLocaleString()} XP.
           </p>
+        </section>
+
+        <section className="earn-panel">
+          <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>Tasks</div>
+          <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)" }}>Pet XP</div>
+          <p className="mt-1 text-[11px] leading-snug" style={{ color: "rgba(186,220,236,0.55)" }}>
+            The base pet reaches stage 3 in {stageDays.reachStage3} days if you take the daily, the 4 taps and this task every day. Filling stage 3 takes {stageDays.fillStage3} days.
+          </p>
+          <div className="mt-3 flex flex-col gap-2">
+            <div className="earn-row">
+              <div className="min-w-0">
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Interact with your pet</div>
+                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Tap the pet once today. +{TASK_INTERACT_XP} XP</div>
+              </div>
+              <button
+                type="button"
+                className={`earn-cta !w-auto px-3 ${interact.can ? "earn-cta--primary" : ""}`}
+                disabled={!interact.can}
+                onClick={() => {
+                  const gained = claimInteractTask();
+                  if (gained > 0) setClaimMsg(`+${gained} XP`);
+                }}
+              >
+                {interact.claimed ? "Done" : interact.can ? "Claim" : "Tap pet"}
+              </button>
+            </div>
+            <div className="earn-row">
+              <div className="min-w-0">
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Join community</div>
+                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Once. +{TASK_ONCE_XP} XP</div>
+              </div>
+              {pet.claimedCommunity ? (
+                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
+              ) : pet.openedCommunity ? (
+                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("community"); if (n > 0) setClaimMsg(`+${n} XP`); }}>Claim</button>
+              ) : (
+                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => { markTaskOpened("community"); handleOpenSponsor("community", communityUrl); }}>Open</button>
+              )}
+            </div>
+            <div className="earn-row">
+              <div className="min-w-0">
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Join chat</div>
+                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Once. +{TASK_ONCE_XP} XP</div>
+              </div>
+              {pet.claimedChat ? (
+                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
+              ) : pet.openedChat ? (
+                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("chat"); if (n > 0) setClaimMsg(`+${n} XP`); }}>Claim</button>
+              ) : (
+                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => { markTaskOpened("chat"); handleOpenSponsor("chat", chatUrl); }}>Open</button>
+              )}
+            </div>
+            <div className="earn-row">
+              <div className="min-w-0">
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Invite a friend</div>
+                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Once, when a friend joins. +{TASK_INVITE_ONCE_XP} XP</div>
+              </div>
+              {pet.claimedInviteTask ? (
+                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
+              ) : referralCount > 0 ? (
+                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("invite", referralCount); if (n > 0) setClaimMsg(`+${n} XP`); }}>Claim</button>
+              ) : (
+                <button
+                  type="button"
+                  className="earn-cta earn-cta--ghost !w-auto px-3"
+                  onClick={() => {
+                    const text = encodeURIComponent(t("earn.shareInviteText"));
+                    const url = encodeURIComponent(referralLink);
+                    window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank");
+                  }}
+                >
+                  Invite
+                </button>
+              )}
+            </div>
+          </div>
         </section>
 
         {/* Invite */}

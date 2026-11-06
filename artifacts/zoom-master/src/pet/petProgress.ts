@@ -22,6 +22,12 @@ export const DAY_MS = 24 * 60 * 60 * 1000;
 export const XP_PER_CRUMB = 20;
 export const INVITE_XP = 12;
 /** Four taps are half of the smallest Earn day (8 XP). One tap is 1 XP. */
+/** Daily Earn task, after at least one pet tap. */
+export const TASK_INTERACT_XP = 6;
+/** One-time community and chat tasks. */
+export const TASK_ONCE_XP = 40;
+/** One-time bonus when the first friend joins. The 12 XP per invite stays separate. */
+export const TASK_INVITE_ONCE_XP = 24;
 export const PET_TAP_XP = 1;
 export const PET_TAP_MAX = 4;
 export const PET_TAP_GAP_MS = 3000;
@@ -48,6 +54,12 @@ export type PetState = PetCore & {
   tapDay: string;
   tapCount: number;
   nextTapAt: number;
+  interactClaimDay: string;
+  openedCommunity: boolean;
+  openedChat: boolean;
+  claimedCommunity: boolean;
+  claimedChat: boolean;
+  claimedInviteTask: boolean;
 };
 
 const KEY = "biscotto-pet-v3";
@@ -66,6 +78,12 @@ const START: PetState = {
   tapDay: "",
   tapCount: 0,
   nextTapAt: 0,
+  interactClaimDay: "",
+  openedCommunity: false,
+  openedChat: false,
+  claimedCommunity: false,
+  claimedChat: false,
+  claimedInviteTask: false,
 };
 
 function coreOf(p: Partial<PetCore> | undefined): PetCore {
@@ -110,6 +128,12 @@ function load(): PetState {
       nextDailyAt: Math.max(0, Number(p.nextDailyAt) || 0),
       creditedInvites: Math.max(0, Math.floor(Number(p.creditedInvites) || 0)),
       invitesBaselined: !!p.invitesBaselined,
+      interactClaimDay: typeof p.interactClaimDay === "string" ? p.interactClaimDay : "",
+      openedCommunity: !!p.openedCommunity,
+      openedChat: !!p.openedChat,
+      claimedCommunity: !!p.claimedCommunity,
+      claimedChat: !!p.claimedChat,
+      claimedInviteTask: !!p.claimedInviteTask,
       tapDay: typeof p.tapDay === "string" ? p.tapDay : "",
       tapCount: Math.max(0, Math.floor(Number(p.tapCount) || 0)),
       nextTapAt: Math.max(0, Number(p.nextTapAt) || 0),
@@ -298,6 +322,70 @@ export type TapResult = {
   max: number;
   reason: "ok" | "wait" | "done" | "gate";
 };
+
+/**
+ * Base dolphin, every day: the streak (80/week), 4 taps (28/week) and the interact task (42/week).
+ * That is 150 XP a week. Reaching stage 3 takes 140 days. Filling stage 3 takes 280 days.
+ */
+export function basePetStageDays(): { reachStage3: number; fillStage3: number } {
+  const perWeek = DAILY_XP_WEEK + PET_TAP_MAX * 7 * PET_TAP_XP + TASK_INTERACT_XP * 7;
+  const perDay = perWeek / 7;
+  return {
+    reachStage3: Math.round((STAGE_XP[1] + STAGE_XP[2]) / perDay),
+    fillStage3: Math.round(CYCLE_XP / perDay),
+  };
+}
+
+export function interactTaskStatus(now = Date.now()) {
+  const day = todayKey(now);
+  const tapped = petTapStatus(now).count > 0;
+  const claimed = state.interactClaimDay === day;
+  return {
+    tapped,
+    claimed,
+    can: tapped && !claimed && !xpBlocked(state),
+  };
+}
+
+export function claimInteractTask(now = Date.now()): number {
+  if (!interactTaskStatus(now).can) return 0;
+  state = { ...state, interactClaimDay: todayKey(now) };
+  const gained = addPetXp(TASK_INTERACT_XP);
+  if (gained <= 0) {
+    state = { ...state, interactClaimDay: "" };
+    emit();
+  }
+  return gained;
+}
+
+export function markTaskOpened(which: "community" | "chat") {
+  if (which === "community" && !state.openedCommunity) state = { ...state, openedCommunity: true };
+  if (which === "chat" && !state.openedChat) state = { ...state, openedChat: true };
+  emit();
+}
+
+export function claimOnceTask(which: "community" | "chat" | "invite", invites = 0): number {
+  if (xpBlocked(state)) return 0;
+  if (which === "community") {
+    if (!state.openedCommunity || state.claimedCommunity) return 0;
+    state = { ...state, claimedCommunity: true };
+    const gained = addPetXp(TASK_ONCE_XP);
+    if (gained <= 0) state = { ...state, claimedCommunity: false };
+    return gained;
+  }
+  if (which === "chat") {
+    if (!state.openedChat || state.claimedChat) return 0;
+    state = { ...state, claimedChat: true };
+    const gained = addPetXp(TASK_ONCE_XP);
+    if (gained <= 0) state = { ...state, claimedChat: false };
+    return gained;
+  }
+  if (state.claimedInviteTask || invites < 1) return 0;
+  state = { ...state, claimedInviteTask: true };
+  const gained = addPetXp(TASK_INVITE_ONCE_XP);
+  if (gained <= 0) state = { ...state, claimedInviteTask: false };
+  return gained;
+}
 
 /** One of the four daily taps. A click during the 3s pause or after the fourth does not add XP. */
 export function tapPet(now = Date.now()): TapResult {
