@@ -1,9 +1,11 @@
+import { dailyFarm } from "./catalog";
+import { getActivePetId, getPet } from "./petProgress";
+
 /** Farmed Crumbs. 1 Crumb withdraws as 1 GRAM, after you accept it from the bot. */
 
 export const CRUMB_GRAM = 1;
-export const FARM_CRUMBS = 1;
-export const FARM_MS = 8 * 60 * 60 * 1000;
 export const WITHDRAW_MIN = 1;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type CrumbRequest = {
   localId: string;
@@ -16,15 +18,24 @@ export type CrumbRequest = {
 
 type Ledger = {
   balance: number;
-  nextFarmAt: number;
+  lastTickAt: number;
   requests: CrumbRequest[];
 };
 
-const KEY = "biscotto-crumbs-v1";
+const KEY = "biscotto-crumbs-v2";
 const listeners = new Set<() => void>();
 
 function empty(): Ledger {
-  return { balance: 0, nextFarmAt: 0, requests: [] };
+  return { balance: 0, lastTickAt: Date.now(), requests: [] };
+}
+
+function round4(n: number): number {
+  return Math.round(n * 10000) / 10000;
+}
+
+export function formatCrumbs(n: number): string {
+  const v = Number.isFinite(n) ? Math.max(0, n) : 0;
+  return v.toFixed(4).replace(/(\.\d\d)0+$/, "$1");
 }
 
 function load(): Ledger {
@@ -33,8 +44,8 @@ function load(): Ledger {
     if (!raw) return empty();
     const p = JSON.parse(raw) as Partial<Ledger>;
     return {
-      balance: Math.max(0, Math.floor(Number(p.balance) || 0)),
-      nextFarmAt: Math.max(0, Number(p.nextFarmAt) || 0),
+      balance: Math.max(0, Number(p.balance) || 0),
+      lastTickAt: Math.max(0, Number(p.lastTickAt) || Date.now()),
       requests: Array.isArray(p.requests) ? p.requests : [],
     };
   } catch {
@@ -49,6 +60,28 @@ function emit() {
   listeners.forEach((fn) => fn());
 }
 
+/** Bank the crumbs earned since the last tick. Rate follows the selected pet and its level. */
+export function settleFarm(now = Date.now()) {
+  const from = state.lastTickAt || now;
+  const elapsed = Math.max(0, now - from);
+  const rate = dailyFarm(getActivePetId(), getPet().level);
+  const gain = (elapsed / DAY_MS) * rate;
+  if (elapsed < 1000 || gain <= 0) {
+    if (!state.lastTickAt) {
+      state = { ...state, lastTickAt: now };
+      emit();
+    }
+    return 0;
+  }
+  state = { ...state, balance: round4(state.balance + gain), lastTickAt: now };
+  emit();
+  return gain;
+}
+
+export function currentDailyRate(): number {
+  return dailyFarm(getActivePetId(), getPet().level);
+}
+
 export function getCrumbs(): Ledger {
   return state;
 }
@@ -58,37 +91,17 @@ export function subscribeCrumbs(fn: () => void): () => void {
   return () => listeners.delete(fn);
 }
 
-export function farmReady(now = Date.now()): boolean {
-  return now >= state.nextFarmAt;
-}
-
-export function farmWaitMs(now = Date.now()): number {
-  return Math.max(0, state.nextFarmAt - now);
-}
-
-/** Base dolphin. Bought models will farm more than this. */
-export function collectFarm(now = Date.now()): number {
-  if (!farmReady(now)) return 0;
-  state = {
-    ...state,
-    balance: state.balance + FARM_CRUMBS,
-    nextFarmAt: now + FARM_MS,
-  };
-  emit();
-  return FARM_CRUMBS;
-}
-
 export function addCrumbs(amount: number) {
-  const n = Math.floor(amount);
-  if (n <= 0) return;
-  state = { ...state, balance: state.balance + n };
+  const n = Number(amount);
+  if (!Number.isFinite(n) || n <= 0) return;
+  state = { ...state, balance: round4(state.balance + n) };
   emit();
 }
 
 export function takeCrumbs(amount: number): boolean {
   const n = Math.floor(amount);
-  if (n <= 0 || state.balance < n) return false;
-  state = { ...state, balance: state.balance - n };
+  if (n <= 0 || state.balance + 1e-9 < n) return false;
+  state = { ...state, balance: round4(state.balance - n) };
   emit();
   return true;
 }

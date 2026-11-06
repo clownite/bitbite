@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef } from "react";
 import * as THREE from "three";
+import type { PetId } from "../pet/catalog";
 import type { PetState } from "../pet/petProgress";
 import { takePetClone, whenPetModelReady } from "../pet/petModel";
 
@@ -41,13 +42,78 @@ function saveView(frame: Frame, view: View) {
   } catch { /**/ }
 }
 
-/** Shared dolphin. Drag moves it. Pinch or the wheel resizes it. */
+function standIn(id: PetId): THREE.Group {
+  const color = id === "finch" ? 0xe7a56a : id === "lynx" ? 0xc47a2e : 0xf3e2c2;
+  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.48 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x2a1810, roughness: 0.4 });
+  const group = new THREE.Group();
+  const add = (mesh: THREE.Mesh) => {
+    group.add(mesh);
+    return mesh;
+  };
+  if (id === "finch") {
+    add(new THREE.Mesh(new THREE.SphereGeometry(0.42, 18, 14), mat)).scale.set(1.15, 0.85, 0.9);
+    const head = add(new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 12), mat));
+    head.position.set(0.48, 0.22, 0);
+    const beak = add(new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.28, 8), dark));
+    beak.rotation.z = -Math.PI / 2;
+    beak.position.set(0.78, 0.2, 0);
+    const wing = add(new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), mat));
+    wing.scale.set(0.4, 1, 1.3);
+    wing.position.set(0.05, 0.05, 0.28);
+  } else if (id === "lynx") {
+    const body = add(new THREE.Mesh(new THREE.SphereGeometry(0.48, 18, 14), mat));
+    body.scale.set(1.45, 0.72, 0.78);
+    const head = add(new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 12), mat));
+    head.position.set(0.62, 0.28, 0);
+    const earL = add(new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 6), mat));
+    earL.position.set(0.52, 0.58, 0.12);
+    const earR = earL.clone();
+    earR.position.z = -0.12;
+    group.add(earR);
+    const tail = add(new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 0.55, 8), mat));
+    tail.rotation.z = Math.PI / 3;
+    tail.position.set(-0.7, 0.28, 0);
+    add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), dark)).position.set(0.78, 0.34, 0.1);
+  } else {
+    const body = add(new THREE.Mesh(new THREE.SphereGeometry(0.5, 18, 14), mat));
+    body.scale.set(1.5, 0.75, 0.7);
+    const neck = add(new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.14, 0.45, 8), mat));
+    neck.position.set(0.55, 0.42, 0);
+    neck.rotation.z = -0.5;
+    const head = add(new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 12), mat));
+    head.position.set(0.78, 0.62, 0);
+    const antler = add(new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.42, 6), dark));
+    antler.position.set(0.7, 0.95, 0.08);
+    antler.rotation.z = 0.3;
+    const antler2 = antler.clone();
+    antler2.position.z = -0.08;
+    antler2.rotation.z = -0.3;
+    group.add(antler2);
+  }
+  group.updateMatrixWorld(true);
+  const box = new THREE.Box3().setFromObject(group);
+  const size = new THREE.Vector3();
+  const center = new THREE.Vector3();
+  box.getSize(size);
+  box.getCenter(center);
+  group.position.sub(center);
+  const maxDim = Math.max(size.x, size.y, size.z) || 1;
+  const pivot = new THREE.Group();
+  pivot.scale.setScalar(2.4 / maxDim);
+  pivot.add(group);
+  return pivot;
+}
+
+/** Dolphin uses the voxel model. Bought pets use an original shape until their GLB arrives. */
 export function PetStage({
   pet,
   frame,
+  petId = "dolphin",
 }: {
   pet: PetState;
   frame: Frame;
+  petId?: PetId;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const petRef = useRef(pet);
@@ -85,15 +151,20 @@ export function PetStage({
     const view = loadView(frame);
 
     let alive = true;
-    const mount = () => {
-      if (!alive || rig.children.length > 0) return;
-      const model = takePetClone();
-      if (!model) return;
-      rig.add(model);
-      renderer.render(scene, camera);
-    };
-    mount();
-    const stopWait = whenPetModelReady(mount);
+    let stopWait = () => { /**/ };
+    if (petId === "dolphin") {
+      const mount = () => {
+        if (!alive || rig.children.length > 0) return;
+        const model = takePetClone();
+        if (!model) return;
+        rig.add(model);
+        renderer.render(scene, camera);
+      };
+      mount();
+      stopWait = whenPetModelReady(mount);
+    } else {
+      rig.add(standIn(petId));
+    }
 
     const resize = () => {
       const w = host.clientWidth || 1;
@@ -195,7 +266,7 @@ export function PetStage({
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };
-  }, [frame]);
+  }, [frame, petId]);
 
   return (
     <div

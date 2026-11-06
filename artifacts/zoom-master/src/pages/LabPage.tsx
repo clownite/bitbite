@@ -20,7 +20,7 @@ import type { Planet } from "../hooks/useGameState";
 import { hapticLight } from "../utils/haptic";
 import { preloadLabForgePickerGlbs } from "../utils/labGlbPreload";
 import { useT } from "../i18n/LanguageContext";
-import { formatZoomInt } from "../utils/formatNumber";
+import { formatCrumbs } from "../pet/crumbs";
 import { loadVoxelStudio, type VoxelStudioProject } from "../utils/voxelStudioStore";
 import { useZmcStatus } from "../hooks/useZmcStatus";
 import { LAB_FORGE_HOLD_ZMC, hasLabForgeHold, setLabForgeHoldOk } from "../utils/labForgeHold";
@@ -287,7 +287,7 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
   return (
     <div className="relative h-full overflow-hidden">
       <div className="absolute inset-0">
-        <PetStage pet={pet} frame="lab" />
+        <PetStage pet={pet} frame="lab" petId={pet.active} />
         <div
           className="absolute left-0 right-0 z-20 flex justify-center pointer-events-none"
           style={{ bottom: 96 }}
@@ -387,7 +387,7 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
               style={{ color: "#ffffff", letterSpacing: "0.06em" }}
             >
               <ZoomCubeIcon size={18} />
-              {formatZoomInt(crumbs)}
+              {formatCrumbs(crumbs)}
             </span>
           </div>
           <button

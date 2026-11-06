@@ -4,6 +4,7 @@ import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
 import {
   CRUMB_GRAM,
+  formatCrumbs,
   getCrumbs,
   markRequest,
   addCrumbs,
@@ -25,12 +26,6 @@ interface WalletPageProps extends Omit<TonWalletProps, "onOpenWalletTab" | "labV
 }
 
 const ADDRESS_RE = /^(EQ|UQ|kQ|0Q|Ef|Uf|kf|0f)[A-Za-z0-9_-]{46}$/;
-
-function formatCrumbs(n: number): string {
-  const v = Math.floor(Number.isFinite(n) ? n : 0);
-  if (v < 0) return "0";
-  return v.toLocaleString();
-}
 
 /** Crumbs farmed from the pet. 1 Crumb = 1 GRAM, paid only after you accept the request. */
 export function WalletPage({ telegramId, visible = true }: WalletPageProps) {

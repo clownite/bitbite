@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { PetStage } from "../components/PetStage";
 import { PetFarmButton } from "../components/PetFarmButton";
+import { PETS, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
 import {
+  buyPet,
   confirmGramUpgrade,
   getPet,
   gramCost,
+  setActivePet,
   stageGoal,
   subscribePet,
   xpLabel,
@@ -33,8 +36,8 @@ export function CollectionPage({
       <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.16em", color: "#f0b15a" }}>
         COLLECTION
       </div>
-      <div style={{ marginTop: 4, fontSize: 12, color: "rgba(255,244,228,0.62)" }}>
-        Everyone starts with the same dolphin.
+      <div style={{ marginTop: 4, fontSize: 12, color: "rgba(255,244,228,0.62)", lineHeight: 1.45 }}>
+        The dolphin farms 0.05 Crumbs a day. Level 5 is 0.15. Level 10 is 0.30. One Crumb is the smallest withdrawal, so the starter needs 20 days.
       </div>
 
       <article
@@ -48,14 +51,14 @@ export function CollectionPage({
         }}
       >
         <div style={{ position: "relative", height: 280, background: "radial-gradient(circle at 50% 60%, #5a321c, #1a0e0a 72%)" }}>
-          <PetStage pet={pet} frame="collection" />
+          <PetStage pet={pet} frame="collection" petId={pet.active} />
           <div style={{ position: "absolute", left: 14, top: 14, fontSize: 11, fontWeight: 900, letterSpacing: "0.14em", color: "#ffe7c2", pointerEvents: "none" }}>
             LEVEL {pet.level}
           </div>
         </div>
         <div style={{ padding: "14px 16px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <div style={{ fontSize: 18, fontWeight: 900, color: "#fff4e4" }}>Dolphin</div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: "#fff4e4" }}>{petDef(pet.active).name}</div>
             <div style={{ fontSize: 12, fontWeight: 800, color: "#f0b15a" }}>
               Stage {pet.stage}/3
             </div>
@@ -67,7 +70,9 @@ export function CollectionPage({
             {pet.finished ? "Level 10. This one is finished." : xpLabel(pet)}
           </div>
           <div style={{ marginTop: 4, fontSize: 10, color: "rgba(255,244,228,0.4)" }}>
-            Drag to move. Pinch or scroll to resize. Farm pays 1 Crumb every 8 hours.
+            Drag to move. Pinch or scroll to resize. This pet farms {petDef(pet.active).rates[pet.level]} / day
+            {" · "}
+            {timeForOneCrumb(petDef(pet.active).rates[pet.level])} for 1 Crumb.
           </div>
           <div style={{ marginTop: 12 }}>
             <PetFarmButton />
@@ -104,6 +109,7 @@ export function CollectionPage({
               You have {gram.toFixed(2)} GRAM.
             </div>
           )}
+          {pet.active === "dolphin" && (
           <div style={{ marginTop: 12, fontSize: 10, color: "rgba(255,244,228,0.38)" }}>
             Voxel Dolphin by{" "}
             <a href="https://sketchfab.com/pratamacam" target="_blank" rel="noreferrer" style={{ color: "inherit" }}>
@@ -114,8 +120,73 @@ export function CollectionPage({
               CC BY 4.0
             </a>
           </div>
+          )}
         </div>
       </article>
+
+      <div style={{ marginTop: 18, display: "flex", flexDirection: "column", gap: 10 }}>
+        {PETS.map((item) => {
+          const owned = pet.owned.includes(item.id);
+          const selected = pet.active === item.id;
+          const canBuy = !owned && gram + 1e-9 >= item.price;
+          return (
+            <article
+              key={item.id}
+              style={{
+                borderRadius: 22,
+                padding: "14px 14px 12px",
+                background: selected ? "rgba(90, 50, 28, 0.95)" : "rgba(42, 24, 16, 0.72)",
+                border: `1px solid ${selected ? "rgba(240,177,90,0.55)" : "rgba(240,177,90,0.16)"}`,
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                <div style={{ fontWeight: 900, color: "#fff4e4" }}>{item.name}</div>
+                <div style={{ fontSize: 12, fontWeight: 800, color: "#f0b15a" }}>
+                  {item.price === 0 ? "Free" : `${item.price} GRAM`}
+                </div>
+              </div>
+              <div style={{ marginTop: 6, fontSize: 12, color: "rgba(255,244,228,0.72)" }}>
+                {item.rates[1].toFixed(2)} / day · lv5 {item.rates[5].toFixed(2)} · lv10 {item.rates[10].toFixed(2)}
+              </div>
+              <div style={{ marginTop: 2, fontSize: 11, color: "rgba(255,244,228,0.45)" }}>
+                1 Crumb in {timeForOneCrumb(item.rates[1])} at level 1, {timeForOneCrumb(item.rates[5])} at level 5, {timeForOneCrumb(item.rates[10])} at level 10.
+              </div>
+              <div style={{ marginTop: 4, fontSize: 11, color: "rgba(255,244,228,0.55)" }}>{item.note}</div>
+              <div style={{ marginTop: 10 }}>
+                {selected ? (
+                  <span style={{ fontSize: 12, fontWeight: 800, color: "#f0b15a" }}>Selected</span>
+                ) : owned ? (
+                  <button type="button" onClick={() => setActivePet(item.id as PetId)} style={miniBtn}>
+                    Use this pet
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={!canBuy}
+                    onClick={() => {
+                      if (!canBuy) return;
+                      if (!onPay(item.price)) return;
+                      buyPet(item.id);
+                    }}
+                    style={{ ...miniBtn, opacity: canBuy ? 1 : 0.45 }}
+                  >
+                    Buy · {item.price} GRAM
+                  </button>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
+const miniBtn: CSSProperties = {
+  border: "none",
+  borderRadius: 14,
+  padding: "8px 12px",
+  fontWeight: 900,
+  background: "#f0b15a",
+  color: "#2a1810",
+};

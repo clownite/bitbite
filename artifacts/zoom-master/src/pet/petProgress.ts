@@ -1,3 +1,6 @@
+import type { PetId } from "./catalog";
+import { settleFarm } from "./crumbs";
+
 /** One shared pet. Everyone starts on the same base form. */
 
 export const STAGE_XP: Record<1 | 2 | 3, number> = { 1: 1000, 2: 2000, 3: 3000 };
@@ -21,42 +24,76 @@ export const INVITE_XP = 12;
 
 export type PetLevel = 1 | 5 | 10;
 
-export type PetState = {
+export type PetCore = {
   stage: 1 | 2 | 3;
   xp: number;
   level: PetLevel;
   finished: boolean;
+};
+
+export type PetState = PetCore & {
+  active: PetId;
+  owned: PetId[];
+  byId: Partial<Record<PetId, PetCore>>;
   dailyClaims: number;
   nextDailyAt: number;
   creditedInvites: number;
   invitesBaselined: boolean;
 };
 
-const KEY = "biscotto-pet-v2";
+const KEY = "biscotto-pet-v3";
+
+const FRESH: PetCore = { stage: 1, xp: 0, level: 1, finished: false };
 
 const START: PetState = {
-  stage: 1,
-  xp: 0,
-  level: 1,
-  finished: false,
+  ...FRESH,
+  active: "dolphin",
+  owned: ["dolphin"],
+  byId: { dolphin: { ...FRESH } },
   dailyClaims: 0,
   nextDailyAt: 0,
   creditedInvites: 0,
   invitesBaselined: false,
 };
 
+function coreOf(p: Partial<PetCore> | undefined): PetCore {
+  const stage = p?.stage === 2 || p?.stage === 3 ? p.stage : 1;
+  const level: PetLevel = p?.level === 5 || p?.level === 10 ? p.level : 1;
+  return {
+    stage,
+    xp: Math.max(0, Number(p?.xp) || 0),
+    level,
+    finished: !!p?.finished,
+  };
+}
+
+function syncActive(draft: PetState): PetState {
+  const core = coreOf(draft);
+  return {
+    ...draft,
+    ...core,
+    byId: { ...draft.byId, [draft.active]: core },
+  };
+}
+
 function load(): PetState {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return { ...START };
     const p = JSON.parse(raw) as Partial<PetState>;
-    const stage = p.stage === 2 || p.stage === 3 ? p.stage : 1;
-    const level: PetLevel = p.level === 5 || p.level === 10 ? p.level : 1;
+    const owned = (Array.isArray(p.owned) ? p.owned : ["dolphin"]).filter(
+      (id): id is PetId => id === "dolphin" || id === "finch" || id === "lynx" || id === "stag",
+    );
+    if (!owned.includes("dolphin")) owned.unshift("dolphin");
+    const active: PetId = owned.includes(p.active as PetId) ? (p.active as PetId) : "dolphin";
+    const byId: Partial<Record<PetId, PetCore>> = {};
+    for (const id of owned) byId[id] = coreOf(p.byId?.[id] ?? (id === "dolphin" ? p : undefined));
+    const core = byId[active] ?? { ...FRESH };
     return {
-      stage,
-      xp: Math.max(0, Number(p.xp) || 0),
-      level,
-      finished: !!p.finished,
+      ...core,
+      active,
+      owned,
+      byId,
       dailyClaims: Math.max(0, Math.floor(Number(p.dailyClaims) || 0)),
       nextDailyAt: Math.max(0, Number(p.nextDailyAt) || 0),
       creditedInvites: Math.max(0, Math.floor(Number(p.creditedInvites) || 0)),
@@ -83,11 +120,37 @@ function applyXp(amount: number) {
     xp -= STAGE_XP[stage];
     stage = (stage + 1) as 2 | 3;
   }
-  state = { ...state, stage, xp };
+  state = syncActive({ ...state, stage, xp });
 }
 
 export function getPet(): PetState {
   return state;
+}
+
+export function getActivePetId(): PetId {
+  return state.active;
+}
+
+export function setActivePet(id: PetId) {
+  if (!state.owned.includes(id) || state.active === id) return;
+  settleFarm();
+  const core = state.byId[id] ?? { ...FRESH };
+  state = syncActive({ ...state, active: id, ...core });
+  emit();
+}
+
+export function buyPet(id: PetId) {
+  if (id === "dolphin" || state.owned.includes(id)) return;
+  settleFarm();
+  const core = { ...FRESH };
+  state = syncActive({
+    ...state,
+    owned: [...state.owned, id],
+    byId: { ...state.byId, [id]: core },
+    active: id,
+    ...core,
+  });
+  emit();
 }
 
 export function subscribePet(fn: () => void): () => void {
@@ -200,12 +263,13 @@ export function syncReferralXp(count: number): number {
 /** Call only after GRAM has been spent. Banked XP carries into the next cycle. */
 export function confirmGramUpgrade() {
   if (state.finished || state.stage !== 3 || state.xp < STAGE_XP[3]) return;
+  settleFarm();
   const extra = state.xp - STAGE_XP[3];
   if (state.level === 1) {
-    state = { ...state, stage: 1, xp: 0, level: 5, finished: false };
+    state = syncActive({ ...state, stage: 1, xp: 0, level: 5, finished: false });
     if (extra > 0) applyXp(extra);
   } else if (state.level === 5) {
-    state = { ...state, stage: 3, xp: STAGE_XP[3], level: 10, finished: true };
+    state = syncActive({ ...state, stage: 3, xp: STAGE_XP[3], level: 10, finished: true });
   }
   emit();
 }
