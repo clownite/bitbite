@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { claimDailyReward, fetchTasksState, peekTasksState, bumpTasksPlanetsBuilt, claimTask, type TasksState, redeemServerCode, claimWeeklyRedStar, fetchWeeklyRedStarStatus } from "../utils/api";
+import { claimDailyReward, fetchTasksState, peekTasksState, bumpTasksPlanetsBuilt, claimTask, type TasksState, redeemServerCode } from "../utils/api";
 import { useGlobalStore, refreshDailyStatus, applyDailyClaimResult } from "../store/globalStore";
-import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { useT } from "../i18n/LanguageContext";
 import { SpaceTicketIcon, SpeedBoltIcon } from "../components/icons/GameIcons";
 
@@ -26,9 +25,6 @@ interface EarnPageProps {
   /** Called after a successful claim so the parent can update redStarBalance. */
   onRedStarUpdate?: (newBalance: number) => void;
 }
-
-const WEEKLY_CYCLE_DAYS = 7;
-const WEEKLY_REDSTAR_REWARD = 5;
 
 const DAILY_REWARDS_BASE = [1, 2, 3, 4, 5, 6, 7];
 
@@ -89,7 +85,7 @@ const SPONSOR_REQ_KEY: Record<string, string> = {
   sponsor_yt_miketamago: "earn.reqMiketamago",
 };
 
-export function EarnPage({ referralCode, referralCount, referralSpeedBonus, referredBy, claimedMilestones, telegramId, craftsCompleted = 0, visible = true, onRedeemCode, weeklyRedStarDay = 1, weeklyRedStarClaimedToday = false, onRedStarUpdate }: EarnPageProps) {
+export function EarnPage({ referralCode, referralCount, referralSpeedBonus, referredBy, claimedMilestones, telegramId, craftsCompleted = 0, visible = true, onRedeemCode }: EarnPageProps) {
   const { t } = useT();
   const firstName = (() => {
     try { return (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.first_name ?? null; } catch { return null; }
@@ -130,7 +126,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
     setClaiming(false);
     if (res.ok && res.reward) {
       applyDailyClaimResult(res as Parameters<typeof applyDailyClaimResult>[0]);
-      setClaimMsg(t("earn.stardustDay", { n: res.reward.toLocaleString(), d: res.day ?? 0 }));
+      setClaimMsg(`+${res.reward.toLocaleString()} Crumbs`);
       if (typeof res.stardustBalance === "number" && typeof res.balanceEpoch === "number") {
         window.dispatchEvent(new CustomEvent("zoom-server-stardust-snap", {
           detail: { stardustBalance: res.stardustBalance, epoch: res.balanceEpoch },
@@ -233,48 +229,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
   const [taskMsg, setTaskMsg] = useState<string | null>(null);
   const [claimingTaskId, setClaimingTaskId] = useState<string | null>(null);
 
-  // ── Weekly REDSTAR bonus (5/day × 7 days, then repeats) ──
-  const [cycleDay, setCycleDay] = useState(weeklyRedStarDay);
-  const [claimedToday, setClaimedToday] = useState(weeklyRedStarClaimedToday);
-  const [claimingRedStar, setClaimingRedStar] = useState(false);
-  const [redStarMsg, setRedStarMsg] = useState<string | null>(null);
-
-  useEffect(() => {
-    setCycleDay(weeklyRedStarDay);
-    setClaimedToday(weeklyRedStarClaimedToday);
-  }, [weeklyRedStarDay, weeklyRedStarClaimedToday]);
-
-  useEffect(() => {
-    if (!telegramId) return;
-    void fetchWeeklyRedStarStatus(telegramId).then((res) => {
-      if (res.ok && typeof res.cycleDay === "number") {
-        setCycleDay(res.cycleDay);
-        setClaimedToday(!!res.claimedToday);
-      }
-    });
-  }, [telegramId]);
-
-  const handleClaimWeeklyRedStar = async () => {
-    if (!telegramId || claimingRedStar || claimedToday) return;
-    setClaimingRedStar(true);
-    try {
-      const res = await claimWeeklyRedStar(telegramId);
-      if (res.ok) {
-        if (typeof res.cycleDay === "number") setCycleDay(res.cycleDay);
-        setClaimedToday(true);
-        if (typeof res.newRedStarBalance === "number") {
-          onRedStarUpdate?.(res.newRedStarBalance);
-        }
-        setRedStarMsg(`+${res.reward ?? WEEKLY_REDSTAR_REWARD} ★ REDSTAR · Day ${res.cycleDay ?? cycleDay}/${WEEKLY_CYCLE_DAYS}`);
-      } else {
-        setRedStarMsg(res.error === "Already claimed today" ? t("earn.alreadyClaimedToday") : (res.error ?? t("earn.claimFailed")));
-      }
-    } finally {
-      setClaimingRedStar(false);
-      setTimeout(() => setRedStarMsg(null), 3500);
-    }
-  };
-
   // Per-task "channel opened at" timestamps. Persisted per (user, taskId)
   // so the 10s countdown survives a reload AND opening one sponsor task
   // doesn't accidentally unlock the Claim button on every other sponsor
@@ -352,15 +306,8 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
     setClaimingTaskId(null);
     if (res.ok) {
       const parts: string[] = [];
-      if (res.rewardZoom && res.rewardZoom > 0) {
-        parts.push(`+${res.rewardZoom.toLocaleString()} $ZOOM`);
-      }
-      if (res.rewardSpins && res.rewardSpins > 0) {
-        parts.push(t(res.rewardSpins > 1 ? "earn.spinsCreditedMany" : "earn.spinsCreditedOne", { n: res.rewardSpins }));
-      }
-      if (res.rewardStardust && res.rewardStardust > 0) {
-        parts.push(`+${res.rewardStardust.toLocaleString()} Stardust`);
-      }
+      const crumbs = (res.rewardZoom ?? 0) + (res.rewardStardust ?? 0);
+      if (crumbs > 0) parts.push(`+${crumbs.toLocaleString()} Crumbs`);
       setTaskMsg(parts.join(" · ") || t("earn.claimedBtn"));
       // Optimistic UI: mark claimed immediately so Claim feels instant.
       setTasks((prev) => {
@@ -463,8 +410,8 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
               <div className="earn-section-kicker" style={{ color: "rgba(255,215,64,0.85)" }}>{t("earn.stepDaily")}</div>
               <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)" }}>{t("earn.dailyStreak")}</div>
             </div>
-            <div className="earn-reward-chip earn-reward-chip--gold" aria-label={`+${Math.round(upcomingReward)} stardust`}>
-              +{Math.round(upcomingReward)} ★
+            <div className="earn-reward-chip earn-reward-chip--gold" aria-label={`+${Math.round(upcomingReward)} Crumbs`}>
+              +{Math.round(upcomingReward)} Crumbs
             </div>
           </div>
 
@@ -507,7 +454,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
                     }}
                   >
                     {Math.round(amt)}
-                    <span style={{ color: "#ffd740", fontSize: 9, marginLeft: 2, position: "relative", left: 2, lineHeight: 1 }}>★</span>
                   </div>
                   {isClaimed && <div className="text-[8px] leading-none" style={{ color: "#00e676" }}>✓</div>}
                 </div>
@@ -524,7 +470,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
             {claiming
               ? t("earn.claiming")
               : canClaim
-                ? `${t("earn.claimBtn")} · D${upcomingDay} · +${Math.round(upcomingReward)} ★`
+                ? `${t("earn.claimBtn")} · D${upcomingDay} · +${Math.round(upcomingReward)} Crumbs`
                 : t("earn.nextIn", { h: hLeft, m: mLeft, s: sLeft })}
           </button>
           {claimMsg && (
@@ -537,79 +483,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
           </p>
         </section>
 
-        {/* Weekly REDSTAR */}
-        <section className="earn-panel">
-          <div className="earn-section-kicker mb-2" style={{ color: "rgba(255,51,85,0.9)" }}>{t("earn.stepRedStar")}</div>
-          <div className="flex items-center gap-3 mb-3">
-            <div style={{ fontSize: 22, lineHeight: 1, color: "#ff3355" }}>★</div>
-            <div className="flex-1 min-w-0">
-              <div className="font-black text-[15px] tracking-wide" style={{ color: "var(--earn-ink)" }}>{t("earn.watchAndEarn")}</div>
-              <p className="text-[11px] font-semibold mt-1 leading-snug" style={{ color: "var(--earn-muted)" }}>
-                {t("earn.redStarHint")}
-              </p>
-              <div className="mt-1.5">
-                <span className="earn-reward-chip">+{WEEKLY_REDSTAR_REWARD} ★ REDSTAR / day</span>
-              </div>
-            </div>
-            <div
-              className="flex flex-col items-center justify-center rounded-lg px-2.5 py-1 border font-black tabular-nums"
-              style={{
-                background: claimedToday ? "rgba(0,230,118,0.08)" : "rgba(158,197,232,0.08)",
-                borderColor: claimedToday ? "rgba(0,230,118,0.28)" : "rgba(158,197,232,0.22)",
-                color: claimedToday ? "#00e676" : "#E8ECF4",
-                minWidth: 48,
-              }}
-            >
-              <div style={{ fontSize: 14 }}>{cycleDay}/{WEEKLY_CYCLE_DAYS}</div>
-            </div>
-          </div>
-          <div className="flex gap-1.5 mb-3">
-            {Array.from({ length: WEEKLY_CYCLE_DAYS }, (_, i) => {
-              const dayNum = i + 1;
-              const done = claimedToday ? dayNum <= cycleDay : dayNum < cycleDay;
-              const active = dayNum === cycleDay;
-              return (
-                <div
-                  key={dayNum}
-                  className="flex-1 h-1.5 rounded-full"
-                  style={{
-                    background: done
-                      ? "linear-gradient(90deg, #c62828, #ff3355)"
-                      : active
-                        ? "linear-gradient(90deg, #ff6b81, #ff3355)"
-                        : "rgba(255,51,85,0.12)",
-                    boxShadow: active ? "0 0 8px rgba(255,51,85,0.45)" : "none",
-                  }}
-                />
-              );
-            })}
-          </div>
-          <button
-            onClick={() => void handleClaimWeeklyRedStar()}
-            disabled={claimingRedStar || claimedToday || !telegramId}
-            className={`earn-cta ${!claimedToday && !claimingRedStar && telegramId ? "earn-cta--primary" : ""}`}
-          >
-            {claimedToday
-              ? t("earn.claimedTodayReturn")
-              : claimingRedStar
-                ? t("earn.claimingRedStar")
-                : `${t("earn.claimBtn")} · +${WEEKLY_REDSTAR_REWARD} ★ REDSTAR`}
-          </button>
-          {redStarMsg && (
-            <div
-              className="mt-2 text-center text-xs font-bold py-2 rounded-lg"
-              style={{
-                color: redStarMsg.startsWith("+") ? "#00e676" : "#ffb347",
-                background: redStarMsg.startsWith("+") ? "rgba(0,230,118,0.08)" : "rgba(255,183,71,0.08)",
-                border: `1px solid ${redStarMsg.startsWith("+") ? "rgba(0,230,118,0.2)" : "rgba(255,183,71,0.2)"}`,
-              }}
-            >
-              {redStarMsg}
-            </div>
-          )}
-        </section>
-
-        {/* Lab tasks */}
+        {/* Tasks */}
         <section className="earn-panel">
           <div className="flex items-end justify-between mb-3">
             <div className="min-w-0 pr-2">
@@ -650,7 +524,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
                         </div>
                         <div className="mt-1">
                           <span className={`earn-reward-chip ${task.claimed ? "earn-reward-chip--ok" : ""}`}>
-                            +{rewardN.toLocaleString()} $ZOOM
+                            +{rewardN.toLocaleString()} Crumbs
                           </span>
                         </div>
                       </div>
@@ -699,7 +573,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
                 const showWait = !task.claimed && task.eligible && openedAt > 0 && !gateOpen;
                 const zoomN = Number(task.rewardZoom ?? 0);
                 const dustN = Number(task.rewardStardust ?? 0);
-                const spinsN = Number(task.rewardSpins ?? 0);
                 return (
                   <div key={task.id} className={`earn-row flex-col !items-stretch ${task.claimed ? "earn-row--done" : ""}`}>
                     <div className="flex items-center justify-between gap-2 mb-1">
@@ -708,9 +581,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
                           {title}
                         </div>
                         <div className="mt-1">
-                          {zoomN > 0 && <span className="earn-reward-chip">+{zoomN.toLocaleString()} $ZOOM</span>}
-                          {dustN > 0 && <span className="earn-reward-chip earn-reward-chip--gold">+{dustN.toLocaleString()} ★</span>}
-                          {spinsN > 0 && <span className="earn-reward-chip">+{spinsN} spins</span>}
+                          {(zoomN + dustN) > 0 && <span className="earn-reward-chip">+{(zoomN + dustN).toLocaleString()} Crumbs</span>}
                         </div>
                       </div>
                       {task.claimed ? (
@@ -759,7 +630,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
             <div className="earn-section-kicker" style={{ color: "rgba(158,197,232,0.75)" }}>{t("earn.stepInvite")}</div>
             <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)" }}>{t("earn.referralProgram")}</div>
             <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="earn-reward-chip earn-reward-chip--gold">+{REFERRAL_STARDUST_PER_INVITE} ★ / invite</span>
+              <span className="earn-reward-chip earn-reward-chip--gold">+{REFERRAL_STARDUST_PER_INVITE} Crumbs / invite</span>
             </div>
           </div>
 
@@ -795,8 +666,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
             <div className="mb-3">
               <div className="flex justify-between text-[11px] mb-1.5">
                 <span style={{ color: "rgba(232,236,244,0.6)", display: "inline-flex", alignItems: "center", gap: 4 }}>
-                  {nextMilestone.count} invites → +{nextMilestone.reward.toLocaleString()}
-                  <ZoomCubeIcon size={12} />
+                  {nextMilestone.count} invites → +{nextMilestone.reward.toLocaleString()} Crumbs
                 </span>
                 <span className="font-bold tabular-nums" style={{ color: "var(--earn-cyan)" }}>{referralCount}/{nextMilestone.count}</span>
               </div>
@@ -826,7 +696,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
                     <span className="earn-reward-chip earn-reward-chip--ok">{t("earn.claimedTick")}</span>
                   ) : (
                     <span className="earn-reward-chip" style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
-                      +{m.reward.toLocaleString()} <ZoomCubeIcon size={11} />
+                      +{m.reward.toLocaleString()} Crumbs
                     </span>
                   )}
                 </div>
