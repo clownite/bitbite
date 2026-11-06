@@ -18,6 +18,8 @@ export type CrumbRequest = {
 
 type Ledger = {
   balance: number;
+  /** Crumbs sitting on the pet. Stops at the pet's daily maximum until Claim. */
+  pending: number;
   lastTickAt: number;
   requests: CrumbRequest[];
 };
@@ -26,11 +28,11 @@ const KEY = "biscotto-crumbs-v2";
 const listeners = new Set<() => void>();
 
 function empty(): Ledger {
-  return { balance: 0, lastTickAt: Date.now(), requests: [] };
+  return { balance: 0, pending: 0, lastTickAt: Date.now(), requests: [] };
 }
 
-function round4(n: number): number {
-  return Math.round(n * 10000) / 10000;
+function round8(n: number): number {
+  return Math.round(n * 1e8) / 1e8;
 }
 
 export function formatCrumbs(n: number): string {
@@ -45,6 +47,7 @@ function load(): Ledger {
     const p = JSON.parse(raw) as Partial<Ledger>;
     return {
       balance: Math.max(0, Number(p.balance) || 0),
+      pending: Math.max(0, Number(p.pending) || 0),
       lastTickAt: Math.max(0, Number(p.lastTickAt) || Date.now()),
       requests: Array.isArray(p.requests) ? p.requests : [],
     };
@@ -60,22 +63,56 @@ function emit() {
   listeners.forEach((fn) => fn());
 }
 
-/** Bank the crumbs earned since the last tick. Rate follows the selected pet and its level. */
+/**
+ * Fill the pet up to its own daily maximum, then stop.
+ * Time spent already full is dropped, so the tank stays frozen until Claim.
+ */
 export function settleFarm(now = Date.now()) {
   const from = state.lastTickAt || now;
   const elapsed = Math.max(0, now - from);
-  const rate = dailyFarm(getActivePetId(), getPet().level);
-  const gain = (elapsed / DAY_MS) * rate;
-  if (elapsed < 1000 || gain <= 0) {
-    if (!state.lastTickAt) {
-      state = { ...state, lastTickAt: now };
-      emit();
-    }
+  const cap = dailyFarm(getActivePetId(), getPet().level);
+  const room = Math.max(0, cap - state.pending);
+  if (elapsed < 1000) return 0;
+  if (room <= 1e-10) {
+    state = { ...state, lastTickAt: now };
+    emit();
     return 0;
   }
-  state = { ...state, balance: round4(state.balance + gain), lastTickAt: now };
+  const gain = Math.min(room, (elapsed / DAY_MS) * cap);
+  state = {
+    ...state,
+    pending: round8(state.pending + gain),
+    lastTickAt: now,
+  };
   emit();
   return gain;
+}
+
+export function farmStatus(now = Date.now()) {
+  settleFarm(now);
+  const cap = currentDailyRate();
+  const pending = state.pending;
+  return {
+    pending,
+    cap,
+    full: cap > 0 && pending + 1e-8 >= cap,
+    ratio: cap > 0 ? Math.min(1, pending / cap) : 0,
+  };
+}
+
+/** Move whatever the pet is holding into the wallet and start filling again. */
+export function claimFarm(now = Date.now()): number {
+  settleFarm(now);
+  if (state.pending <= 1e-10) return 0;
+  const n = state.pending;
+  state = {
+    ...state,
+    balance: round8(state.balance + n),
+    pending: 0,
+    lastTickAt: now,
+  };
+  emit();
+  return n;
 }
 
 export function currentDailyRate(): number {
@@ -94,14 +131,14 @@ export function subscribeCrumbs(fn: () => void): () => void {
 export function addCrumbs(amount: number) {
   const n = Number(amount);
   if (!Number.isFinite(n) || n <= 0) return;
-  state = { ...state, balance: round4(state.balance + n) };
+  state = { ...state, balance: round8(state.balance + n) };
   emit();
 }
 
 export function takeCrumbs(amount: number): boolean {
   const n = Math.floor(amount);
   if (n <= 0 || state.balance + 1e-9 < n) return false;
-  state = { ...state, balance: round4(state.balance - n) };
+  state = { ...state, balance: round8(state.balance - n) };
   emit();
   return true;
 }

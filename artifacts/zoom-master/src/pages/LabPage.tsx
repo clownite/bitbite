@@ -8,7 +8,7 @@ import { ForgePathPicker } from "../components/ForgePathPicker";
 import { ForgePathWheel } from "../components/ForgePathWheel";
 import { LabModelRevealCard } from "../components/LabModelRevealCard";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
-import { PetFarmButton, useCrumbsBalance } from "../components/PetFarmButton";
+import { PetFarmPanel, useCrumbsBalance } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
 import { getPet, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { ForgeUiErrorBoundary } from "../components/ForgeUiErrorBoundary";
@@ -290,31 +290,14 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
         <PetStage pet={pet} frame="lab" petId={pet.active} />
         <div
           className="absolute left-0 right-0 z-20 flex justify-center pointer-events-none"
-          style={{ bottom: 96 }}
+          style={{ bottom: 132, padding: "0 16px" }}
         >
-          <div
-            style={{
-              minWidth: 180,
-              padding: "10px 14px 12px",
-              borderRadius: 24,
-              background: "rgba(42, 24, 16, 0.82)",
-              border: "1px solid rgba(240, 177, 90, 0.35)",
-              color: "#fff4e4",
-              textAlign: "center",
-            }}
-          >
-            <div style={{ fontSize: 11, fontWeight: 900, letterSpacing: "0.12em" }}>
+          <div className="pointer-events-auto" style={{ width: "min(420px, 100%)" }}>
+            <div style={{ marginBottom: 8, textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
               {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`}
+              <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)}</span>
             </div>
-            <div style={{ marginTop: 4, fontSize: 10, color: "rgba(255,244,228,0.7)" }}>
-              {xpLabel(pet)}
-            </div>
-            <div style={{ marginTop: 2, fontSize: 9, color: "rgba(255,244,228,0.45)" }}>
-              Drag to move · pinch or scroll to resize
-            </div>
-            <div className="pointer-events-auto" style={{ marginTop: 8 }}>
-              <PetFarmButton />
-            </div>
+            <PetFarmPanel />
           </div>
         </div>
 

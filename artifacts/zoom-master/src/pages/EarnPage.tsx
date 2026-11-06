@@ -390,41 +390,14 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
     <div className="flex flex-col h-full overflow-y-auto earn-page" style={{ display: visible ? undefined : "none" }} aria-hidden={!visible}>
       <div className="px-4 pt-3 pb-1 flex-shrink-0">
         <h2 className="font-black text-xl tracking-tight" style={{ color: "var(--earn-ink)" }}>{t("earn.title")}</h2>
-        <p className="text-[11px] mt-0.5 leading-snug" style={{ color: "var(--earn-muted)" }}>
-          {t("earn.subtitleLabFirst")}
-        </p>
       </div>
 
       <div className="px-4 pb-5 flex flex-col gap-2">
-        {/* How to earn */}
-        <div className="earn-hero" style={{ padding: "8px 10px" }}>
-          <div className="earn-section-kicker mb-1.5" style={{ color: "var(--earn-cyan)" }}>
-            {t("earn.howTitle")}
-          </div>
-          <div className="earn-steps">
-            {[
-              { n: "1", text: t("earn.how1"), accent: "var(--earn-gold)" },
-              { n: "2", text: t("earn.how2"), accent: "#e7a56a" },
-              { n: "3", text: t("earn.how3"), accent: "var(--earn-cyan)" },
-              { n: "4", text: t("earn.how4"), accent: "#b8d4ee" },
-            ].map((step) => (
-              <div key={step.n} className="earn-step">
-                <div className="earn-step__num" style={{ color: step.accent, border: `1px solid ${step.accent}` }}>
-                  {step.n}
-                </div>
-                <p className="text-[11px] font-semibold leading-snug pt-0.5" style={{ color: "rgba(232,236,244,0.9)" }}>
-                  {step.text}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Daily */}
         <section className="earn-panel">
           <div className="flex items-end justify-between mb-3">
             <div>
-              <div className="earn-section-kicker" style={{ color: "rgba(255,215,64,0.85)" }}>{t("earn.stepDaily")}</div>
+              <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>Daily</div>
               <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)" }}>{t("earn.dailyStreak")}</div>
             </div>
             <div className="earn-reward-chip earn-reward-chip--gold" aria-label={`+${upcomingReward} XP`}>
@@ -435,7 +408,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
           {xpStatus.blocked === "gate" && (
             <div
               className="mb-3 rounded-xl px-3 py-2 text-[11px] font-bold text-center"
-              style={{ color: "#ffb347", background: "rgba(255,179,71,0.08)", border: "1px solid rgba(255,179,71,0.22)" }}
+              style={{ color: "#7ad7ff", background: "rgba(122,215,255,0.08)", border: "1px solid rgba(122,215,255,0.28)" }}
             >
               {pet.level === 1
                 ? `Stage 3 is full. Pay ${LEVEL5_GRAM} GRAM in Collection for level 5.`
@@ -454,18 +427,18 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
                   className={`earn-day p-1.5 flex flex-col items-center justify-center border ${isNext ? "earn-day--next" : ""}`}
                   style={{
                     aspectRatio: "1 / 1.12",
-                    borderColor: isClaimed ? "rgba(240,177,90,0.55)" : isNext ? "rgba(255,231,194,0.7)" : "rgba(255,244,228,0.08)",
-                    background: isClaimed ? "rgba(240,177,90,0.18)" : isNext ? "rgba(255,231,194,0.12)" : "rgba(255,255,255,0.03)",
+                    borderColor: isClaimed ? "rgba(122,215,255,0.55)" : isNext ? "rgba(232,247,255,0.7)" : "rgba(122,215,255,0.12)",
+                    background: isClaimed ? "rgba(122,215,255,0.16)" : isNext ? "rgba(122,215,255,0.08)" : "rgba(0,0,0,0.35)",
                   }}
                   data-testid={`day-${dayNum}`}
                 >
-                    <div className="text-[8px] font-bold" style={{ color: isClaimed ? "#f0b15a" : isNext ? "#fff4e4" : "rgba(255,244,228,0.4)" }}>
+                    <div className="text-[8px] font-bold" style={{ color: isClaimed ? "#7ad7ff" : isNext ? "#e8f7ff" : "rgba(186,220,236,0.4)" }}>
                     D{dayNum}
                   </div>
                   <div
                     className="text-[11px] font-black mt-0.5 tabular-nums"
                     style={{
-                      color: isClaimed ? "#ffe7c2" : isNext ? "#fff" : "rgba(255,244,228,0.55)",
+                      color: isClaimed ? "#e8f7ff" : isNext ? "#fff" : "rgba(186,220,236,0.55)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -474,7 +447,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
                   >
                     {Math.round(amt)}
                   </div>
-                  {isClaimed && <div className="text-[8px] leading-none" style={{ color: "#f0b15a" }}>✓</div>}
+                  {isClaimed && <div className="text-[8px] leading-none" style={{ color: "#7ad7ff" }}>✓</div>}
                 </div>
               );
             })}
@@ -509,7 +482,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
         {/* Invite */}
         <section className="earn-panel">
           <div className="mb-3">
-            <div className="earn-section-kicker" style={{ color: "rgba(158,197,232,0.75)" }}>{t("earn.stepInvite")}</div>
+            <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>Invite</div>
             <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)" }}>{t("earn.referralProgram")}</div>
             <div className="mt-2 flex flex-wrap gap-1.5">
               <span className="earn-reward-chip earn-reward-chip--gold">+{INVITE_XP} XP / invite</span>
@@ -543,7 +516,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
             </div>
           )}
 
-          <p className="text-[11px] leading-snug" style={{ color: "rgba(255,244,228,0.55)" }}>
+          <p className="text-[11px] leading-snug" style={{ color: "rgba(186,220,236,0.55)" }}>
             Invites pay XP only. Crumbs come from farming the pet, and 1 Crumb withdraws as 1 GRAM.
           </p>
         </section>

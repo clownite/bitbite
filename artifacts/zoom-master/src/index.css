@@ -3258,25 +3258,25 @@ body.animations-paused * {
 
 /* ─── Earn page ─────────────────────────────────────────────────────── */
 .earn-page {
-  --earn-ink: #fff4e4;
-  --earn-muted: rgba(255, 244, 228, 0.62);
-  --earn-cyan: #f0b15a;
-  --earn-cyan-dim: rgba(240, 177, 90, 0.14);
-  --earn-gold: #f0b15a;
-  --earn-ok: #c8e6c4;
-  --earn-panel: rgba(58, 32, 20, 0.92);
-  --earn-line: rgba(240, 177, 90, 0.28);
+  --earn-ink: #e8f7ff;
+  --earn-muted: rgba(186, 220, 236, 0.62);
+  --earn-cyan: #7ad7ff;
+  --earn-cyan-dim: rgba(122, 215, 255, 0.14);
+  --earn-gold: #7ad7ff;
+  --earn-ok: #b7f3ea;
+  --earn-panel: rgba(4, 10, 16, 0.94);
+  --earn-line: rgba(122, 215, 255, 0.28);
   position: relative;
-  background: transparent;
+  background: linear-gradient(180deg, #071018 0%, #000000 100%);
 }
 .earn-page > * { position: relative; z-index: 1; }
 
 .earn-hero {
   border-radius: 28px;
   padding: 16px 16px 14px;
-  background: rgba(58, 32, 20, 0.92);
+  background: rgba(4, 10, 16, 0.94);
   border: 1px solid var(--earn-line);
-  box-shadow: 0 16px 40px rgba(20, 8, 2, 0.28);
+  box-shadow: none;
 }
 .earn-steps {
   display: flex;
@@ -3310,11 +3310,11 @@ body.animations-paused * {
   text-transform: uppercase;
 }
 .earn-panel {
-  border-radius: 28px;
+  border-radius: 16px;
   padding: 16px;
   background: var(--earn-panel);
   border: 1px solid var(--earn-line);
-  box-shadow: 0 16px 40px rgba(20, 8, 2, 0.28);
+  box-shadow: none;
 }
 .earn-day {
   border-radius: 12px;
@@ -3345,9 +3345,9 @@ body.animations-paused * {
   white-space: nowrap;
 }
 .earn-reward-chip--gold {
-  background: rgba(255, 215, 64, 0.12);
-  border-color: rgba(255, 215, 64, 0.35);
-  color: #ffe082;
+  background: rgba(122, 215, 255, 0.1);
+  border-color: rgba(122, 215, 255, 0.4);
+  color: #7ad7ff;
 }
 .earn-reward-chip--ok {
   background: rgba(0, 230, 118, 0.1);
@@ -3367,15 +3367,15 @@ body.animations-paused * {
 }
 .earn-cta:active:not(:disabled) { transform: scale(0.97); }
 .earn-cta--primary {
-  background: #f0b15a;
-  color: #2a1810;
-  box-shadow: 0 8px 20px rgba(240, 177, 90, 0.25);
+  background: #7ad7ff;
+  color: #041018;
+  box-shadow: none;
   border-color: transparent;
 }
 .earn-cta--ghost {
-  background: rgba(240, 177, 90, 0.12);
-  color: #ffe7c2;
-  border-color: rgba(240, 177, 90, 0.28);
+  background: transparent;
+  color: #7ad7ff;
+  border-color: rgba(122, 215, 255, 0.45);
 }
 .earn-cta:disabled {
   background: rgba(255, 255, 255, 0.04);
@@ -3412,7 +3412,7 @@ body.animations-paused * {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #c47a2e, #f0b15a);
+  background: #7ad7ff;
 }
 
 /* Placeholder brand: round type, warm chrome, cookie that bobs in place. */

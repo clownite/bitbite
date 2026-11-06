@@ -1,6 +1,6 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { PetStage } from "../components/PetStage";
-import { PetFarmButton } from "../components/PetFarmButton";
+import { PetFarmPanel } from "../components/PetFarmButton";
 import { PETS, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
 import {
   buyPet,
@@ -75,7 +75,7 @@ export function CollectionPage({
             {timeForOneCrumb(petDef(pet.active).rates[pet.level])} for 1 Crumb.
           </div>
           <div style={{ marginTop: 12 }}>
-            <PetFarmButton />
+            <PetFarmPanel />
           </div>
 
           {ready && (
