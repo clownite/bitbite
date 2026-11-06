@@ -58,3 +58,8 @@ Thumbs.db
 
 # Replit chat uploads (photos, video, notes). Not imported by the game.
 /attached_assets/
+
+# Heavy media kept locally, omitted from the hosted bundle (size limit).
+/artifacts/zoom-master/public/planets/
+/artifacts/zoom-master/public/bgm.mp3
+/artifacts/zoom-master/public/models/minifig.glb

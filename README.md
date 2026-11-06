@@ -16,6 +16,8 @@ PORT=8642 pnpm --filter @workspace/zoom-master run dev
 
 Apri `http://localhost:8642`.
 
+I video dei pianeti, la musica di sottofondo e il modello `minifig.glb` restano sul disco per il server locale, ma non sono nel repository: superano il limite di dimensione dell’hosting.
+
 In sviluppo il client usa l’identità browser già prevista nel codice e parla con l’API di produzione. Le azioni (craft, mercato, shop) modificano i dati reali di quell’account.
 
 ## Token del bot
