@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { PetState } from "../pet/petProgress";
 
+/** Voxel Dolphin by pratamacam, CC BY 4.0. https://sketchfab.com/3d-models/voxel-dolphin-1a99bccffcf74908aeff36ce4fbccf2b */
 const PET_URL = "/models/pet.glb";
 
 function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
@@ -11,7 +12,7 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
   return stageBoost * levelBoost;
 }
 
-/** Base pet everyone starts with. Loads `/models/pet.glb` when that file exists. */
+/** Shared starter pet: the voxel dolphin. */
 export function PetStage({
   pet,
   interactive = true,
@@ -33,10 +34,11 @@ export function PetStage({
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 40);
-    camera.position.set(0, 1.05, 11);
-    camera.lookAt(0, 0.45, 0);
+    camera.position.set(0, 0.55, 10);
+    camera.lookAt(0, 0, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
     renderer.domElement.style.width = "100%";
@@ -44,57 +46,16 @@ export function PetStage({
     renderer.domElement.style.display = "block";
     host.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xfff1dc, 1.15));
-    const key = new THREE.DirectionalLight(0xffe2b0, 2.1);
-    key.position.set(2.2, 3.4, 3);
+    scene.add(new THREE.AmbientLight(0xfff6ea, 1.35));
+    const key = new THREE.DirectionalLight(0xfff0d4, 2.4);
+    key.position.set(3, 4, 5);
     scene.add(key);
+    const fill = new THREE.DirectionalLight(0x9ec8ff, 0.7);
+    fill.position.set(-3, 1.2, -2);
+    scene.add(fill);
 
     const rig = new THREE.Group();
     scene.add(rig);
-
-    const body = new THREE.Mesh(
-      new THREE.SphereGeometry(0.72, 28, 20),
-      new THREE.MeshStandardMaterial({ color: 0xd98a3a, roughness: 0.45 }),
-    );
-    body.scale.set(1.15, 0.92, 1);
-    body.position.y = 0.15;
-    rig.add(body);
-
-    const belly = new THREE.Mesh(
-      new THREE.SphereGeometry(0.42, 20, 16),
-      new THREE.MeshStandardMaterial({ color: 0xffe0b8, roughness: 0.55 }),
-    );
-    belly.position.set(0, -0.02, 0.42);
-    rig.add(belly);
-
-    const head = new THREE.Mesh(
-      new THREE.SphereGeometry(0.42, 24, 18),
-      new THREE.MeshStandardMaterial({ color: 0xe09a48, roughness: 0.42 }),
-    );
-    head.position.set(0, 0.72, 0.18);
-    rig.add(head);
-
-    const earMat = new THREE.MeshStandardMaterial({ color: 0xc4742c, roughness: 0.5 });
-    const earL = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 12), earMat);
-    earL.scale.set(0.7, 1.35, 0.45);
-    earL.position.set(-0.22, 1.08, 0.05);
-    const earR = earL.clone();
-    earR.position.x = 0.22;
-    rig.add(earL, earR);
-
-    const eyeMat = new THREE.MeshStandardMaterial({ color: 0x2a1810, roughness: 0.3 });
-    const eyeL = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 8), eyeMat);
-    eyeL.position.set(-0.14, 0.76, 0.52);
-    const eyeR = eyeL.clone();
-    eyeR.position.x = 0.14;
-    rig.add(eyeL, eyeR);
-
-    const tail = new THREE.Mesh(
-      new THREE.SphereGeometry(0.16, 12, 10),
-      new THREE.MeshStandardMaterial({ color: 0xf0b15a, roughness: 0.4 }),
-    );
-    tail.position.set(0, 0.28, -0.78);
-    rig.add(tail);
 
     let alive = true;
     const loader = new GLTFLoader();
@@ -102,20 +63,41 @@ export function PetStage({
       PET_URL,
       (gltf) => {
         if (!alive) return;
-        rig.clear();
         const model = gltf.scene;
+        model.updateMatrixWorld(true);
+        model.traverse((obj) => {
+          const mesh = obj as THREE.Mesh;
+          if (!mesh.isMesh) return;
+          const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+          for (const mat of mats) {
+            const std = mat as THREE.MeshStandardMaterial;
+            if (std.color) std.color.set(0xffffff);
+            std.vertexColors = true;
+          }
+        });
         const box = new THREE.Box3().setFromObject(model);
         const size = new THREE.Vector3();
         const center = new THREE.Vector3();
         box.getSize(size);
         box.getCenter(center);
         model.position.sub(center);
+        const pivot = new THREE.Group();
         const maxDim = Math.max(size.x, size.y, size.z) || 1;
-        model.scale.setScalar(2.4 / maxDim);
-        rig.add(model);
+        pivot.scale.setScalar(2.8 / maxDim);
+        // Export stands on its tail, back toward us once it is laid flat.
+        // Tip it, then roll so the eye and belly face the camera.
+        const lay = new THREE.Group();
+        lay.rotation.z = -Math.PI / 2;
+        lay.add(model);
+        pivot.rotation.x = Math.PI / 2;
+        pivot.add(lay);
+        const level = new THREE.Group();
+        level.rotation.z = 0.95;
+        level.add(pivot);
+        rig.add(level);
       },
       undefined,
-      () => { /* base animal stays until a pet.glb is added */ },
+      () => { /* keep the stage empty if the model cannot load */ },
     );
 
     const resize = () => {
@@ -138,10 +120,11 @@ export function PetStage({
       const { stage, level } = petRef.current;
       const s = fitScale(level, stage);
       rig.scale.setScalar(s);
-      rig.position.y = Math.sin(t * 2.1) * 0.14;
-      rig.rotation.y = Math.sin(t * 0.85) * 0.45;
-      rig.rotation.z = Math.sin(t * 1.7) * 0.05;
-      tail.rotation.z = Math.sin(t * 4) * 0.5;
+      rig.position.y = Math.sin(t * 1.35) * 0.16;
+      rig.position.x = Math.sin(t * 0.55) * 0.12;
+      rig.rotation.y = Math.sin(t * 0.65) * 0.28;
+      rig.rotation.z = Math.sin(t * 1.2) * 0.06;
+      rig.rotation.x = Math.sin(t * 1.5) * 0.06;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
     };

@@ -33,7 +33,7 @@ export function CollectionPage({
         COLLECTION
       </div>
       <div style={{ marginTop: 4, fontSize: 12, color: "rgba(255,244,228,0.62)" }}>
-        Everyone starts with the same animal. One card.
+        Everyone starts with the same dolphin.
       </div>
 
       <article
@@ -54,7 +54,7 @@ export function CollectionPage({
         </div>
         <div style={{ padding: "14px 16px 16px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <div style={{ fontSize: 18, fontWeight: 900, color: "#fff4e4" }}>Base</div>
+            <div style={{ fontSize: 18, fontWeight: 900, color: "#fff4e4" }}>Dolphin</div>
             <div style={{ fontSize: 12, fontWeight: 800, color: "#f0b15a" }}>
               Stage {pet.stage}/3
             </div>
@@ -97,6 +97,16 @@ export function CollectionPage({
               You have {gram.toFixed(2)} GRAM.
             </div>
           )}
+          <div style={{ marginTop: 12, fontSize: 10, color: "rgba(255,244,228,0.38)" }}>
+            Voxel Dolphin by{" "}
+            <a href="https://sketchfab.com/pratamacam" target="_blank" rel="noreferrer" style={{ color: "inherit" }}>
+              pratamacam
+            </a>
+            {" · "}
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer" style={{ color: "inherit" }}>
+              CC BY 4.0
+            </a>
+          </div>
         </div>
       </article>
     </div>
