@@ -3,20 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>ZOOM MASTER</title>
+    <title>Biscotto</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preload" as="image" href="/assets/zoom-cube-icon.png?v=5" />
     <!-- Non-blocking fonts — never delay first paint / JS boot -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700;900&display=swap" /></noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" /></noscript>
     <!-- Telegram SDK: defer so HTML splash + app bundle start immediately -->
     <script defer src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
       html, body {
         margin: 0;
-        background: #060810;
+        background: #2a1810;
         min-height: 100%;
       }
       body.zoom-splash-on #root {
@@ -29,7 +28,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #060810;
+        background:
+          radial-gradient(circle at 50% 42%, #5a321c 0%, #2a1810 62%, #1a0e0a 100%);
         opacity: 1;
         isolation: isolate;
         transform: translateZ(0);
@@ -48,35 +48,45 @@
         from { opacity: 0; transform: scale(0.92); }
         to { opacity: 1; transform: scale(1); }
       }
+      #splash-screen .cookie-cruise {
+        width: 92px;
+        height: 92px;
+        margin: 0 auto 4px;
+        animation: cookieCruise 2.6s ease-in-out infinite;
+      }
+      @keyframes cookieCruise {
+        0%, 100% { transform: translate(-16px, 8px) rotate(-12deg); }
+        50% { transform: translate(16px, -16px) rotate(12deg); }
+      }
       #splash-screen .splash-spinner {
         width: 52px;
         height: 52px;
-        margin: 0 auto;
+        margin: 8px auto 0;
         border-radius: 50%;
-        border: 3px solid rgba(158, 197, 232, 0.14);
-        border-top-color: #9ec5e8;
-        border-right-color: rgba(158, 197, 232, 0.55);
+        border: 3px solid rgba(240, 177, 90, 0.18);
+        border-top-color: #f0b15a;
+        border-right-color: rgba(240, 177, 90, 0.55);
         animation: splashSpin 0.9s linear infinite;
-        box-shadow: 0 0 24px rgba(158, 197, 232, 0.22);
+        box-shadow: 0 0 24px rgba(240, 177, 90, 0.28);
       }
       @keyframes splashSpin {
         to { transform: rotate(360deg); }
       }
       #splash-screen .splash-title {
         margin-top: 22px;
-        font-family: 'Orbitron', system-ui, sans-serif;
+        font-family: 'Nunito', system-ui, sans-serif;
         font-weight: 900;
-        font-size: 26px;
-        letter-spacing: 0.22em;
-        color: #e0e6ff;
-        text-shadow: 0 0 12px rgba(138,180,255,0.4), 0 0 32px rgba(106,90,205,0.28);
+        font-size: 28px;
+        letter-spacing: 0.08em;
+        color: #fff4e4;
+        text-shadow: 0 0 16px rgba(240, 177, 90, 0.45);
       }
       #splash-screen .splash-sub {
         margin-top: 10px;
         font-size: 11px;
         font-weight: 600;
         letter-spacing: 0.18em;
-        color: rgba(158, 197, 232, 0.55);
+        color: rgba(255, 214, 160, 0.72);
         text-transform: uppercase;
         animation: splashPulse 1.6s ease-in-out infinite;
       }
@@ -87,7 +97,7 @@
         border-radius: 999px;
         border: 1px solid rgba(255,255,255,0.22);
         background: rgba(255,255,255,0.08);
-        color: #e0e6ff;
+        color: #fff4e4;
         font-weight: 700;
         font-size: 13px;
         letter-spacing: 0.08em;
@@ -114,8 +124,8 @@
         height: 100%;
         width: 100%;
         border-radius: 999px;
-        background: linear-gradient(90deg, #7a9ec8, #9ec5e8, #c9d6e8);
-        box-shadow: 0 0 12px rgba(158, 197, 232, 0.45);
+        background: linear-gradient(90deg, #c47a2e, #f0b15a, #ffe0a8);
+        box-shadow: 0 0 12px rgba(240, 177, 90, 0.45);
         transform-origin: left center;
         transform: scaleX(0);
         animation: splashFill 2s linear forwards;
@@ -127,13 +137,29 @@
     </style>
   </head>
   <body class="zoom-splash-on">
-    <div id="splash-screen" role="status" aria-label="Season 3 loading">
+    <div id="splash-screen" role="status" aria-label="Biscotto loading">
         <div class="splash-inner">
-        <div style="display:flex;align-items:center;justify-content:center;margin-bottom:8px">
-          <img src="/assets/zoom-cube-icon.png?v=5" width="52" height="52" alt="ZOOM" fetchpriority="high" decoding="sync" style="display:block;object-fit:contain" />
+        <div class="cookie-cruise" aria-hidden="true">
+          <svg width="92" height="92" viewBox="0 0 64 64" fill="none">
+            <ellipse cx="32" cy="56" rx="16" ry="3.5" fill="#6a3412" opacity="0.35" />
+            <circle cx="32" cy="30" r="22" fill="#f0b15a" />
+            <circle cx="32" cy="30" r="22" fill="url(#splash-cookie)" />
+            <path d="M16 24c3-9 12-14 22-11" stroke="#ffe4b8" stroke-width="3" stroke-linecap="round" />
+            <circle cx="24" cy="28" r="3.2" fill="#5c3317" />
+            <circle cx="38" cy="22" r="2.6" fill="#4a2812" />
+            <circle cx="40" cy="36" r="3.4" fill="#5c3317" />
+            <circle cx="27" cy="40" r="2.4" fill="#4a2812" />
+            <defs>
+              <radialGradient id="splash-cookie" cx="38%" cy="32%" r="70%">
+                <stop offset="0%" stop-color="#ffe0a8" />
+                <stop offset="55%" stop-color="#e8a24a" />
+                <stop offset="100%" stop-color="#c47a2e" />
+              </radialGradient>
+            </defs>
+          </svg>
         </div>
         <div class="splash-spinner" aria-hidden="true"></div>
-        <div class="splash-title">Season 3</div>
+        <div class="splash-title">Biscotto</div>
         <div class="splash-sub">Loading…</div>
         <button type="button" id="splash-retry-btn">Riprova</button>
       </div>
@@ -216,9 +242,9 @@
             tg.ready && tg.ready();
             tg.expand && tg.expand();
             try { tg.disableVerticalSwipes(); } catch (e) {}
-            try { tg.setHeaderColor('#000000'); } catch (e) {}
-            try { tg.setBackgroundColor('#000000'); } catch (e) {}
-            try { tg.setBottomBarColor('#000000'); } catch (e) {}
+            try { tg.setHeaderColor('#2a1810'); } catch (e) {}
+            try { tg.setBackgroundColor('#2a1810'); } catch (e) {}
+            try { tg.setBottomBarColor('#3a2418'); } catch (e) {}
             try { if (tg.requestFullscreen) tg.requestFullscreen(); } catch (e) {}
             try {
               var sp = tg.initDataUnsafe && tg.initDataUnsafe.start_param;

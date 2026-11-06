@@ -1204,18 +1204,30 @@ function AppShellWithState() {
           right: 0,
           bottom: 0,
           zIndex: 30,
-          height: "calc(64px + env(safe-area-inset-bottom, 0px))",
-          paddingBottom: "env(safe-area-inset-bottom, 0px)",
-          background: "linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.42) 50%, transparent 100%)",
+          height: "calc(84px + env(safe-area-inset-bottom, 0px))",
+          padding: "8px 12px",
+          paddingBottom: "calc(8px + env(safe-area-inset-bottom, 0px))",
+          background: "transparent",
           borderTop: "none",
           pointerEvents: "none",
         } : {
-          height: 70,
-          background: "rgba(8,1,9,0.92)",
-          borderTop: "1px solid rgba(255,255,255,0.05)",
+          height: 84,
+          padding: "8px 12px 10px",
+          background: "transparent",
+          borderTop: "none",
         }}
       >
-        <div className="flex h-full" style={tab === "lab" ? { pointerEvents: "auto" } : undefined}>
+        <div
+          className="flex h-full"
+          style={{
+            pointerEvents: "auto",
+            borderRadius: 28,
+            background: "rgba(58, 32, 20, 0.94)",
+            border: "1px solid rgba(240, 177, 90, 0.28)",
+            boxShadow: "0 10px 28px rgba(20, 8, 2, 0.45)",
+            overflow: "hidden",
+          }}
+        >
           {NAV.map((item) => {
             const isActive = tab === item.id;
             return (
@@ -1225,12 +1237,12 @@ function AppShellWithState() {
                 onClick={() => switchTab(item.id)}
                 data-testid={`nav-${item.id}`}
                 data-tutorial={item.id === "market" ? "nav-market" : undefined}
-                style={{ color: isActive ? "#E8ECF4" : "rgba(255,255,255,0.45)" }}
+                style={{ color: isActive ? "#ffe7c2" : "rgba(255, 228, 196, 0.55)" }}
               >
                 {isActive && (
                   <div
                     className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full"
-                    style={{ background: "rgba(255,255,255,0.75)", boxShadow: "0 0 6px rgba(200,220,255,0.35)" }}
+                    style={{ background: "#f0b15a", boxShadow: "0 0 8px rgba(240,177,90,0.7)" }}
                   />
                 )}
                 {item.icon === "zoom-cube" || item.icon === "gram-diamond" ? (
@@ -1238,7 +1250,7 @@ function AppShellWithState() {
                     style={{
                       display: "inline-flex",
                       transform: isActive ? "scale(1.15)" : "scale(1)",
-                      filter: isActive ? "drop-shadow(0 0 5px rgba(200,220,255,0.35))" : "none",
+                      filter: isActive ? "drop-shadow(0 0 6px rgba(240,177,90,0.65))" : "none",
                       opacity: isActive ? 1 : 0.7,
                       transition: "transform 150ms ease, filter 150ms ease, opacity 150ms ease",
                     }}
@@ -1255,7 +1267,7 @@ function AppShellWithState() {
                     strokeWidth={isActive ? 2.5 : 1.5}
                     style={{
                       transform: isActive ? "scale(1.15)" : "scale(1)",
-                      filter: isActive ? "drop-shadow(0 0 5px rgba(200,220,255,0.35))" : "none",
+                      filter: isActive ? "drop-shadow(0 0 6px rgba(240,177,90,0.65))" : "none",
                       transition: "transform 150ms ease, filter 150ms ease",
                     }}
                   />

@@ -64,43 +64,43 @@
   --elevate-1: rgba(255,255,255,.03);
   --elevate-2: rgba(255,255,255,.06);
 
-  /* Moonlit Vault — Phase 1: chill neutral shell (model rarity colors unchanged) */
-  --background: 222 28% 6%;
-  --foreground: 210 20% 94%;
-  --border: 222 18% 14%;
-  --card: 222 24% 8%;
-  --card-foreground: 210 20% 94%;
-  --card-border: 222 18% 14%;
-  --sidebar: 222 28% 5%;
-  --sidebar-foreground: 210 20% 94%;
-  --sidebar-border: 222 18% 11%;
-  --sidebar-primary: 210 22% 90%;
-  --sidebar-primary-foreground: 222 28% 10%;
-  --sidebar-accent: 222 18% 11%;
-  --sidebar-accent-foreground: 210 20% 94%;
-  --sidebar-ring: 205 45% 72%;
-  --popover: 222 24% 8%;
-  --popover-foreground: 210 20% 94%;
-  --popover-border: 222 18% 14%;
-  --primary: 210 22% 90%;
-  --primary-foreground: 222 28% 10%;
-  --secondary: 222 18% 11%;
-  --secondary-foreground: 210 20% 94%;
-  --muted: 222 20% 9%;
-  --muted-foreground: 215 15% 55%;
-  --accent: 205 45% 72%;
-  --accent-foreground: 222 28% 10%;
-  --destructive: 215 18% 42%;
-  --destructive-foreground: 210 20% 94%;
-  --input: 222 18% 12%;
-  --ring: 205 45% 72%;
-  --chart-1: 205 45% 72%;
-  --chart-2: 210 22% 90%;
-  --chart-3: 215 15% 55%;
-  --chart-4: 222 24% 28%;
-  --chart-5: 205 35% 58%;
+  /* Bakery shell — warm cocoa, placeholder until the real name lands. */
+  --background: 24 34% 10%;
+  --foreground: 36 55% 95%;
+  --border: 24 22% 20%;
+  --card: 24 28% 14%;
+  --card-foreground: 36 55% 95%;
+  --card-border: 24 22% 20%;
+  --sidebar: 24 34% 8%;
+  --sidebar-foreground: 36 55% 95%;
+  --sidebar-border: 24 22% 16%;
+  --sidebar-primary: 32 78% 62%;
+  --sidebar-primary-foreground: 24 40% 12%;
+  --sidebar-accent: 24 22% 16%;
+  --sidebar-accent-foreground: 36 55% 95%;
+  --sidebar-ring: 32 78% 62%;
+  --popover: 24 28% 14%;
+  --popover-foreground: 36 55% 95%;
+  --popover-border: 24 22% 20%;
+  --primary: 32 78% 62%;
+  --primary-foreground: 24 40% 12%;
+  --secondary: 24 22% 16%;
+  --secondary-foreground: 36 55% 95%;
+  --muted: 24 20% 13%;
+  --muted-foreground: 30 18% 68%;
+  --accent: 18 72% 58%;
+  --accent-foreground: 36 55% 96%;
+  --destructive: 8 62% 48%;
+  --destructive-foreground: 36 55% 96%;
+  --input: 24 22% 16%;
+  --ring: 32 78% 62%;
+  --chart-1: 32 78% 62%;
+  --chart-2: 18 72% 58%;
+  --chart-3: 30 18% 68%;
+  --chart-4: 24 24% 28%;
+  --chart-5: 40 60% 70%;
 
-  --app-font-sans: 'Inter', sans-serif;
+  --app-font-sans: 'Nunito', sans-serif;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
   --radius: .75rem;
@@ -182,7 +182,7 @@
 .lab-space-bg__void {
   position: absolute;
   inset: 0;
-  background: #000000;
+  background: #2a1810;
 }
 
 .lab-space-bg__star {
@@ -196,8 +196,8 @@
   background: radial-gradient(
     ellipse 75% 55% at 50% 42%,
     transparent 0%,
-    rgba(0, 0, 0, 0.35) 72%,
-    rgba(0, 0, 0, 0.72) 100%
+    rgba(42, 24, 16, 0.35) 72%,
+    rgba(26, 14, 10, 0.78) 100%
   );
 }
 
@@ -219,49 +219,49 @@
 /* Orb 1: massive deep-crimson cloud, top-left anchor */
 .nebula-orb-1 {
   width: 800px; height: 800px;
-  background: radial-gradient(circle, rgba(70,100,180,0.07) 0%, rgba(45,65,120,0.03) 40%, transparent 68%);
+  background: radial-gradient(circle, rgba(210,140,60,0.16) 0%, rgba(140,70,30,0.05) 40%, transparent 68%);
   top: -280px; left: -220px;
   animation: nebula-drift-a 26s ease-in-out infinite alternate;
 }
 /* Orb 2: large deep-red cloud, bottom-right */
 .nebula-orb-2 {
   width: 700px; height: 700px;
-  background: radial-gradient(circle, rgba(60,85,160,0.08) 0%, rgba(40,55,100,0.03) 42%, transparent 68%);
+  background: radial-gradient(circle, rgba(180,80,40,0.14) 0%, rgba(120,50,24,0.04) 42%, transparent 68%);
   bottom: -180px; right: -200px;
   animation: nebula-drift-b 21s ease-in-out infinite alternate;
 }
 /* Orb 3: orange-red cloud, upper-center — key "hot gas" accent */
 .nebula-orb-3 {
   width: 550px; height: 550px;
-  background: radial-gradient(circle, rgba(120,150,220,0.05) 0%, rgba(80,110,180,0.02) 42%, transparent 68%);
+  background: radial-gradient(circle, rgba(240,190,110,0.12) 0%, rgba(180,110,40,0.04) 42%, transparent 68%);
   top: -60px; left: 20%;
   animation: nebula-drift-c 32s ease-in-out infinite alternate;
 }
 /* Orb 4: amber-orange cloud, mid-right depth layer */
 .nebula-orb-4 {
   width: 480px; height: 480px;
-  background: radial-gradient(circle, rgba(140,130,200,0.05) 0%, rgba(90,80,150,0.02) 44%, transparent 70%);
+  background: radial-gradient(circle, rgba(200,120,60,0.12) 0%, rgba(140,70,30,0.04) 44%, transparent 70%);
   top: 35%; right: -120px;
   animation: nebula-drift-d 24s ease-in-out infinite alternate;
 }
 /* Orb 5: bright crimson, lower-left — strong ground accent */
 .nebula-orb-5 {
   width: 440px; height: 440px;
-  background: radial-gradient(circle, rgba(100,140,210,0.06) 0%, rgba(60,90,160,0.02) 42%, transparent 68%);
+  background: radial-gradient(circle, rgba(230,150,70,0.12) 0%, rgba(150,70,30,0.04) 42%, transparent 68%);
   bottom: -80px; left: -100px;
   animation: nebula-drift-a 28s ease-in-out infinite alternate-reverse;
 }
 /* Orb 6: dusky maroon, upper-right — cool/dark accent */
 .nebula-orb-6 {
   width: 360px; height: 360px;
-  background: radial-gradient(circle, rgba(80,95,140,0.05) 0%, rgba(50,60,100,0.02) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(160,90,50,0.1) 0%, rgba(90,40,20,0.03) 45%, transparent 70%);
   top: 5%; right: 5%;
   animation: nebula-drift-b 38s ease-in-out infinite alternate-reverse;
 }
 /* Orb 7: wide orange-amber veil, center — ties the cloud masses together */
 .nebula-orb-7 {
   width: 700px; height: 500px;
-  background: radial-gradient(ellipse, rgba(110,140,200,0.04) 0%, rgba(70,95,150,0.01) 45%, transparent 68%);
+  background: radial-gradient(ellipse, rgba(220,160,80,0.08) 0%, rgba(140,80,30,0.02) 45%, transparent 68%);
   top: 30%; left: -10%;
   animation: nebula-drift-c 35s ease-in-out infinite alternate-reverse;
 }
@@ -3415,5 +3415,21 @@ body.animations-paused * {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #7a9ec8, #c5daf0);}
+  background: linear-gradient(90deg, #c47a2e, #f0b15a);
+}
+
+/* Placeholder brand: round type, warm chrome, cookie that bobs in place. */
+body, body * {
+  font-family: "Nunito", sans-serif !important;
+}
+
+.cookie-fly {
+  animation: cookie-flight 2.2s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+
+@keyframes cookie-flight {
+  0%, 100% { transform: translateY(0) rotate(-8deg); }
+  50% { transform: translateY(-7px) rotate(8deg); }
+}
 

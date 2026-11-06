@@ -1,3 +1,16 @@
-<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" rx="16" fill="#3a2418"/>
+  <circle cx="32" cy="34" r="20" fill="#f0b15a"/>
+  <circle cx="32" cy="34" r="20" fill="url(#cookie-bake)"/>
+  <circle cx="24" cy="32" r="3" fill="#5c3317"/>
+  <circle cx="38" cy="26" r="2.4" fill="#4a2812"/>
+  <circle cx="40" cy="40" r="3.2" fill="#5c3317"/>
+  <circle cx="26" cy="42" r="2.2" fill="#4a2812"/>
+  <defs>
+    <radialGradient id="cookie-bake" cx="38%" cy="32%" r="70%">
+      <stop offset="0%" stop-color="#ffe0a8"/>
+      <stop offset="55%" stop-color="#e8a24a"/>
+      <stop offset="100%" stop-color="#c47a2e"/>
+    </radialGradient>
+  </defs>
 </svg>
