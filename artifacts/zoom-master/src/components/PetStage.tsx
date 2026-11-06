@@ -149,24 +149,33 @@ export function PetStage({
     const observer = new ResizeObserver(resize);
     observer.observe(host);
 
-    let origin: { x: number; y: number } | null = null;
+    let pressed = false;
+    let lastTapAt = 0;
     let shake = 0;
 
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === "touch" && e.isPrimary === false) return;
-      origin = { x: e.clientX, y: e.clientY };
+      pressed = true;
     };
     const onUp = (e: PointerEvent) => {
-      const start = origin;
-      origin = null;
-      if (!start || Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return;
-      const gained = tapPet();
-      if (gained <= 0) return;
-      shake = 1;
-      flashRef.current(`+${gained} XP`);
-      window.setTimeout(() => flashRef.current(null), 700);
+      if (!pressed) return;
+      pressed = false;
+      if (e.pointerType === "mouse" && Date.now() - lastTapAt < 700) return;
+      lastTapAt = Date.now();
+      const result = tapPet();
+      if (result.reason === "ok") {
+        shake = 1;
+        flashRef.current(`+${result.xp} XP · ${result.count}/${result.max}`);
+      } else if (result.reason === "wait") {
+        flashRef.current("Wait 3 seconds");
+      } else if (result.reason === "gate") {
+        flashRef.current("Pay GRAM in Collection");
+      } else {
+        flashRef.current(`${result.max}/${result.max} today`);
+      }
+      window.setTimeout(() => flashRef.current(null), 900);
     };
-    const onCancel = () => { origin = null; };
+    const onCancel = () => { pressed = false; };
     host.addEventListener("pointerdown", onDown);
     host.addEventListener("pointerup", onUp);
     host.addEventListener("pointercancel", onCancel);

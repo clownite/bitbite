@@ -290,19 +290,29 @@ export function petTapStatus(now = Date.now()) {
   };
 }
 
-/** A counted tap. Returns the XP gained, or 0 while the 3s pause or the daily cap holds. */
-export function tapPet(now = Date.now()): number {
+export type TapResult = {
+  xp: number;
+  count: number;
+  max: number;
+  reason: "ok" | "wait" | "done" | "gate";
+};
+
+/** One of the four daily taps. A click during the 3s pause or after the fourth does not add XP. */
+export function tapPet(now = Date.now()): TapResult {
   const day = todayKey(now);
   const count = state.tapDay === day ? state.tapCount : 0;
-  if (count >= PET_TAP_MAX || now < state.nextTapAt || xpBlocked(state)) return 0;
+  const blocked = xpBlocked(state);
+  if (blocked === "gate") return { xp: 0, count, max: PET_TAP_MAX, reason: "gate" };
+  if (blocked === "done" || count >= PET_TAP_MAX) return { xp: 0, count, max: PET_TAP_MAX, reason: "done" };
+  if (now < state.nextTapAt) return { xp: 0, count, max: PET_TAP_MAX, reason: "wait" };
   state = { ...state, tapDay: day, tapCount: count + 1, nextTapAt: now + PET_TAP_GAP_MS };
   const gained = addPetXp(PET_TAP_XP);
   if (gained <= 0) {
-    state = { ...state, tapDay: day, tapCount: count, nextTapAt: state.nextTapAt };
+    state = { ...state, tapDay: day, tapCount: count, nextTapAt: 0 };
     emit();
-    return 0;
+    return { xp: 0, count, max: PET_TAP_MAX, reason: "done" };
   }
-  return gained;
+  return { xp: gained, count: count + 1, max: PET_TAP_MAX, reason: "ok" };
 }
 
 /** Call only after GRAM has been spent. Banked XP carries into the next cycle. */

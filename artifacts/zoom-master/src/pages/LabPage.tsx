@@ -10,7 +10,7 @@ import { LabModelRevealCard } from "../components/LabModelRevealCard";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { PetFarmPanel, useCrumbsBalance } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
-import { getPet, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { ForgeUiErrorBoundary } from "../components/ForgeUiErrorBoundary";
 import { LAB_STARDUST_FORGE_ZOOM_COST, type LabForgePath } from "@workspace/game-models";
 import type { Planet } from "../hooks/useGameState";
@@ -290,7 +290,7 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
           <div className="pointer-events-auto" style={{ width: "min(420px, 100%)" }}>
             <div style={{ marginBottom: 8, textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
               {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`}
-              <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)}</span>
+              <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)} · {(() => { const taps = petTapStatus(); return `${taps.count}/${taps.max}`; })()}</span>
             </div>
             <PetFarmPanel />
           </div>
