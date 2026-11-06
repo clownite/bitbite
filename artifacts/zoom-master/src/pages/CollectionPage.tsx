@@ -69,7 +69,7 @@ export function CollectionPage({
             {pet.finished ? "Level 10. This one is finished." : xpLabel(pet)}
           </div>
           <div style={{ marginTop: 4, fontSize: 10, color: "rgba(255,244,228,0.4)" }}>
-            Drag to move. Pinch or scroll to resize. This pet farms {petDef(pet.active).rates[pet.level]} / day
+            This pet farms {petDef(pet.active).rates[pet.level]} / day
             {" · "}
             {timeForOneCrumb(petDef(pet.active).rates[pet.level])} for 1 Crumb.
           </div>

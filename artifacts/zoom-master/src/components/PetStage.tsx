@@ -11,36 +11,6 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
 }
 
 type Frame = "lab" | "collection";
-type View = { x: number; y: number; s: number };
-
-const VIEW_KEY = "biscotto-pet-view";
-const LIMIT = { x: 2.2, y: 1.5, min: 0.45, max: 2.8 };
-
-function clamp(n: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, n));
-}
-
-function loadView(frame: Frame): View {
-  try {
-    const all = JSON.parse(localStorage.getItem(VIEW_KEY) || "{}") as Record<string, Partial<View>>;
-    const v = all[frame] ?? {};
-    return {
-      x: clamp(Number(v.x) || 0, -LIMIT.x, LIMIT.x),
-      y: clamp(Number(v.y) || 0, -LIMIT.y, LIMIT.y),
-      s: clamp(Number(v.s) || 1, LIMIT.min, LIMIT.max),
-    };
-  } catch {
-    return { x: 0, y: 0, s: 1 };
-  }
-}
-
-function saveView(frame: Frame, view: View) {
-  try {
-    const all = JSON.parse(localStorage.getItem(VIEW_KEY) || "{}") as Record<string, View>;
-    all[frame] = view;
-    localStorage.setItem(VIEW_KEY, JSON.stringify(all));
-  } catch { /**/ }
-}
 
 function standIn(id: PetId): THREE.Group {
   const color = id === "finch" ? 0xe7a56a : id === "lynx" ? 0xc47a2e : 0xf3e2c2;
@@ -151,7 +121,6 @@ export function PetStage({
 
     const rig = new THREE.Group();
     scene.add(rig);
-    const view = loadView(frame);
 
     let alive = true;
     let stopWait = () => { /**/ };
@@ -180,87 +149,27 @@ export function PetStage({
     const observer = new ResizeObserver(resize);
     observer.observe(host);
 
-    const pointers = new Map<number, { x: number; y: number }>();
-    let dragLast: { x: number; y: number } | null = null;
-    let pinchDist = 0;
     let origin: { x: number; y: number } | null = null;
-    let dragging = false;
     let shake = 0;
 
-    const worldPerPixel = () => {
-      const h = host.clientHeight || 1;
-      const worldH = 2 * Math.tan((camera.fov * Math.PI) / 360) * camera.position.z;
-      return worldH / h;
-    };
-    const pinchDistance = () => {
-      const pts = [...pointers.values()];
-      if (pts.length < 2) return 0;
-      return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-    };
-
     const onDown = (e: PointerEvent) => {
-      try { host.setPointerCapture(e.pointerId); } catch { /**/ }
-      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (pointers.size === 1) {
-        origin = { x: e.clientX, y: e.clientY };
-        dragging = false;
-        dragLast = { x: e.clientX, y: e.clientY };
-      }
-      if (pointers.size >= 2) pinchDist = pinchDistance();
-    };
-    const onMove = (e: PointerEvent) => {
-      if (!pointers.has(e.pointerId)) return;
-      pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (pointers.size === 1 && dragLast && origin) {
-        const moved = Math.hypot(e.clientX - origin.x, e.clientY - origin.y);
-        if (!dragging && moved < 10) return;
-        dragging = true;
-        const k = worldPerPixel();
-        view.x = clamp(view.x + (e.clientX - dragLast.x) * k, -LIMIT.x, LIMIT.x);
-        view.y = clamp(view.y - (e.clientY - dragLast.y) * k, -LIMIT.y, LIMIT.y);
-        dragLast = { x: e.clientX, y: e.clientY };
-      } else if (pointers.size >= 2) {
-        const dist = pinchDistance();
-        if (pinchDist > 0 && dist > 0) {
-          view.s = clamp(view.s * (dist / pinchDist), LIMIT.min, LIMIT.max);
-          pinchDist = dist;
-        }
-      }
+      if (e.pointerType === "touch" && e.isPrimary === false) return;
+      origin = { x: e.clientX, y: e.clientY };
     };
     const onUp = (e: PointerEvent) => {
-      const wasTap = pointers.size === 1 && origin && !dragging
-        && Math.hypot(e.clientX - origin.x, e.clientY - origin.y) < 10;
-      pointers.delete(e.pointerId);
-      if (wasTap) {
-        const gained = tapPet();
-        if (gained > 0) {
-          shake = 1;
-          flashRef.current(`+${gained} XP`);
-          window.setTimeout(() => flashRef.current(null), 700);
-        }
-      }
-      if (pointers.size === 0) {
-        dragLast = null;
-        origin = null;
-        dragging = false;
-      }
-      if (pointers.size < 2) pinchDist = 0;
-      if (pointers.size === 1) {
-        const only = [...pointers.values()][0];
-        dragLast = { x: only.x, y: only.y };
-      }
-      saveView(frame, view);
+      const start = origin;
+      origin = null;
+      if (!start || Math.hypot(e.clientX - start.x, e.clientY - start.y) > 10) return;
+      const gained = tapPet();
+      if (gained <= 0) return;
+      shake = 1;
+      flashRef.current(`+${gained} XP`);
+      window.setTimeout(() => flashRef.current(null), 700);
     };
-    const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      view.s = clamp(view.s * Math.exp(-e.deltaY * 0.0012), LIMIT.min, LIMIT.max);
-      saveView(frame, view);
-    };
+    const onCancel = () => { origin = null; };
     host.addEventListener("pointerdown", onDown);
-    host.addEventListener("pointermove", onMove);
     host.addEventListener("pointerup", onUp);
-    host.addEventListener("pointercancel", onUp);
-    host.addEventListener("wheel", onWheel, { passive: false });
+    host.addEventListener("pointercancel", onCancel);
 
     let raf = 0;
     const clock = new THREE.Clock();
@@ -269,9 +178,9 @@ export function PetStage({
       const dt = Math.min(clock.getDelta(), 0.05);
       t += dt;
       const { stage, level } = petRef.current;
-      rig.scale.setScalar(fitScale(level, stage) * view.s);
-      rig.position.x = view.x + Math.sin(t * 0.55) * 0.12;
-      rig.position.y = view.y + Math.sin(t * 1.35) * 0.16;
+      rig.scale.setScalar(fitScale(level, stage));
+      rig.position.x = Math.sin(t * 0.55) * 0.12;
+      rig.position.y = Math.sin(t * 1.35) * 0.16;
       shake = shake > 0.02 ? shake * Math.exp(-dt * 14) : 0;
       const buzz = shake * Math.sin(t * 55);
       rig.rotation.y = Math.sin(t * 0.65) * 0.28;
@@ -289,10 +198,8 @@ export function PetStage({
       cancelAnimationFrame(raf);
       observer.disconnect();
       host.removeEventListener("pointerdown", onDown);
-      host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerup", onUp);
-      host.removeEventListener("pointercancel", onUp);
-      host.removeEventListener("wheel", onWheel);
+      host.removeEventListener("pointercancel", onCancel);
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };
@@ -302,7 +209,7 @@ export function PetStage({
     <div
       ref={hostRef}
       style={{ position: "absolute", inset: 0, touchAction: "none" }}
-      aria-label="Pet. Tap for a little XP. Drag to move, pinch or scroll to resize."
+      aria-label="Pet. Tap for a little XP."
     >
       {flash && (
         <div
