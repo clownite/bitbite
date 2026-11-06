@@ -256,6 +256,7 @@ export async function notifyAdminWithdrawalRequest(params: {
   telegramId: string;
   username?: string | null;
   firstName?: string | null;
+  crumbs?: boolean;
 }): Promise<boolean> {
   if (!BOT_TOKEN) {
     logger.warn("[notify] BOT_TOKEN not set — skipping admin withdrawal notify");
@@ -264,9 +265,12 @@ export async function notifyAdminWithdrawalRequest(params: {
   const who = params.username
     ? `@${params.username}`
     : (params.firstName || params.telegramId);
+  const amountLine = params.crumbs
+    ? `\u2003• Importo: <b>${params.amountTon} Crumbs = ${params.amountTon} GRAM</b>\n\u2003• Cambio: 1 Crumb = 1 GRAM`
+    : `\u2003• Importo: <b>${params.amountTon.toFixed(4)} TON</b>`;
   const text =
     `🔴 <b>Prelievo richiesto</b>\n` +
-    `\u2003• Importo: <b>${params.amountTon.toFixed(4)} TON</b>\n` +
+    `${amountLine}\n` +
     `\u2003• Wallet: <code>${params.walletAddress}</code>\n` +
     `\u2003• Utente: ${who} (ID: <code>${params.telegramId}</code>)`;
   try {

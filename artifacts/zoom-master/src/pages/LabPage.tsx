@@ -8,6 +8,7 @@ import { ForgePathPicker } from "../components/ForgePathPicker";
 import { ForgePathWheel } from "../components/ForgePathWheel";
 import { LabModelRevealCard } from "../components/LabModelRevealCard";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
+import { PetFarmButton, useCrumbsBalance } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
 import { getPet, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { ForgeUiErrorBoundary } from "../components/ForgeUiErrorBoundary";
@@ -279,6 +280,7 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
     return t("planetCanvas.assembling");
   }, [forgeRolling, forgePct, forgePlanetBuild, t]);
 
+  const crumbs = useCrumbsBalance();
   const [pet, setPet] = useState<PetState>(getPet());
   useEffect(() => subscribePet(() => setPet(getPet())), []);
 
@@ -293,8 +295,8 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
           <div
             style={{
               minWidth: 180,
-              padding: "8px 14px",
-              borderRadius: 999,
+              padding: "10px 14px 12px",
+              borderRadius: 24,
               background: "rgba(42, 24, 16, 0.82)",
               border: "1px solid rgba(240, 177, 90, 0.35)",
               color: "#fff4e4",
@@ -309,6 +311,9 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
             </div>
             <div style={{ marginTop: 2, fontSize: 9, color: "rgba(255,244,228,0.45)" }}>
               Drag to move · pinch or scroll to resize
+            </div>
+            <div className="pointer-events-auto" style={{ marginTop: 8 }}>
+              <PetFarmButton />
             </div>
           </div>
         </div>
@@ -382,7 +387,7 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
               style={{ color: "#ffffff", letterSpacing: "0.06em" }}
             >
               <ZoomCubeIcon size={18} />
-              {formatZoomInt(balance)}
+              {formatZoomInt(crumbs)}
             </span>
           </div>
           <button

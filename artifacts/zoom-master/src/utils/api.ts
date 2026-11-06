@@ -1588,6 +1588,21 @@ export interface TonWithdrawal {
   username?: string | null;
 }
 
+export async function requestCrumbsWithdrawal(params: { telegramId: string; amount: number; walletAddress: string }): Promise<{ ok: boolean; error?: string; id?: number }> {
+  try {
+    const res = await fetch(`${API_BASE}/withdrawals/crumbs`, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: JSON.stringify(params),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return { ok: false, error: data?.error || "Request failed" };
+    return { ok: true, id: data.id };
+  } catch {
+    return { ok: false, error: "Network error" };
+  }
+}
+
 export async function requestTonWithdrawal(params: { telegramId: string; amountTon: number; walletAddress: string }): Promise<{ ok: boolean; error?: string; newTonBalance?: number; balanceEpoch?: number }> {
   try {
     const res = await fetch(`${API_BASE}/withdrawals/request`, {

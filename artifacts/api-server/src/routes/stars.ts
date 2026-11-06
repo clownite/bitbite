@@ -1849,23 +1849,26 @@ router.post("/stars/webhook", async (req, res) => {
               await editMarkup("⚠️ Già processata");
               return;
             }
+            const isCrumbs = w.txHash === "crumbs";
             const refund = Number(w.amountTon) + Number(w.feeTon ?? 0);
             await db.transaction(async (tx) => {
               await tx.update(tonWithdrawalsTable)
                 .set({ status: "rejected", processedAt: new Date(), processedBy: String(chatId) })
                 .where(and(eq(tonWithdrawalsTable.id, withdrawalId), eq(tonWithdrawalsTable.status, "pending")));
-              await tx.update(usersTable)
-                .set({
-                  tonBalance: sql`${usersTable.tonBalance} + ${refund}`,
-                  balanceEpoch: sql`${usersTable.balanceEpoch} + 1`,
-                })
-                .where(eq(usersTable.telegramId, w.telegramId));
+              if (!isCrumbs) {
+                await tx.update(usersTable)
+                  .set({
+                    tonBalance: sql`${usersTable.tonBalance} + ${refund}`,
+                    balanceEpoch: sql`${usersTable.balanceEpoch} + 1`,
+                  })
+                  .where(eq(usersTable.telegramId, w.telegramId));
+              }
             });
 
             void sendBotMessage(w.telegramId,
-              `❌ Withdrawal rejected\n` +
-              `Amount: ${Number(w.amountTon).toFixed(4)} GRAM\n` +
-              `Funds have been refunded to your GRAM balance.`);
+              isCrumbs
+                ? `❌ Withdrawal declined\n${Number(w.amountTon)} Crumbs return to your wallet when you open the app.`
+                : `❌ Withdrawal rejected\nAmount: ${Number(w.amountTon).toFixed(4)} GRAM\nFunds have been refunded to your GRAM balance.`);
             await editMarkup("❌ Rifiutato");
           }
         } catch (err) {

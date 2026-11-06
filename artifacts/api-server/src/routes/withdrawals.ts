@@ -191,6 +191,49 @@ router.post("/withdrawals/request", async (req, res) => {
   }
 });
 
+const CrumbsBody = z.object({
+  telegramId: z.string().min(1).max(32),
+  amount: z.number().int().positive().max(100000),
+  walletAddress: z.string().min(40).max(120),
+});
+
+/** 1 Crumb = 1 GRAM. Balance lives on the device. This only files the request for the bot. */
+router.post("/withdrawals/crumbs", async (req, res) => {
+  const parsed = CrumbsBody.safeParse(req.body);
+  if (!parsed.success) return res.status(400).json({ ok: false, error: "Invalid request" });
+  const { telegramId, amount, walletAddress } = parsed.data;
+  const wallet = walletAddress.trim();
+  if (!isValidTonAddress(wallet)) {
+    return res.status(400).json({ ok: false, error: "Wallet address is not valid" });
+  }
+  if (amount < 1) return res.status(400).json({ ok: false, error: "Minimum is 1 Crumb" });
+
+  try {
+    const [row] = await db
+      .insert(tonWithdrawalsTable)
+      .values({
+        telegramId,
+        amountTon: amount,
+        feeTon: 0,
+        walletAddress: wallet,
+        status: "pending",
+        txHash: "crumbs",
+      })
+      .returning();
+    void notifyAdminWithdrawalRequest({
+      withdrawalId: row.id,
+      amountTon: amount,
+      walletAddress: wallet,
+      telegramId,
+      crumbs: true,
+    });
+    return res.json({ ok: true, id: row.id });
+  } catch (err) {
+    console.error("[withdrawals/crumbs] error:", err);
+    return res.status(500).json({ ok: false, error: "Could not send the request" });
+  }
+});
+
 router.get("/withdrawals/me/:telegramId", async (req, res) => {
   try {
     const rows = await db
@@ -313,14 +356,17 @@ router.post("/admin/withdrawals/reject", async (req, res) => {
       }
 
       const w = updated[0]!;
-      const refund = w.amountTon + (w.feeTon ?? 0);
-      await tx
-        .update(usersTable)
-        .set({
-          tonBalance: sql`${usersTable.tonBalance} + ${refund}`,
-          balanceEpoch: sql`${usersTable.balanceEpoch} + 1`,
-        })
-        .where(eq(usersTable.telegramId, w.telegramId));
+      // Crumb requests are tagged txHash "crumbs" and were never taken from ton_balance.
+      if (w.txHash !== "crumbs") {
+        const refund = w.amountTon + (w.feeTon ?? 0);
+        await tx
+          .update(usersTable)
+          .set({
+            tonBalance: sql`${usersTable.tonBalance} + ${refund}`,
+            balanceEpoch: sql`${usersTable.balanceEpoch} + 1`,
+          })
+          .where(eq(usersTable.telegramId, w.telegramId));
+      }
 
       return { kind: "ok" as const, refund };
     });

@@ -7,13 +7,17 @@ export const CYCLE_XP = 6000;
 export const LEVEL5_GRAM = 3;
 export const LEVEL10_GRAM = 6;
 
-/** One claim every 24h. Seven days, then it repeats. A week is 2500 XP. */
-export const DAILY_XP = [200, 200, 300, 300, 400, 500, 600] as const;
+/**
+ * One claim every 24h. A week is 80 XP.
+ * Stage 1 (1000) takes about three months. A full 6000 XP cycle takes about a year and a half.
+ * Bought models, priced in GRAM, are the faster path.
+ */
+export const DAILY_XP = [8, 8, 10, 10, 12, 14, 18] as const;
 export const DAILY_XP_WEEK = DAILY_XP.reduce((sum, n) => sum + n, 0);
 export const DAY_MS = 24 * 60 * 60 * 1000;
 /** Task rewards stay in Crumbs. Each Crumb also pays this much pet XP. */
 export const XP_PER_CRUMB = 20;
-export const INVITE_XP = 250;
+export const INVITE_XP = 12;
 
 export type PetLevel = 1 | 5 | 10;
 

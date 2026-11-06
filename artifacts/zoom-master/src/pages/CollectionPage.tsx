@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { PetStage } from "../components/PetStage";
+import { PetFarmButton } from "../components/PetFarmButton";
 import {
   confirmGramUpgrade,
   getPet,
@@ -66,7 +67,10 @@ export function CollectionPage({
             {pet.finished ? "Level 10. This one is finished." : xpLabel(pet)}
           </div>
           <div style={{ marginTop: 4, fontSize: 10, color: "rgba(255,244,228,0.4)" }}>
-            Drag to move. Pinch or scroll to resize.
+            Drag to move. Pinch or scroll to resize. Farm pays 1 Crumb every 8 hours.
+          </div>
+          <div style={{ marginTop: 12 }}>
+            <PetFarmButton />
           </div>
 
           {ready && (
