@@ -12,9 +12,6 @@ import { PetFarmPanel, useCrumbsBalance } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
 import { getPet, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { ForgeUiErrorBoundary } from "../components/ForgeUiErrorBoundary";
-import { GramDiamondIcon } from "../components/GramDiamondIcon";
-import { LabRankWidget } from "../components/LabRankWidget";
-import { ZmcAirdropWidget } from "../components/ZmcAirdropWidget";
 import { LAB_STARDUST_FORGE_ZOOM_COST, type LabForgePath } from "@workspace/game-models";
 import type { Planet } from "../hooks/useGameState";
 import { hapticLight } from "../utils/haptic";
@@ -53,9 +50,7 @@ interface LabPageProps {
 interface FloatMsg { id: number; text: string; color: string }
 
 const GREY = "#8892b0";
-const TON_APP_VOTE_URL = "https://ton.app/games/zoom-bot?id=5847";
-
-export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild = false, forgeRolling = false, labForgeShapeId = null, labForgePath = null, hasAutoTap, stardustBalance, telegramId, sunCount = 0, onCraft, onBeginLabForge, onClaim, onOpenShop, onOpenStudio, muted = false, setMuted, visible = true }: LabPageProps) {
+export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild = false, forgeRolling = false, labForgeShapeId = null, labForgePath = null, hasAutoTap, stardustBalance, telegramId, sunCount: _sunCount = 0, onCraft, onBeginLabForge, onClaim, onOpenShop, onOpenStudio, muted = false, setMuted, visible = true }: LabPageProps) {
   const { t } = useT();
   const zmc = useZmcStatus(telegramId);
   const forgeHoldOk = hasLabForgeHold(zmc.zmcBalance, zmc.connected || !!zmc.walletAddress);
@@ -301,53 +296,6 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={() => openExternalUrl(TON_APP_VOTE_URL)}
-          aria-label={t("lab.tonAppVoteAria")}
-          title={t("lab.tonAppVoteAria")}
-          data-testid="lab-ton-app-vote"
-          className="absolute z-30 flex items-center justify-center active:scale-95 pointer-events-auto"
-          style={{
-            left: 6,
-            top: "max(102px, calc(env(safe-area-inset-top, 0px) + 96px))",
-            width: 40,
-            height: 40,
-            borderRadius: "50%",
-            background: "rgba(0, 0, 0, 0.62)",
-            border: "1px solid rgba(140, 215, 255, 0.28)",
-            backdropFilter: "blur(10px)",
-            boxShadow: "0 4px 14px rgba(120, 200, 255, 0.18)",
-            cursor: "pointer",
-            padding: 0,
-            transition: "transform 0.12s",
-            WebkitTapHighlightColor: "transparent",
-          }}
-        >
-          <GramDiamondIcon size={22} />
-        </button>
-
-        <div
-          className="absolute z-30 pointer-events-auto"
-          style={{
-            right: 14,
-            top: "max(102px, calc(env(safe-area-inset-top, 0px) + 96px))",
-            overflow: "visible",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "flex-start",
-            gap: 8,
-          }}
-        >
-          <LabRankWidget
-            telegramId={telegramId}
-            sunCount={sunCount}
-            balance={balance}
-            headerMode
-          />
-          <ZmcAirdropWidget telegramId={telegramId} />
-        </div>
-
         <div
           className="absolute left-0 right-0 z-30 flex items-center justify-center gap-2 px-3 pointer-events-none"
           style={{ top: "max(56px, calc(env(safe-area-inset-top, 0px) + 50px))" }}
@@ -383,15 +331,15 @@ export function LabPage({ balance, taps, goal, pendingPlanet, forgePlanetBuild =
               width: 40,
               height: 40,
               borderRadius: "50%",
-              background: "linear-gradient(145deg, #ffb347, #ff8c00)",
-              border: "1px solid rgba(255, 140, 0, 0.55)",
-              boxShadow: "0 4px 14px rgba(255, 140, 0, 0.45)",
+              background: "#7ad7ff",
+              border: "1px solid rgba(122, 215, 255, 0.7)",
+              boxShadow: "none",
               cursor: "pointer",
               padding: 0,
               transition: "transform 0.12s",
             }}
           >
-            <ShoppingBag size={20} strokeWidth={2.4} color="#111" />
+            <ShoppingBag size={20} strokeWidth={2.4} color="#041018" />
           </button>
         </div>
 

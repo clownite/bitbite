@@ -22,7 +22,7 @@ function useFarm(): FarmView {
 export function PetFarmPanel() {
   const farm = useFarm();
   const full = farm.full;
-  const canClaim = farm.pending > 1e-8;
+  const canClaim = farm.pending >= 0.0001;
 
   return (
     <div

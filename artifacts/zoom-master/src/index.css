@@ -64,41 +64,41 @@
   --elevate-1: rgba(255,255,255,.03);
   --elevate-2: rgba(255,255,255,.06);
 
-  /* Bakery shell — warm cocoa, placeholder until the real name lands. */
-  --background: 24 34% 10%;
-  --foreground: 36 55% 95%;
-  --border: 24 22% 20%;
-  --card: 24 28% 14%;
-  --card-foreground: 36 55% 95%;
-  --card-border: 24 22% 20%;
-  --sidebar: 24 34% 8%;
-  --sidebar-foreground: 36 55% 95%;
-  --sidebar-border: 24 22% 16%;
-  --sidebar-primary: 32 78% 62%;
-  --sidebar-primary-foreground: 24 40% 12%;
-  --sidebar-accent: 24 22% 16%;
-  --sidebar-accent-foreground: 36 55% 95%;
-  --sidebar-ring: 32 78% 62%;
-  --popover: 24 28% 14%;
-  --popover-foreground: 36 55% 95%;
-  --popover-border: 24 22% 20%;
-  --primary: 32 78% 62%;
-  --primary-foreground: 24 40% 12%;
-  --secondary: 24 22% 16%;
-  --secondary-foreground: 36 55% 95%;
-  --muted: 24 20% 13%;
-  --muted-foreground: 30 18% 68%;
-  --accent: 18 72% 58%;
-  --accent-foreground: 36 55% 96%;
+  /* Black and cyan shell. */
+  --background: 200 30% 4%;
+  --foreground: 192 60% 96%;
+  --border: 196 24% 16%;
+  --card: 200 28% 7%;
+  --card-foreground: 192 60% 96%;
+  --card-border: 196 24% 16%;
+  --sidebar: 200 30% 3%;
+  --sidebar-foreground: 192 60% 96%;
+  --sidebar-border: 196 24% 12%;
+  --sidebar-primary: 193 100% 74%;
+  --sidebar-primary-foreground: 200 40% 6%;
+  --sidebar-accent: 196 24% 12%;
+  --sidebar-accent-foreground: 192 60% 96%;
+  --sidebar-ring: 193 100% 74%;
+  --popover: 200 28% 7%;
+  --popover-foreground: 192 60% 96%;
+  --popover-border: 196 24% 16%;
+  --primary: 193 100% 74%;
+  --primary-foreground: 200 40% 6%;
+  --secondary: 196 20% 12%;
+  --secondary-foreground: 192 60% 96%;
+  --muted: 200 16% 10%;
+  --muted-foreground: 196 20% 70%;
+  --accent: 193 80% 62%;
+  --accent-foreground: 200 40% 6%;
   --destructive: 8 62% 48%;
   --destructive-foreground: 36 55% 96%;
   --input: 24 22% 16%;
   --ring: 32 78% 62%;
-  --chart-1: 32 78% 62%;
-  --chart-2: 18 72% 58%;
-  --chart-3: 30 18% 68%;
-  --chart-4: 24 24% 28%;
-  --chart-5: 40 60% 70%;
+  --chart-1: 193 100% 74%;
+  --chart-2: 193 80% 62%;
+  --chart-3: 196 20% 70%;
+  --chart-4: 200 16% 22%;
+  --chart-5: 186 70% 80%;
 
   --app-font-sans: 'Nunito', sans-serif;
   --app-font-serif: Georgia, serif;
@@ -182,7 +182,7 @@
 .lab-space-bg__void {
   position: absolute;
   inset: 0;
-  background: #2a1810;
+  background: #05080c;
 }
 
 .lab-space-bg__star {
@@ -196,8 +196,8 @@
   background: radial-gradient(
     ellipse 75% 55% at 50% 42%,
     transparent 0%,
-    rgba(42, 24, 16, 0.35) 72%,
-    rgba(26, 14, 10, 0.78) 100%
+    rgba(4, 12, 18, 0.35) 72%,
+    rgba(0, 0, 0, 0.82) 100%
   );
 }
 
@@ -219,21 +219,21 @@
 /* Orb 1: massive deep-crimson cloud, top-left anchor */
 .nebula-orb-1 {
   width: 800px; height: 800px;
-  background: radial-gradient(circle, rgba(210,140,60,0.16) 0%, rgba(140,70,30,0.05) 40%, transparent 68%);
+  background: radial-gradient(circle, rgba(80,190,230,0.16) 0%, rgba(20,60,90,0.05) 40%, transparent 68%);
   top: -280px; left: -220px;
   animation: nebula-drift-a 26s ease-in-out infinite alternate;
 }
 /* Orb 2: large deep-red cloud, bottom-right */
 .nebula-orb-2 {
   width: 700px; height: 700px;
-  background: radial-gradient(circle, rgba(180,80,40,0.14) 0%, rgba(120,50,24,0.04) 42%, transparent 68%);
+  background: radial-gradient(circle, rgba(40,120,180,0.14) 0%, rgba(10,30,50,0.04) 42%, transparent 68%);
   bottom: -180px; right: -200px;
   animation: nebula-drift-b 21s ease-in-out infinite alternate;
 }
 /* Orb 3: orange-red cloud, upper-center — key "hot gas" accent */
 .nebula-orb-3 {
   width: 550px; height: 550px;
-  background: radial-gradient(circle, rgba(240,190,110,0.12) 0%, rgba(180,110,40,0.04) 42%, transparent 68%);
+  background: radial-gradient(circle, rgba(140,220,255,0.12) 0%, rgba(40,100,140,0.04) 42%, transparent 68%);
   top: -60px; left: 20%;
   animation: nebula-drift-c 32s ease-in-out infinite alternate;
 }

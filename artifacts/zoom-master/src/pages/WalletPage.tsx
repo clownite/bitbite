@@ -107,26 +107,26 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   return (
     <div className="flex flex-col overflow-y-auto" style={{ height: "100%", padding: "22px 18px 32px", gap: 16 }}>
       <div>
-        <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.16em", color: "#f0b15a" }}>WALLET</div>
-        <div style={{ marginTop: 4, fontSize: 13, color: "rgba(255,244,228,0.62)" }}>
+        <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.16em", color: "#7ad7ff" }}>WALLET</div>
+        <div style={{ marginTop: 4, fontSize: 13, color: "rgba(186,220,236,0.7)" }}>
           1 Crumb = {CRUMB_GRAM} GRAM. Farmed from your pet.
         </div>
       </div>
 
-      <section style={{ borderRadius: 28, padding: "22px 20px 20px", background: "rgba(58, 32, 20, 0.92)", border: "1px solid rgba(240, 177, 90, 0.28)" }}>
-        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.18em", color: "rgba(255,231,194,0.55)" }}>CRUMBS</div>
-        <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 12, fontSize: 40, fontWeight: 900, color: "#fff4e4", lineHeight: 1 }}>
+      <section style={{ borderRadius: 28, padding: "22px 20px 20px", background: "rgba(4, 10, 16, 0.94)", border: "1px solid rgba(122, 215, 255, 0.28)" }}>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.18em", color: "rgba(186,220,236,0.55)" }}>CRUMBS</div>
+        <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 12, fontSize: 40, fontWeight: 900, color: "#e8f7ff", lineHeight: 1 }}>
           <ZoomCubeIcon size={36} />
           <span>{formatCrumbs(balance)}</span>
         </div>
-        <div style={{ marginTop: 8, fontSize: 12, color: "rgba(255,244,228,0.5)" }}>
+        <div style={{ marginTop: 8, fontSize: 12, color: "rgba(186,220,236,0.55)" }}>
           {formatCrumbs(balance * CRUMB_GRAM)} GRAM if accepted
         </div>
       </section>
 
-      <section style={{ borderRadius: 28, padding: "18px 18px 16px", background: "rgba(58, 32, 20, 0.92)", border: "1px solid rgba(240, 177, 90, 0.22)", display: "flex", flexDirection: "column", gap: 10 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.16em", color: "#f0b15a" }}>WITHDRAW</div>
-        <div style={{ fontSize: 13, color: "rgba(255,244,228,0.7)", lineHeight: 1.45 }}>
+      <section style={{ borderRadius: 28, padding: "18px 18px 16px", background: "rgba(4, 10, 16, 0.94)", border: "1px solid rgba(122, 215, 255, 0.22)", display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.16em", color: "#7ad7ff" }}>WITHDRAW</div>
+        <div style={{ fontSize: 13, color: "rgba(186,220,236,0.75)", lineHeight: 1.45 }}>
           Enter the amount and your GRAM wallet. The request arrives on your bot. You accept or decline it there. Nothing is sent until you accept.
         </div>
         <input
@@ -134,7 +134,7 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
           value={amount}
           onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
           placeholder="Crumbs"
-          style={{ borderRadius: 14, border: "1px solid rgba(240,177,90,0.28)", background: "rgba(0,0,0,0.25)", color: "#fff4e4", padding: "12px 14px", fontWeight: 800 }}
+          style={{ borderRadius: 14, border: "1px solid rgba(122,215,255,0.28)", background: "rgba(0,0,0,0.25)", color: "#e8f7ff", padding: "12px 14px", fontWeight: 800 }}
         />
         <input
           value={wallet}
@@ -143,13 +143,13 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
-          style={{ borderRadius: 14, border: "1px solid rgba(240,177,90,0.28)", background: "rgba(0,0,0,0.25)", color: "#fff4e4", padding: "12px 14px", fontWeight: 700 }}
+          style={{ borderRadius: 14, border: "1px solid rgba(122,215,255,0.28)", background: "rgba(0,0,0,0.25)", color: "#e8f7ff", padding: "12px 14px", fontWeight: 700 }}
         />
         <button
           type="button"
           disabled={busy}
           onClick={() => void submit()}
-          style={{ border: "none", borderRadius: 16, padding: "12px 14px", fontWeight: 900, background: "#f0b15a", color: "#2a1810" }}
+          style={{ border: "none", borderRadius: 16, padding: "12px 14px", fontWeight: 900, background: "#7ad7ff", color: "#041018" }}
         >
           {busy ? "Sending…" : "Request withdrawal"}
         </button>
@@ -159,10 +159,10 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
       {requests.length > 0 && (
         <section style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {requests.map((r) => (
-            <div key={r.localId} style={{ borderRadius: 18, padding: "12px 14px", background: "rgba(42, 24, 16, 0.55)", border: "1px solid rgba(240,177,90,0.18)", color: "#fff4e4" }}>
+            <div key={r.localId} style={{ borderRadius: 18, padding: "12px 14px", background: "rgba(42, 24, 16, 0.55)", border: "1px solid rgba(240,177,90,0.18)", color: "#e8f7ff" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800 }}>
                 <span>{r.amount} Crumbs</span>
-                <span style={{ color: r.status === "paid" ? "#8dcea0" : r.status === "rejected" ? "#e0a090" : "#f0b15a" }}>{r.status}</span>
+                <span style={{ color: r.status === "paid" ? "#8dcea0" : r.status === "rejected" ? "#e0a090" : "#7ad7ff" }}>{r.status}</span>
               </div>
               <div style={{ marginTop: 4, fontSize: 11, color: "rgba(255,244,228,0.45)", wordBreak: "break-all" }}>{r.wallet}</div>
             </div>

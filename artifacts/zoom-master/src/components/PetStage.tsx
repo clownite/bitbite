@@ -1,7 +1,7 @@
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import type { PetId } from "../pet/catalog";
-import type { PetState } from "../pet/petProgress";
+import { tapPet, type PetState } from "../pet/petProgress";
 import { takePetClone, whenPetModelReady } from "../pet/petModel";
 
 function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
@@ -116,6 +116,9 @@ export function PetStage({
   petId?: PetId;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const [flash, setFlash] = useState<string | null>(null);
+  const flashRef = useRef(setFlash);
+  flashRef.current = setFlash;
   const petRef = useRef(pet);
   petRef.current = pet;
 
@@ -180,6 +183,9 @@ export function PetStage({
     const pointers = new Map<number, { x: number; y: number }>();
     let dragLast: { x: number; y: number } | null = null;
     let pinchDist = 0;
+    let origin: { x: number; y: number } | null = null;
+    let dragging = false;
+    let shake = 0;
 
     const worldPerPixel = () => {
       const h = host.clientHeight || 1;
@@ -195,13 +201,20 @@ export function PetStage({
     const onDown = (e: PointerEvent) => {
       try { host.setPointerCapture(e.pointerId); } catch { /**/ }
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (pointers.size === 1) dragLast = { x: e.clientX, y: e.clientY };
+      if (pointers.size === 1) {
+        origin = { x: e.clientX, y: e.clientY };
+        dragging = false;
+        dragLast = { x: e.clientX, y: e.clientY };
+      }
       if (pointers.size >= 2) pinchDist = pinchDistance();
     };
     const onMove = (e: PointerEvent) => {
       if (!pointers.has(e.pointerId)) return;
       pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      if (pointers.size === 1 && dragLast) {
+      if (pointers.size === 1 && dragLast && origin) {
+        const moved = Math.hypot(e.clientX - origin.x, e.clientY - origin.y);
+        if (!dragging && moved < 10) return;
+        dragging = true;
         const k = worldPerPixel();
         view.x = clamp(view.x + (e.clientX - dragLast.x) * k, -LIMIT.x, LIMIT.x);
         view.y = clamp(view.y - (e.clientY - dragLast.y) * k, -LIMIT.y, LIMIT.y);
@@ -215,8 +228,22 @@ export function PetStage({
       }
     };
     const onUp = (e: PointerEvent) => {
+      const wasTap = pointers.size === 1 && origin && !dragging
+        && Math.hypot(e.clientX - origin.x, e.clientY - origin.y) < 10;
       pointers.delete(e.pointerId);
-      if (pointers.size === 0) dragLast = null;
+      if (wasTap) {
+        const gained = tapPet();
+        if (gained > 0) {
+          shake = 1;
+          flashRef.current(`+${gained} XP`);
+          window.setTimeout(() => flashRef.current(null), 700);
+        }
+      }
+      if (pointers.size === 0) {
+        dragLast = null;
+        origin = null;
+        dragging = false;
+      }
       if (pointers.size < 2) pinchDist = 0;
       if (pointers.size === 1) {
         const only = [...pointers.values()][0];
@@ -245,9 +272,12 @@ export function PetStage({
       rig.scale.setScalar(fitScale(level, stage) * view.s);
       rig.position.x = view.x + Math.sin(t * 0.55) * 0.12;
       rig.position.y = view.y + Math.sin(t * 1.35) * 0.16;
+      shake = shake > 0.02 ? shake * Math.exp(-dt * 14) : 0;
+      const buzz = shake * Math.sin(t * 55);
       rig.rotation.y = Math.sin(t * 0.65) * 0.28;
-      rig.rotation.z = Math.sin(t * 1.2) * 0.06;
+      rig.rotation.z = Math.sin(t * 1.2) * 0.06 + buzz * 0.22;
       rig.rotation.x = Math.sin(t * 1.5) * 0.06;
+      rig.position.x += buzz * 0.06;
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
     };
@@ -272,7 +302,24 @@ export function PetStage({
     <div
       ref={hostRef}
       style={{ position: "absolute", inset: 0, touchAction: "none" }}
-      aria-label="Dolphin. Drag to move, pinch or scroll to resize."
-    />
+      aria-label="Pet. Tap for a little XP. Drag to move, pinch or scroll to resize."
+    >
+      {flash && (
+        <div
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "38%",
+            transform: "translate(-50%, -50%)",
+            color: "#7ad7ff",
+            fontWeight: 800,
+            letterSpacing: "0.08em",
+            pointerEvents: "none",
+          }}
+        >
+          {flash}
+        </div>
+      )}
+    </div>
   );
 }

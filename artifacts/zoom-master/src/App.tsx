@@ -904,6 +904,20 @@ function AppShellWithState() {
               )}
               {t === "shop" && (
                 <ShopPage
+                  gram={(state.depositBalance || 0) + (state.tonBalance || 0)}
+                  onPay={(cost) => {
+                    const deposit = state.depositBalance || 0;
+                    const earned = state.tonBalance || 0;
+                    if (deposit + earned + 1e-9 < cost) return false;
+                    const fromDeposit = Math.min(deposit, cost);
+                    const rest = cost - fromDeposit;
+                    setState((s) => ({
+                      ...s,
+                      depositBalance: +(deposit - fromDeposit).toFixed(6),
+                      tonBalance: +(earned - rest).toFixed(6),
+                    }));
+                    return true;
+                  }}
                   balance={state.balance}
                   stardustBalance={state.stardustBalance || 0}
                   depositBalance={state.depositBalance || 0}
@@ -1115,9 +1129,9 @@ function AppShellWithState() {
           style={{
             pointerEvents: "auto",
             borderRadius: 28,
-            background: "rgba(58, 32, 20, 0.94)",
-            border: "1px solid rgba(240, 177, 90, 0.28)",
-            boxShadow: "0 10px 28px rgba(20, 8, 2, 0.45)",
+            background: "rgba(4, 10, 16, 0.94)",
+            border: "1px solid rgba(122, 215, 255, 0.28)",
+            boxShadow: "0 10px 28px rgba(0, 0, 0, 0.45)",
             overflow: "hidden",
           }}
         >
@@ -1130,12 +1144,12 @@ function AppShellWithState() {
                 onClick={() => switchTab(item.id)}
                 data-testid={`nav-${item.id}`}
                 data-tutorial={item.id === "market" ? "nav-market" : undefined}
-                style={{ color: isActive ? "#ffe7c2" : "rgba(255, 228, 196, 0.55)" }}
+                style={{ color: isActive ? "#e8f7ff" : "rgba(186, 220, 236, 0.5)" }}
               >
                 {isActive && (
                   <div
                     className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-6 rounded-full"
-                    style={{ background: "#f0b15a", boxShadow: "0 0 8px rgba(240,177,90,0.7)" }}
+                    style={{ background: "#7ad7ff", boxShadow: "0 0 8px rgba(122,215,255,0.7)" }}
                   />
                 )}
                 {item.icon === "zoom-cube" || item.icon === "gram-diamond" ? (
@@ -1143,7 +1157,7 @@ function AppShellWithState() {
                     style={{
                       display: "inline-flex",
                       transform: isActive ? "scale(1.15)" : "scale(1)",
-                      filter: isActive ? "drop-shadow(0 0 6px rgba(240,177,90,0.65))" : "none",
+                      filter: isActive ? "drop-shadow(0 0 6px rgba(122,215,255,0.65))" : "none",
                       opacity: isActive ? 1 : 0.7,
                       transition: "transform 150ms ease, filter 150ms ease, opacity 150ms ease",
                     }}
@@ -1160,7 +1174,7 @@ function AppShellWithState() {
                     strokeWidth={isActive ? 2.5 : 1.5}
                     style={{
                       transform: isActive ? "scale(1.15)" : "scale(1)",
-                      filter: isActive ? "drop-shadow(0 0 6px rgba(240,177,90,0.65))" : "none",
+                      filter: isActive ? "drop-shadow(0 0 6px rgba(122,215,255,0.65))" : "none",
                       transition: "transform 150ms ease, filter 150ms ease",
                     }}
                   />

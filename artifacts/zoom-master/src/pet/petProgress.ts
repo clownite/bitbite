@@ -21,6 +21,10 @@ export const DAY_MS = 24 * 60 * 60 * 1000;
 /** Task rewards stay in Crumbs. Each Crumb also pays this much pet XP. */
 export const XP_PER_CRUMB = 20;
 export const INVITE_XP = 12;
+/** Four taps are half of the smallest Earn day (8 XP). One tap is 1 XP. */
+export const PET_TAP_XP = 1;
+export const PET_TAP_MAX = 4;
+export const PET_TAP_GAP_MS = 3000;
 
 export type PetLevel = 1 | 5 | 10;
 
@@ -39,6 +43,9 @@ export type PetState = PetCore & {
   nextDailyAt: number;
   creditedInvites: number;
   invitesBaselined: boolean;
+  tapDay: string;
+  tapCount: number;
+  nextTapAt: number;
 };
 
 const KEY = "biscotto-pet-v3";
@@ -54,6 +61,9 @@ const START: PetState = {
   nextDailyAt: 0,
   creditedInvites: 0,
   invitesBaselined: false,
+  tapDay: "",
+  tapCount: 0,
+  nextTapAt: 0,
 };
 
 function coreOf(p: Partial<PetCore> | undefined): PetCore {
@@ -98,6 +108,9 @@ function load(): PetState {
       nextDailyAt: Math.max(0, Number(p.nextDailyAt) || 0),
       creditedInvites: Math.max(0, Math.floor(Number(p.creditedInvites) || 0)),
       invitesBaselined: !!p.invitesBaselined,
+      tapDay: typeof p.tapDay === "string" ? p.tapDay : "",
+      tapCount: Math.max(0, Math.floor(Number(p.tapCount) || 0)),
+      nextTapAt: Math.max(0, Number(p.nextTapAt) || 0),
     };
   } catch {
     return { ...START };
@@ -257,6 +270,38 @@ export function syncReferralXp(count: number): number {
   const gained = extra * INVITE_XP;
   applyXp(gained);
   emit();
+  return gained;
+}
+
+function todayKey(now = Date.now()): string {
+  const d = new Date(now);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+export function petTapStatus(now = Date.now()) {
+  const day = todayKey(now);
+  const count = state.tapDay === day ? state.tapCount : 0;
+  const wait = Math.max(0, state.nextTapAt - now);
+  return {
+    count,
+    max: PET_TAP_MAX,
+    wait,
+    can: count < PET_TAP_MAX && wait <= 0 && !xpBlocked(state),
+  };
+}
+
+/** A counted tap. Returns the XP gained, or 0 while the 3s pause or the daily cap holds. */
+export function tapPet(now = Date.now()): number {
+  const day = todayKey(now);
+  const count = state.tapDay === day ? state.tapCount : 0;
+  if (count >= PET_TAP_MAX || now < state.nextTapAt || xpBlocked(state)) return 0;
+  state = { ...state, tapDay: day, tapCount: count + 1, nextTapAt: now + PET_TAP_GAP_MS };
+  const gained = addPetXp(PET_TAP_XP);
+  if (gained <= 0) {
+    state = { ...state, tapDay: day, tapCount: count, nextTapAt: state.nextTapAt };
+    emit();
+    return 0;
+  }
   return gained;
 }
 
