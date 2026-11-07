@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { formatRate, PETS, timeForOneCrumb } from "../pet/catalog";
 import { buyPet, getPet, PET_SLOTS, subscribePet, type PetState } from "../pet/petProgress";
+import { recordGramInvested } from "../pet/invested";
 
 interface ShopPageProps {
   balance: number;
@@ -90,6 +91,7 @@ export function ShopPage({ gram, onPay }: ShopPageProps) {
                         return;
                       }
                       buyPet(item.id);
+                      recordGramInvested(item.price);
                       setNote(`${item.name} is in your collection.`);
                     }}
                     style={{

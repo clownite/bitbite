@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { claimDailyReward, fetchTasksState, peekTasksState, bumpTasksPlanetsBuilt, claimTask, type TasksState, redeemServerCode } from "../utils/api";
 import { useGlobalStore, refreshDailyStatus, applyDailyClaimResult } from "../store/globalStore";
-import { addPetXp, basePetStageDays, claimDailyPetXp, claimInteractTask, claimOnceTask, CYCLE_XP, DAILY_XP, DAILY_XP_WEEK, dailyXpStatus, getPet, interactTaskStatus, INVITE_XP, LEVEL10_GRAM, LEVEL5_GRAM, markTaskOpened, subscribePet, syncReferralXp, TASK_INTERACT_XP, TASK_INVITE_ONCE_XP, TASK_ONCE_XP, xpFromCrumbs, type PetState } from "../pet/petProgress";
+import { addPetXp, claimDailyPetXp, claimOnceTask, CYCLE_XP, DAILY_XP, DAILY_XP_WEEK, dailyXpStatus, getPet, INVITE_XP, LEVEL10_GRAM, LEVEL5_GRAM, markTaskOpened, subscribePet, syncReferralXp, TASK_INVITE_ONCE_XP, TASK_ONCE_XP, xpFromCrumbs, type PetState } from "../pet/petProgress";
+import { QuestBoard } from "../components/QuestBoard";
 import { useT } from "../i18n/LanguageContext";
 import { SpaceTicketIcon, SpeedBoltIcon } from "../components/icons/GameIcons";
 
@@ -170,8 +171,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
   const referralLink = `https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`;
   const communityUrl = "https://t.me/ZoomVerse";
   const chatUrl = "https://t.me/ZoomVerse_Chat";
-  const stageDays = basePetStageDays();
-  const interact = interactTaskStatus();
 
   const handleRedeem = async () => {
     const raw = redeemInput.trim();
@@ -463,30 +462,15 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
           </p>
         </section>
 
+        <QuestBoard
+          referralCount={referralCount}
+          referralCode={referralCode}
+          onReward={(message) => setClaimMsg(message)}
+        />
+
         <section className="earn-panel">
-          <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>Tasks</div>
-          <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)" }}>Pet XP</div>
-          <p className="mt-1 text-[11px] leading-snug" style={{ color: "rgba(186,220,236,0.55)" }}>
-            The base pet reaches stage 3 in {stageDays.reachStage3} days if you take the daily, the 4 taps and this task every day. Filling stage 3 takes {stageDays.fillStage3} days.
-          </p>
-          <div className="mt-3 flex flex-col gap-2">
-            <div className="earn-row">
-              <div className="min-w-0">
-                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Interact with your pet</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Tap the pet once today. +{TASK_INTERACT_XP} XP</div>
-              </div>
-              <button
-                type="button"
-                className={`earn-cta !w-auto px-3 ${interact.can ? "earn-cta--primary" : ""}`}
-                disabled={!interact.can}
-                onClick={() => {
-                  const gained = claimInteractTask();
-                  if (gained > 0) setClaimMsg(`+${gained} XP`);
-                }}
-              >
-                {interact.claimed ? "Done" : interact.can ? "Claim" : "Tap pet"}
-              </button>
-            </div>
+          <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>Once</div>
+          <div className="mt-2 flex flex-col gap-2">
             <div className="earn-row">
               <div className="min-w-0">
                 <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Join community</div>

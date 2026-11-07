@@ -1,10 +1,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import {
-  Group, Mesh, MeshStandardMaterial, SphereGeometry, ConeGeometry, CylinderGeometry, Box3, Vector3, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock,
+  Group, Box3, Vector3, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock,
 } from "../vendor/three-pet.js";
 import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
-import { takePetClone, whenPetModelReady } from "../pet/petModel";
+import { notePetTap } from "../pet/quests";
 import { takeHomeCharClone, whenHomeCharReady } from "./HomeVoxelResident";
 
 function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
@@ -15,70 +15,7 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
 
 type Frame = "lab" | "collection";
 
-function standIn(id: PetId): Group {
-  const color = id === "finch" ? 0xe7a56a : id === "lynx" ? 0xc47a2e : 0xf3e2c2;
-  const mat = new MeshStandardMaterial({ color, roughness: 0.48 });
-  const dark = new MeshStandardMaterial({ color: 0x2a1810, roughness: 0.4 });
-  const group = new Group();
-  const add = (mesh: Mesh) => {
-    group.add(mesh);
-    return mesh;
-  };
-  if (id === "finch") {
-    add(new Mesh(new SphereGeometry(0.42, 18, 14), mat)).scale.set(1.15, 0.85, 0.9);
-    const head = add(new Mesh(new SphereGeometry(0.26, 16, 12), mat));
-    head.position.set(0.48, 0.22, 0);
-    const beak = add(new Mesh(new ConeGeometry(0.08, 0.28, 8), dark));
-    beak.rotation.z = -Math.PI / 2;
-    beak.position.set(0.78, 0.2, 0);
-    const wing = add(new Mesh(new SphereGeometry(0.22, 12, 10), mat));
-    wing.scale.set(0.4, 1, 1.3);
-    wing.position.set(0.05, 0.05, 0.28);
-  } else if (id === "lynx") {
-    const body = add(new Mesh(new SphereGeometry(0.48, 18, 14), mat));
-    body.scale.set(1.45, 0.72, 0.78);
-    const head = add(new Mesh(new SphereGeometry(0.28, 16, 12), mat));
-    head.position.set(0.62, 0.28, 0);
-    const earL = add(new Mesh(new ConeGeometry(0.08, 0.22, 6), mat));
-    earL.position.set(0.52, 0.58, 0.12);
-    const earR = earL.clone();
-    earR.position.z = -0.12;
-    group.add(earR);
-    const tail = add(new Mesh(new CylinderGeometry(0.05, 0.08, 0.55, 8), mat));
-    tail.rotation.z = Math.PI / 3;
-    tail.position.set(-0.7, 0.28, 0);
-    add(new Mesh(new SphereGeometry(0.045, 8, 8), dark)).position.set(0.78, 0.34, 0.1);
-  } else {
-    const body = add(new Mesh(new SphereGeometry(0.5, 18, 14), mat));
-    body.scale.set(1.5, 0.75, 0.7);
-    const neck = add(new Mesh(new CylinderGeometry(0.1, 0.14, 0.45, 8), mat));
-    neck.position.set(0.55, 0.42, 0);
-    neck.rotation.z = -0.5;
-    const head = add(new Mesh(new SphereGeometry(0.22, 14, 12), mat));
-    head.position.set(0.78, 0.62, 0);
-    const antler = add(new Mesh(new CylinderGeometry(0.025, 0.035, 0.42, 6), dark));
-    antler.position.set(0.7, 0.95, 0.08);
-    antler.rotation.z = 0.3;
-    const antler2 = antler.clone();
-    antler2.position.z = -0.08;
-    antler2.rotation.z = -0.3;
-    group.add(antler2);
-  }
-  group.updateMatrixWorld(true);
-  const box = new Box3().setFromObject(group);
-  const size = new Vector3();
-  const center = new Vector3();
-  box.getSize(size);
-  box.getCenter(center);
-  group.position.sub(center);
-  const maxDim = Math.max(size.x, size.y, size.z) || 1;
-  const pivot = new Group();
-  pivot.scale.setScalar(2.4 / maxDim);
-  pivot.add(group);
-  return pivot;
-}
-
-/** The base pet uses the voxel character. Bought pets use an original shape until their GLB arrives. */
+/** Home and Collection use the same hooded character. */
 export function PetStage({
   pet,
   frame,
@@ -145,24 +82,8 @@ export function PetStage({
       rig.add(holder);
       renderer.render(scene, camera);
     };
-    // The nav button labeled Home is this stage. Show the brown hood
-    // face-on. Collection keeps the winter-hood pet.
-    if (frame === "lab") {
-      mountHomeChar();
-      stopWait = whenHomeCharReady(mountHomeChar);
-    } else if (petId === "dolphin") {
-      const mount = () => {
-        if (!alive || rig.children.length > 0) return;
-        const model = takePetClone();
-        if (!model) return;
-        rig.add(model);
-        renderer.render(scene, camera);
-      };
-      mount();
-      stopWait = whenPetModelReady(mount);
-    } else {
-      rig.add(standIn(petId));
-    }
+    mountHomeChar();
+    stopWait = whenHomeCharReady(mountHomeChar);
 
     const resize = () => {
       const w = host.clientWidth || 1;
@@ -188,6 +109,7 @@ export function PetStage({
       pressed = false;
       if (e.pointerType === "mouse" && Date.now() - lastTapAt < 700) return;
       lastTapAt = Date.now();
+      const taps = notePetTap();
       const result = tapPet();
       if (result.reason === "ok") {
         shake = 1;
@@ -197,7 +119,8 @@ export function PetStage({
       } else if (result.reason === "gate") {
         flashRef.current("Pay GRAM in Collection");
       } else {
-        flashRef.current(`${result.max}/${result.max} today`);
+        shake = 1;
+        flashRef.current(`${taps.day} taps today`);
       }
       window.setTimeout(() => flashRef.current(null), 900);
     };
@@ -216,17 +139,9 @@ export function PetStage({
       rig.scale.setScalar(fitScale(level, stage));
       shake = shake > 0.02 ? shake * Math.exp(-dt * 14) : 0;
       const buzz = shake * Math.sin(t * 55);
-      if (frame === "lab") {
-        rig.position.x = buzz * 0.04;
-        rig.position.y = Math.sin(t * 1.35) * 0.08;
-        rig.rotation.set(0, 0, buzz * 0.04);
-      } else {
-        rig.position.x = Math.sin(t * 0.55) * 0.12 + buzz * 0.06;
-        rig.position.y = Math.sin(t * 1.35) * 0.16;
-        rig.rotation.y = Math.sin(t * 0.65) * 0.28;
-        rig.rotation.z = Math.sin(t * 1.2) * 0.06 + buzz * 0.22;
-        rig.rotation.x = Math.sin(t * 1.5) * 0.06;
-      }
+      rig.position.x = buzz * 0.04;
+      rig.position.y = Math.sin(t * 1.35) * (frame === "lab" ? 0.08 : 0.05);
+      rig.rotation.set(0, 0, buzz * 0.04);
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
     };

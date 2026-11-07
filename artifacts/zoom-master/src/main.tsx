@@ -26,9 +26,9 @@ function configureTelegramViewport() {
     }).Telegram?.WebApp;
     if (!webApp) return;
 
-    webApp.setHeaderColor?.("#060810");
-    webApp.setBackgroundColor?.("#060810");
-    webApp.setBottomBarColor?.("#060810");
+    webApp.setHeaderColor?.("#000000");
+    webApp.setBackgroundColor?.("#000000");
+    webApp.setBottomBarColor?.("#000000");
     // Stay in the normal Mini App sheet. Fullscreen and locked swipes
     // stop the user from dragging it down and leaving it running.
     webApp.exitFullscreen?.();

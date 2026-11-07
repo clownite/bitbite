@@ -4,7 +4,7 @@ import { getActivePetId, getPet } from "./petProgress";
 /** Farmed Crumbs. 1 Crumb withdraws as 1 GRAM, after you accept it from the bot. */
 
 export const CRUMB_GRAM = 1;
-export const WITHDRAW_MIN = 1;
+export const WITHDRAW_MIN = 15;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 export type CrumbRequest = {
@@ -20,6 +20,8 @@ type Ledger = {
   balance: number;
   /** Crumbs sitting on the pet. Stops at the pet's daily maximum until Claim. */
   pending: number;
+  /** Total Crumbs ever moved into the wallet. Withdrawals do not reduce this. */
+  earned: number;
   lastTickAt: number;
   requests: CrumbRequest[];
 };
@@ -28,7 +30,7 @@ const KEY = "biscotto-crumbs-v2";
 const listeners = new Set<() => void>();
 
 function empty(): Ledger {
-  return { balance: 0, pending: 0, lastTickAt: Date.now(), requests: [] };
+  return { balance: 0, pending: 0, earned: 0, lastTickAt: Date.now(), requests: [] };
 }
 
 function round8(n: number): number {
@@ -45,9 +47,11 @@ function load(): Ledger {
     const raw = localStorage.getItem(KEY);
     if (!raw) return empty();
     const p = JSON.parse(raw) as Partial<Ledger>;
+    const balance = Math.max(0, Number(p.balance) || 0);
     return {
-      balance: Math.max(0, Number(p.balance) || 0),
+      balance,
       pending: Math.max(0, Number(p.pending) || 0),
+      earned: Math.max(0, Number(p.earned ?? balance) || 0),
       lastTickAt: Math.max(0, Number(p.lastTickAt) || Date.now()),
       requests: Array.isArray(p.requests) ? p.requests : [],
     };
@@ -108,6 +112,7 @@ export function claimFarm(now = Date.now()): number {
   state = {
     ...state,
     balance: round8(state.balance + n),
+    earned: round8(state.earned + n),
     pending: 0,
     lastTickAt: now,
   };
@@ -121,6 +126,10 @@ export function currentDailyRate(): number {
 
 export function getCrumbs(): Ledger {
   return state;
+}
+
+export function crumbsEarned(): number {
+  return state.earned;
 }
 
 export function subscribeCrumbs(fn: () => void): () => void {

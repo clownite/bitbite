@@ -20,6 +20,7 @@ import { hideHtmlSplash } from "./components/SplashScreen";
 import { SPLASH_MS } from "./utils/bootSplash";
 import { fetchMaintenanceStatus } from "./utils/api";
 import { initVersionCheck } from "./utils/appVersion";
+import { noteVisit } from "./pet/quests";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 type Tab = "lab" | "farm" | "earn" | "rank" | "shop" | "wallet";
@@ -110,7 +111,19 @@ function AppShell() {
     initialMaint?.enabled ? { enabled: true, message: initialMaint.message } : { enabled: false, message: "" }
   ));
 
-  useEffect(() => { initVersionCheck(); }, []);
+  useEffect(() => {
+    initVersionCheck();
+    noteVisit();
+    const onShow = () => {
+      if (!document.hidden) noteVisit();
+    };
+    document.addEventListener("visibilitychange", onShow);
+    window.addEventListener("focus", onShow);
+    return () => {
+      document.removeEventListener("visibilitychange", onShow);
+      window.removeEventListener("focus", onShow);
+    };
+  }, []);
 
   useEffect(() => {
     const audio = new Audio(`${import.meta.env.BASE_PATH || "/"}bgm.mp3?v=22`);
@@ -174,7 +187,7 @@ function AppShell() {
               }}
             >
               {id === "lab" && (
-                <LabPage onOpenShop={() => setTab("shop")} muted={muted} setMuted={setMuted} />
+                <LabPage active={active} onOpenShop={() => setTab("shop")} muted={muted} setMuted={setMuted} />
               )}
               {id === "farm" && <CollectionPage gram={session.gram} onPay={session.pay} />}
               {id === "earn" && (

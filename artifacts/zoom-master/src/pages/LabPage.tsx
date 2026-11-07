@@ -4,8 +4,10 @@ import { SettingsMenu } from "../components/SettingsMenu";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { PetFarmPanel, useCrumbsBalance } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
+import { petDef } from "../pet/catalog";
 import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { formatCrumbs } from "../pet/crumbs";
+import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
 
 /** Home is the active pet and its Crumb farm. The model forge is gone. */
@@ -13,16 +15,25 @@ export function LabPage({
   onOpenShop,
   muted = false,
   setMuted,
+  active = true,
 }: {
   onOpenShop?: () => void;
   muted?: boolean;
   setMuted?: (next: boolean | ((prev: boolean) => boolean)) => void;
+  active?: boolean;
 }) {
   const { t } = useT();
   const crumbs = useCrumbsBalance();
   const [pet, setPet] = useState<PetState>(getPet());
   useEffect(() => subscribePet(() => setPet(getPet())), []);
   const taps = petTapStatus();
+  useEffect(() => {
+    if (!active) return;
+    const id = window.setInterval(() => {
+      if (!document.hidden) noteHomeActive(1000);
+    }, 1000);
+    return () => window.clearInterval(id);
+  }, [active]);
 
   return (
     <div className="relative h-full overflow-hidden">
@@ -34,7 +45,7 @@ export function LabPage({
         >
           <div className="pointer-events-auto" style={{ width: "min(420px, 100%)" }}>
             <div style={{ marginBottom: 8, textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
-              {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`}
+              {petDef(pet.active).name} · {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`}
               <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)} · {taps.count}/{taps.max}</span>
             </div>
             <PetFarmPanel />

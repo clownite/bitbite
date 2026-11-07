@@ -15,6 +15,8 @@ import {
   LEVEL10_GRAM,
   type PetState,
 } from "../pet/petProgress";
+import { recordGramInvested } from "../pet/invested";
+import { noteFavorite } from "../pet/quests";
 
 const cardShell = {
   position: "relative" as const,
@@ -44,7 +46,7 @@ export function CollectionPage({
     <div className="h-full overflow-y-auto" style={{ padding: "8px 16px 28px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
         <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.16em", color: "#7ad7ff" }}>COLLECTION</div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(186,220,236,0.55)" }}>{pet.owned.length}/{PET_SLOTS}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(186,220,236,0.55)" }}>{pet.owned.length}/{PET_SLOTS} · 5 max</div>
       </div>
 
       <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -70,7 +72,10 @@ export function CollectionPage({
           return (
             <div
               key={id}
-              onClick={() => setActivePet(id)}
+              onClick={() => {
+                setActivePet(id);
+                noteFavorite();
+              }}
               style={{
                 ...cardShell,
                 border: selected ? "1px solid #7ad7ff" : "1px solid rgba(122,215,255,0.22)",
@@ -78,7 +83,7 @@ export function CollectionPage({
             >
               <PetStage pet={pet} frame="collection" petId={id} />
               <div style={{ position: "absolute", left: 10, top: 10, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#e8f7ff", pointerEvents: "none" }}>
-                {index + 1}/{PET_SLOTS}
+                {selected ? "ON HOME" : `${index + 1}/${PET_SLOTS}`}
               </div>
               <div style={{ position: "absolute", left: 10, right: 10, bottom: 10, fontSize: 13, fontWeight: 800, color: "#e8f7ff", pointerEvents: "none" }}>
                 {petDef(id).name}
@@ -113,6 +118,7 @@ export function CollectionPage({
             onClick={() => {
               if (!canPay || cost == null) return;
               if (!onPay(cost)) return;
+              recordGramInvested(cost);
               confirmGramUpgrade();
             }}
             style={{
@@ -129,14 +135,9 @@ export function CollectionPage({
             {pet.level === 1 ? `Pay ${LEVEL5_GRAM} GRAM · level 5` : `Pay ${LEVEL10_GRAM} GRAM · level 10`}
           </button>
         )}
-        {pet.active === "dolphin" && (
-          <div style={{ marginTop: 10, fontSize: 10, color: "rgba(186,220,236,0.38)" }}>
-            Voxel character by{" "}
-            <a href="https://sketchfab.com/Rufian" target="_blank" rel="noreferrer" style={{ color: "inherit" }}>Rufián</a>
-            {" · "}
-            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer" style={{ color: "inherit" }}>CC BY 4.0</a>
-          </div>
-        )}
+        <div style={{ marginTop: 10, fontSize: 11, color: "rgba(186,220,236,0.55)" }}>
+          Tap a pet to keep it on Home. Five pets per account.
+        </div>
       </section>
     </div>
   );
