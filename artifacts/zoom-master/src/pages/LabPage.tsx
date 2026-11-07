@@ -5,7 +5,7 @@ import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { PetFarmPanel, useCrumbsBalance } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
-import { getPet, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { formatCrumbs } from "../pet/crumbs";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
@@ -26,6 +26,7 @@ export function LabPage({
   const crumbs = useCrumbsBalance();
   const [pet, setPet] = useState<PetState>(getPet());
   useEffect(() => subscribePet(() => setPet(getPet())), []);
+  const taps = petTapStatus();
   useEffect(() => {
     if (!active) return;
     const id = window.setInterval(() => {
@@ -43,22 +44,12 @@ export function LabPage({
           style={{ bottom: 132, padding: "0 16px" }}
         >
           <div className="pointer-events-auto" style={{ width: "min(420px, 100%)" }}>
+            <div style={{ marginBottom: 8, textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
+              {petDef(pet.active).name} · {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`}
+              <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)} · {taps.count}/{taps.max}</span>
+            </div>
             <PetFarmPanel />
           </div>
-        </div>
-
-        <div
-          className="absolute left-0 right-0 z-30 text-center pointer-events-none"
-          style={{
-            top: "max(112px, calc(env(safe-area-inset-top, 0px) + 106px))",
-            color: "#ffffff",
-            fontWeight: 800,
-            fontSize: 11,
-            letterSpacing: "0.14em",
-            textShadow: "0 2px 14px rgba(0,0,0,0.85)",
-          }}
-        >
-          {petDef(pet.active).name} · {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`} · {xpLabel(pet)}
         </div>
 
         <div
