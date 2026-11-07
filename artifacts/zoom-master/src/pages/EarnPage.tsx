@@ -167,7 +167,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
   // the bot's main Mini App directly and exposes <param> through
   // WebApp.initDataUnsafe.start_param, where /referral/register picks it
   // up and credits the inviter (+20 ZOOM, +1 referralCount, milestones).
-  const referralLink = `https://t.me/ZoomVerse_bot?startapp=${referralCode}`;
+  const referralLink = `https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`;
   const communityUrl = "https://t.me/ZoomVerse";
   const chatUrl = "https://t.me/ZoomVerse_Chat";
   const stageDays = basePetStageDays();
