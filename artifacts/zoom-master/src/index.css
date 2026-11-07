@@ -3464,10 +3464,12 @@ body, body * {
   font-family: "Nunito", sans-serif !important;
 }
 .rarity-drop {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 18px;
+  display: block;
+  width: 18px;
+  height: 22px;
+  margin: 0 auto;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
 }
 
 .cookie-fly {

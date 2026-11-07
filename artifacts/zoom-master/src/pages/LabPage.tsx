@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ShoppingBag from "lucide-react/dist/esm/icons/shopping-bag.js";
 import { SettingsMenu } from "../components/SettingsMenu";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
@@ -9,6 +9,47 @@ import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../p
 import { claimFarm, formatCrumbs } from "../pet/crumbs";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
+
+/** The water-drop emoji, drawn small and scaled up so the same glyph reads as pixels. */
+function PixelWaterDrop() {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const src = document.createElement("canvas");
+    src.width = 64;
+    src.height = 64;
+    const sctx = src.getContext("2d");
+    if (!sctx) return;
+    sctx.font = '54px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+    sctx.textAlign = "center";
+    sctx.textBaseline = "middle";
+    sctx.fillText("💧", 32, 36);
+    const pixels = sctx.getImageData(0, 0, 64, 64).data;
+    let minX = 64;
+    let minY = 64;
+    let maxX = 0;
+    let maxY = 0;
+    for (let y = 0; y < 64; y++) {
+      for (let x = 0; x < 64; x++) {
+        if (pixels[(y * 64 + x) * 4 + 3] < 20) continue;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+    if (maxX <= minX) return;
+    const cols = 11;
+    const rows = Math.max(11, Math.round(((maxY - minY + 1) / (maxX - minX + 1)) * cols));
+    canvas.width = cols;
+    canvas.height = rows;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(src, minX, minY, maxX - minX + 1, maxY - minY + 1, 0, 0, cols, rows);
+  }, []);
+  return <canvas ref={ref} className="rarity-drop" aria-label="Water drop" />;
+}
 
 /** Home is the active pet and its Crumb farm. The model forge is gone. */
 export function LabPage({
@@ -115,22 +156,7 @@ export function LabPage({
               {stats.map((stat) => (
                 <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {stat.value === "rarity" ? (
-                    <div className="rarity-drop" aria-label="Water drop">
-                      <svg width="14" height="18" viewBox="0 0 9 12" shapeRendering="crispEdges" aria-hidden>
-                        <rect x="4" y="0" width="1" height="1" fill="#9ae6ff" />
-                        <rect x="3" y="1" width="3" height="1" fill="#7ad7ff" />
-                        <rect x="2" y="2" width="5" height="1" fill="#7ad7ff" />
-                        <rect x="1" y="3" width="7" height="1" fill="#5ecfff" />
-                        <rect x="1" y="4" width="7" height="4" fill="#4eb8f0" />
-                        <rect x="2" y="8" width="5" height="1" fill="#3aa8e4" />
-                        <rect x="3" y="9" width="3" height="1" fill="#2f96d4" />
-                        <rect x="4" y="10" width="1" height="1" fill="#2f96d4" />
-                        <rect x="6" y="4" width="2" height="4" fill="#2b8cc8" />
-                        <rect x="5" y="8" width="2" height="1" fill="#2b8cc8" />
-                        <rect x="2" y="4" width="2" height="2" fill="#f4fcff" />
-                        <rect x="2" y="6" width="1" height="1" fill="#c9f1ff" />
-                      </svg>
-                    </div>
+                    <PixelWaterDrop />
                   ) : stat.value === "hearts" ? (
                     <div style={{ display: "flex", justifyContent: "center", gap: 3, height: 16, alignItems: "center" }} aria-label="3 lives">
                       {[0, 1, 2].map((heart) => (
