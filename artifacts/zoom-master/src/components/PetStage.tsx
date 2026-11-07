@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import {
   Group, Box3, Vector3, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock,
+  Mesh, MeshStandardMaterial, Object3D,
 } from "../vendor/three-pet.js";
 import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
@@ -14,6 +15,45 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
 }
 
 type Frame = "lab" | "collection";
+
+const EYE_LIDS = [
+  { x: -0.15, y: 0.8, z: 0.272, w: 0.1, h: 0.2 },
+  { x: 0.15, y: 0.8, z: 0.272, w: 0.1, h: 0.2 },
+];
+
+function smoothStep(value: number): number {
+  const t = Math.min(1, Math.max(0, value));
+  return t * t * (3 - 2 * t);
+}
+
+/** Skin-colored lids over the two dark eye quads. 0 is open, 1 is shut. */
+function addBlinkLids(model: Object3D): Mesh[] {
+  let sample: Mesh | null = null;
+  model.traverse((obj) => {
+    const mesh = obj as Mesh;
+    if (mesh.isMesh) sample = mesh;
+  });
+  if (!sample?.geometry) return [];
+  const source = sample as Mesh;
+  const Geo = source.geometry.constructor as new () => typeof source.geometry;
+  const Attr = source.geometry.attributes.position.constructor as new (array: Float32Array, itemSize: number) => typeof source.geometry.attributes.position;
+  const material = new MeshStandardMaterial({ color: 0xffcc99, roughness: 1, metalness: 0 });
+  return EYE_LIDS.map((eye) => {
+    const geometry = new Geo();
+    const { w, h } = eye;
+    geometry.setAttribute("position", new Attr(new Float32Array([
+      -w / 2, -h / 2, 0, w / 2, -h / 2, 0, w / 2, h / 2, 0,
+      -w / 2, -h / 2, 0, w / 2, h / 2, 0, -w / 2, h / 2, 0,
+    ]), 3));
+    geometry.computeVertexNormals();
+    const lid = new Mesh(geometry, material);
+    lid.position.set(eye.x, eye.y, eye.z);
+    lid.scale.y = 0.001;
+    lid.visible = false;
+    model.add(lid);
+    return lid;
+  });
+}
 
 /** Home and Collection use the same hooded character. */
 export function PetStage({
@@ -64,6 +104,7 @@ export function PetStage({
 
     let alive = true;
     let stopWait = () => { /**/ };
+    let lids: Mesh[] = [];
     const mountHomeChar = () => {
       if (!alive || rig.children.length > 0) return;
       const model = takeHomeCharClone();
@@ -80,6 +121,7 @@ export function PetStage({
       holder.scale.setScalar(2.6 / maxDim);
       holder.add(model);
       rig.add(holder);
+      lids = addBlinkLids(model);
       renderer.render(scene, camera);
     };
     mountHomeChar();
@@ -131,6 +173,8 @@ export function PetStage({
     let raf = 0;
     const clock = new Clock();
     let t = 0;
+    let blinkAt = 0.7 + Math.random() * 1.1;
+    let blinkStart = -1;
     const loop = () => {
       const dt = Math.min(clock.getDelta(), 0.05);
       t += dt;
@@ -149,6 +193,26 @@ export function PetStage({
       rig.position.y = Math.sin(t * 1.35) * (frame === "lab" ? 0.08 : 0.05);
       const turn = frame === "lab" ? t * ((Math.PI * 2) / 12) : 0;
       rig.rotation.set(0, turn, buzz * 0.04);
+      if (lids.length > 0) {
+        const blink = 0.34;
+        if (blinkStart < 0) {
+          if (t >= blinkAt) blinkStart = t;
+        } else {
+          const p = (t - blinkStart) / blink;
+          let closed = 0;
+          if (p < 0.34) closed = smoothStep(p / 0.34);
+          else if (p < 0.5) closed = 1;
+          else if (p < 1) closed = 1 - smoothStep((p - 0.5) / 0.5);
+          else {
+            blinkStart = -1;
+            blinkAt = t + 2 + Math.random() * 3;
+          }
+          for (const lid of lids) {
+            lid.visible = closed > 0.04;
+            lid.scale.y = Math.max(closed, 0.001);
+          }
+        }
+      }
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
     };
