@@ -5,7 +5,7 @@ import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { useCrumbsBalance, useFarm } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
 import { dailyFarm, petDef } from "../pet/catalog";
-import { getPet, petTapStatus, stageGoal, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs } from "../pet/crumbs";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
@@ -29,14 +29,11 @@ export function LabPage({
   const taps = petTapStatus();
   const farm = useFarm();
   const chosen = petDef(pet.active);
-  const goal = stageGoal(pet.stage);
-  const bondRaw = pet.finished ? 100 : Math.min(100, (pet.xp / goal) * 100);
-  const bond = bondRaw >= 10 || bondRaw === 0 ? String(Math.round(bondRaw)) : bondRaw.toFixed(1);
   const farmScore = Math.max(1, Math.round((dailyFarm(pet.active, pet.level) / 9) * 100));
   const stats = [
     { label: "Farm", value: String(farmScore) },
-    { label: "Bond", value: bond },
-    { label: "Care", value: `${taps.count}/4` },
+    { label: "HP", value: "hearts" },
+    { label: "Tap", value: `${taps.count}/4` },
     { label: "Stage", value: String(pet.stage) },
   ];
   useEffect(() => {
@@ -118,7 +115,23 @@ export function LabPage({
             <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
               {stats.map((stat) => (
                 <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                  <div style={{ fontSize: 14, fontWeight: 900, color: "#ffffff" }}>{stat.value}</div>
+                  {stat.value === "hearts" ? (
+                    <div style={{ display: "flex", justifyContent: "center", gap: 3, height: 16, alignItems: "center" }} aria-label="3 lives">
+                      {[0, 1, 2].map((heart) => (
+                        <svg key={heart} width="12" height="11" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
+                          <rect x="1" y="0" width="2" height="1" fill="#ff3355" />
+                          <rect x="5" y="0" width="2" height="1" fill="#ff3355" />
+                          <rect x="0" y="1" width="8" height="2" fill="#ff2040" />
+                          <rect x="1" y="3" width="6" height="1" fill="#ff2040" />
+                          <rect x="2" y="4" width="4" height="1" fill="#e01838" />
+                          <rect x="3" y="5" width="2" height="1" fill="#e01838" />
+                          <rect x="1" y="1" width="1" height="1" fill="#ff8aa0" />
+                        </svg>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: 14, fontWeight: 900, color: "#ffffff" }}>{stat.value}</div>
+                  )}
                   <div style={{ marginTop: 2, fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: "rgba(186,220,236,0.55)" }}>{stat.label}</div>
                 </div>
               ))}

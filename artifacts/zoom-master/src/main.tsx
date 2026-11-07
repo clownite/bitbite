@@ -4,8 +4,6 @@ import App from "./App";
 import "./index.css";
 import { hapticLight } from "./utils/haptic";
 import { BootErrorBoundary } from "./components/BootErrorBoundary";
-import { hideHtmlSplash } from "./components/SplashScreen";
-import { SPLASH_MS } from "./utils/bootSplash";
 
 function configureTelegramViewport() {
   try {
@@ -40,14 +38,6 @@ function configureTelegramViewport() {
 
 configureTelegramViewport();
 preloadPetModel();
-
-{
-  const start =
-    (window as unknown as { __zoomSplashStart?: number }).__zoomSplashStart ??
-    performance.now();
-  const remaining = Math.max(0, SPLASH_MS - (performance.now() - start));
-  window.setTimeout(hideHtmlSplash, remaining);
-}
 
 const SCROLL_TAGS = new Set(["HTML", "BODY"]);
 const SCROLL_CLASSES = ["overflow-y-auto", "overflow-auto", "overflow-x-auto"];

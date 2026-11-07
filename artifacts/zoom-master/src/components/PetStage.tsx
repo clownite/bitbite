@@ -176,7 +176,7 @@ export function PetStage({
       } else if (result.reason === "gate") {
         flashRef.current("Pay GRAM in Collection");
       } else {
-        flashRef.current(`Come back tomorrow · ${result.max} XP taps`);
+        flashRef.current(`${result.max}/${result.max} Tap`);
       }
       window.setTimeout(() => flashRef.current(null), 1200);
     };
@@ -258,10 +258,11 @@ export function PetStage({
             top: "38%",
             transform: "translate(-50%, -50%)",
             color: "#ffffff",
+            fontSize: 13,
             fontWeight: 800,
-            letterSpacing: "0.08em",
+            letterSpacing: "0.06em",
             textAlign: "center",
-            width: "86%",
+            width: "70%",
             textShadow: "0 2px 10px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9)",
             pointerEvents: "none",
           }}

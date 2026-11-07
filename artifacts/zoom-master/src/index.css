@@ -2603,11 +2603,11 @@ body.animations-paused * {
   inset: 0;
   z-index: 2147483647;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #060810;
+  flex-direction: column;
+  background: #14081c;
   opacity: 1;
   isolation: isolate;
+  overflow: hidden;
   transform: translateZ(0);
 }
 #splash-screen.hidden {
@@ -2641,27 +2641,71 @@ body.animations-paused * {
 }
 .zoom-splash-title,
 #splash-screen .splash-title {
-  margin-top: 22px;
-  font-family: "Orbitron", sans-serif;
+  margin: 0;
   font-weight: 900;
-  font-size: 26px;
-  letter-spacing: 0.22em;
-  color: #e0e6ff;
-  text-shadow: 0 0 12px rgba(138, 180, 255, 0.4), 0 0 32px rgba(106, 90, 205, 0.28);
+  font-size: 42px;
+  letter-spacing: 0.08em;
+  color: #fff8ee;
+  text-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 .zoom-splash-sub,
 #splash-screen .splash-sub {
-  margin-top: 10px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  color: rgba(158, 197, 232, 0.55);
-  text-transform: uppercase;
-  animation: zoomSplashPulse 1.6s ease-in-out infinite;
+  margin-top: 14px;
+  font-size: 28px;
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: 0;
+  line-height: 1.15;
+  color: #fff8ee;
+  text-transform: none;
+  animation: none;
 }
 @keyframes zoomSplashPulse {
   0%, 100% { opacity: 0.45; }
   50% { opacity: 1; }
+}
+#splash-screen .splash-sub span {
+  display: block;
+  color: #ffe14a;
+}
+#splash-screen .splash-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 214, 140, 0.2), transparent 28%),
+    linear-gradient(180deg, #1a1030 0%, #3a2458 28%, #c46a78 62%, #f0b07a 78%, #6d88b0 100%);
+}
+#splash-screen .splash-copy {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: max(54px, calc(env(safe-area-inset-top, 0px) + 36px)) 24px 0;
+}
+#splash-screen .splash-scene {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 62%;
+  z-index: 1;
+}
+#splash-screen .splash-scene svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+#splash-enter {
+  position: relative;
+  z-index: 3;
+  margin: auto 22px max(22px, env(safe-area-inset-bottom, 0px));
+  height: 54px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(255, 248, 238, 0.72);
+  background: #120e1c;
+  color: #fff8ee;
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.16em;
 }
 .zoom-splash-sub-maint {
   max-width: 280px;

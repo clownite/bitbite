@@ -27,12 +27,11 @@
         inset: 0;
         z-index: 2147483647;
         display: flex;
-        align-items: center;
-        justify-content: center;
-        background:
-          radial-gradient(circle at 50% 42%, #5a321c 0%, #2a1810 62%, #1a0e0a 100%);
+        flex-direction: column;
+        background: #14081c;
         opacity: 1;
         isolation: isolate;
+        overflow: hidden;
         transform: translateZ(0);
         -webkit-transform: translateZ(0);
       }
@@ -41,134 +40,122 @@
         pointer-events: none;
         display: none !important;
       }
-      #splash-screen .splash-inner {
+      #splash-screen .splash-sky {
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 50% 18%, rgba(255, 214, 140, 0.2), transparent 28%),
+          linear-gradient(180deg, #1a1030 0%, #3a2458 28%, #c46a78 62%, #f0b07a 78%, #6d88b0 100%);
+      }
+      #splash-screen .splash-copy {
+        position: relative;
+        z-index: 2;
         text-align: center;
-        animation: splashIn 0.6s ease-out both;
-      }
-      @keyframes splashIn {
-        from { opacity: 0; transform: scale(0.92); }
-        to { opacity: 1; transform: scale(1); }
-      }
-      #splash-screen .cookie-cruise {
-        width: 92px;
-        height: 92px;
-        margin: 0 auto 4px;
-        animation: cookieCruise 2.6s ease-in-out infinite;
-      }
-      @keyframes cookieCruise {
-        0%, 100% { transform: translate(-16px, 8px) rotate(-12deg); }
-        50% { transform: translate(16px, -16px) rotate(12deg); }
-      }
-      #splash-screen .splash-spinner {
-        width: 52px;
-        height: 52px;
-        margin: 8px auto 0;
-        border-radius: 50%;
-        border: 3px solid rgba(240, 177, 90, 0.18);
-        border-top-color: #f0b15a;
-        border-right-color: rgba(240, 177, 90, 0.55);
-        animation: splashSpin 0.9s linear infinite;
-        box-shadow: 0 0 24px rgba(240, 177, 90, 0.28);
-      }
-      @keyframes splashSpin {
-        to { transform: rotate(360deg); }
+        padding: max(54px, calc(env(safe-area-inset-top, 0px) + 36px)) 24px 0;
       }
       #splash-screen .splash-title {
-        margin-top: 22px;
+        margin: 0;
         font-family: 'Nunito', system-ui, sans-serif;
         font-weight: 900;
-        font-size: 28px;
+        font-size: 42px;
         letter-spacing: 0.08em;
-        color: #fff4e4;
-        text-shadow: 0 0 16px rgba(240, 177, 90, 0.45);
+        color: #fff8ee;
+        text-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
       }
       #splash-screen .splash-sub {
-        margin-top: 10px;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.18em;
-        color: rgba(255, 214, 160, 0.72);
-        text-transform: uppercase;
-        animation: splashPulse 1.6s ease-in-out infinite;
+        margin-top: 14px;
+        font-family: 'Nunito', system-ui, sans-serif;
+        font-size: 28px;
+        font-weight: 800;
+        font-style: italic;
+        letter-spacing: 0;
+        line-height: 1.15;
+        color: #fff8ee;
+        text-transform: none;
+        animation: none;
+      }
+      #splash-screen .splash-sub span {
+        display: block;
+        color: #ffe14a;
+      }
+      #splash-screen .splash-scene {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 62%;
+        z-index: 1;
+      }
+      #splash-screen .splash-scene svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      #splash-enter {
+        position: relative;
+        z-index: 3;
+        margin: auto 22px max(22px, env(safe-area-inset-bottom, 0px));
+        height: 54px;
+        border-radius: 999px;
+        border: 1.5px solid rgba(255, 248, 238, 0.72);
+        background: #120e1c;
+        color: #fff8ee;
+        font-family: 'Nunito', system-ui, sans-serif;
+        font-weight: 900;
+        font-size: 16px;
+        letter-spacing: 0.16em;
       }
       #splash-retry-btn {
         display: none;
-        margin-top: 18px;
+        position: relative;
+        z-index: 3;
+        margin: 0 auto 18px;
         padding: 12px 28px;
         border-radius: 999px;
         border: 1px solid rgba(255,255,255,0.22);
         background: rgba(255,255,255,0.08);
-        color: #fff4e4;
+        color: #fff8ee;
         font-weight: 700;
         font-size: 13px;
         letter-spacing: 0.08em;
       }
-      @keyframes splashPulse {
-        0%, 100% { opacity: 0.45; }
-        50% { opacity: 1; }
-      }
-      #splash-screen .splash-bar-wrap {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: max(28px, env(safe-area-inset-bottom, 0px));
-        padding: 0 32px;
-      }
-      #splash-screen .splash-bar-track {
-        height: 4px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.08);
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) inset;
-      }
-      #splash-screen .splash-bar-fill {
-        height: 100%;
-        width: 100%;
-        border-radius: 999px;
-        background: linear-gradient(90deg, #c47a2e, #f0b15a, #ffe0a8);
-        box-shadow: 0 0 12px rgba(240, 177, 90, 0.45);
-        transform-origin: left center;
-        transform: scaleX(0);
-        animation: splashFill 2s linear forwards;
-      }
-      @keyframes splashFill {
-        from { transform: scaleX(0); }
-        to { transform: scaleX(1); }
-      }
     </style>
   </head>
   <body class="zoom-splash-on">
-    <div id="splash-screen" role="status" aria-label="Biscotto loading">
-        <div class="splash-inner">
-        <div class="cookie-cruise" aria-hidden="true">
-          <svg width="92" height="92" viewBox="0 0 64 64" fill="none">
-            <ellipse cx="32" cy="56" rx="16" ry="3.5" fill="#6a3412" opacity="0.35" />
-            <circle cx="32" cy="30" r="22" fill="#f0b15a" />
-            <circle cx="32" cy="30" r="22" fill="url(#splash-cookie)" />
-            <path d="M16 24c3-9 12-14 22-11" stroke="#ffe4b8" stroke-width="3" stroke-linecap="round" />
-            <circle cx="24" cy="28" r="3.2" fill="#5c3317" />
-            <circle cx="38" cy="22" r="2.6" fill="#4a2812" />
-            <circle cx="40" cy="36" r="3.4" fill="#5c3317" />
-            <circle cx="27" cy="40" r="2.4" fill="#4a2812" />
-            <defs>
-              <radialGradient id="splash-cookie" cx="38%" cy="32%" r="70%">
-                <stop offset="0%" stop-color="#ffe0a8" />
-                <stop offset="55%" stop-color="#e8a24a" />
-                <stop offset="100%" stop-color="#c47a2e" />
-              </radialGradient>
-            </defs>
-          </svg>
-        </div>
-        <div class="splash-spinner" aria-hidden="true"></div>
-        <div class="splash-title">Biscotto</div>
-        <div class="splash-sub">Loading…</div>
-        <button type="button" id="splash-retry-btn">Riprova</button>
+    <div id="splash-screen" role="dialog" aria-label="Enter Biscotto">
+      <div class="splash-sky"></div>
+      <div class="splash-copy">
+        <div class="splash-title">BISCOTTO</div>
+        <div class="splash-sub">Your pet.<span>Your Crumbs.</span></div>
       </div>
-      <div class="splash-bar-wrap" aria-hidden="true">
-        <div class="splash-bar-track">
-          <div class="splash-bar-fill" id="splash-bar-fill"></div>
-        </div>
+      <div class="splash-scene" aria-hidden="true">
+        <svg viewBox="0 0 390 520" preserveAspectRatio="xMidYMax slice">
+          <circle cx="300" cy="70" r="28" fill="#ffe7c2" opacity="0.9" />
+          <path d="M40 150 L70 90 L86 150 Z" fill="#2a1c3a" opacity="0.55" />
+          <path d="M250 170 L286 70 L310 170 Z" fill="#24162f" opacity="0.5" />
+          <path d="M300 190 L330 110 L348 190 Z" fill="#1c1228" opacity="0.45" />
+          <ellipse cx="195" cy="250" rx="180" ry="36" fill="#f4d7e4" opacity="0.35" />
+          <path d="M0 300 C70 250 120 280 170 250 C230 214 280 250 390 220 L390 520 L0 520 Z" fill="#1a1424" />
+          <path d="M0 340 C80 300 140 330 200 300 C270 266 320 310 390 280 L390 520 L0 520 Z" fill="#120e18" />
+          <g fill="#0c0a12">
+            <circle cx="58" cy="318" r="16" />
+            <circle cx="118" cy="308" r="18" />
+            <circle cx="178" cy="322" r="15" />
+            <circle cx="238" cy="306" r="19" />
+            <circle cx="304" cy="318" r="16" />
+            <rect x="50" y="318" width="16" height="18" />
+            <rect x="110" y="308" width="18" height="22" />
+            <rect x="170" y="322" width="16" height="16" />
+            <rect x="228" y="306" width="20" height="24" />
+            <rect x="296" y="318" width="16" height="18" />
+          </g>
+          <circle cx="70" cy="430" r="4" fill="#c9a6ff" />
+          <circle cx="300" cy="450" r="5" fill="#d7b4ff" />
+          <circle cx="150" cy="470" r="3" fill="#b48cff" />
+        </svg>
       </div>
+      <button type="button" id="splash-enter">ENTER</button>
+      <button type="button" id="splash-retry-btn">Riprova</button>
     </div>
     <script>
       (function() {
@@ -189,7 +176,6 @@
         }
         var splash = document.getElementById("splash-screen");
         window.__zoomSplashStart = performance.now();
-        var SPLASH_MS = 2000;
         var splashHidden = false;
 
         function hideSplash() {
@@ -204,17 +190,8 @@
         }
         window.__hideHtmlSplash = hideSplash;
 
-        var fill = document.getElementById("splash-bar-fill");
-        if (fill) fill.addEventListener("animationend", hideSplash);
-        setTimeout(hideSplash, SPLASH_MS);
-        (function tick() {
-          if (splashHidden) return;
-          if (performance.now() - window.__zoomSplashStart >= SPLASH_MS) {
-            hideSplash();
-            return;
-          }
-          requestAnimationFrame(tick);
-        })();
+        var enterBtn = document.getElementById("splash-enter");
+        if (enterBtn) enterBtn.onclick = hideSplash;
 
         setTimeout(function() {
           if (!window.__zoomReactBooted) {
@@ -223,11 +200,7 @@
           }
         }, 8000);
 
-        function applySplashSubtitle() {
-          var el = splash && splash.querySelector(".splash-sub");
-          if (el) el.textContent = SPLASH_SUB[splashLang()] || SPLASH_SUB.en;
-        }
-        applySplashSubtitle();
+        function applySplashSubtitle() { /**/ }
 
         var retryBtn = document.getElementById("splash-retry-btn");
         if (retryBtn) {

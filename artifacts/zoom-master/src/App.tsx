@@ -17,7 +17,6 @@ import { WalletPage } from "./pages/WalletPage";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import { TelegramIdentity } from "./components/TelegramIdentity";
 import { hideHtmlSplash } from "./components/SplashScreen";
-import { SPLASH_MS } from "./utils/bootSplash";
 import { fetchMaintenanceStatus } from "./utils/api";
 import { initVersionCheck } from "./utils/appVersion";
 import { noteVisit } from "./pet/quests";
@@ -51,12 +50,7 @@ function splashElapsedDone(): boolean {
   try {
     if ((window as unknown as { __zoomSplashFinished?: boolean }).__zoomSplashFinished) return true;
   } catch { /**/ }
-  if (!document.getElementById("splash-screen")) return true;
-  try {
-    const start = (window as unknown as { __zoomSplashStart?: number }).__zoomSplashStart;
-    if (typeof start === "number") return performance.now() - start >= SPLASH_MS;
-  } catch { /**/ }
-  return false;
+  return !document.getElementById("splash-screen");
 }
 
 function BootSplashGate() {
@@ -74,16 +68,10 @@ function BootSplashGate() {
       release();
       return;
     }
-    const start = (window as unknown as { __zoomSplashStart?: number }).__zoomSplashStart ?? performance.now();
-    const remaining = Math.max(0, SPLASH_MS - (performance.now() - start));
-    const timeoutId = window.setTimeout(release, remaining);
     const pollId = window.setInterval(() => {
       if (splashElapsedDone()) release();
     }, 50);
-    return () => {
-      window.clearTimeout(timeoutId);
-      window.clearInterval(pollId);
-    };
+    return () => window.clearInterval(pollId);
   }, []);
 
   if (!ready) return null;

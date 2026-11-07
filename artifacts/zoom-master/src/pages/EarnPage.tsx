@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { claimDailyReward, fetchTasksState, peekTasksState, bumpTasksPlanetsBuilt, claimTask, type TasksState, redeemServerCode } from "../utils/api";
 import { useGlobalStore, refreshDailyStatus, applyDailyClaimResult } from "../store/globalStore";
-import { addPetXp, claimDailyPetXp, claimOnceTask, CYCLE_XP, DAILY_XP, DAILY_XP_WEEK, dailyXpStatus, getPet, INVITE_XP, LEVEL10_GRAM, LEVEL5_GRAM, markTaskOpened, subscribePet, syncReferralXp, TASK_INVITE_ONCE_XP, TASK_ONCE_XP, xpFromCrumbs, type PetState } from "../pet/petProgress";
+import { addPetXp, claimDailyPetXp, CYCLE_XP, DAILY_XP, DAILY_XP_WEEK, dailyXpStatus, getPet, INVITE_XP, LEVEL10_GRAM, LEVEL5_GRAM, subscribePet, syncReferralXp, xpFromCrumbs, type PetState } from "../pet/petProgress";
 import { QuestBoard } from "../components/QuestBoard";
 import { useT } from "../i18n/LanguageContext";
 import { SpaceTicketIcon, SpeedBoltIcon } from "../components/icons/GameIcons";
@@ -169,8 +169,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
   // WebApp.initDataUnsafe.start_param, where /referral/register picks it
   // up and credits the inviter (+20 ZOOM, +1 referralCount, milestones).
   const referralLink = `https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`;
-  const communityUrl = "https://t.me/ZoomVerse";
-  const chatUrl = "https://t.me/ZoomVerse_Chat";
 
   const handleRedeem = async () => {
     const raw = redeemInput.trim();
@@ -349,24 +347,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
     setTimeout(() => setTaskMsg(null), 4500);
   };
 
-  const handleOpenSponsor = (taskId: string, url: string) => {
-    const now = Date.now();
-    setSponsorOpenedAt((prev) => ({ ...prev, [taskId]: now }));
-    try { localStorage.setItem(sponsorGateKey(telegramId, taskId), String(now)); } catch {}
-    try {
-      const tg = (window as any).Telegram?.WebApp;
-      if (tg?.openTelegramLink && url.startsWith("https://t.me/")) {
-        tg.openTelegramLink(url);
-        return;
-      }
-      if (tg?.openLink) {
-        tg.openLink(url);
-        return;
-      }
-    } catch {}
-    window.open(url, "_blank");
-  };
-
   const forgedCount = Math.max(tasks.planetsBuilt, Math.max(0, craftsCompleted));
 
   return (
@@ -467,61 +447,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
           referralCode={referralCode}
           onReward={(message) => setClaimMsg(message)}
         />
-
-        <section className="earn-panel">
-          <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>Once</div>
-          <div className="mt-2 flex flex-col gap-2">
-            <div className="earn-row">
-              <div className="min-w-0">
-                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Join community</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Once. +{TASK_ONCE_XP} XP</div>
-              </div>
-              {pet.claimedCommunity ? (
-                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
-              ) : pet.openedCommunity ? (
-                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("community"); if (n > 0) setClaimMsg(`+${n} XP`); }}>Claim</button>
-              ) : (
-                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => { markTaskOpened("community"); handleOpenSponsor("community", communityUrl); }}>Open</button>
-              )}
-            </div>
-            <div className="earn-row">
-              <div className="min-w-0">
-                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Join chat</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Once. +{TASK_ONCE_XP} XP</div>
-              </div>
-              {pet.claimedChat ? (
-                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
-              ) : pet.openedChat ? (
-                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("chat"); if (n > 0) setClaimMsg(`+${n} XP`); }}>Claim</button>
-              ) : (
-                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => { markTaskOpened("chat"); handleOpenSponsor("chat", chatUrl); }}>Open</button>
-              )}
-            </div>
-            <div className="earn-row">
-              <div className="min-w-0">
-                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Invite a friend</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Once, when a friend joins. +{TASK_INVITE_ONCE_XP} XP</div>
-              </div>
-              {pet.claimedInviteTask ? (
-                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
-              ) : referralCount > 0 ? (
-                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("invite", referralCount); if (n > 0) setClaimMsg(`+${n} XP`); }}>Claim</button>
-              ) : (
-                <button
-                  type="button"
-                  className="earn-cta earn-cta--ghost !w-auto px-3"
-                  onClick={() => {
-                    const text = encodeURIComponent(t("earn.shareInviteText"));
-                    const url = encodeURIComponent(referralLink);
-                    window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank");
-                  }}
-                >
-                  Invite
-                </button>
-              )}
-            </div>
-          </div>
-        </section>
 
         {/* Invite */}
         <section className="earn-panel">
