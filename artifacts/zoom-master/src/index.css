@@ -3532,9 +3532,13 @@ body, body * {
   display: block;
   width: 13px;
   height: 16px;
-  margin: 0 auto;
+  margin: 0;
+  flex: 0 0 auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+}
+.rarity-drop--center {
+  margin: 0 auto;
 }
 
 .cookie-fly {

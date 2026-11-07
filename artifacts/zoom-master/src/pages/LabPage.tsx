@@ -163,7 +163,7 @@ export function LabPage({
               {stats.map((stat) => (
                 <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {stat.value === "rarity" ? (
-                    <PixelMark glyph={chosen.element.glyph} label={chosen.element.label} />
+                    <PixelMark glyph={chosen.element.glyph} label={chosen.element.label} center />
                   ) : stat.value === "hearts" ? (
                     <div style={{ display: "flex", justifyContent: "center", gap: 3, height: 16, alignItems: "center" }} aria-label="3 lives">
                       {[0, 1, 2].map((heart) => (

@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 /** The emoji, drawn small and scaled up so the same glyph reads as pixels. */
-export function PixelMark({ glyph, label }: { glyph: string; label: string }) {
+export function PixelMark({ glyph, label, center = false }: { glyph: string; label: string; center?: boolean }) {
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current;
@@ -38,5 +38,5 @@ export function PixelMark({ glyph, label }: { glyph: string; label: string }) {
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, minX, minY, maxX - minX + 1, maxY - minY + 1, 0, 0, cols, rows);
   }, [glyph]);
-  return <canvas ref={ref} className="rarity-drop" aria-label={label} />;
+  return <canvas ref={ref} className={center ? "rarity-drop rarity-drop--center" : "rarity-drop"} aria-label={label} />;
 }

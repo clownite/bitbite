@@ -59,7 +59,7 @@ export function ShopPage({ gram, onPay }: ShopPageProps) {
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
                 <div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: "#e8f7ff" }}>{item.name}</div>
-                  <div style={{ marginTop: 4, display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", color: item.element.color }}>{item.element.label}</span>
                     <PixelMark glyph={item.element.glyph} label={item.element.label} />
                   </div>
