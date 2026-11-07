@@ -21,7 +21,11 @@ function smoothStep(value: number): number {
   return t * t * (3 - 2 * t);
 }
 
-type Blink = { apply: (closed: number) => void; dispose: () => void };
+type Blink = {
+  apply: (closed: number) => void;
+  pose: (t: number, wave: number) => void;
+  dispose: () => void;
+};
 
 function paletteOf(mesh: Mesh): { data: Uint8ClampedArray; width: number } | null {
   const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material) as MeshStandardMaterial;
@@ -51,13 +55,15 @@ function nearColor(color: [number, number, number], target: [number, number, num
     && Math.abs(color[2] - target[2]) <= slack;
 }
 
-/** The eye voxels of each character. Aquin uses the hood seams below. */
+/** The black eye voxels. Emberin's green band and Cervolt's hat are not eyes. */
 function isEye(petId: PetId, color: [number, number, number], x: number, y: number, z: number): boolean {
-  if (petId === "finch") return nearColor(color, [51, 102, 51]) && z > 0.15 && y < 0.85 && x > -0.36 && x < 0.36;
+  if (petId === "finch") {
+    return nearColor(color, [17, 17, 17], 8) && z > 0.2 && y > 0.65 && y < 0.95 && x > -0.25 && x < 0.25;
+  }
   if (petId === "lynx") return nearColor(color, [221, 221, 221], 20) && z > 0.35 && y > 0.7 && y < 1.05;
   if (petId === "stag") {
-    const gray = nearColor(color, [68, 68, 68], 10) || nearColor(color, [34, 34, 34], 8);
-    return gray && z > 0.2 && y > 0.82 && y < 1.12 && x > -0.06 && x < 0.46;
+    const dark = color[0] < 90 && color[1] < 90 && color[2] < 90;
+    return dark && z > 0.22 && z < 0.38 && y > 0.84 && y < 1.06 && x > -0.2 && x < 0.42;
   }
   return false;
 }
@@ -104,13 +110,29 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
         seams.push({ index: i, rest: y, shut: y });
       }
       if (seams.length >= 6) {
-        const mid = seams.reduce((sum, seam) => sum + seam.rest, 0) / seams.length;
-        for (const seam of seams) seam.shut = seam.rest + (mid - seam.rest) * 0.86;
+        const groups = [
+          seams.filter((seam) => position.getX(seam.index) < 0),
+          seams.filter((seam) => position.getX(seam.index) >= 0),
+        ];
+        for (const group of groups) {
+          if (group.length < 2) continue;
+          const mid = group.reduce((sum, seam) => sum + seam.rest, 0) / group.length;
+          for (const seam of group) seam.shut = seam.rest + (mid - seam.rest) * 0.92;
+        }
       }
     }
   }
 
-  if (seams.length < 6) {
+  const arms: { index: number; x: number; y: number; side: number }[] = [];
+  for (let i = 0; i < position.count; i++) {
+    const x = position.getX(i);
+    const y = position.getY(i);
+    // Outer hands only. Head, hood, and the red bandana sit higher and must stay.
+    if (Math.abs(x) < 0.48 || y < 0.35 || y > 0.62) continue;
+    arms.push({ index: i, x, y, side: x >= 0 ? 1 : -1 });
+  }
+
+  if (seams.length < 6 && arms.length < 4) {
     geometry.dispose();
     source.geometry = original;
     return null;
@@ -122,6 +144,28 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
         position.setY(seam.index, seam.rest + (seam.shut - seam.rest) * shut);
       }
       position.needsUpdate = true;
+    },
+    pose(t: number, wave: number) {
+      const still = wave < 0;
+      const sway = still ? 0 : Math.sin(t * 1.35) * 0.18;
+      for (const arm of arms) {
+        const pivotX = arm.side * 0.32;
+        const pivotY = 0.62;
+        const dx = arm.x - pivotX;
+        const dy = arm.y - pivotY;
+        const current = Math.atan2(dy, dx);
+        const down = arm.side > 0 ? -1.35 : -Math.PI + 1.35;
+        let delta = down - current;
+        if (delta > Math.PI) delta -= Math.PI * 2;
+        if (delta < -Math.PI) delta += Math.PI * 2;
+        let angle = delta * 0.82 + sway;
+        if (!still && wave > 0 && arm.side > 0) angle += wave * 1.35;
+        const c = Math.cos(angle);
+        const s = Math.sin(angle);
+        position.setX(arm.index, pivotX + dx * c - dy * s);
+        position.setY(arm.index, pivotY + dx * s + dy * c);
+      }
+      if (arms.length) position.needsUpdate = true;
     },
     dispose() {
       geometry.dispose();
@@ -225,6 +269,11 @@ export function PetStage({
       pressed = false;
       if (e.pointerType === "mouse" && Date.now() - lastTapAt < 700) return;
       lastTapAt = Date.now();
+      if (frame === "collection") {
+        flashRef.current("Added to Home");
+        window.setTimeout(() => flashRef.current(null), 1200);
+        return;
+      }
       const result = tapPet();
       if (result.reason === "ok") {
         notePetTap();
@@ -251,6 +300,9 @@ export function PetStage({
     let t = 0;
     let blinkAt = 0.7 + Math.random() * 1.1;
     let blinkStart = -1;
+    let waveAt = 2.5 + Math.random() * 3;
+    let waveStart = -1;
+    let hopAt = 4 + Math.random() * 4;
     const loop = () => {
       const dt = Math.min(clock.getDelta(), 0.05);
       t += dt;
@@ -262,17 +314,35 @@ export function PetStage({
       } else if (frame === "lab") {
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
-        rig.scale.setScalar(((0.88 + grown * 0.06) * view) / 2.6);
+        rig.scale.setScalar(((0.68 + grown * 0.04) * view) / 2.6);
       } else {
         rig.scale.setScalar(fit);
       }
       shake = frame === "shop" || shake <= 0.02 ? 0 : shake * Math.exp(-dt * 14);
       const buzz = shake * Math.sin(t * 55);
+      let wave = frame === "shop" ? -1 : 0;
+      let hopY = 0;
       if (frame !== "shop") {
+        if (waveStart < 0) {
+          if (t >= waveAt) waveStart = t;
+        } else {
+          const p = (t - waveStart) / 0.9;
+          if (p < 1) wave = Math.sin(Math.min(1, p) * Math.PI);
+          else {
+            waveStart = -1;
+            waveAt = t + 4 + Math.random() * 5;
+          }
+        }
+        if (t >= hopAt) {
+          const p = (t - hopAt) / 0.42;
+          if (p < 1) hopY = Math.sin(p * Math.PI) * (frame === "lab" ? 0.16 : 0.08);
+          else hopAt = t + 5 + Math.random() * 6;
+        }
         rig.position.x = buzz * 0.04;
-        rig.position.y = Math.sin(t * 1.35) * (frame === "lab" ? 0.08 : 0.05);
+        rig.position.y = Math.sin(t * 1.15) * (frame === "lab" ? 0.04 : 0.03) + hopY;
       }
       rig.rotation.set(0, 0, 0);
+      if (blink) blink.pose(t, wave);
       if (blink) {
         const span = 0.28;
         let closed = 0;

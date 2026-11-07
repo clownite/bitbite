@@ -21,6 +21,7 @@ import { hideHtmlSplash } from "./components/SplashScreen";
 import { fetchMaintenanceStatus } from "./utils/api";
 import { initVersionCheck } from "./utils/appVersion";
 import { noteVisit } from "./pet/quests";
+import { FirstGuide, type GuideTab } from "./components/FirstGuide";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 type Tab = "lab" | "farm" | "earn" | "rank" | "shop" | "wallet";
@@ -242,6 +243,7 @@ function AppShell() {
         </div>
       </nav>
       <ChristmasSnow />
+      <FirstGuide onStep={(next: GuideTab) => setTab(next)} />
     </div>
   );
 }

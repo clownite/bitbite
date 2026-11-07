@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
-import { PixelBankCard, cardSerial } from "../components/PixelBankCard";
+import { PixelBankCard } from "../components/PixelBankCard";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
 import { getTelegramViewer } from "../utils/telegram";
 import {
@@ -145,7 +145,7 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
         </div>
       </div>
 
-      <PixelBankCard name={viewer.name} serial={cardSerial(viewer.id || viewer.name)} />
+      <PixelBankCard crumbs={formatCrumbs(balance)} />
 
       <section
         style={{

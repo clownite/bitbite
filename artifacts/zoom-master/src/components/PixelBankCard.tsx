@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 const GLYPH: Record<string, number[]> = {
   A: [2, 5, 7, 5, 5], B: [6, 5, 6, 5, 6], C: [3, 4, 4, 4, 3], D: [6, 5, 5, 5, 6],
@@ -11,24 +11,25 @@ const GLYPH: Record<string, number[]> = {
   "0": [7, 5, 5, 5, 7], "1": [2, 6, 2, 2, 7], "2": [7, 1, 7, 4, 7], "3": [7, 1, 3, 1, 7],
   "4": [5, 5, 7, 1, 1], "5": [7, 4, 7, 1, 7], "6": [7, 4, 7, 5, 7], "7": [7, 1, 1, 1, 1],
   "8": [7, 5, 7, 5, 7], "9": [7, 5, 7, 1, 7],
-  " ": [0, 0, 0, 0, 0], "*": [5, 2, 5, 2, 5], "-": [0, 0, 7, 0, 0],
+  " ": [0, 0, 0, 0, 0], "*": [5, 2, 5, 2, 5], "-": [0, 0, 7, 0, 0], ".": [0, 0, 0, 0, 2],
 };
 
-function drawText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, color: string) {
+function drawText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, color: string, scale = 1) {
   ctx.fillStyle = color;
   let cursor = x;
+  const step = 4 * scale;
   for (const char of text) {
     const rows = GLYPH[char] ?? GLYPH[" "];
     rows.forEach((bits, row) => {
       for (let col = 0; col < 3; col++) {
-        if (bits & (1 << (2 - col))) ctx.fillRect(cursor + col, y + row, 1, 1);
+        if (bits & (1 << (2 - col))) ctx.fillRect(cursor + col * scale, y + row * scale, scale, scale);
       }
     });
-    cursor += 4;
+    cursor += step;
   }
 }
 
-function paintFront(canvas: HTMLCanvasElement, name: string, serial: string) {
+function paintFront(canvas: HTMLCanvasElement, crumbs: string, serial: string) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
   ctx.imageSmoothingEnabled = false;
@@ -43,19 +44,15 @@ function paintFront(canvas: HTMLCanvasElement, name: string, serial: string) {
   ctx.fillRect(0, 59, 96, 1);
   ctx.fillRect(0, 0, 1, 60);
   ctx.fillRect(95, 0, 1, 60);
-  drawText(ctx, "BISCOTTO", 6, 6, "#7ad7ff");
+  drawText(ctx, "CRUMBS", 6, 6, "#7ad7ff");
   ctx.fillStyle = "#e7c56a";
-  ctx.fillRect(6, 18, 14, 10);
+  ctx.fillRect(6, 16, 14, 10);
   ctx.fillStyle = "#9a7430";
-  for (let i = 0; i < 3; i++) ctx.fillRect(8, 20 + i * 3, 10, 1);
+  for (let i = 0; i < 3; i++) ctx.fillRect(8, 18 + i * 3, 10, 1);
   ctx.fillStyle = "#fff4cc";
-  ctx.fillRect(8, 20, 2, 2);
-  drawText(ctx, name, 6, 36, "#e8f7ff");
+  ctx.fillRect(8, 18, 2, 2);
+  drawText(ctx, crumbs, 24, 18, "#e8f7ff");
   drawText(ctx, serial, 6, 48, "#9fd4ee");
-  ctx.fillStyle = "#7ad7ff";
-  ctx.fillRect(78, 18, 12, 12);
-  ctx.fillStyle = "#062033";
-  ctx.fillRect(82, 22, 4, 4);
 }
 
 function paintBack(canvas: HTMLCanvasElement) {
@@ -74,35 +71,47 @@ function paintBack(canvas: HTMLCanvasElement) {
   ctx.fillRect(6, 50, 28, 3);
 }
 
-function cleanName(name: string): string {
-  const letters = name.toUpperCase().replace(/[^A-Z0-9 ]/g, "").replace(/\s+/g, " ").trim();
-  return (letters || "YOU").slice(0, 12);
+const PAN_KEY = "zoom-card-pan";
+
+/** Sixteen digits, created once for this phone and kept. */
+function cardPan(): string {
+  try {
+    const saved = localStorage.getItem(PAN_KEY);
+    if (saved && /^\d{16}$/.test(saved)) return saved;
+  } catch { /**/ }
+  const digits = Array.from({ length: 16 }, () => Math.floor(Math.random() * 10)).join("");
+  try { localStorage.setItem(PAN_KEY, digits); } catch { /**/ }
+  return digits;
 }
 
-/** Four digits drawn on the card. Not a real card number. */
-export function cardSerial(seed: string): string {
-  let hash = 2166136261;
-  for (let i = 0; i < seed.length; i++) {
-    hash ^= seed.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  const digits = String(Math.abs(hash) % 10000).padStart(4, "0");
-  return `**** ${digits}`;
+function grouped(pan: string): string {
+  return pan.replace(/(.{4})/g, "$1 ").trim();
 }
 
-/** A pixel credit card. It turns in 3D above the Crumb balance. */
-export function PixelBankCard({ name, serial }: { name: string; serial: string }) {
+/** A pixel credit card. The number is this wallet's Crumbs, and a tap makes it hop. */
+export function PixelBankCard({ crumbs }: { crumbs: string }) {
   const frontRef = useRef<HTMLCanvasElement>(null);
   const backRef = useRef<HTMLCanvasElement>(null);
-  const label = cleanName(name);
+  const [hopping, setHopping] = useState(false);
+  const serial = useRef(grouped(cardPan()));
+  const label = crumbs.replace(/[^0-9.]/g, "").slice(0, 8) || "0.00";
 
   useLayoutEffect(() => {
-    if (frontRef.current) paintFront(frontRef.current, label, serial);
+    if (frontRef.current) paintFront(frontRef.current, label, serial.current);
     if (backRef.current) paintBack(backRef.current);
-  }, [label, serial]);
+  }, [label]);
 
   return (
-    <div className="crumb-card-scene" aria-hidden>
+    <button
+      type="button"
+      className={hopping ? "crumb-card-scene is-hop" : "crumb-card-scene"}
+      aria-label="Crumb card"
+      onClick={() => {
+        setHopping(false);
+        requestAnimationFrame(() => setHopping(true));
+      }}
+      onAnimationEnd={() => setHopping(false)}
+    >
       <div className="crumb-card-shadow" />
       <div className="crumb-card">
         <canvas ref={frontRef} className="crumb-card-face" width={96} height={60} />
@@ -112,6 +121,6 @@ export function PixelBankCard({ name, serial }: { name: string; serial: string }
         <div className="crumb-card-edge crumb-card-edge-top" />
         <div className="crumb-card-edge crumb-card-edge-bottom" />
       </div>
-    </div>
+    </button>
   );
 }

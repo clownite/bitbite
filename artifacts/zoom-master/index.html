@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>Biscotto</title>
+    <title>Zoom</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preload" href="/models/pet.glb" as="fetch" crossorigin />
     <!-- Non-blocking fonts — never delay first paint / JS boot -->
@@ -149,40 +149,24 @@
     </style>
   </head>
   <body class="zoom-splash-on">
-    <div id="splash-screen" role="dialog" aria-label="Enter Biscotto">
+    <div id="splash-screen" role="dialog" aria-label="Enter Zoom">
       <div class="splash-sky"></div>
-      <div class="splash-snow" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="splash-copy">
-        <div class="splash-title">BISCOTTO</div>
-        <div class="splash-sub">Your pet.<span>Your Crumbs.</span></div>
+        <div class="splash-title">ZOOM</div>
+        <div class="splash-sub">One small life.<span>A world that answers.</span></div>
       </div>
       <div class="splash-scene" aria-hidden="true">
         <svg viewBox="0 0 390 520" preserveAspectRatio="xMidYMax slice">
-          <circle cx="300" cy="70" r="28" fill="#ffe7c2" opacity="0.9" />
-          <path d="M40 150 L70 90 L86 150 Z" fill="#2a1c3a" opacity="0.55" />
-          <path d="M250 170 L286 70 L310 170 Z" fill="#24162f" opacity="0.5" />
-          <path d="M300 190 L330 110 L348 190 Z" fill="#1c1228" opacity="0.45" />
-          <ellipse cx="195" cy="250" rx="180" ry="36" fill="#f4d7e4" opacity="0.35" />
-          <path d="M0 300 C70 250 120 280 170 250 C230 214 280 250 390 220 L390 520 L0 520 Z" fill="#1a1424" />
-          <path d="M0 340 C80 300 140 330 200 300 C270 266 320 310 390 280 L390 520 L0 520 Z" fill="#120e18" />
-          <g fill="#0c0a12">
-            <circle cx="58" cy="318" r="16" />
-            <circle cx="118" cy="308" r="18" />
-            <circle cx="178" cy="322" r="15" />
-            <circle cx="238" cy="306" r="19" />
-            <circle cx="304" cy="318" r="16" />
-            <rect x="50" y="318" width="16" height="18" />
-            <rect x="110" y="308" width="18" height="22" />
-            <rect x="170" y="322" width="16" height="16" />
-            <rect x="228" y="306" width="20" height="24" />
-            <rect x="296" y="318" width="16" height="18" />
-          </g>
-          <circle cx="70" cy="430" r="4" fill="#c9a6ff" />
-          <circle cx="300" cy="450" r="5" fill="#d7b4ff" />
-          <circle cx="150" cy="470" r="3" fill="#b48cff" />
+          <circle cx="292" cy="78" r="26" fill="#fff4c4" />
+          <circle cx="292" cy="78" r="40" fill="#fff4c4" opacity="0.28" />
+          <path d="M-10 250 L70 120 L130 210 L200 70 L270 200 L340 110 L410 230 L410 520 L-10 520 Z" fill="#1f7a48" />
+          <path d="M-10 310 L90 190 L170 280 L250 160 L330 270 L410 180 L410 520 L-10 520 Z" fill="#14643a" />
+          <path d="M-10 380 L120 300 L220 360 L320 290 L410 340 L410 520 L-10 520 Z" fill="#0c4630" />
+          <path d="M0 450 C80 430 160 460 240 440 C310 424 360 448 390 436 L390 520 L0 520 Z" fill="#083526" />
         </svg>
       </div>
-      <button type="button" id="splash-enter">ENTER</button>
+      <div class="splash-meter" aria-hidden="true"><span id="splash-meter-fill"></span></div>
+      <button type="button" id="splash-enter" disabled>ENTER</button>
       <button type="button" id="splash-retry-btn">Riprova</button>
     </div>
     <script>
@@ -219,7 +203,19 @@
         window.__hideHtmlSplash = hideSplash;
 
         var enterBtn = document.getElementById("splash-enter");
-        if (enterBtn) enterBtn.onclick = hideSplash;
+        var splashReady = false;
+        if (enterBtn) {
+          enterBtn.onclick = function() {
+            if (!splashReady) return;
+            hideSplash();
+          };
+        }
+        setTimeout(function() {
+          splashReady = true;
+          if (!enterBtn) return;
+          enterBtn.disabled = false;
+          enterBtn.classList.add("is-ready");
+        }, 2400);
 
         setTimeout(function() {
           if (!window.__zoomReactBooted) {

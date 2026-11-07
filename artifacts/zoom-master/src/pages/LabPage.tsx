@@ -13,7 +13,7 @@ import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
 
 /** A glow that travels the pet card forever. The loop length matches the border, so it never jumps. */
-function PetCardTrace() {
+function PetCardTrace({ color }: { color: string }) {
   const svgRef = useRef<SVGSVGElement>(null);
   useEffect(() => {
     const svg = svgRef.current;
@@ -50,7 +50,7 @@ function PetCardTrace() {
     return () => observer.disconnect();
   }, []);
   return (
-    <svg ref={svgRef} className="pet-card-trace" aria-hidden>
+    <svg ref={svgRef} className="pet-card-trace" style={{ ["--trace-color" as string]: color }} aria-hidden>
       <rect className="pet-card-trace-track" />
       <rect className="pet-card-trace-glow" />
       <rect className="pet-card-trace-line" />
@@ -216,17 +216,9 @@ export function LabPage({
               </div>
               <button
                 type="button"
+                className={farm.pending >= 0.0001 ? "claim-3d" : "claim-3d is-empty"}
                 disabled={farm.pending < 0.0001}
                 onClick={() => { claimFarm(); }}
-                style={{
-                  border: "none",
-                  borderRadius: 14,
-                  padding: "14px 16px",
-                  fontWeight: 900,
-                  letterSpacing: "0.06em",
-                  background: farm.pending >= 0.0001 ? "#f0b15a" : "rgba(255,255,255,0.08)",
-                  color: farm.pending >= 0.0001 ? "#1a0e06" : "rgba(255,255,255,0.35)",
-                }}
               >
                 CLAIM
               </button>
@@ -257,7 +249,7 @@ export function LabPage({
               ))}
             </div>
           </div>
-          <PetCardTrace />
+          <PetCardTrace color={chosen.element.color} />
         </div>
       </div>
 

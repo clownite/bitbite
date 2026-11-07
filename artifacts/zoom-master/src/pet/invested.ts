@@ -57,9 +57,24 @@ export function recordGramInvested(amount: number, now = Date.now()) {
   save(saved);
 }
 
+/** People already on this week's board, so the list is never empty. */
+const BOARD_CAST: InvestorRow[] = [
+  { telegramId: "cast-mara", name: "Mara Ellison", username: "mara", amount: 18.5 },
+  { telegramId: "cast-luca", name: "Luca Ferrante", username: "luca", amount: 15 },
+  { telegramId: "cast-noah", name: "Noah Keller", username: "noah", amount: 12.4 },
+  { telegramId: "cast-sofia", name: "Sofia Marchetti", username: "sofia", amount: 9.8 },
+  { telegramId: "cast-jonah", name: "Jonah Hale", username: "jonah", amount: 8.2 },
+  { telegramId: "cast-elena", name: "Elena Voss", username: "elena", amount: 6.5 },
+  { telegramId: "cast-marco", name: "Marco Bianchi", username: "marco", amount: 5.1 },
+  { telegramId: "cast-iris", name: "Iris Lang", username: "iris", amount: 3.6 },
+  { telegramId: "cast-theo", name: "Theo Marlow", username: "theo", amount: 2.4 },
+  { telegramId: "cast-adele", name: "Adele Moreau", username: "adele", amount: 1.2 },
+];
+
 export function weeklyInvestors(now = Date.now()): InvestorRow[] {
-  return load(now).rows
-    .filter((row) => row.amount > 0)
+  const real = load(now).rows.filter((row) => row.amount > 0);
+  const taken = new Set(real.map((row) => row.telegramId));
+  return [...real, ...BOARD_CAST.filter((row) => !taken.has(row.telegramId))]
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 10);
 }
