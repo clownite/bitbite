@@ -2,61 +2,87 @@ import { useLayoutEffect, useRef } from "react";
 import {
   Object3D, Mesh, MeshStandardMaterial, Group, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock, NearestFilter, GLTFLoader,
 } from "../vendor/three-pet.js";
+import type { PetId } from "../pet/catalog";
 
 /**
- * Front-row brown hood (grid r0c3) from 25 Voxel Chars by Rufián, CC BY 4.0.
+ * Characters from 25 Voxel Chars by Rufián, CC BY 4.0.
  * https://sketchfab.com/3d-models/25-voxel-chars-977cd691acea4d85b303c48e767b304b
- * home-char.glb is already standing (Y up) and facing +Z. Do not yaw it.
+ * Each file is already standing (Y up) and facing +Z. Do not yaw it.
+ * Aquin keeps the white hood. Emberin, Lynvyr and Cervolt are the three circled characters.
  */
-const MODEL_URL = "/models/home-char.glb";
+const CHAR_URL: Record<PetId, string> = {
+  dolphin: "/models/home-char.glb",
+  finch: "/models/emberin.glb",
+  lynx: "/models/lynvyr.glb",
+  stag: "/models/cervolt.glb",
+};
 
-let cached: Object3D | null = null;
-let started = false;
-const waiters = new Set<() => void>();
+const cached = new Map<PetId, Object3D>();
+const waiters = new Map<PetId, Set<() => void>>();
+const started = new Set<PetId>();
 
-function preloadHomeChar() {
-  if (started) return;
-  started = true;
-  const loader = new GLTFLoader();
-  loader.load(MODEL_URL, (gltf) => {
-    const root = gltf.scene;
-    root.traverse((obj) => {
-      const mesh = obj as Mesh;
-      if (!mesh.isMesh) return;
-      const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-      for (const mat of mats) {
-        const std = mat as MeshStandardMaterial;
-        if (std.color) std.color.set(0xffffff);
-        std.vertexColors = false;
-        std.metalness = 0;
-        std.roughness = 1;
-        if (std.map) {
-          std.map.colorSpace = SRGBColorSpace;
-          std.map.magFilter = NearestFilter;
-          std.map.minFilter = NearestFilter;
-          std.map.needsUpdate = true;
-        }
+function prepareChar(root: Object3D) {
+  root.traverse((obj) => {
+    const mesh = obj as Mesh;
+    if (!mesh.isMesh) return;
+    const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const mat of mats) {
+      const std = mat as MeshStandardMaterial;
+      if (std.color) std.color.set(0xffffff);
+      std.vertexColors = false;
+      std.metalness = 0;
+      std.roughness = 1;
+      if (std.map) {
+        std.map.colorSpace = SRGBColorSpace;
+        std.map.magFilter = NearestFilter;
+        std.map.minFilter = NearestFilter;
+        std.map.needsUpdate = true;
       }
-    });
-    cached = root;
-    waiters.forEach((fn) => fn());
-    waiters.clear();
+    }
   });
 }
 
-preloadHomeChar();
-
-export function takeHomeCharClone(): Object3D | null {
-  return cached ? cached.clone(true) : null;
+function preloadChar(id: PetId) {
+  if (started.has(id)) return;
+  started.add(id);
+  const loader = new GLTFLoader();
+  loader.load(CHAR_URL[id], (gltf) => {
+    const root = gltf.scene;
+    prepareChar(root);
+    cached.set(id, root);
+    const pending = waiters.get(id);
+    pending?.forEach((fn) => fn());
+    pending?.clear();
+  });
 }
 
-export function whenHomeCharReady(fn: () => void): () => void {
-  if (cached) {
+(Object.keys(CHAR_URL) as PetId[]).forEach(preloadChar);
+
+export function takeCharClone(id: PetId): Object3D | null {
+  const model = cached.get(id);
+  return model ? model.clone(true) : null;
+}
+
+export function whenCharReady(id: PetId, fn: () => void): () => void {
+  if (cached.has(id)) {
     fn();
     return () => { /**/ };
   }
-  waiters.add(fn);
-  return () => waiters.delete(fn);
+  let pending = waiters.get(id);
+  if (!pending) {
+    pending = new Set();
+    waiters.set(id, pending);
+  }
+  pending.add(fn);
+  return () => pending.delete(fn);
+}
+
+export function takeHomeCharClone(): Object3D | null {
+  return takeCharClone("dolphin");
+}
+
+export function whenHomeCharReady(fn: () => void): () => void {
+  return whenCharReady("dolphin", fn);
 }
 
 /** Front view of the home resident. Yaw stays at 0 so the face looks at the camera. */
@@ -99,11 +125,13 @@ export function HomeVoxelResident({ calm = false }: { calm?: boolean }) {
 
     let alive = true;
     const mount = () => {
-      if (!alive || !cached || rig.children.length > 0) return;
-      rig.add(cached.clone(true));
+      if (!alive || rig.children.length > 0) return;
+      const model = takeCharClone("dolphin");
+      if (!model) return;
+      rig.add(model);
     };
     mount();
-    if (!cached) waiters.add(mount);
+    const stopWait = whenCharReady("dolphin", mount);
 
     const resize = () => {
       const w = host.clientWidth || 1;
@@ -132,7 +160,7 @@ export function HomeVoxelResident({ calm = false }: { calm?: boolean }) {
 
     return () => {
       alive = false;
-      waiters.delete(mount);
+      stopWait();
       cancelAnimationFrame(raf);
       observer.disconnect();
       renderer.dispose();

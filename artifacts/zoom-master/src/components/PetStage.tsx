@@ -6,7 +6,7 @@ import {
 import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
 import { notePetTap } from "../pet/quests";
-import { takeHomeCharClone, whenHomeCharReady } from "./HomeVoxelResident";
+import { takeCharClone, whenCharReady } from "./HomeVoxelResident";
 
 function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
   const stageBoost = stage === 1 ? 0.9 : stage === 2 ? 1.05 : 1.2;
@@ -70,7 +70,7 @@ function bindBlink(model: Object3D): Blink | null {
   };
 }
 
-/** Home and Collection use the same hooded character. */
+/** Home and Collection show the character for this pet. Aquin stays the white hood. */
 export function PetStage({
   pet,
   frame,
@@ -122,7 +122,7 @@ export function PetStage({
     let blink: Blink | null = null;
     const mountHomeChar = () => {
       if (!alive || rig.children.length > 0) return;
-      const model = takeHomeCharClone();
+      const model = takeCharClone(petId);
       if (!model) return;
       model.updateMatrixWorld(true);
       const box = new Box3().setFromObject(model);
@@ -140,7 +140,7 @@ export function PetStage({
       renderer.render(scene, camera);
     };
     mountHomeChar();
-    stopWait = whenHomeCharReady(mountHomeChar);
+    stopWait = whenCharReady(petId, mountHomeChar);
 
     const resize = () => {
       const w = host.clientWidth || 1;
