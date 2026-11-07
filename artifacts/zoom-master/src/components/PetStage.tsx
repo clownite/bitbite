@@ -38,7 +38,7 @@ export function PetStage({
 
     const scene = new Scene();
     const camera = new PerspectiveCamera(32, 1, 0.1, 40);
-    camera.position.set(0, 0.55, 10);
+    camera.position.set(0, frame === "lab" ? 0 : 0.55, 10);
     camera.lookAt(0, 0, 0);
 
     const renderer = new WebGLRenderer({ antialias: true, alpha: true });
@@ -135,7 +135,14 @@ export function PetStage({
       const dt = Math.min(clock.getDelta(), 0.05);
       t += dt;
       const { stage, level } = petRef.current;
-      rig.scale.setScalar(fitScale(level, stage));
+      const fit = fitScale(level, stage);
+      if (frame === "lab") {
+        const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
+        const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
+        rig.scale.setScalar(((0.88 + grown * 0.06) * view) / 2.6);
+      } else {
+        rig.scale.setScalar(fit);
+      }
       shake = shake > 0.02 ? shake * Math.exp(-dt * 14) : 0;
       const buzz = shake * Math.sin(t * 55);
       rig.position.x = buzz * 0.04;

@@ -49,13 +49,30 @@ export function LabPage({
 
   return (
     <div className="relative h-full overflow-hidden">
-      <div className="absolute inset-0">
-        <PetStage pet={pet} frame="lab" petId={pet.active} />
+      <div
+        className="absolute left-0 right-0 z-20"
+        style={{
+          top: "max(108px, calc(env(safe-area-inset-top, 0px) + 102px))",
+          bottom: "calc(84px + env(safe-area-inset-bottom, 0px) + 10px)",
+          padding: "0 14px",
+        }}
+      >
         <div
-          className="absolute left-0 right-0 z-20 flex justify-center pointer-events-none"
-          style={{ bottom: 132, padding: "0 16px" }}
+          style={{
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            borderRadius: 26,
+            overflow: "hidden",
+            background: "rgba(6, 12, 20, 0.96)",
+            border: "1px solid rgba(122, 215, 255, 0.55)",
+            boxShadow: "0 0 0 1px rgba(0,0,0,0.6), 0 16px 40px rgba(0,0,0,0.35)",
+          }}
         >
-          <div className="pointer-events-auto" style={{ width: "min(420px, 100%)" }}>
+          <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }}>
+            <PetStage pet={pet} frame="lab" petId={pet.active} />
+          </div>
+          <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
               <div style={{ textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
                 {chosen.name} · {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`}
@@ -72,8 +89,8 @@ export function LabPage({
                 gap: 10,
                 padding: "12px 12px 12px 14px",
                 borderRadius: 18,
-                background: "rgba(4, 10, 16, 0.92)",
-                border: "1px solid rgba(122, 215, 255, 0.45)",
+                background: "rgba(0, 0, 0, 0.45)",
+                border: "1px solid rgba(122, 215, 255, 0.35)",
               }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -100,7 +117,7 @@ export function LabPage({
             </div>
             <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
               {stats.map((stat) => (
-                <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(4, 10, 16, 0.88)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   <div style={{ fontSize: 14, fontWeight: 900, color: "#ffffff" }}>{stat.value}</div>
                   <div style={{ marginTop: 2, fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: "rgba(186,220,236,0.55)" }}>{stat.label}</div>
                 </div>
@@ -108,7 +125,9 @@ export function LabPage({
             </div>
           </div>
         </div>
+      </div>
 
+      <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute left-0 right-0 z-30 flex items-center justify-center gap-2 px-3 pointer-events-none"
           style={{ top: "max(56px, calc(env(safe-area-inset-top, 0px) + 50px))" }}
