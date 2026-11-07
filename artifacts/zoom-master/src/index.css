@@ -3463,6 +3463,15 @@ body.animations-paused * {
 body, body * {
   font-family: "Nunito", sans-serif !important;
 }
+.rarity-drop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 18px;
+  font-size: 16px;
+  line-height: 1;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif !important;
+}
 
 .cookie-fly {
   animation: cookie-flight 2.2s ease-in-out infinite;

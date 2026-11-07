@@ -115,24 +115,7 @@ export function LabPage({
               {stats.map((stat) => (
                 <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {stat.value === "rarity" ? (
-                    <div style={{ display: "flex", justifyContent: "center", height: 16, alignItems: "center" }} aria-label={`${chosen.element.label} rarity`}>
-                      {chosen.element.id === "water" ? (
-                        <svg width="12" height="14" viewBox="0 0 8 10" shapeRendering="crispEdges" aria-hidden>
-                          <rect x="3" y="0" width="2" height="1" fill={chosen.element.color} />
-                          <rect x="2" y="1" width="4" height="1" fill={chosen.element.color} />
-                          <rect x="1" y="2" width="6" height="1" fill={chosen.element.color} />
-                          <rect x="1" y="3" width="6" height="2" fill={chosen.element.color} />
-                          <rect x="1" y="5" width="6" height="2" fill={chosen.element.color} />
-                          <rect x="2" y="7" width="4" height="1" fill={chosen.element.color} />
-                          <rect x="3" y="8" width="2" height="1" fill={chosen.element.color} />
-                          <rect x="2" y="3" width="1" height="1" fill="#ffffff" />
-                        </svg>
-                      ) : (
-                        <svg width="12" height="12" viewBox="0 0 8 8" shapeRendering="crispEdges" aria-hidden>
-                          <rect x="1" y="1" width="6" height="6" fill={chosen.element.color} />
-                        </svg>
-                      )}
-                    </div>
+                    <div className="rarity-drop" aria-label="Water drop">💧</div>
                   ) : stat.value === "hearts" ? (
                     <div style={{ display: "flex", justifyContent: "center", gap: 3, height: 16, alignItems: "center" }} aria-label="3 lives">
                       {[0, 1, 2].map((heart) => (
