@@ -3488,36 +3488,6 @@ body, body * {
   .christmas-snow { display: none; }
 }
 
-.snow-rest { position: relative; }
-.snow-rest::after {
-  content: "";
-  position: absolute;
-  z-index: 3;
-  top: 3px;
-  left: 50%;
-  width: 3px;
-  height: 3px;
-  margin-left: -1px;
-  pointer-events: none;
-  background: #fff;
-  box-shadow: -16px 1px 0 #fff, -9px 0 0 #fff, 8px 1px 0 #fff, 15px 0 0 #fff;
-  opacity: 0;
-  animation: snow-rest 12s linear infinite;
-}
-.snow-stats > .snow-rest:nth-child(2)::after { animation-delay: -3s; }
-.snow-stats > .snow-rest:nth-child(3)::after { animation-delay: -6s; }
-.snow-stats > .snow-rest:nth-child(4)::after { animation-delay: -9s; }
-.snow-rest--b::after { animation-delay: -4s; }
-.snow-rest--c::after { animation-delay: -8s; }
-@keyframes snow-rest {
-  0%, 12% { opacity: 0; }
-  20%, 48% { opacity: 0.95; }
-  60%, 100% { opacity: 0; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .snow-rest::after { display: none; }
-}
-
 .pet-card-trace {
   position: absolute;
   inset: 0;

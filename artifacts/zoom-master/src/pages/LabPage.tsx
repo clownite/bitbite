@@ -167,7 +167,6 @@ export function LabPage({
               </span>
             </div>
             <div
-              className="snow-rest"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -185,7 +184,6 @@ export function LabPage({
               </div>
               <button
                 type="button"
-                className="snow-rest snow-rest--b"
                 disabled={farm.pending < 0.0001}
                 onClick={() => { claimFarm(); }}
                 style={{
@@ -201,9 +199,9 @@ export function LabPage({
                 CLAIM
               </button>
             </div>
-            <div className="snow-stats" style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
+            <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
               {stats.map((stat) => (
-                <div key={stat.label} className="snow-rest" style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {stat.value === "rarity" ? (
                     <PixelWaterDrop />
                   ) : stat.value === "hearts" ? (
@@ -241,7 +239,7 @@ export function LabPage({
             <SettingsMenu muted={muted} setMuted={setMuted ?? (() => {})} headerButton />
           </div>
           <div
-            className="snow-rest snow-rest--c px-4 py-2 rounded-full pointer-events-auto flex-shrink-0 flex items-center gap-2"
+            className="px-4 py-2 rounded-full pointer-events-auto flex-shrink-0 flex items-center gap-2"
             style={{
               background: "rgba(0, 0, 0, 0.62)",
               border: "1px solid rgba(255, 255, 255, 0.14)",
@@ -261,7 +259,7 @@ export function LabPage({
             type="button"
             onClick={onOpenShop}
             aria-label={t("header.openShop")}
-            className="snow-rest snow-rest--b flex items-center justify-center active:scale-95 flex-shrink-0 pointer-events-auto"
+            className="flex items-center justify-center active:scale-95 flex-shrink-0 pointer-events-auto"
             style={{
               width: 42,
               height: 42,
