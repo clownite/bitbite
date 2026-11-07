@@ -7,7 +7,7 @@ import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PixelMark } from "../components/PixelMark";
-import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs } from "../pet/crumbs";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
@@ -58,6 +58,65 @@ function PetCardTrace() {
   );
 }
 
+function HeartShape({ tone }: { tone: "full" | "empty" }) {
+  if (tone === "empty") {
+    const edge = "#8ea3b8";
+    return (
+      <svg width="11" height="10" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
+        <rect x="1" y="0" width="2" height="1" fill={edge} />
+        <rect x="5" y="0" width="2" height="1" fill={edge} />
+        <rect x="0" y="1" width="1" height="2" fill={edge} />
+        <rect x="7" y="1" width="1" height="2" fill={edge} />
+        <rect x="1" y="3" width="1" height="1" fill={edge} />
+        <rect x="6" y="3" width="1" height="1" fill={edge} />
+        <rect x="2" y="4" width="1" height="1" fill={edge} />
+        <rect x="5" y="4" width="1" height="1" fill={edge} />
+        <rect x="3" y="5" width="2" height="1" fill={edge} />
+      </svg>
+    );
+  }
+  return (
+    <svg width="11" height="10" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
+      <rect x="1" y="0" width="2" height="1" fill="#ff3355" />
+      <rect x="5" y="0" width="2" height="1" fill="#ff3355" />
+      <rect x="0" y="1" width="8" height="2" fill="#ff2040" />
+      <rect x="1" y="3" width="6" height="1" fill="#ff2040" />
+      <rect x="2" y="4" width="4" height="1" fill="#e01838" />
+      <rect x="3" y="5" width="2" height="1" fill="#e01838" />
+      <rect x="1" y="1" width="1" height="1" fill="#ff8aa0" />
+    </svg>
+  );
+}
+
+function ChargingHeart({ startedAt }: { startedAt: number }) {
+  const [elapsed] = useState(() => Math.min(PET_TAP_RECHARGE_MS, Math.max(0, Date.now() - startedAt)));
+  return (
+    <span className="tap-heart">
+      <HeartShape tone="empty" />
+      <span
+        className="tap-heart-fill"
+        style={{
+          clipPath: `inset(${(1 - elapsed / PET_TAP_RECHARGE_MS) * 100}% 0 0 0)`,
+          animationDuration: `${PET_TAP_RECHARGE_MS}ms`,
+          animationDelay: `${-elapsed}ms`,
+        }}
+      >
+        <HeartShape tone="full" />
+      </span>
+    </span>
+  );
+}
+
+function rechargeLabel(ms: number): string {
+  const capped = Math.max(0, Math.min(ms, PET_TAP_RECHARGE_MS));
+  const totalMinutes = Math.ceil(capped / 60000);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  if (hours >= 1 && minutes === 0) return `${hours}h`;
+  if (hours >= 1) return `${hours}h ${String(minutes).padStart(2, "0")}m`;
+  return `${Math.max(1, minutes)}m`;
+}
+
 /** Home is the active pet and its Crumb farm. The model forge is gone. */
 export function LabPage({
   onOpenShop,
@@ -76,8 +135,17 @@ export function LabPage({
   const { t } = useT();
   const crumbs = useCrumbsBalance();
   const [pet, setPet] = useState<PetState>(getPet());
-  useEffect(() => subscribePet(() => setPet(getPet())), []);
-  const taps = petTapStatus();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => subscribePet(() => {
+    setPet(getPet());
+    setNow(Date.now());
+  }), []);
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
+  const taps = petTapStatus(now);
+  const rechargeMs = taps.nextReadyAt > now ? taps.nextReadyAt - now : 0;
   const farm = useFarm();
   const chosen = petDef(pet.active);
   const stats = [
@@ -169,19 +237,18 @@ export function LabPage({
                   {stat.value === "rarity" ? (
                     <PixelMark glyph={chosen.element.glyph} label={chosen.element.label} center />
                   ) : stat.value === "hearts" ? (
-                    <div style={{ display: "flex", justifyContent: "center", gap: 3, height: 16, alignItems: "center" }} aria-label="3 lives">
-                      {[0, 1, 2].map((heart) => (
-                        <svg key={heart} width="12" height="11" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
-                          <rect x="1" y="0" width="2" height="1" fill="#ff3355" />
-                          <rect x="5" y="0" width="2" height="1" fill="#ff3355" />
-                          <rect x="0" y="1" width="8" height="2" fill="#ff2040" />
-                          <rect x="1" y="3" width="6" height="1" fill="#ff2040" />
-                          <rect x="2" y="4" width="4" height="1" fill="#e01838" />
-                          <rect x="3" y="5" width="2" height="1" fill="#e01838" />
-                          <rect x="1" y="1" width="1" height="1" fill="#ff8aa0" />
-                        </svg>
-                      ))}
-                    </div>
+                    <>
+                      <div style={{ display: "flex", justifyContent: "center", gap: 2, height: 16, alignItems: "center" }} aria-label={`${taps.max - taps.count} of ${taps.max} lives`}>
+                        {taps.hearts.map((heart, index) => (
+                          heart.startedAt == null
+                            ? <HeartShape key={`ready-${index}`} tone="full" />
+                            : <ChargingHeart key={`${heart.startedAt}-${index}`} startedAt={heart.startedAt} />
+                        ))}
+                      </div>
+                      {rechargeMs > 0 ? (
+                        <div style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.04em", color: "rgba(186,220,236,0.7)" }}>{rechargeLabel(rechargeMs)}</div>
+                      ) : null}
+                    </>
                   ) : (
                     <div style={{ fontSize: 14, fontWeight: 900, color: "#ffffff" }}>{stat.value}</div>
                   )}

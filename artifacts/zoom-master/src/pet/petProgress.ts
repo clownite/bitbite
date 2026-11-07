@@ -30,6 +30,8 @@ export const TASK_INVITE_ONCE_XP = 24;
 export const PET_TAP_XP = 1;
 export const PET_TAP_MAX = 4;
 export const PET_TAP_GAP_MS = 3000;
+/** A spent heart fills back across this window, then it can be tapped again. */
+export const PET_TAP_RECHARGE_MS = 24 * 60 * 60 * 1000;
 /** Collection holds five pets. The dolphin takes the first slot. */
 export const PET_SLOTS = 5;
 
@@ -59,6 +61,8 @@ export type PetState = PetCore & {
   invitesBaselined: boolean;
   tapDay: string;
   tapCount: number;
+  /** When each spent heart was used. A heart is empty until 24h after this time. */
+  charges: number[];
   nextTapAt: number;
   interactClaimDay: string;
   openedCommunity: boolean;
@@ -84,6 +88,7 @@ const START: PetState = {
   invitesBaselined: false,
   tapDay: "",
   tapCount: 0,
+  charges: [],
   nextTapAt: 0,
   interactClaimDay: "",
   openedCommunity: false,
@@ -180,6 +185,7 @@ function load(): PetState {
       claimedInviteTask: !!p.claimedInviteTask,
       tapDay: typeof p.tapDay === "string" ? p.tapDay : "",
       tapCount: Math.max(0, Math.floor(Number(p.tapCount) || 0)),
+      charges: readCharges(p),
       nextTapAt: Math.max(0, Number(p.nextTapAt) || 0),
     };
   } catch {
@@ -342,15 +348,51 @@ function todayKey(now = Date.now()): string {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
+function readCharges(p: Partial<PetState>, now = Date.now()): number[] {
+  const fresh = (Array.isArray(p.charges) ? p.charges : [])
+    .map((at) => Number(at))
+    .filter((at) => Number.isFinite(at) && now - at < PET_TAP_RECHARGE_MS && now - at >= -60_000)
+    .slice(-PET_TAP_MAX);
+  if (fresh.length > 0 || Array.isArray(p.charges)) return fresh;
+  const count = Math.max(0, Math.floor(Number(p.tapCount) || 0));
+  if (p.tapDay !== todayKey(now) || count <= 0) return [];
+  const start = new Date(now);
+  start.setHours(0, 0, 0, 0);
+  return Array.from({ length: Math.min(PET_TAP_MAX, count) }, (_, index) => start.getTime() + index);
+}
+
+export type TapHeart = {
+  /** 1 is a full red heart. 0 is empty. In between, it is still charging. */
+  fill: number;
+  startedAt: number | null;
+};
+
+/** Hearts still inside the 24h window, oldest first so the fullest charging heart is first. */
+function liveCharges(now: number): number[] {
+  return state.charges
+    .filter((at) => now - at < PET_TAP_RECHARGE_MS)
+    .sort((a, b) => a - b)
+    .slice(-PET_TAP_MAX);
+}
+
 export function petTapStatus(now = Date.now()) {
-  const day = todayKey(now);
-  const count = state.tapDay === day ? state.tapCount : 0;
+  const charges = liveCharges(now);
   const wait = Math.max(0, state.nextTapAt - now);
+  const hearts: TapHeart[] = [
+    ...Array.from({ length: PET_TAP_MAX - charges.length }, () => ({ fill: 1, startedAt: null })),
+    ...charges.map((startedAt) => ({
+      fill: Math.min(1, Math.max(0, (now - startedAt) / PET_TAP_RECHARGE_MS)),
+      startedAt,
+    })),
+  ];
+  const nextReadyAt = charges.length > 0 ? charges[0] + PET_TAP_RECHARGE_MS : 0;
   return {
-    count,
+    count: charges.length,
     max: PET_TAP_MAX,
     wait,
-    can: count < PET_TAP_MAX && wait <= 0 && !xpBlocked(state),
+    can: charges.length < PET_TAP_MAX && wait <= 0 && !xpBlocked(state),
+    hearts,
+    nextReadyAt,
   };
 }
 
@@ -376,7 +418,7 @@ export function basePetStageDays(): { reachLevel5: number; reachLevel10: number 
 
 export function interactTaskStatus(now = Date.now()) {
   const day = todayKey(now);
-  const tapped = petTapStatus(now).count > 0;
+  const tapped = state.tapDay === day && state.tapCount > 0;
   const claimed = state.interactClaimDay === day;
   return {
     tapped,
@@ -425,22 +467,29 @@ export function claimOnceTask(which: "community" | "chat" | "invite", invites = 
   return gained;
 }
 
-/** One of the four daily taps. A click during the 3s pause or after the fourth does not add XP. */
+/** One of the four hearts. A click during the 3s pause, or with every heart still charging, does not add XP. */
 export function tapPet(now = Date.now()): TapResult {
   const day = todayKey(now);
   const count = state.tapDay === day ? state.tapCount : 0;
+  const charges = liveCharges(now);
   const blocked = xpBlocked(state);
-  if (blocked === "gate") return { xp: 0, count, max: PET_TAP_MAX, reason: "gate" };
-  if (blocked === "done" || count >= PET_TAP_MAX) return { xp: 0, count, max: PET_TAP_MAX, reason: "done" };
-  if (now < state.nextTapAt) return { xp: 0, count, max: PET_TAP_MAX, reason: "wait" };
-  state = { ...state, tapDay: day, tapCount: count + 1, nextTapAt: now + PET_TAP_GAP_MS };
+  if (blocked === "gate") return { xp: 0, count: charges.length, max: PET_TAP_MAX, reason: "gate" };
+  if (blocked === "done" || charges.length >= PET_TAP_MAX) return { xp: 0, count: charges.length, max: PET_TAP_MAX, reason: "done" };
+  if (now < state.nextTapAt) return { xp: 0, count: charges.length, max: PET_TAP_MAX, reason: "wait" };
+  state = {
+    ...state,
+    tapDay: day,
+    tapCount: count + 1,
+    charges: [...charges, now],
+    nextTapAt: now + PET_TAP_GAP_MS,
+  };
   const gained = addPetXp(PET_TAP_XP);
   if (gained <= 0) {
-    state = { ...state, tapDay: day, tapCount: count, nextTapAt: 0 };
+    state = { ...state, tapDay: day, tapCount: count, charges, nextTapAt: 0 };
     emit();
-    return { xp: 0, count, max: PET_TAP_MAX, reason: "done" };
+    return { xp: 0, count: charges.length, max: PET_TAP_MAX, reason: "done" };
   }
-  return { xp: gained, count: count + 1, max: PET_TAP_MAX, reason: "ok" };
+  return { xp: gained, count: charges.length + 1, max: PET_TAP_MAX, reason: "ok" };
 }
 
 /** Call only after GRAM has been spent. Banked XP carries into the next level. */

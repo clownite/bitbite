@@ -3528,6 +3528,29 @@ body, body * {
   .pet-card-trace-line { animation: none; stroke-dasharray: none; }
 }
 
+.tap-heart {
+  position: relative;
+  display: inline-block;
+  width: 11px;
+  height: 10px;
+  flex: 0 0 auto;
+}
+.tap-heart-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  animation-name: tap-heart-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes tap-heart-fill {
+  from { clip-path: inset(100% 0 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tap-heart-fill { animation: none; }
+}
+
 .rarity-drop {
   display: block;
   width: 13px;
