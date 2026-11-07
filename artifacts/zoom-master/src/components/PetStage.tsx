@@ -111,11 +111,17 @@ export function PetStage({
       lastTapAt = Date.now();
       notePetTap();
       const result = tapPet();
-      if (result.reason === "ok" && result.xp > 0) {
+      if (result.reason === "ok") {
         shake = 1;
-        flashRef.current(`+${result.xp} XP`);
-        window.setTimeout(() => flashRef.current(null), 900);
+        flashRef.current(`+${result.xp} XP · ${result.count}/${result.max}`);
+      } else if (result.reason === "wait") {
+        flashRef.current("Wait 3 seconds");
+      } else if (result.reason === "gate") {
+        flashRef.current("Pay GRAM in Collection");
+      } else {
+        flashRef.current(`Come back tomorrow · ${result.max} XP taps`);
       }
+      window.setTimeout(() => flashRef.current(null), 1200);
     };
     const onCancel = () => { pressed = false; };
     host.addEventListener("pointerdown", onDown);
@@ -164,14 +170,14 @@ export function PetStage({
           style={{
             position: "absolute",
             left: "50%",
-            top: frame === "lab" ? 148 : 10,
-            transform: "translateX(-50%)",
+            top: "38%",
+            transform: "translate(-50%, -50%)",
             color: "#ffffff",
             fontWeight: 800,
-            fontSize: frame === "lab" ? 13 : 11,
-            letterSpacing: "0.14em",
-            lineHeight: 1,
-            textShadow: "0 2px 14px rgba(0,0,0,0.8)",
+            letterSpacing: "0.08em",
+            textAlign: "center",
+            width: "86%",
+            textShadow: "0 2px 10px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.9)",
             pointerEvents: "none",
           }}
         >
