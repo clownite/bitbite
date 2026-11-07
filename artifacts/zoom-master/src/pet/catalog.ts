@@ -1,9 +1,16 @@
 export type PetId = "dolphin" | "finch" | "lynx" | "stag";
 type PetLevel = 1 | 5 | 10;
 
+export type PetElement = {
+  id: "water" | "air" | "earth" | "forest";
+  label: string;
+  color: string;
+};
+
 export type PetDef = {
   id: PetId;
   name: string;
+  element: PetElement;
   /** GRAM to unlock. The dolphin is free. */
   price: number;
   /** Crumbs per day at level 1, 5 and 10. Level 5 is half the final, level 10 is the final. */
@@ -19,6 +26,7 @@ export const PETS: PetDef[] = [
   {
     id: "dolphin",
     name: "Dolphin",
+    element: { id: "water", label: "Water", color: "#7ad7ff" },
     price: 0,
     rates: { 1: 0.05, 5: 0.15, 10: 0.3 },
     note: "Free. Level 10 farms 0.30 a day. Level 1 needs 20 days for 1 Crumb.",
@@ -26,6 +34,7 @@ export const PETS: PetDef[] = [
   {
     id: "finch",
     name: "Finch",
+    element: { id: "air", label: "Air", color: "#d7ecff" },
     price: 45,
     rates: { 1: 0.25, 5: 0.75, 10: 1.5 },
     note: "Level 10 farms 1.50 a day. At that rate 45 GRAM comes back in 30 days.",
@@ -33,6 +42,7 @@ export const PETS: PetDef[] = [
   {
     id: "lynx",
     name: "Lynx",
+    element: { id: "earth", label: "Earth", color: "#e7b56a" },
     price: 90,
     rates: { 1: 3.5 / 6, 5: 1.75, 10: 3.5 },
     note: "Level 10 farms 3.50 a day. At that rate 90 GRAM comes back in 26 days.",
@@ -40,6 +50,7 @@ export const PETS: PetDef[] = [
   {
     id: "stag",
     name: "Stag",
+    element: { id: "forest", label: "Forest", color: "#8dcea0" },
     price: 250,
     rates: { 1: 1.5, 5: 4.5, 10: 9 },
     note: "Level 10 farms 9.00 a day. At that rate 250 GRAM comes back in 28 days.",

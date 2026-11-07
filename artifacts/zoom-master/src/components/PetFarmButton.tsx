@@ -3,7 +3,7 @@ import { claimFarm, farmStatus, formatCrumbs, getCrumbs, settleFarm, subscribeCr
 
 type FarmView = ReturnType<typeof farmStatus>;
 
-function useFarm(): FarmView {
+export function useFarm(): FarmView {
   const [view, setView] = useState<FarmView>(farmStatus());
   useEffect(() => {
     const pull = () => setView(farmStatus());

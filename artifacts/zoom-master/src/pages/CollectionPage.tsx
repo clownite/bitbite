@@ -85,8 +85,9 @@ export function CollectionPage({
               <div style={{ position: "absolute", left: 10, top: 10, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#e8f7ff", pointerEvents: "none" }}>
                 {selected ? "ON HOME" : `${index + 1}/${PET_SLOTS}`}
               </div>
-              <div style={{ position: "absolute", left: 10, right: 10, bottom: 10, fontSize: 13, fontWeight: 800, color: "#e8f7ff", pointerEvents: "none" }}>
-                {petDef(id).name}
+              <div style={{ position: "absolute", left: 10, right: 10, bottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", pointerEvents: "none" }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#e8f7ff" }}>{petDef(id).name}</span>
+                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.06em", color: "#041018", background: petDef(id).element.color, borderRadius: 999, padding: "2px 6px" }}>{petDef(id).element.label}</span>
               </div>
             </div>
           );
