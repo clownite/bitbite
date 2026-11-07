@@ -10,29 +10,37 @@ import { claimFarm, formatCrumbs } from "../pet/crumbs";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
 
-/** A line that draws itself around the pet card, then starts again. */
+/** A glow that travels the pet card forever. The loop length matches the border, so it never jumps. */
 function PetCardTrace() {
-  const rectRef = useRef<SVGRectElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   useEffect(() => {
-    const rect = rectRef.current;
-    const svg = rect?.ownerSVGElement;
+    const svg = svgRef.current;
     const host = svg?.parentElement;
-    if (!rect || !svg || !host) return;
+    if (!svg || !host) return;
     const fit = () => {
       const width = host.clientWidth;
       const height = host.clientHeight;
       if (width < 2 || height < 2) return;
       svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-      const inset = 1.25;
-      rect.setAttribute("x", String(inset));
-      rect.setAttribute("y", String(inset));
-      rect.setAttribute("width", String(width - inset * 2));
-      rect.setAttribute("height", String(height - inset * 2));
-      rect.setAttribute("rx", "24.5");
-      rect.setAttribute("ry", "24.5");
-      const length = rect.getTotalLength();
-      rect.style.strokeDasharray = `${length}px`;
-      rect.style.setProperty("--trace", `${length}px`);
+      const inset = 5;
+      const rects = [...svg.querySelectorAll("rect")];
+      for (const rect of rects) {
+        rect.setAttribute("x", String(inset));
+        rect.setAttribute("y", String(inset));
+        rect.setAttribute("width", String(width - inset * 2));
+        rect.setAttribute("height", String(height - inset * 2));
+        rect.setAttribute("rx", "21");
+        rect.setAttribute("ry", "21");
+      }
+      const length = rects[0]?.getTotalLength() ?? 0;
+      if (length <= 0) return;
+      const head = length * 0.34;
+      svg.style.setProperty("--trace", `${length}px`);
+      const dash = `${head}px ${length - head}px`;
+      for (const rect of rects) {
+        if (rect.classList.contains("pet-card-trace-track")) continue;
+        rect.style.strokeDasharray = dash;
+      }
     };
     fit();
     const observer = new ResizeObserver(fit);
@@ -40,8 +48,10 @@ function PetCardTrace() {
     return () => observer.disconnect();
   }, []);
   return (
-    <svg className="pet-card-trace" aria-hidden>
-      <rect ref={rectRef} />
+    <svg ref={svgRef} className="pet-card-trace" aria-hidden>
+      <rect className="pet-card-trace-track" />
+      <rect className="pet-card-trace-glow" />
+      <rect className="pet-card-trace-line" />
     </svg>
   );
 }

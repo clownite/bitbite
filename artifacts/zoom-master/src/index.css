@@ -3498,19 +3498,34 @@ body, body * {
 }
 .pet-card-trace rect {
   fill: none;
-  stroke: #9be4ff;
-  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 3px rgba(122, 215, 255, 0.85));
-  animation: pet-card-charge 4.2s linear infinite;
 }
-@keyframes pet-card-charge {
-  from { stroke-dashoffset: var(--trace); }
-  to { stroke-dashoffset: 0; }
+.pet-card-trace-track {
+  stroke: rgba(122, 215, 255, 0.28);
+  stroke-width: 1.5;
+}
+.pet-card-trace-glow,
+.pet-card-trace-line {
+  animation: pet-card-flow 4s linear infinite;
+}
+.pet-card-trace-glow {
+  stroke: rgba(150, 225, 255, 0.95);
+  stroke-width: 8;
+  filter: drop-shadow(0 0 6px rgba(122, 215, 255, 1)) drop-shadow(0 0 16px rgba(80, 190, 255, 0.9));
+}
+.pet-card-trace-line {
+  stroke: #f7fdff;
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px #d8f6ff);
+}
+@keyframes pet-card-flow {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: calc(var(--trace) * -1); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .pet-card-trace rect { animation: none; stroke-dashoffset: 0; }
+  .pet-card-trace-glow,
+  .pet-card-trace-line { animation: none; stroke-dasharray: none; }
 }
 
 .rarity-drop {
