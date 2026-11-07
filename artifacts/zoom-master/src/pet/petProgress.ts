@@ -324,11 +324,12 @@ export type TapResult = {
 };
 
 /**
- * Base dolphin, every day: the streak (80/week), 4 taps (28/week) and the interact task (42/week).
- * That is 150 XP a week. Reaching stage 3 takes 140 days. Filling stage 3 takes 280 days.
+ * A full week: the check-in (80), 4 taps a day (28), daily tasks (210) and weekly tasks (72).
+ * That is 390 XP. Stage 3 starts in about 54 days. The first GRAM gate is about 108 days.
+ * Daily tasks are one tap (6), all 4 taps (10), 15 minutes on Home (8) and a share (6).
  */
 export function basePetStageDays(): { reachStage3: number; fillStage3: number } {
-  const perWeek = DAILY_XP_WEEK + PET_TAP_MAX * 7 * PET_TAP_XP + TASK_INTERACT_XP * 7;
+  const perWeek = DAILY_XP_WEEK + PET_TAP_MAX * 7 * PET_TAP_XP + 30 * 7 + 72;
   const perDay = perWeek / 7;
   return {
     reachStage3: Math.round((STAGE_XP[1] + STAGE_XP[2]) / perDay),

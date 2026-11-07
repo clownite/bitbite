@@ -166,9 +166,9 @@ export function PetStage({
       pressed = false;
       if (e.pointerType === "mouse" && Date.now() - lastTapAt < 700) return;
       lastTapAt = Date.now();
-      notePetTap();
       const result = tapPet();
       if (result.reason === "ok") {
+        notePetTap();
         shake = 1;
         flashRef.current(`+${result.xp} XP · ${result.count}/${result.max}`);
       } else if (result.reason === "wait") {

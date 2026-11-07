@@ -1,26 +1,30 @@
-import { addPetXp } from "./petProgress";
+import { addPetXp, PET_TAP_MAX } from "./petProgress";
 
 /**
- * XP on top of the daily check-in.
- * A player who clears every daily and weekly task gains about 280 XP a week
- * from these, plus the check-in. Stage 1 (1000 XP) is then a few weeks of
- * play. The GRAM gate at 6000 XP stays about a season away, so nothing
- * stops the pet or the farm while the tasks are claimed.
+ * XP on top of the daily check-in and the 4 pet taps.
+ * Only those 4 XP taps count. A full day is the check-in (about 11), the taps (4)
+ * and the daily tasks (30). The weekly tasks add 72. Together that is 390 XP a week.
+ * Stage 1 (1000 XP) is about 18 days. The GRAM gate at 6000 XP is about 15 weeks.
  */
 export const QUEST_XP = {
-  tap10: 6,
-  tap25: 10,
+  tap1: 6,
+  tap4: 10,
   home15: 8,
   share: 6,
   visits3: 18,
   streak7: 30,
-  taps100: 24,
+  tapsWeek: 24,
   favorite: 20,
   friendPet: 40,
-  taps500: 50,
+  tapsMonth: 50,
   streak30: 80,
   crumb: 15,
 } as const;
+
+/** Four taps a day, every day of the week. */
+const WEEK_TAPS = PET_TAP_MAX * 7;
+/** Four taps a day for 30 days. Lands with the 30-day streak, before the GRAM gate. */
+const MONTH_TAPS = PET_TAP_MAX * 30;
 
 const HOME_GOAL_MS = 15 * 60 * 1000;
 const VISIT_GAP_MS = 30 * 60 * 1000;
@@ -202,16 +206,16 @@ function rows(referralCount: number, crumbsEarned: number): QuestRow[] {
   const weeklyClaimed = new Set(state.claimedWeekly);
   const achClaimed = new Set(state.claimedAch);
   const list: QuestRow[] = [
-    { id: "tap10", group: "daily", title: "Tap your pet 10 times", detail: "Today", xp: QUEST_XP.tap10, progress: state.dayTaps, goal: 10, claimed: dailyClaimed.has("tap10"), ready: false },
-    { id: "tap25", group: "daily", title: "Tap your pet 25 times", detail: "Today", xp: QUEST_XP.tap25, progress: state.dayTaps, goal: 25, claimed: dailyClaimed.has("tap25"), ready: false },
+    { id: "tap1", group: "daily", title: "Tap your pet", detail: "Today. One of the 4 XP taps", xp: QUEST_XP.tap1, progress: state.dayTaps, goal: 1, claimed: dailyClaimed.has("tap1"), ready: false },
+    { id: "tap4", group: "daily", title: "Use today's 4 taps", detail: "Today", xp: QUEST_XP.tap4, progress: state.dayTaps, goal: PET_TAP_MAX, claimed: dailyClaimed.has("tap4"), ready: false },
     { id: "home15", group: "daily", title: "Keep Home open for 15 minutes", detail: "Today, while this tab is on screen", xp: QUEST_XP.home15, progress: state.dayHomeMs, goal: HOME_GOAL_MS, claimed: dailyClaimed.has("home15"), ready: false },
     { id: "share", group: "daily", title: "Share your pet card", detail: "Today", xp: QUEST_XP.share, progress: state.shared ? 1 : 0, goal: 1, claimed: dailyClaimed.has("share"), ready: false },
     { id: "visits3", group: "weekly", title: "Visit 3 times this week", detail: "A new visit counts after 30 minutes away", xp: QUEST_XP.visits3, progress: state.weekVisits, goal: 3, claimed: weeklyClaimed.has("visits3"), ready: false },
     { id: "streak7", group: "weekly", title: "Open the app 7 days in a row", detail: "This week", xp: QUEST_XP.streak7, progress: Math.min(state.streak, 7), goal: 7, claimed: weeklyClaimed.has("streak7"), ready: false },
-    { id: "taps100", group: "weekly", title: "Tap your pet 100 times", detail: "This week", xp: QUEST_XP.taps100, progress: state.weekTaps, goal: 100, claimed: weeklyClaimed.has("taps100"), ready: false },
+    { id: "tapsWeek", group: "weekly", title: "Tap your pet 28 times", detail: "This week. Four taps a day", xp: QUEST_XP.tapsWeek, progress: state.weekTaps, goal: WEEK_TAPS, claimed: weeklyClaimed.has("tapsWeek"), ready: false },
     { id: "favorite", group: "achievement", title: "Choose your favorite pet", detail: "Once. It is the pet on Home.", xp: QUEST_XP.favorite, progress: state.favoriteChosen ? 1 : 0, goal: 1, claimed: achClaimed.has("favorite"), ready: false },
     { id: "friendPet", group: "achievement", title: "A friend bought a pet", detail: "Once, when a friend joins", xp: QUEST_XP.friendPet, progress: referralCount > 0 ? 1 : 0, goal: 1, claimed: achClaimed.has("friendPet"), ready: false },
-    { id: "taps500", group: "achievement", title: "Tap your pet 500 times", detail: "Once", xp: QUEST_XP.taps500, progress: state.lifetimeTaps, goal: 500, claimed: achClaimed.has("taps500"), ready: false },
+    { id: "tapsMonth", group: "achievement", title: "Tap your pet 120 times", detail: "Once. Four taps a day for 30 days", xp: QUEST_XP.tapsMonth, progress: state.lifetimeTaps, goal: MONTH_TAPS, claimed: achClaimed.has("tapsMonth"), ready: false },
     { id: "streak30", group: "achievement", title: "Open the app 30 days in a row", detail: "Once", xp: QUEST_XP.streak30, progress: Math.min(state.streak, 30), goal: 30, claimed: achClaimed.has("streak30"), ready: false },
     { id: "crumb", group: "achievement", title: "Earn 1 Crumb", detail: "Once, from the farm", xp: QUEST_XP.crumb, progress: crumbsEarned >= 1 ? 1 : 0, goal: 1, claimed: achClaimed.has("crumb"), ready: false },
   ];
