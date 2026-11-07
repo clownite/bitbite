@@ -52,14 +52,13 @@ export function LabPage({
           style={{
             top: "max(112px, calc(env(safe-area-inset-top, 0px) + 106px))",
             color: "#ffffff",
-            fontFamily: "Nunito, system-ui, sans-serif",
             fontWeight: 800,
-            fontSize: 15,
-            letterSpacing: "0.01em",
+            fontSize: 11,
+            letterSpacing: "0.14em",
             textShadow: "0 2px 14px rgba(0,0,0,0.85)",
           }}
         >
-          {petDef(pet.active).name} · {pet.finished ? "Level 10" : `Stage ${pet.stage}/3 · level ${pet.level}`} · {xpLabel(pet)}
+          {petDef(pet.active).name} · {pet.finished ? "LEVEL 10" : `STAGE ${pet.stage}/3 · LEVEL ${pet.level}`} · {xpLabel(pet)}
         </div>
 
         <div
