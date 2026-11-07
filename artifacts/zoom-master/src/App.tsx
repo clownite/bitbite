@@ -15,7 +15,6 @@ import { EarnPage } from "./pages/EarnPage";
 import { RankPage } from "./pages/RankPage";
 import { ShopPage } from "./pages/ShopPage";
 import { HomePage } from "./pages/HomePage";
-import { AdminPanel } from "./components/AdminPanel";
 import { LanguageProvider, useT } from "./i18n/LanguageContext";
 import HistoryModal from "./components/HistoryModal";
 import { fetchMaintenanceStatus, fetchServerTime, fetchStardustLeaderboard, type StardustLeaderboardEntry } from "./utils/api";
@@ -31,14 +30,6 @@ import { prefetchWalletMarket } from "./utils/walletMarketCache";
 import { rememberStickyWalletBalance, setStickyWalletAccount } from "./hooks/useStickyWalletBalance";
 import { prefetchCombo } from "./utils/comboCache";
 import { initVersionCheck } from "./utils/appVersion";
-
-const MAINTENANCE_ADMIN_IDS = ["8144744644", "@zoom0100", "zoom0100"];
-
-function isMaintenanceAdmin(telegramId: string | null | undefined): boolean {
-  if (!telegramId) return false;
-  const normalized = telegramId.trim().toLowerCase();
-  return MAINTENANCE_ADMIN_IDS.some((value) => value.toLowerCase() === normalized);
-}
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 
@@ -362,8 +353,7 @@ function AppShellWithState() {
       window.removeEventListener("zoom-admin-refresh", onAdmin);
     };
   }, []);
-  const isAdmin = isMaintenanceAdmin(state.telegramId);
-  const showMaintenance = maintenance.enabled && !isAdmin;
+  const showMaintenance = maintenance.enabled;
 
   useEffect(() => {
     void fetchTonPrice();
@@ -792,15 +782,6 @@ function AppShellWithState() {
       >
       {LAB_SPACE_TABS.includes(tab) && <LabSpaceBackground />}
       {!LAB_SPACE_TABS.includes(tab) && tab !== "lab" && <NebulaBackground />}
-      {isAdmin && maintenance.enabled && (
-        <div
-          className="flex-shrink-0 text-center text-xs font-black tracking-widest py-1.5 relative z-30"
-          style={{ background: "rgba(255,179,71,0.18)", color: "#ffb347", borderBottom: "1px solid rgba(255,179,71,0.4)" }}
-        >
-          🛠️ {t("maint.banner")}
-        </div>
-      )}
-
       {!studioOpen && (
         <div
           style={{
@@ -1107,8 +1088,6 @@ function AppShellWithState() {
           </div>
         </div>
       )}
-
-      {state.telegramId && <AdminPanel telegramId={state.telegramId} />}
 
       {historyOpen && state.telegramId && (
         <HistoryModal telegramId={state.telegramId} onClose={() => setHistoryOpen(false)} />

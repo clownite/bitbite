@@ -13,7 +13,7 @@ export type ZoomModel = ZoomModelApiShape;
 
 import { generateRandomFloat } from "../utils/planetFloat";
 import { applyLabEvoFuseTombstones, mergeLabFuseIntoPlanets, pinClientLabEvo } from "../utils/labEvoFuse";
-import { getBrowserDevTelegramId, DEV_TG_ID_STORAGE_KEY, persistTelegramId } from "../utils/telegram";
+import { getBrowserDevTelegramId, persistTelegramId } from "../utils/telegram";
 import { commitStickyWalletBalance } from "./useStickyWalletBalance";
 import { toast } from "./use-toast";
 import { getLabForgeHoldOk } from "../utils/labForgeHold";
