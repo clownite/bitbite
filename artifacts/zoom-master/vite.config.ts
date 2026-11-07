@@ -86,6 +86,20 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     modulePreload: { polyfill: false },
+    // The publish builder kills the process when this spikes. Skip the gzip
+    // pass and render one chunk at a time so the peak stays down.
+    reportCompressedSize: false,
+    chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      maxParallelFileOps: 1,
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("three")) return "three";
+          if (id.includes("/react/") || id.includes("/react-dom/") || id.includes("/scheduler/")) return "react";
+        },
+      },
+    },
   },
   server: {
     port,
