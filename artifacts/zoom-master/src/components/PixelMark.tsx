@@ -1,0 +1,42 @@
+import { useEffect, useRef } from "react";
+
+/** The emoji, drawn small and scaled up so the same glyph reads as pixels. */
+export function PixelMark({ glyph, label }: { glyph: string; label: string }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = ref.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    const src = document.createElement("canvas");
+    src.width = 64;
+    src.height = 64;
+    const sctx = src.getContext("2d");
+    if (!sctx) return;
+    sctx.font = '54px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
+    sctx.textAlign = "center";
+    sctx.textBaseline = "middle";
+    sctx.fillText(glyph, 32, 36);
+    const pixels = sctx.getImageData(0, 0, 64, 64).data;
+    let minX = 64;
+    let minY = 64;
+    let maxX = 0;
+    let maxY = 0;
+    for (let y = 0; y < 64; y++) {
+      for (let x = 0; x < 64; x++) {
+        if (pixels[(y * 64 + x) * 4 + 3] < 20) continue;
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+    if (maxX <= minX) return;
+    const cols = 11;
+    const rows = Math.max(11, Math.round(((maxY - minY + 1) / (maxX - minX + 1)) * cols));
+    canvas.width = cols;
+    canvas.height = rows;
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(src, minX, minY, maxX - minX + 1, maxY - minY + 1, 0, 0, cols, rows);
+  }, [glyph]);
+  return <canvas ref={ref} className="rarity-drop" aria-label={label} />;
+}

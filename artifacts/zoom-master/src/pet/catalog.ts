@@ -2,8 +2,10 @@ export type PetId = "dolphin" | "finch" | "lynx" | "stag";
 type PetLevel = 1 | 5 | 10;
 
 export type PetElement = {
-  id: "water" | "air" | "earth" | "forest";
+  id: "water" | "fire" | "grass" | "electric";
   label: string;
+  /** The real emoji, shown pixelated. */
+  glyph: string;
   color: string;
 };
 
@@ -26,7 +28,7 @@ export const PETS: PetDef[] = [
   {
     id: "dolphin",
     name: "Dolphin",
-    element: { id: "water", label: "Water", color: "#7ad7ff" },
+    element: { id: "water", label: "Water", glyph: "💧", color: "#7ad7ff" },
     price: 0,
     rates: { 1: 0.05, 5: 0.15, 10: 0.3 },
     note: "Free. Today it farms 0.05 a day, so 1 Crumb takes 20 days. Level 10 is the goal, after the XP season and 9 GRAM.",
@@ -34,7 +36,7 @@ export const PETS: PetDef[] = [
   {
     id: "finch",
     name: "Finch",
-    element: { id: "air", label: "Air", color: "#d7ecff" },
+    element: { id: "fire", label: "Fire", glyph: "🔥", color: "#ff7a3c" },
     price: 45,
     rates: { 1: 0.25, 5: 0.75, 10: 1.5 },
     note: "Today it farms 0.25 a day. At this rate 45 GRAM comes back in 180 days. Level 10 is the goal, after the XP season and 9 GRAM.",
@@ -42,7 +44,7 @@ export const PETS: PetDef[] = [
   {
     id: "lynx",
     name: "Lynx",
-    element: { id: "earth", label: "Earth", color: "#e7b56a" },
+    element: { id: "grass", label: "Grass", glyph: "🌿", color: "#7dce6a" },
     price: 90,
     rates: { 1: 3.5 / 6, 5: 1.75, 10: 3.5 },
     note: "Today it farms 0.583 a day. At this rate 90 GRAM comes back in 154 days. Level 10 is the goal, after the XP season and 9 GRAM.",
@@ -50,7 +52,7 @@ export const PETS: PetDef[] = [
   {
     id: "stag",
     name: "Stag",
-    element: { id: "forest", label: "Forest", color: "#8dcea0" },
+    element: { id: "electric", label: "Electric", glyph: "⚡", color: "#ffe14a" },
     price: 250,
     rates: { 1: 1.5, 5: 4.5, 10: 9 },
     note: "Today it farms 1.50 a day. At this rate 250 GRAM comes back in 167 days. Level 10 is the goal, after the XP season and 9 GRAM.",
