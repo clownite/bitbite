@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
+import { PixelBankCard, cardSerial } from "../components/PixelBankCard";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
 import { getTelegramViewer } from "../utils/telegram";
 import {
@@ -102,32 +103,37 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   const viewer = getTelegramViewer();
   const initial = viewer.name.slice(0, 1).toUpperCase();
 
+  const field = {
+    borderRadius: 14,
+    border: "1px solid rgba(122,215,255,0.28)",
+    background: "rgba(0,0,0,0.35)",
+    color: "#e8f7ff",
+    padding: "13px 14px",
+    fontWeight: 700,
+  } as const;
+
   return (
-    <div className="flex flex-col overflow-y-auto" style={{ height: "100%", padding: "8px 16px 28px", background: "#000" }}>
-      <section
-        style={{
-          borderRadius: 28,
-          padding: "22px 20px 18px",
-          background:
-            "radial-gradient(120% 80% at 100% 0%, rgba(240,177,90,0.16), transparent 42%), linear-gradient(180deg, #141414 0%, #050505 100%)",
-          border: "1px solid rgba(240,177,90,0.28)",
-          boxShadow: "0 18px 40px rgba(0,0,0,0.35)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+    <div className="flex flex-col overflow-y-auto" style={{ height: "100%", padding: "8px 16px 28px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.18em", color: "#7ad7ff" }}>PROFILE</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+          <div style={{ minWidth: 0, textAlign: "right" }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#e8f7ff", lineHeight: 1.1 }}>{viewer.name}</div>
+            <div style={{ fontSize: 11, color: "rgba(186,220,236,0.55)" }}>{viewer.username || "Telegram"}</div>
+          </div>
           <div
             style={{
-              width: 58,
-              height: 58,
-              borderRadius: 20,
+              width: 36,
+              height: 36,
+              borderRadius: 12,
               overflow: "hidden",
               display: "grid",
               placeItems: "center",
-              background: "#000",
-              border: "1px solid rgba(240,177,90,0.45)",
-              color: "#ffe0a8",
+              background: "#071018",
+              border: "1px solid rgba(122,215,255,0.45)",
+              color: "#7ad7ff",
               fontWeight: 900,
-              fontSize: 22,
+              flexShrink: 0,
             }}
           >
             {viewer.photoUrl ? (
@@ -136,44 +142,57 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
               initial
             )}
           </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.22em", color: "#f0b15a" }}>PROFILE</div>
-            <div style={{ marginTop: 2, fontSize: 26, fontWeight: 900, color: "#fff8ee", lineHeight: 1.05 }}>{viewer.name}</div>
-            <div style={{ marginTop: 2, fontSize: 13, color: "rgba(255,244,228,0.55)" }}>{viewer.username || "Telegram"}</div>
-          </div>
         </div>
+      </div>
 
-        <div style={{ marginTop: 22, height: 1, background: "linear-gradient(90deg, transparent, rgba(240,177,90,0.45), transparent)" }} />
+      <PixelBankCard name={viewer.name} serial={cardSerial(viewer.id || viewer.name)} />
 
-        <div style={{ marginTop: 16, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+      <section
+        style={{
+          marginTop: 4,
+          borderRadius: 24,
+          padding: "16px 16px 14px",
+          background: "linear-gradient(180deg, rgba(10,28,42,0.92), rgba(5,12,18,0.94))",
+          border: "1px solid rgba(122,215,255,0.32)",
+          boxShadow: "0 16px 36px rgba(0,0,0,0.28)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
           <div>
-            <div style={{ fontSize: 11, letterSpacing: "0.18em", fontWeight: 800, color: "rgba(255,244,228,0.45)" }}>CRUMBS</div>
-            <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 10, fontSize: 42, fontWeight: 900, color: "#fff8ee", lineHeight: 0.95 }}>
-              <ZoomCubeIcon size={34} />
+            <div style={{ fontSize: 11, letterSpacing: "0.18em", fontWeight: 800, color: "rgba(186,220,236,0.55)" }}>CRUMBS</div>
+            <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 10, fontSize: 40, fontWeight: 900, color: "#e8f7ff", lineHeight: 0.95 }}>
+              <ZoomCubeIcon size={32} />
               <span>{formatCrumbs(balance)}</span>
             </div>
           </div>
-          <div style={{ textAlign: "right", paddingBottom: 4 }}>
-            <div style={{ fontSize: 12, fontWeight: 800, color: "#ffe0a8" }}>{formatCrumbs(balance * CRUMB_GRAM)} GRAM</div>
-            <div style={{ marginTop: 2, fontSize: 11, color: "rgba(255,244,228,0.45)" }}>if you accept</div>
+          <div style={{ textAlign: "right", paddingBottom: 4, fontSize: 13, fontWeight: 800, color: "#7ad7ff" }}>
+            {formatCrumbs(balance * CRUMB_GRAM)} GRAM
           </div>
         </div>
       </section>
 
-      <section style={{ marginTop: 14, borderRadius: 24, padding: "16px 16px 14px", background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)", display: "flex", flexDirection: "column", gap: 10 }}>
+      <section
+        style={{
+          marginTop: 14,
+          borderRadius: 24,
+          padding: "16px 16px 14px",
+          background: "rgba(7,16,24,0.88)",
+          border: "1px solid rgba(122,215,255,0.22)",
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-          <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.14em", color: "#fff8ee" }}>WITHDRAW</div>
-          <div style={{ fontSize: 11, fontWeight: 800, color: "#f0b15a" }}>MIN {WITHDRAW_MIN}</div>
-        </div>
-        <div style={{ fontSize: 13, color: "rgba(255,244,228,0.62)", lineHeight: 1.45 }}>
-          1 Crumb = {CRUMB_GRAM} GRAM. The request lands in your bot. Nothing moves until you accept it there.
+          <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.14em", color: "#e8f7ff" }}>WITHDRAW</div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: "#7ad7ff" }}>MIN {WITHDRAW_MIN}</div>
         </div>
         <input
           inputMode="numeric"
           value={amount}
           onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
           placeholder={`${WITHDRAW_MIN} Crumbs minimum`}
-          style={{ borderRadius: 14, border: "1px solid rgba(240,177,90,0.22)", background: "#000", color: "#fff8ee", padding: "13px 14px", fontWeight: 800 }}
+          style={field}
         />
         <input
           value={wallet}
@@ -182,28 +201,28 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
-          style={{ borderRadius: 14, border: "1px solid rgba(255,255,255,0.1)", background: "#000", color: "#fff8ee", padding: "13px 14px", fontWeight: 700 }}
+          style={field}
         />
         <button
           type="button"
           disabled={busy}
           onClick={() => void submit()}
-          style={{ border: "none", borderRadius: 16, padding: "13px 14px", fontWeight: 900, letterSpacing: "0.04em", background: "#f0b15a", color: "#1a0e06" }}
+          style={{ border: "none", borderRadius: 16, padding: "13px 14px", fontWeight: 900, letterSpacing: "0.04em", background: "#7ad7ff", color: "#041018" }}
         >
           {busy ? "Sending…" : "Request withdrawal"}
         </button>
-        {note && <div style={{ fontSize: 12, color: "rgba(255,244,228,0.75)" }}>{note}</div>}
+        {note && <div style={{ fontSize: 12, color: "#9fd4ee" }}>{note}</div>}
       </section>
 
       {requests.length > 0 && (
         <section style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
           {requests.map((r) => (
-            <div key={r.localId} style={{ borderRadius: 16, padding: "12px 14px", background: "#0a0a0a", border: "1px solid rgba(255,255,255,0.08)", color: "#fff8ee" }}>
+            <div key={r.localId} style={{ borderRadius: 16, padding: "12px 14px", background: "rgba(7,16,24,0.88)", border: "1px solid rgba(122,215,255,0.2)", color: "#e8f7ff" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800 }}>
                 <span>{r.amount} Crumbs</span>
-                <span style={{ color: r.status === "paid" ? "#8dcea0" : r.status === "rejected" ? "#e0a090" : "#f0b15a" }}>{r.status}</span>
+                <span style={{ color: r.status === "paid" ? "#8dcea0" : r.status === "rejected" ? "#e0a090" : "#7ad7ff" }}>{r.status}</span>
               </div>
-              <div style={{ marginTop: 4, fontSize: 11, color: "rgba(255,244,228,0.4)", wordBreak: "break-all" }}>{r.wallet}</div>
+              <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.45)", wordBreak: "break-all" }}>{r.wallet}</div>
             </div>
           ))}
         </section>

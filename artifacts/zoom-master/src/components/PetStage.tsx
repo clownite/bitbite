@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import {
   Group, Box3, Vector3, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock,
-  Mesh, Object3D,
+  Mesh, MeshStandardMaterial, Object3D,
 } from "../vendor/three-pet.js";
 import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
@@ -14,7 +14,7 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
   return stageBoost * levelBoost;
 }
 
-type Frame = "lab" | "collection";
+type Frame = "lab" | "collection" | "shop";
 
 function smoothStep(value: number): number {
   const t = Math.min(1, Math.max(0, value));
@@ -23,12 +23,50 @@ function smoothStep(value: number): number {
 
 type Blink = { apply: (closed: number) => void; dispose: () => void };
 
+function paletteOf(mesh: Mesh): { data: Uint8ClampedArray; width: number } | null {
+  const mat = (Array.isArray(mesh.material) ? mesh.material[0] : mesh.material) as MeshStandardMaterial;
+  const image = mat?.map?.image as CanvasImageSource | undefined;
+  const width = image && "width" in image ? Number(image.width) : 0;
+  const height = image && "height" in image ? Number(image.height) : 0;
+  if (!image || !width || !height) return null;
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return null;
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(image, 0, 0);
+  return { data: ctx.getImageData(0, 0, width, height).data, width };
+}
+
+function samplePalette(palette: { data: Uint8ClampedArray; width: number }, u: number): [number, number, number] {
+  const x = Math.min(palette.width - 1, Math.max(0, Math.floor(u * palette.width)));
+  const i = x * 4;
+  return [palette.data[i], palette.data[i + 1], palette.data[i + 2]];
+}
+
+function nearColor(color: [number, number, number], target: [number, number, number], slack = 14): boolean {
+  return Math.abs(color[0] - target[0]) <= slack
+    && Math.abs(color[1] - target[1]) <= slack
+    && Math.abs(color[2] - target[2]) <= slack;
+}
+
+/** The eye voxels of each character. Aquin uses the hood seams below. */
+function isEye(petId: PetId, color: [number, number, number], x: number, y: number, z: number): boolean {
+  if (petId === "finch") return nearColor(color, [51, 102, 51]) && z > 0.15 && y < 0.85 && x > -0.36 && x < 0.36;
+  if (petId === "lynx") return nearColor(color, [221, 221, 221], 20) && z > 0.35 && y > 0.7 && y < 1.05;
+  if (petId === "stag") {
+    const gray = nearColor(color, [68, 68, 68], 10) || nearColor(color, [34, 34, 34], 8);
+    return gray && z > 0.2 && y > 0.82 && y < 1.12 && x > -0.06 && x < 0.46;
+  }
+  return false;
+}
+
 /**
- * The black eye quads already in the model. The upper edge drops and the
- * lower edge rises, and the face skin on that seam follows so the eyes
- * close into a line instead of leaving a hole.
+ * Close the eyes into a line. The hood keeps its skin seams so the face
+ * does not open a hole. The other three pinch their own eye voxels.
  */
-function bindBlink(model: Object3D): Blink | null {
+function bindBlink(model: Object3D, petId: PetId): Blink | null {
   let source: Mesh | null = null;
   model.traverse((obj) => {
     const mesh = obj as Mesh;
@@ -40,17 +78,39 @@ function bindBlink(model: Object3D): Blink | null {
   source.geometry = geometry;
   const position = geometry.attributes.position;
   const uv = geometry.attributes.uv;
-  const seams: { index: number; rest: number }[] = [];
-  for (let i = 0; i < position.count; i++) {
-    const x = position.getX(i);
-    const y = position.getY(i);
-    const z = position.getZ(i);
-    const u = uv ? uv.getX(i) : 1;
-    const eyeOrSkin = u > 0.97 || u < 0.1;
-    if (!eyeOrSkin || Math.abs(z - 0.25) > 0.001 || x < -0.201 || x > 0.201) continue;
-    if (Math.abs(y - 0.9) < 0.001 || Math.abs(y - 0.7) < 0.001) seams.push({ index: i, rest: y });
+  const seams: { index: number; rest: number; shut: number }[] = [];
+
+  if (petId === "dolphin") {
+    for (let i = 0; i < position.count; i++) {
+      const x = position.getX(i);
+      const y = position.getY(i);
+      const z = position.getZ(i);
+      const u = uv ? uv.getX(i) : 1;
+      const eyeOrSkin = u > 0.97 || u < 0.1;
+      if (!eyeOrSkin || Math.abs(z - 0.25) > 0.001 || x < -0.201 || x > 0.201) continue;
+      if (Math.abs(y - 0.9) < 0.001 || Math.abs(y - 0.7) < 0.001) {
+        seams.push({ index: i, rest: y, shut: y > 0.8 ? 0.732 : 0.708 });
+      }
+    }
+  } else {
+    const palette = paletteOf(source);
+    if (palette) {
+      for (let i = 0; i < position.count; i++) {
+        const x = position.getX(i);
+        const y = position.getY(i);
+        const z = position.getZ(i);
+        const u = uv ? uv.getX(i) : 0;
+        if (!isEye(petId, samplePalette(palette, u), x, y, z)) continue;
+        seams.push({ index: i, rest: y, shut: y });
+      }
+      if (seams.length >= 6) {
+        const mid = seams.reduce((sum, seam) => sum + seam.rest, 0) / seams.length;
+        for (const seam of seams) seam.shut = seam.rest + (mid - seam.rest) * 0.86;
+      }
+    }
   }
-  if (seams.length < 8) {
+
+  if (seams.length < 6) {
     geometry.dispose();
     source.geometry = original;
     return null;
@@ -59,8 +119,7 @@ function bindBlink(model: Object3D): Blink | null {
     apply(closed: number) {
       const shut = Math.min(1, Math.max(0, closed));
       for (const seam of seams) {
-        const target = seam.rest > 0.8 ? 0.732 : 0.708;
-        position.setY(seam.index, seam.rest + (target - seam.rest) * shut);
+        position.setY(seam.index, seam.rest + (seam.shut - seam.rest) * shut);
       }
       position.needsUpdate = true;
     },
@@ -136,7 +195,7 @@ export function PetStage({
       holder.scale.setScalar(2.6 / maxDim);
       holder.add(model);
       rig.add(holder);
-      blink = bindBlink(model);
+      blink = bindBlink(model, petId);
       renderer.render(scene, camera);
     };
     mountHomeChar();
@@ -181,9 +240,11 @@ export function PetStage({
       window.setTimeout(() => flashRef.current(null), 1200);
     };
     const onCancel = () => { pressed = false; };
-    host.addEventListener("pointerdown", onDown);
-    host.addEventListener("pointerup", onUp);
-    host.addEventListener("pointercancel", onCancel);
+    if (frame !== "shop") {
+      host.addEventListener("pointerdown", onDown);
+      host.addEventListener("pointerup", onUp);
+      host.addEventListener("pointercancel", onCancel);
+    }
 
     let raf = 0;
     const clock = new Clock();
@@ -195,17 +256,22 @@ export function PetStage({
       t += dt;
       const { stage, level } = petRef.current;
       const fit = fitScale(level, stage);
-      if (frame === "lab") {
+      if (frame === "shop") {
+        rig.scale.setScalar(1.55);
+        rig.position.set(0, 0, 0);
+      } else if (frame === "lab") {
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
         rig.scale.setScalar(((0.88 + grown * 0.06) * view) / 2.6);
       } else {
         rig.scale.setScalar(fit);
       }
-      shake = shake > 0.02 ? shake * Math.exp(-dt * 14) : 0;
+      shake = frame === "shop" || shake <= 0.02 ? 0 : shake * Math.exp(-dt * 14);
       const buzz = shake * Math.sin(t * 55);
-      rig.position.x = buzz * 0.04;
-      rig.position.y = Math.sin(t * 1.35) * (frame === "lab" ? 0.08 : 0.05);
+      if (frame !== "shop") {
+        rig.position.x = buzz * 0.04;
+        rig.position.y = Math.sin(t * 1.35) * (frame === "lab" ? 0.08 : 0.05);
+      }
       rig.rotation.set(0, 0, 0);
       if (blink) {
         const span = 0.28;
@@ -234,9 +300,11 @@ export function PetStage({
       stopWait();
       cancelAnimationFrame(raf);
       observer.disconnect();
-      host.removeEventListener("pointerdown", onDown);
-      host.removeEventListener("pointerup", onUp);
-      host.removeEventListener("pointercancel", onCancel);
+      if (frame !== "shop") {
+        host.removeEventListener("pointerdown", onDown);
+        host.removeEventListener("pointerup", onUp);
+        host.removeEventListener("pointercancel", onCancel);
+      }
       blink?.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
@@ -246,8 +314,13 @@ export function PetStage({
   return (
     <div
       ref={hostRef}
-      style={{ position: "absolute", inset: 0, touchAction: "none" }}
-      aria-label="Pet. Tap for a little XP."
+      style={{
+        position: "absolute",
+        inset: 0,
+        touchAction: frame === "shop" ? "pan-y" : "none",
+        pointerEvents: frame === "shop" ? "none" : "auto",
+      }}
+      aria-label={frame === "shop" ? "Pet" : "Pet. Tap for a little XP."}
     >
       {flash && (
         <div
