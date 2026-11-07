@@ -147,7 +147,8 @@ export function PetStage({
       const buzz = shake * Math.sin(t * 55);
       rig.position.x = buzz * 0.04;
       rig.position.y = Math.sin(t * 1.35) * (frame === "lab" ? 0.08 : 0.05);
-      rig.rotation.set(0, 0, buzz * 0.04);
+      const turn = frame === "lab" ? t * ((Math.PI * 2) / 12) : 0;
+      rig.rotation.set(0, turn, buzz * 0.04);
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
     };
