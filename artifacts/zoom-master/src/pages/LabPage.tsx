@@ -4,7 +4,7 @@ import { SettingsMenu } from "../components/SettingsMenu";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { useCrumbsBalance, useFarm } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
-import { petDef } from "../pet/catalog";
+import { dexNumber, petDef } from "../pet/catalog";
 import { PixelMark } from "../components/PixelMark";
 import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs } from "../pet/crumbs";
@@ -119,7 +119,7 @@ export function LabPage({
           <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
               <div style={{ textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
-                {chosen.name} · STAGE {pet.stage}/3 · LEVEL {pet.level}
+                {dexNumber(chosen.number)} {chosen.name} · STAGE {pet.stage}/3 · LEVEL {pet.level}
                 <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)} · {taps.count}/{taps.max}</span>
               </div>
               <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#041018", background: chosen.element.color, borderRadius: 999, padding: "3px 7px" }}>

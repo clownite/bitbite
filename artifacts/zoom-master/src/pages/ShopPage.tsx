@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { formatRate, PETS, timeForOneCrumb } from "../pet/catalog";
+import { dexNumber, formatRate, PETS, timeForOneCrumb } from "../pet/catalog";
 import { PixelMark } from "../components/PixelMark";
+import { PetCombatSheet } from "../components/PetCombatSheet";
 import { buyPet, getPet, PET_SLOTS, subscribePet, type PetState } from "../pet/petProgress";
 import { recordGramInvested } from "../pet/invested";
 
@@ -58,7 +59,7 @@ export function ShopPage({ gram, onPay }: ShopPageProps) {
             >
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: "#e8f7ff" }}>{item.name}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "#e8f7ff" }}>{dexNumber(item.number)} {item.name}</div>
                   <div style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", color: item.element.color }}>{item.element.label}</span>
                     <PixelMark glyph={item.element.glyph} label={item.element.label} />
@@ -68,6 +69,7 @@ export function ShopPage({ gram, onPay }: ShopPageProps) {
                   {item.price === 0 ? "Free" : `${item.price} GRAM`}
                 </div>
               </div>
+              <PetCombatSheet id={item.id} level={1} />
               <div style={{ marginTop: 8, height: 1, background: "rgba(122,215,255,0.16)" }} />
               <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
                 {([1, 5, 10] as const).map((level) => (

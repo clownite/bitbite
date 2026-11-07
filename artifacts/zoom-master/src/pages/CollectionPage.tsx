@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { PetStage } from "../components/PetStage";
 import { PetFarmPanel } from "../components/PetFarmButton";
-import { dailyFarm, formatRate, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
+import { dailyFarm, dexNumber, formatRate, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
+import { PetCombatSheet } from "../components/PetCombatSheet";
 import {
   confirmGramUpgrade,
   getPet,
@@ -87,7 +88,7 @@ export function CollectionPage({
                 {selected ? "ON HOME" : `${index + 1}/${PET_SLOTS}`}
               </div>
               <div style={{ position: "absolute", left: 10, right: 10, bottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", pointerEvents: "none" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "#e8f7ff" }}>{petDef(id).name}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "#e8f7ff" }}>{dexNumber(petDef(id).number)} {petDef(id).name}</span>
                 <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.06em", color: "#041018", background: petDef(id).element.color, borderRadius: 999, padding: "2px 6px" }}>{petDef(id).element.label}</span>
               </div>
             </div>
@@ -97,7 +98,7 @@ export function CollectionPage({
 
       <section style={{ marginTop: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f7ff" }}>{active.name}</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f7ff" }}>{dexNumber(active.number)} {active.name}</div>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#7ad7ff" }}>
             {`Stage ${pet.stage}/3 · level ${pet.level}`}
           </div>
@@ -110,6 +111,7 @@ export function CollectionPage({
           {" · "}
           {formatRate(rate)} / day · {timeForOneCrumb(rate)} for 1 Crumb
         </div>
+        <PetCombatSheet id={pet.active} level={pet.level} />
         <div style={{ marginTop: 12 }}>
           <PetFarmPanel />
         </div>
