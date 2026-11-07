@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { isVipProPassActive, parseVipLevel, type VipLevel } from "@workspace/game-models";
+import { isVipProPassActive, parseVipLevel, type VipLevel } from "../../../../lib/game-models/src/zmc-economy.ts";
 import {
   fetchZmcStatus,
   syncZmcWallet,

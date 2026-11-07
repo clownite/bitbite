@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { NEW_PLAYER_ZOOM_GRANT } from "@workspace/game-models";
+import { NEW_PLAYER_ZOOM_GRANT } from "../../../../lib/game-models/src/forge-lab-economy.ts";
 import { finiteNumber } from "../utils/formatNumber";
 
 /**

@@ -8,13 +8,10 @@ import { NebulaBackground } from "./components/NebulaBackground";
 import { LabSpaceBackground } from "./components/LabSpaceBackground";
 import { MaintenanceScreen } from "./components/MaintenanceScreen";
 import { LabPage } from "./pages/LabPage";
-import { ForgeUiErrorBoundary } from "./components/ForgeUiErrorBoundary";
-import { VoxelStudioPage } from "./pages/VoxelStudioPage";
 import { CollectionPage } from "./pages/CollectionPage";
 import { EarnPage } from "./pages/EarnPage";
 import { RankPage } from "./pages/RankPage";
 import { ShopPage } from "./pages/ShopPage";
-import { HomePage } from "./pages/HomePage";
 import { LanguageProvider, useT } from "./i18n/LanguageContext";
 import HistoryModal from "./components/HistoryModal";
 import { fetchMaintenanceStatus, fetchServerTime, fetchStardustLeaderboard, type StardustLeaderboardEntry } from "./utils/api";
@@ -54,7 +51,7 @@ const NAV: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: "wallet", label: "Profile", icon: UserRound },
 ];
 
-const ALL_TABS: Tab[] = ["lab", "home", "farm", "earn", "rank", "shop", "wallet"];
+const ALL_TABS: Tab[] = ["lab", "farm", "earn", "rank", "shop", "wallet"];
 /** Tabs that share the Lab void + stars (no grid). */
 const LAB_SPACE_TABS: Tab[] = ["farm", "earn", "rank", "wallet"];
 
@@ -122,9 +119,6 @@ export default function App() {
 
 function AppShellWithState() {
   const [tab, setTab] = useState<Tab>("lab");
-  const [studioOpen, setStudioOpen] = useState(false);
-  const [studioSeedTitle, setStudioSeedTitle] = useState<string | null>(null);
-  const [studioSeedProjectId, setStudioSeedProjectId] = useState<string | null>(null);
   const { t } = useT();
 
   // Deep-link focus (Feature 2 — Planet Sharing). When the mini app is opened
@@ -358,13 +352,6 @@ function AppShellWithState() {
   const planetRate = state.planets.filter(isFarmActive).reduce((a, p) => a + p.rate, 0);
   const sunRate = state.sun && isSunActive(state.sun) ? SUN_CONFIG.rate * Math.max(1, state.sunCount || 1) : 0;
   const totalRate = planetRate + sunRate;
-  /** Keep Lab WebGL + voxel mask alive while forging so tab return does not replay fly-in. */
-  const keepLabForgeAlive = Boolean(
-    state.labForgePath &&
-    state.forgePlanetBuild &&
-    !state.pendingPlanet &&
-    !state.forgeRolling,
-  );
   const visitedEarnRef = useRef(false);
   const visitedTabsRef = useRef<Set<Tab>>(new Set(["lab", "wallet"]));
 
@@ -745,8 +732,7 @@ function AppShellWithState() {
       >
       {LAB_SPACE_TABS.includes(tab) && <LabSpaceBackground />}
       {!LAB_SPACE_TABS.includes(tab) && tab !== "lab" && <NebulaBackground />}
-      {!studioOpen && (
-        <div
+      <div
           style={{
             position: "absolute",
             zIndex: 40,
@@ -756,15 +742,13 @@ function AppShellWithState() {
         >
           <TelegramIdentity />
         </div>
-      )}
       {tab !== "lab" && <div style={{ height: 46, flexShrink: 0 }} />}
 
       <main className="flex-1 overflow-hidden relative z-10" style={{ minHeight: 0 }}>
         {ALL_TABS.map((t) => {
           const isActiveTab = tab === t;
-          const isHiddenLabForge = t === "lab" && !isActiveTab && keepLabForgeAlive;
-          // Keep Earn mounted after first open so forge → zoom-data-refresh still
-          // updates the FORGED counter (unmounting made Earn look "stuck").
+          const isHiddenLabForge = false;
+          // Keep Earn mounted after the first open so a refresh still lands.
           const keepEarnAlive = t === "earn" && (isActiveTab || visitedEarnRef.current);
           if (t === "earn" && isActiveTab) visitedEarnRef.current = true;
           if (isActiveTab) visitedTabsRef.current.add(t);
@@ -785,30 +769,9 @@ function AppShellWithState() {
             >
               {t === "lab" && (
                 <LabPage
-                  balance={state.balance}
-                  taps={state.taps}
-                  goal={state.goal}
-                  pendingPlanet={state.pendingPlanet}
-                  forgePlanetBuild={state.forgePlanetBuild}
-                  forgeRolling={state.forgeRolling}
-                  labForgeShapeId={state.labForgeShapeId}
-                  labForgePath={state.labForgePath}
-                  hasAutoTap={!!state.hasAutoTap}
-                  stardustBalance={state.stardustBalance || 0}
-                  telegramId={state.telegramId}
-                  sunCount={state.sunCount ?? 0}
-                  onCraft={craft}
-                  onBeginLabForge={beginLabForge}
-                  onClaim={claimCraft}
                   onOpenShop={() => switchTab("shop")}
-                  onOpenStudio={(opts) => {
-                    setStudioSeedTitle(opts?.title ?? null);
-                    setStudioSeedProjectId(opts?.projectId ?? null);
-                    setStudioOpen(true);
-                  }}
                   muted={muted}
                   setMuted={setMuted}
-                  visible={isActiveTab && !studioOpen}
                 />
               )}
               {t === "farm" && (
@@ -896,9 +859,6 @@ function AppShellWithState() {
                     setState((prev) => ({ ...prev, redStarBalance: newBal, lastStellaClaimAt: Date.now() }));
                   }}
                 />
-              )}
-              {t === "home" && (
-                <HomePage telegramId={state.telegramId} referralCode={state.referralCode} visible={tab === "home"} />
               )}
               {t === "wallet" && (
                 <WalletPage
@@ -1056,7 +1016,6 @@ function AppShellWithState() {
       )}
 
 
-      {!studioOpen && (
       <nav
         className="flex-shrink-0 relative z-20"
         style={tab === "lab" ? {
@@ -1099,40 +1058,6 @@ function AppShellWithState() {
           })}
         </div>
       </nav>
-      )}
-      {studioOpen && state.telegramId && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 90,
-            background: "#000",
-            boxSizing: "border-box",
-            display: "flex",
-            flexDirection: "column",
-            paddingTop: `calc(env(safe-area-inset-top, 0px) + ${tgSafeTop}px)`,
-            paddingBottom: "env(safe-area-inset-bottom, 0px)",
-            overflow: "hidden",
-          }}
-        >
-          <ForgeUiErrorBoundary label="Studio">
-          <VoxelStudioPage
-            telegramId={state.telegramId}
-            stardustBalance={state.stardustBalance || 0}
-            seedTitle={studioSeedTitle}
-            seedProjectId={studioSeedProjectId}
-            onClose={() => {
-              setStudioOpen(false);
-              setStudioSeedTitle(null);
-              setStudioSeedProjectId(null);
-            }}
-            onStardustSpent={(n) => {
-              setState((s) => ({ ...s, stardustBalance: n }));
-            }}
-          />
-          </ForgeUiErrorBoundary>
-        </div>
-      )}
       {globalToast && (
         <div
           className="fixed left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-xs font-black tracking-widest"
