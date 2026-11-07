@@ -29,7 +29,7 @@ export const PETS: PetDef[] = [
     element: { id: "water", label: "Water", color: "#7ad7ff" },
     price: 0,
     rates: { 1: 0.05, 5: 0.15, 10: 0.3 },
-    note: "Free. Level 10 farms 0.30 a day. Level 1 needs 20 days for 1 Crumb.",
+    note: "Free. Today it farms 0.05 a day, so 1 Crumb takes 20 days. Level 10 is the goal, after the XP season and 9 GRAM.",
   },
   {
     id: "finch",
@@ -37,7 +37,7 @@ export const PETS: PetDef[] = [
     element: { id: "air", label: "Air", color: "#d7ecff" },
     price: 45,
     rates: { 1: 0.25, 5: 0.75, 10: 1.5 },
-    note: "Level 10 farms 1.50 a day. At that rate 45 GRAM comes back in 30 days.",
+    note: "Today it farms 0.25 a day. At this rate 45 GRAM comes back in 180 days. Level 10 is the goal, after the XP season and 9 GRAM.",
   },
   {
     id: "lynx",
@@ -45,7 +45,7 @@ export const PETS: PetDef[] = [
     element: { id: "earth", label: "Earth", color: "#e7b56a" },
     price: 90,
     rates: { 1: 3.5 / 6, 5: 1.75, 10: 3.5 },
-    note: "Level 10 farms 3.50 a day. At that rate 90 GRAM comes back in 26 days.",
+    note: "Today it farms 0.583 a day. At this rate 90 GRAM comes back in 154 days. Level 10 is the goal, after the XP season and 9 GRAM.",
   },
   {
     id: "stag",
@@ -53,7 +53,7 @@ export const PETS: PetDef[] = [
     element: { id: "forest", label: "Forest", color: "#8dcea0" },
     price: 250,
     rates: { 1: 1.5, 5: 4.5, 10: 9 },
-    note: "Level 10 farms 9.00 a day. At that rate 250 GRAM comes back in 28 days.",
+    note: "Today it farms 1.50 a day. At this rate 250 GRAM comes back in 167 days. Level 10 is the goal, after the XP season and 9 GRAM.",
   },
 ];
 
