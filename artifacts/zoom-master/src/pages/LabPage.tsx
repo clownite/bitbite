@@ -115,7 +115,22 @@ export function LabPage({
               {stats.map((stat) => (
                 <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {stat.value === "rarity" ? (
-                    <div className="rarity-drop" aria-label="Water drop">💧</div>
+                    <div className="rarity-drop" aria-label="Water drop">
+                      <svg width="14" height="18" viewBox="0 0 9 12" shapeRendering="crispEdges" aria-hidden>
+                        <rect x="4" y="0" width="1" height="1" fill="#9ae6ff" />
+                        <rect x="3" y="1" width="3" height="1" fill="#7ad7ff" />
+                        <rect x="2" y="2" width="5" height="1" fill="#7ad7ff" />
+                        <rect x="1" y="3" width="7" height="1" fill="#5ecfff" />
+                        <rect x="1" y="4" width="7" height="4" fill="#4eb8f0" />
+                        <rect x="2" y="8" width="5" height="1" fill="#3aa8e4" />
+                        <rect x="3" y="9" width="3" height="1" fill="#2f96d4" />
+                        <rect x="4" y="10" width="1" height="1" fill="#2f96d4" />
+                        <rect x="6" y="4" width="2" height="4" fill="#2b8cc8" />
+                        <rect x="5" y="8" width="2" height="1" fill="#2b8cc8" />
+                        <rect x="2" y="4" width="2" height="2" fill="#f4fcff" />
+                        <rect x="2" y="6" width="1" height="1" fill="#c9f1ff" />
+                      </svg>
+                    </div>
                   ) : stat.value === "hearts" ? (
                     <div style={{ display: "flex", justifyContent: "center", gap: 3, height: 16, alignItems: "center" }} aria-label="3 lives">
                       {[0, 1, 2].map((heart) => (
