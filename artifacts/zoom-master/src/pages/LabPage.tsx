@@ -148,9 +148,9 @@ export function LabPage({
             position: "relative",
             borderRadius: 26,
             overflow: "hidden",
-            background: "rgba(6, 12, 20, 0.96)",
+            background: `radial-gradient(ellipse 92% 58% at 50% 28%, ${chosen.element.color}cc 0%, ${chosen.element.color}55 40%, transparent 72%), linear-gradient(180deg, ${chosen.element.color}55 0%, #071018 58%, #05080e 100%)`,
             border: "1px solid rgba(122, 215, 255, 0.22)",
-            boxShadow: "0 0 0 1px rgba(0,0,0,0.6), 0 16px 40px rgba(0,0,0,0.35)",
+            boxShadow: `0 0 0 1px rgba(0,0,0,0.6), 0 0 32px ${chosen.element.color}55, 0 16px 40px rgba(0,0,0,0.35)`,
           }}
         >
           <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }}>
