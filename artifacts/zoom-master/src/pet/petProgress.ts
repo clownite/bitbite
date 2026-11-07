@@ -4,7 +4,7 @@ import { settleFarm } from "./crumbs";
 /** One shared pet. Everyone starts on the same base form. */
 
 /** Every level is the same bar. Level 5 opens stage 2. Level 10 opens stage 3. */
-export const LEVEL_XP = 1000;
+export const LEVEL_XP = 500;
 export const PET_LEVELS = 10;
 /** Four bars, then 3 GRAM, and the pet becomes level 5. */
 export const LEVEL5_XP = LEVEL_XP * 4;
@@ -13,7 +13,7 @@ export const LEVEL10_XP = LEVEL_XP * 9;
 export const LEVEL5_GRAM = 3;
 export const LEVEL10_GRAM = 6;
 
-/** One claim every 24h. A week is 80 XP. Each pet level is another 1000 XP. */
+/** One claim every 24h. A week is 80 XP. Each pet level is another 500 XP. */
 export const DAILY_XP = [8, 8, 10, 10, 12, 14, 18] as const;
 export const DAILY_XP_WEEK = DAILY_XP.reduce((sum, n) => sum + n, 0);
 export const DAY_MS = 24 * 60 * 60 * 1000;
@@ -99,15 +99,20 @@ function asLevel(value: unknown): PetLevel {
   return 1;
 }
 
+function walkLevels(level: PetLevel, xp: number): PetCore {
+  while (xp >= LEVEL_XP && level < PET_LEVELS) {
+    const next = level + 1;
+    if (next === 5 || next === 10) break;
+    xp -= LEVEL_XP;
+    level = next as PetLevel;
+  }
+  return { stage: stageForLevel(level), xp, level, finished: false };
+}
+
 function coreOf(p: Partial<PetCore> | undefined): PetCore {
   const level = asLevel(p?.level);
   if (level >= PET_LEVELS || p?.finished) return { stage: 3, xp: 0, level: 10, finished: true };
-  return {
-    stage: stageForLevel(level),
-    xp: Math.max(0, Number(p?.xp) || 0),
-    level,
-    finished: false,
-  };
+  return walkLevels(level, Math.max(0, Number(p?.xp) || 0));
 }
 
 /** Old saves used three stage bars and jumped from level 1 to 5 to 10. */
@@ -192,15 +197,7 @@ function emit() {
 
 function applyXp(amount: number) {
   if (amount <= 0 || state.finished) return;
-  let xp = state.xp + amount;
-  let level = state.level;
-  while (xp >= LEVEL_XP && level < PET_LEVELS) {
-    const next = level + 1;
-    if (next === 5 || next === 10) break;
-    xp -= LEVEL_XP;
-    level = next as PetLevel;
-  }
-  state = syncActive({ ...state, level, xp, stage: stageForLevel(level), finished: false });
+  state = syncActive({ ...state, ...walkLevels(state.level, state.xp + amount) });
 }
 
 export function getPet(): PetState {
@@ -365,8 +362,8 @@ export type TapResult = {
 };
 
 /**
- * A full week is 390 XP. Each level is 1000 XP, about 18 days.
- * Level 5, and stage 2, arrive after 4000 XP. Level 10, and stage 3, after 9000.
+ * A full week is 390 XP. Each level is 500 XP, about 9 days for a full clear.
+ * Level 5, and stage 2, arrive after 2000 XP. Level 10, and stage 3, after 4500.
  */
 export function basePetStageDays(): { reachLevel5: number; reachLevel10: number } {
   const perWeek = DAILY_XP_WEEK + PET_TAP_MAX * 7 * PET_TAP_XP + 30 * 7 + 72;
