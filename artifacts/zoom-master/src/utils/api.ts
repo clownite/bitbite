@@ -372,25 +372,6 @@ export async function fetchServerTime(): Promise<number | null> {
   }
 }
 
-export async function debugTelegramContext(data: {
-  telegramId: string | null;
-  initData: string;
-  initDataUnsafe: string;
-  startParam: string | null;
-  localStorageParam: string | null;
-  href?: string;
-  hash?: string;
-  search?: string;
-}): Promise<void> {
-  try {
-    await fetch(`${API_BASE}/referral/debug`, {
-      method: "POST",
-      headers: apiHeaders(),
-      body: JSON.stringify(data),
-    });
-  } catch { /**/ }
-}
-
 export async function registerUser(
   telegramId: string,
   referredBy?: string | null,

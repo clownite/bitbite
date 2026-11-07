@@ -19,7 +19,6 @@ interface EarnPageProps {
   /** When false the tab is hidden but kept mounted so craft refresh still lands. */
   visible?: boolean;
   onClaimDaily: () => void;
-  onRedeemCode: (code: string) => { success: boolean; amount?: number; isSun?: boolean; error?: string };
   /** Weekly REDSTAR bonus day (1–7). */
   weeklyRedStarDay?: number;
   weeklyRedStarClaimedToday?: boolean;
@@ -84,7 +83,7 @@ const SPONSOR_REQ_KEY: Record<string, string> = {
   sponsor_yt_miketamago: "earn.reqMiketamago",
 };
 
-export function EarnPage({ referralCode, referralCount, referralSpeedBonus, referredBy, claimedMilestones, telegramId, craftsCompleted = 0, visible = true, onRedeemCode }: EarnPageProps) {
+export function EarnPage({ referralCode, referralCount, referralSpeedBonus, referredBy, claimedMilestones, telegramId, craftsCompleted = 0, visible = true }: EarnPageProps) {
   const { t } = useT();
   const firstName = (() => {
     try { return (window as any).Telegram?.WebApp?.initDataUnsafe?.user?.first_name ?? null; } catch { return null; }
@@ -178,9 +177,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
     const raw = redeemInput.trim();
     if (!raw) return;
 
-    // 1) Try server-issued promo codes first (24h admin codes). On
-    //    NOT_FOUND we fall through to the legacy local SUN/promo table
-    //    so old hard-coded codes (SUN-****, etc.) keep working.
+    // Server-issued promo codes only. Rewards are granted by the API.
     if (telegramId) {
       const srv = await redeemServerCode(telegramId, raw);
       if (srv.ok) {
@@ -210,11 +207,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
         setTimeout(() => setRedeemStatus(null), 4000);
         return;
       }
-      // Only fall back to the legacy local table on NOT_FOUND so SUN
-      // codes & old hard-coded promos still work. NETWORK / DB_ERROR /
-      // BAD_REQUEST are transient server problems — surfacing them as
-      // "invalid code" via the legacy fallback would mislead the user
-      // into thinking a valid code is bad.
       if (srv.error && srv.error !== "NOT_FOUND") {
         setRedeemStatus({ type: "error", message: t("earn.codeServerError") });
         setTimeout(() => setRedeemStatus(null), 4000);
@@ -222,17 +214,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
       }
     }
 
-    const result = onRedeemCode(raw);
-    if (result.success) {
-      if (result.isSun) {
-        setRedeemStatus({ type: "sun", message: t("earn.sunAdded") });
-      } else {
-        setRedeemStatus({ type: "success", message: t("earn.zoomCredited", { n: result.amount?.toLocaleString() ?? "0" }) });
-      }
-      setRedeemInput("");
-    } else {
-      setRedeemStatus({ type: "error", message: result.error || t("earn.invalidCode") });
-    }
+    setRedeemStatus({ type: "error", message: t("earn.invalidCode") });
     setTimeout(() => setRedeemStatus(null), 4000);
   };
 
@@ -349,8 +331,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
         window.dispatchEvent(new CustomEvent("zoom-server-balance-snap", {
           detail: { balance: res.zoomBalance, epoch: res.balanceEpoch },
         }));
-      } else if (res.rewardZoom && res.rewardZoom > 0) {
-        window.dispatchEvent(new CustomEvent("zoom-credit-local", { detail: { amount: res.rewardZoom } }));
       }
       window.dispatchEvent(new Event("zoom-data-refresh"));
       await reloadTasks(true);

@@ -171,7 +171,7 @@ function AppShellWithState() {
     };
   }, [t]);
   const {
-    state, setState, craft, beginLabForge, skipForge, claimCraft, redeemCode,
+    state, setState, craft, beginLabForge, skipForge, claimCraft,
     pvpAddPlanet, pvpRemovePlanet,
     collectPlanet, burnPlanet, applyLabFuseResult,
     startFarming, stopFarming, repairPlanet, upgradeSunFarmDuration, upgradeCollectionFarmDuration,
@@ -240,40 +240,7 @@ function AppShellWithState() {
     });
   }, [stardust.ready, stardust.balance]);
 
-  // ───── HMR-safe admin self-credit/debit listener ───────────────
-  // The mount-once listener inside useGameState.ts (dependency []) can
-  // get stuck with an old closure after hot reload. We handle stardust
-  // and ton admin self-actions here so they always reflect immediately.
   useEffect(() => {
-    const onInc = (e: Event) => {
-      const d = (e as CustomEvent<{ type: string; amount: number }>).detail;
-      if (!d || !d.type) return;
-      const n = Math.max(0, Math.floor(d.amount || 0));
-      if (d.type === "stardust") {
-        void stardust.refresh();
-      }
-      if (d.type === "ton") {
-        setState((prev) => ({ ...prev, tonBalance: (prev.tonBalance || 0) + n }));
-      }
-      if (d.type === "redstar") {
-        setState((prev) => ({ ...prev, redStarBalance: (prev.redStarBalance || 0) + n }));
-      }
-    };
-    const onDec = (e: Event) => {
-      const d = (e as CustomEvent<{ type: string; amount: number }>).detail;
-      if (!d || !d.type) return;
-      const n = Math.max(0, Math.floor(d.amount || 0));
-      if (d.type === "stardust") {
-        setState((prev) => ({ ...prev, stardustBalance: Math.max(0, (prev.stardustBalance || 0) - n) }));
-        void stardust.refresh();
-      }
-      if (d.type === "ton") {
-        setState((prev) => ({ ...prev, tonBalance: Math.max(0, (prev.tonBalance || 0) - n) }));
-      }
-      if (d.type === "redstar") {
-        setState((prev) => ({ ...prev, redStarBalance: Math.max(0, (prev.redStarBalance || 0) - n) }));
-      }
-    };
     const onStardustRefresh = () => { void stardust.refresh(); };
     const onPlanetsRefresh = () => {
       const tid = state.telegramId;
@@ -291,15 +258,11 @@ function AppShellWithState() {
       const id = (e as CustomEvent<{ planetId: string }>).detail?.planetId;
       if (id) pvpRemovePlanet(id);
     };
-    window.addEventListener("zoom-admin-self-increment", onInc);
-    window.addEventListener("zoom-admin-self-decrement", onDec);
     window.addEventListener("stardust-refresh", onStardustRefresh);
     window.addEventListener("planets-refresh", onPlanetsRefresh);
     window.addEventListener("pvp-planet-won", onPvpWon);
     window.addEventListener("pvp-planet-lost", onPvpLost);
     return () => {
-      window.removeEventListener("zoom-admin-self-increment", onInc);
-      window.removeEventListener("zoom-admin-self-decrement", onDec);
       window.removeEventListener("stardust-refresh", onStardustRefresh);
       window.removeEventListener("planets-refresh", onPlanetsRefresh);
       window.removeEventListener("pvp-planet-won", onPvpWon);
@@ -877,7 +840,6 @@ function AppShellWithState() {
                   claimedMilestones={state.claimedMilestones}
                   craftsCompleted={state.craftsCompleted ?? 0}
                   onClaimDaily={claimDaily}
-                  onRedeemCode={redeemCode}
                   telegramId={state.telegramId}
                   weeklyRedStarDay={state.weeklyRedStarDay ?? 1}
                   weeklyRedStarClaimedToday={state.weeklyRedStarClaimedToday ?? false}

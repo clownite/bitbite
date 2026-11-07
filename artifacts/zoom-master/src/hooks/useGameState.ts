@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { registerUser, fetchReferralData, fetchPendingReferral, debugTelegramContext, syncBalance, fetchGrants, fetchBalanceRecord, fetchServerTime, listOnMarket, delistFromMarket, buyFromMarket, recordCraft, recordObtained, fetchSeasonEpoch, openMarketActivityStream, fetchMarketListings, fetchMyMarketListings, notifyFarmStart, notifyFarmReactivate, notifyFarmCollect, notifyFarmStop, notifyPlanetBurn, fetchCollectionPlanets, upsertCollectionPlanet, bulkSeedCollectionPlanets, fetchRegularPlanets, saveRegularPlanets, syncSunCycle, settleOfflineFarming, fetchEquipment, saveEquipment, startEquipmentCycle, collectEquipmentItem as apiCollectEquipment, burnEquipmentItem as apiBurnEquipment, listEquipmentOnMarket, fetchItems, saveItems, craftItemApi, listItemOnMarket, apiHeaders, withInitData, deductCraftStardust, startLabForgePay, upgradeSunDuration, upgradeCollectionDuration, reactivateCollectionWithRedStar, fetchModels, forgeMysteryModel, claimModelApi, invalidateTasksCache, bumpTasksPlanetsBuilt, type Grants, type CollectionPlanetState, type ServerMarketListing, type ZoomModelApiShape } from "../utils/api";
+import { registerUser, fetchReferralData, fetchPendingReferral, syncBalance, fetchGrants, fetchBalanceRecord, fetchServerTime, listOnMarket, delistFromMarket, buyFromMarket, recordCraft, recordObtained, fetchSeasonEpoch, openMarketActivityStream, fetchMarketListings, fetchMyMarketListings, notifyFarmStart, notifyFarmReactivate, notifyFarmCollect, notifyFarmStop, notifyPlanetBurn, fetchCollectionPlanets, upsertCollectionPlanet, bulkSeedCollectionPlanets, fetchRegularPlanets, saveRegularPlanets, syncSunCycle, settleOfflineFarming, fetchEquipment, saveEquipment, startEquipmentCycle, collectEquipmentItem as apiCollectEquipment, burnEquipmentItem as apiBurnEquipment, listEquipmentOnMarket, fetchItems, saveItems, craftItemApi, listItemOnMarket, apiHeaders, withInitData, deductCraftStardust, startLabForgePay, upgradeSunDuration, upgradeCollectionDuration, reactivateCollectionWithRedStar, fetchModels, forgeMysteryModel, claimModelApi, invalidateTasksCache, bumpTasksPlanetsBuilt, type Grants, type CollectionPlanetState, type ServerMarketListing, type ZoomModelApiShape } from "../utils/api";
 import { getModelById, forgeSphereTapGoal, FORGE_SPHERE_SHAPE_ID, getLabForgeShapeTapGoal, labForgeShapeForPath, LAB_STARDUST_FORGE_ZOOM_COST, LAB_ZOOM_FORGE_STARDUST_COST, NEW_PLAYER_ZOOM_GRANT, NEW_PLAYER_STARDUST_GRANT, LAB_ZOOM_FARM_RATE, LAB_ZOOM_DISPLAY_NAME, LAB_ZOOM_COLORS, LAB_STARDUST_FARM_RATE, LAB_STARDUST_DISPLAY_NAME, LAB_STARDUST_COLORS, clearLabForgeTestPizzaFlag, consumeLabDevFarmResetOnce, isLabDevWipeActive, isLabForgeGeneratorPlanet, isLabStardustFarmPlanet, labForgeChromeForPlanet, isLabStardustShapeId, isLabZoomShapeId, resolveLabStardustShapeId, resolveLabShapeIdFromPlanet, labForgeShapeHasGlbReveal, labMarketPathForPlanet, labModelDisplayName, resumePlanetFarmAfterMarketPause, LAB_GLB_FARM_HOURS, type LabForgePath } from "@workspace/game-models";
 import { normalizeLabForgeShapeId } from "../utils/labForgeShape";
 import { labFarmRateForPlanet } from "../utils/labFloatFarm";
@@ -748,15 +748,6 @@ export const SUN_CONFIG = {
   activationCostBase: 0,
   reactivationFee: 12000,
 };
-
-const REDEEM_CODES: Record<string, number> = {
-  "ZOOMSTART": 500,
-  "ZOOMLUCKY": 1000,
-  "ZOOMBIG": 2500,
-  "ZOOMLAUNCH": 750,
-};
-
-const SUN_CODES = ["SUN-ALPHA", "SUN-OMEGA", "SUN-PRIME", "SUN-NOVA", "SUN-CORE"];
 
 const STATE_VERSION = 5;
 const STORAGE_KEY = "zoom-master-v5";
@@ -2564,22 +2555,6 @@ export function useGameState() {
   useEffect(() => {
     const { telegramId, startParam, firstName, username, photoUrl } = getTelegramContext();
 
-    const webApp = (window as unknown as { Telegram?: { WebApp?: { initData?: string; initDataUnsafe?: unknown } } }).Telegram?.WebApp;
-    const rawInitData = webApp?.initData ?? "";
-    const rawUnsafe = webApp?.initDataUnsafe ? JSON.stringify(webApp.initDataUnsafe) : "";
-    const lsParam = (() => { try { return localStorage.getItem("zoom-start-param"); } catch { return null; } })();
-
-    debugTelegramContext({
-      telegramId,
-      initData: rawInitData,
-      initDataUnsafe: rawUnsafe,
-      startParam,
-      localStorageParam: lsParam,
-      href: window.location.href,
-      hash: window.location.hash,
-      search: window.location.search,
-    });
-
     if (!telegramId) return;
 
     (async () => {
@@ -3822,27 +3797,6 @@ export function useGameState() {
       });
       reconcileFromSyncResponse(Math.floor(stateRef.current.balance), sentEpoch, syncRes, sentTon, sentStardust);
     };
-    const handleLocalCredit = (e: Event) => {
-      const detail = (e as CustomEvent<{ amount: number }>).detail;
-      const amount = detail?.amount;
-      if (!amount || amount <= 0) return;
-      const { telegramId, firstName, username, photoUrl } = getTelegramContext();
-      setState((prev) => {
-        const newBal = prev.balance + amount;
-        const next = { ...prev, balance: newBal, totalEarned: prev.totalEarned + amount };
-        // Keep stateRef in sync so a racing zoom-data-refresh doesn't overwrite the credit.
-        stateRef.current = next;
-        saveState(next);
-        if (telegramId) {
-          const sent = Math.floor(newBal);
-          const sentTon = Math.max(0, prev.tonBalance || 0);
-          const sentStardust = persistableStardust(prev);
-          {const sentEpoch = _currentBalanceEpoch; syncBalance({ telegramId, firstName, username, photoUrl, zoomBalance: sent, tonBalance: sentTon, stardustBalance: sentStardust, clientEpoch: sentEpoch })
-            .then((r) => reconcileFromSyncResponse(sent, sentEpoch, r, sentTon, sentStardust));}
-        }
-        return next;
-      });
-    };
     const handleServerSnap = (e: Event) => {
       const detail = (e as CustomEvent<{ balance: number; epoch: number }>).detail;
       if (!detail || typeof detail.balance !== "number") return;
@@ -3941,198 +3895,8 @@ export function useGameState() {
         redStarBalance: Math.max(prev.redStarBalance ?? 0, detail.redStarBalance),
       }));
     };
-    // Admin self-remove: explicit local decrement that bypasses the
-    // grow-only protections in applyGrants/handleAdminRefresh. This is
-    // safe because it only fires when the admin button itself is the
-    // trigger AND the target is the operating device's own user — never
-    // from background polling or cross-device reconciliation.
-    const handleAdminSelfDecrement = (e: Event) => {
-      const detail = (e as CustomEvent<{ type: string; amount: number; planetType?: string }>).detail;
-      if (!detail) return;
-      const { type, amount, planetType } = detail;
-      const n = Math.max(0, Math.floor(amount || 0));
-      if (n <= 0 && type !== "planets") return;
-
-      if (type === "zoom") {
-        setState((prev) => {
-          const newBal = Math.max(0, Math.floor(prev.balance) - n);
-          stateRef.current = { ...stateRef.current, balance: newBal };
-          _lastSyncedBalance = newBal;
-          _pendingSyncBalance = -1;
-          return { ...prev, balance: newBal };
-        });
-        // Push the lower value to the server immediately so the next
-        // doSync doesn't echo a stale higher local balance back. The
-        // server's epoch was already bumped by /admin/remove-zoom, so
-        // our send (clientEpoch < server) takes the server's authoritative
-        // value via the CASE branch — and our local is already in sync.
-        const { telegramId, firstName, username, photoUrl } = getTelegramContext();
-        if (telegramId) {
-          const sentEpoch = _currentBalanceEpoch;
-          const sentTon = Math.max(0, stateRef.current.tonBalance || 0);
-          const sentStardust = persistableStardust(stateRef.current);
-          void syncBalance({ telegramId, firstName, username, photoUrl, zoomBalance: Math.floor(stateRef.current.balance), tonBalance: sentTon, stardustBalance: sentStardust, clientEpoch: sentEpoch })
-            .then((r) => reconcileFromSyncResponse(Math.floor(stateRef.current.balance), sentEpoch, r, sentTon, sentStardust));
-        }
-        return;
-      }
-
-      // stardust / ton admin decrements are handled exclusively in
-      // App.tsx (HMR-safe listener) so the state stays consistent without
-      // double-application from this mount-once effect.
-
-      if (type === "slots") {
-        setState((prev) => {
-          const newMax = Math.max(INITIAL_STATE.maxSlots, (prev.maxSlots || INITIAL_STATE.maxSlots) - n);
-          return { ...prev, maxSlots: newMax };
-        });
-        return;
-      }
-
-      if (type === "planets" && planetType) {
-        setState((prev) => {
-          if (planetType === "SUN") {
-            return { ...prev, sun: null, claimedBonusSun: false, sunCount: 0 };
-          }
-          // Remove up to N bonus planets of the given type. Prefer planets
-          // that are NOT placed in a slot and NOT actively farming, so the
-          // user's running production is least disturbed.
-          const isBonusOfType = (p: Planet) =>
-            p.name === planetType && typeof p.id === "string" && p.id.startsWith(`bonus-${planetType}-`);
-          const candidates = prev.planets.filter(isBonusOfType);
-          if (candidates.length === 0) return prev;
-          const sorted = [...candidates].sort((a, b) => {
-            const aActive = a.isFarmingActive ? 1 : 0;
-            const bActive = b.isFarmingActive ? 1 : 0;
-            if (aActive !== bActive) return aActive - bActive;
-            return (a.createdAt || 0) - (b.createdAt || 0);
-          });
-          const toRemove = new Set(sorted.slice(0, n).map((p) => p.id));
-          if (toRemove.size === 0) return prev;
-          const newPlanets = prev.planets.filter((p) => !toRemove.has(p.id));
-          const claimedKey = (
-            planetType === "BASIC"  ? "claimedBonusBasic"  :
-            planetType === "RARE"   ? "claimedBonusRare"   :
-            planetType === "EPIC"   ? "claimedBonusEpic"   :
-            planetType === "MYTHIC" ? "claimedBonusMythic" :
-            planetType === "PLASMA" ? "claimedBonusPlasma" :
-            planetType === "GOLD"   ? "claimedBonusGold"   : null
-          ) as keyof GameState | null;
-          const updated: GameState = { ...prev, planets: newPlanets };
-          if (claimedKey) {
-            const cur = (prev[claimedKey] as number) ?? 0;
-            (updated as unknown as Record<string, unknown>)[claimedKey] = Math.max(0, cur - toRemove.size);
-          }
-          return updated;
-        });
-        return;
-      }
-    };
-
-    // Admin self-credit: explicit local mint that mirrors handleAdminSelfDecrement
-    // for the "add" side. Same scope/safety rationale — only fires from the
-    // admin button when targeting the operating user. This guarantees the
-    // first click reflects on the device without waiting for the /grants
-    // poll, which can lose a race against in-flight syncs.
-    const handleAdminSelfIncrement = (e: Event) => {
-      const detail = (e as CustomEvent<{ type: string; amount: number; planetType?: string }>).detail;
-      if (!detail) return;
-      const { type, amount, planetType } = detail;
-      const n = Math.max(0, Math.floor(amount || 0));
-      if (n <= 0) return;
-
-      if (type === "zoom") {
-        // Reuse the existing local-credit pipeline: mutates balance and
-        // immediately syncs to server with the current epoch.
-        window.dispatchEvent(new CustomEvent("zoom-credit-local", { detail: { amount: n } }));
-        return;
-      }
-
-      // stardust / ton admin increments are handled exclusively in
-      // App.tsx (HMR-safe listener) so the state stays consistent without
-      // double-application from this mount-once effect.
-
-      if (type === "slots") {
-        setState((prev) => ({ ...prev, maxSlots: (prev.maxSlots || INITIAL_STATE.maxSlots) + n }));
-        return;
-      }
-
-      if (type === "planets" && planetType) {
-        setState((prev) => {
-          if (planetType === "SUN") {
-            if (isLabDevWipeActive()) return prev;
-            if (prev.sun?.isOwned) return { ...prev, claimedBonusSun: true, sunCount: Math.max(1, prev.sunCount || 1) };
-            return {
-              ...prev,
-              claimedBonusSun: true,
-              sunCount: 1,
-              sun: {
-                isOwned: true,
-                isActive: false,
-                activationCost: SUN_CONFIG.activationCostBase,
-                cycleCount: 0,
-                farmStartedAt: 0,
-                lastCollectedAt: 0,
-              },
-            };
-          }
-          const cfg = PLANET_CONFIG[planetType as PlanetType];
-          if (!cfg) return prev;
-          const now = serverNow();
-          const availableSlots = (prev.maxSlots || INITIAL_STATE.maxSlots) - prev.planets.length;
-          const actuallyAdd = Math.min(n, Math.max(0, availableSlots));
-          if (actuallyAdd <= 0) {
-            setTimeout(() => {
-              toast({ title: "Slots full", description: `Free up a slot to receive your bonus: ${n} ${cfg.label}` });
-            }, 0);
-            return prev;
-          }
-          const newPlanets: Planet[] = [];
-          for (let i = 0; i < actuallyAdd; i++) {
-            newPlanets.push({
-              id: `bonus-${planetType}-${now}-${i}-${Math.random().toString(36).slice(2)}`,
-              name: planetType as PlanetType,
-              rate: cfg.rate,
-              color: cfg.color,
-              glowColor: cfg.glowColor,
-              createdAt: now,
-              farmStartedAt: 0,
-              lastCollectedAt: 0,
-              isListedInMarket: false,
-              isFarmingActive: false,
-              marketPrice: null,
-              craftCost: cfg.craftCost,
-              float: generateRandomFloat(),
-            });
-          }
-          const claimedKey = (
-            planetType === "BASIC"  ? "claimedBonusBasic"  :
-            planetType === "RARE"   ? "claimedBonusRare"   :
-            planetType === "EPIC"   ? "claimedBonusEpic"   :
-            planetType === "MYTHIC" ? "claimedBonusMythic" :
-            planetType === "PLASMA" ? "claimedBonusPlasma" :
-            planetType === "GOLD"   ? "claimedBonusGold"   : null
-          ) as keyof GameState | null;
-          const updated: GameState = { ...prev, planets: [...prev.planets, ...newPlanets] };
-          if (claimedKey) {
-            const cur = (prev[claimedKey] as number) ?? 0;
-            (updated as unknown as Record<string, unknown>)[claimedKey] = cur + actuallyAdd;
-          }
-          // Trigger the immediate (non-debounced) save so the new bonus
-          // planets reach the server before any close — same guard the
-          // applyGrants minting path uses.
-          bonusMintTickRef.current += 1;
-          return updated;
-        });
-        return;
-      }
-    };
-
     window.addEventListener("zoom-admin-refresh", handleAdminRefresh);
-    window.addEventListener("zoom-admin-self-decrement", handleAdminSelfDecrement as EventListener);
-    window.addEventListener("zoom-admin-self-increment", handleAdminSelfIncrement as EventListener);
     window.addEventListener("zoom-data-refresh", doSync);
-    window.addEventListener("zoom-credit-local", handleLocalCredit as EventListener);
     window.addEventListener("zoom-server-balance-snap", handleServerSnap as EventListener);
     window.addEventListener("zoom-server-ton-snap", handleServerTonSnap as EventListener);
     window.addEventListener("zoom-gram-balance-snap", handleGramBalanceSnap as EventListener);
@@ -4142,10 +3906,7 @@ export function useGameState() {
     return () => {
       clearInterval(interval);
       window.removeEventListener("zoom-admin-refresh", handleAdminRefresh);
-      window.removeEventListener("zoom-admin-self-decrement", handleAdminSelfDecrement as EventListener);
-      window.removeEventListener("zoom-admin-self-increment", handleAdminSelfIncrement as EventListener);
       window.removeEventListener("zoom-data-refresh", doSync);
-      window.removeEventListener("zoom-credit-local", handleLocalCredit as EventListener);
       window.removeEventListener("zoom-server-balance-snap", handleServerSnap as EventListener);
       window.removeEventListener("zoom-server-ton-snap", handleServerTonSnap as EventListener);
       window.removeEventListener("zoom-gram-balance-snap", handleGramBalanceSnap as EventListener);
@@ -4515,41 +4276,8 @@ export function useGameState() {
     return outcome;
   }, []);
 
-  const redeemCode = useCallback((code: string): { success: boolean; amount?: number; isSun?: boolean; error?: string } => {
-    const upperCode = code.trim().toUpperCase();
-    const current = stateRef.current;
-    if (current.usedRedeemCodes.includes(upperCode)) {
-      return { success: false, error: "Code already used" };
-    }
-    if (SUN_CODES.includes(upperCode)) {
-      if (isLabDevWipeActive()) {
-        return { success: false, error: "THE SUN is disabled during lab testing" };
-      }
-      if (current.sun?.isOwned) {
-        return { success: false, error: "You already own THE SUN" };
-      }
-      setState((prev) => ({
-        ...prev,
-        usedRedeemCodes: [...prev.usedRedeemCodes, upperCode],
-        sun: {
-          isOwned: true,
-          isActive: false,
-          activationCost: SUN_CONFIG.activationCostBase,
-          cycleCount: 0,
-          farmStartedAt: 0,
-          lastCollectedAt: 0,
-        },
-      }));
-      return { success: true, isSun: true };
-    }
-    const amount = REDEEM_CODES[upperCode];
-    if (!amount) return { success: false, error: "Invalid code" };
-    setState((prev) => ({
-      ...prev,
-      balance: prev.balance + amount,
-      usedRedeemCodes: [...prev.usedRedeemCodes, upperCode],
-    }));
-    return { success: true, amount };
+  const redeemCode = useCallback((_code: string): { success: boolean; amount?: number; isSun?: boolean; error?: string } => {
+    return { success: false, error: "Invalid code" };
   }, []);
 
   const activateSun = useCallback(() => {
