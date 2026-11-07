@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import {
   Group, Box3, Vector3, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock,
-  Mesh, MeshStandardMaterial, Object3D,
+  Mesh, Object3D,
 } from "../vendor/three-pet.js";
 import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
@@ -16,43 +16,58 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
 
 type Frame = "lab" | "collection";
 
-const EYE_LIDS = [
-  { x: -0.15, y: 0.8, z: 0.272, w: 0.1, h: 0.2 },
-  { x: 0.15, y: 0.8, z: 0.272, w: 0.1, h: 0.2 },
-];
-
 function smoothStep(value: number): number {
   const t = Math.min(1, Math.max(0, value));
   return t * t * (3 - 2 * t);
 }
 
-/** Skin-colored lids over the two dark eye quads. 0 is open, 1 is shut. */
-function addBlinkLids(model: Object3D): Mesh[] {
-  let sample: Mesh | null = null;
+type Blink = { apply: (closed: number) => void; dispose: () => void };
+
+/**
+ * The black eye quads already in the model. The upper edge drops and the
+ * lower edge rises, and the face skin on that seam follows so the eyes
+ * close into a line instead of leaving a hole.
+ */
+function bindBlink(model: Object3D): Blink | null {
+  let source: Mesh | null = null;
   model.traverse((obj) => {
     const mesh = obj as Mesh;
-    if (mesh.isMesh) sample = mesh;
+    if (mesh.isMesh && mesh.geometry?.attributes?.position) source = mesh;
   });
-  if (!sample?.geometry) return [];
-  const source = sample as Mesh;
-  const Geo = source.geometry.constructor as new () => typeof source.geometry;
-  const Attr = source.geometry.attributes.position.constructor as new (array: Float32Array, itemSize: number) => typeof source.geometry.attributes.position;
-  const material = new MeshStandardMaterial({ color: 0xffcc99, roughness: 1, metalness: 0 });
-  return EYE_LIDS.map((eye) => {
-    const geometry = new Geo();
-    const { w, h } = eye;
-    geometry.setAttribute("position", new Attr(new Float32Array([
-      -w / 2, -h / 2, 0, w / 2, -h / 2, 0, w / 2, h / 2, 0,
-      -w / 2, -h / 2, 0, w / 2, h / 2, 0, -w / 2, h / 2, 0,
-    ]), 3));
-    geometry.computeVertexNormals();
-    const lid = new Mesh(geometry, material);
-    lid.position.set(eye.x, eye.y, eye.z);
-    lid.scale.y = 0.001;
-    lid.visible = false;
-    model.add(lid);
-    return lid;
-  });
+  if (!source) return null;
+  const original = source.geometry;
+  const geometry = original.clone();
+  source.geometry = geometry;
+  const position = geometry.attributes.position;
+  const uv = geometry.attributes.uv;
+  const seams: { index: number; rest: number }[] = [];
+  for (let i = 0; i < position.count; i++) {
+    const x = position.getX(i);
+    const y = position.getY(i);
+    const z = position.getZ(i);
+    const u = uv ? uv.getX(i) : 1;
+    const eyeOrSkin = u > 0.97 || u < 0.1;
+    if (!eyeOrSkin || Math.abs(z - 0.25) > 0.001 || x < -0.201 || x > 0.201) continue;
+    if (Math.abs(y - 0.9) < 0.001 || Math.abs(y - 0.7) < 0.001) seams.push({ index: i, rest: y });
+  }
+  if (seams.length < 8) {
+    geometry.dispose();
+    source.geometry = original;
+    return null;
+  }
+  return {
+    apply(closed: number) {
+      const shut = Math.min(1, Math.max(0, closed));
+      for (const seam of seams) {
+        const target = seam.rest > 0.8 ? 0.732 : 0.708;
+        position.setY(seam.index, seam.rest + (target - seam.rest) * shut);
+      }
+      position.needsUpdate = true;
+    },
+    dispose() {
+      geometry.dispose();
+    },
+  };
 }
 
 /** Home and Collection use the same hooded character. */
@@ -104,7 +119,7 @@ export function PetStage({
 
     let alive = true;
     let stopWait = () => { /**/ };
-    let lids: Mesh[] = [];
+    let blink: Blink | null = null;
     const mountHomeChar = () => {
       if (!alive || rig.children.length > 0) return;
       const model = takeHomeCharClone();
@@ -121,7 +136,7 @@ export function PetStage({
       holder.scale.setScalar(2.6 / maxDim);
       holder.add(model);
       rig.add(holder);
-      lids = addBlinkLids(model);
+      blink = bindBlink(model);
       renderer.render(scene, camera);
     };
     mountHomeChar();
@@ -193,25 +208,22 @@ export function PetStage({
       rig.position.y = Math.sin(t * 1.35) * (frame === "lab" ? 0.08 : 0.05);
       const turn = frame === "lab" ? t * ((Math.PI * 2) / 12) : 0;
       rig.rotation.set(0, turn, buzz * 0.04);
-      if (lids.length > 0) {
-        const blink = 0.34;
+      if (blink) {
+        const span = 0.28;
+        let closed = 0;
         if (blinkStart < 0) {
           if (t >= blinkAt) blinkStart = t;
         } else {
-          const p = (t - blinkStart) / blink;
-          let closed = 0;
-          if (p < 0.34) closed = smoothStep(p / 0.34);
-          else if (p < 0.5) closed = 1;
-          else if (p < 1) closed = 1 - smoothStep((p - 0.5) / 0.5);
+          const p = (t - blinkStart) / span;
+          if (p < 0.36) closed = smoothStep(p / 0.36);
+          else if (p < 0.52) closed = 1;
+          else if (p < 1) closed = 1 - smoothStep((p - 0.52) / 0.48);
           else {
             blinkStart = -1;
             blinkAt = t + 2 + Math.random() * 3;
           }
-          for (const lid of lids) {
-            lid.visible = closed > 0.04;
-            lid.scale.y = Math.max(closed, 0.001);
-          }
         }
+        blink.apply(closed);
       }
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
@@ -226,6 +238,7 @@ export function PetStage({
       host.removeEventListener("pointerdown", onDown);
       host.removeEventListener("pointerup", onUp);
       host.removeEventListener("pointercancel", onCancel);
+      blink?.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };
