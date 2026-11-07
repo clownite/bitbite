@@ -64,10 +64,10 @@ export function weeklyInvestors(now = Date.now()): InvestorRow[] {
     .slice(0, 10);
 }
 
-/** Shown now, paid from the following reset. Not claimable yet. */
+/** Shown now, paid in XP from the following reset. Nobody receives GRAM. */
 export const UPCOMING_PRIZES: { place: string; prize: string }[] = [
-  { place: "1", prize: "30 GRAM" },
-  { place: "2", prize: "15 GRAM" },
-  { place: "3", prize: "8 GRAM" },
-  { place: "4–10", prize: "40 XP" },
+  { place: "1", prize: "80 XP" },
+  { place: "2", prize: "50 XP" },
+  { place: "3", prize: "30 XP" },
+  { place: "4–10", prize: "15 XP" },
 ];

@@ -44,9 +44,9 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
           className="rounded-2xl border p-3 mb-3"
           style={{ borderColor: "rgba(240,177,90,0.35)", background: "rgba(240,177,90,0.06)" }}
         >
-          <div className="text-[11px] font-black tracking-[0.16em]" style={{ color: "#f0b15a" }}>PRIZES NEXT RESET</div>
+          <div className="text-[11px] font-black tracking-[0.16em]" style={{ color: "#f0b15a" }}>XP PRIZES NEXT RESET</div>
           <p className="text-[11px] mt-1 mb-2" style={{ color: "rgba(255,244,228,0.62)" }}>
-            Listed now. Paid from the following Monday, not this week.
+            XP only. Nobody receives GRAM. Paid from the following Monday.
           </p>
           <div className="grid grid-cols-4 gap-1.5">
             {UPCOMING_PRIZES.map((prize) => (
