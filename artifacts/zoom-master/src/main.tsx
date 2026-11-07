@@ -14,13 +14,11 @@ function configureTelegramViewport() {
         WebApp?: {
           ready?: () => void;
           expand?: () => void;
-          requestFullscreen?: () => void;
-          isFullscreen?: boolean;
+          exitFullscreen?: () => void;
           setHeaderColor?: (color: string) => void;
           setBackgroundColor?: (color: string) => void;
           setBottomBarColor?: (color: string) => void;
-          disableVerticalSwipes?: () => void;
-          isVerticalSwipesEnabled?: boolean;
+          enableVerticalSwipes?: () => void;
           version?: string;
           onEvent?: (event: string, cb: () => void) => void;
         };
@@ -31,22 +29,12 @@ function configureTelegramViewport() {
     webApp.setHeaderColor?.("#060810");
     webApp.setBackgroundColor?.("#060810");
     webApp.setBottomBarColor?.("#060810");
-    webApp.disableVerticalSwipes?.();
+    // Stay in the normal Mini App sheet. Fullscreen and locked swipes
+    // stop the user from dragging it down and leaving it running.
+    webApp.exitFullscreen?.();
+    webApp.enableVerticalSwipes?.();
     webApp.expand?.();
     webApp.ready?.();
-
-    const tryFullscreen = () => {
-      try {
-        if (webApp.requestFullscreen && !webApp.isFullscreen) {
-          webApp.requestFullscreen();
-        }
-      } catch { /**/ }
-    };
-
-    tryFullscreen();
-    requestAnimationFrame(() => { webApp.expand?.(); tryFullscreen(); });
-    setTimeout(() => { webApp.expand?.(); tryFullscreen(); }, 300);
-    setTimeout(tryFullscreen, 800);
   } catch { /**/ }
 }
 

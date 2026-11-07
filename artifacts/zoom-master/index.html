@@ -242,11 +242,11 @@
             if (!tg) return;
             tg.ready && tg.ready();
             tg.expand && tg.expand();
-            try { tg.disableVerticalSwipes(); } catch (e) {}
+            try { if (tg.exitFullscreen) tg.exitFullscreen(); } catch (e) {}
+            try { if (tg.enableVerticalSwipes) tg.enableVerticalSwipes(); } catch (e) {}
             try { tg.setHeaderColor('#2a1810'); } catch (e) {}
             try { tg.setBackgroundColor('#2a1810'); } catch (e) {}
             try { tg.setBottomBarColor('#3a2418'); } catch (e) {}
-            try { if (tg.requestFullscreen) tg.requestFullscreen(); } catch (e) {}
             try {
               var sp = tg.initDataUnsafe && tg.initDataUnsafe.start_param;
               if (sp) localStorage.setItem('zoom-start-param', sp);
