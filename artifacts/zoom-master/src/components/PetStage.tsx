@@ -206,8 +206,7 @@ export function PetStage({
       const buzz = shake * Math.sin(t * 55);
       rig.position.x = buzz * 0.04;
       rig.position.y = Math.sin(t * 1.35) * (frame === "lab" ? 0.08 : 0.05);
-      const turn = frame === "lab" ? t * ((Math.PI * 2) / 12) : 0;
-      rig.rotation.set(0, turn, buzz * 0.04);
+      rig.rotation.set(0, 0, 0);
       if (blink) {
         const span = 0.28;
         let closed = 0;
