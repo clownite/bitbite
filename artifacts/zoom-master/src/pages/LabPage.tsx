@@ -10,6 +10,42 @@ import { claimFarm, formatCrumbs } from "../pet/crumbs";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
 
+/** A line that draws itself around the pet card, then starts again. */
+function PetCardTrace() {
+  const rectRef = useRef<SVGRectElement>(null);
+  useEffect(() => {
+    const rect = rectRef.current;
+    const svg = rect?.ownerSVGElement;
+    const host = svg?.parentElement;
+    if (!rect || !svg || !host) return;
+    const fit = () => {
+      const width = host.clientWidth;
+      const height = host.clientHeight;
+      if (width < 2 || height < 2) return;
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      const inset = 1.25;
+      rect.setAttribute("x", String(inset));
+      rect.setAttribute("y", String(inset));
+      rect.setAttribute("width", String(width - inset * 2));
+      rect.setAttribute("height", String(height - inset * 2));
+      rect.setAttribute("rx", "24.5");
+      rect.setAttribute("ry", "24.5");
+      const length = rect.getTotalLength();
+      rect.style.strokeDasharray = `${length}px`;
+      rect.style.setProperty("--trace", `${length}px`);
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, []);
+  return (
+    <svg className="pet-card-trace" aria-hidden>
+      <rect ref={rectRef} />
+    </svg>
+  );
+}
+
 /** The water-drop emoji, drawn small and scaled up so the same glyph reads as pixels. */
 function PixelWaterDrop() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -99,10 +135,11 @@ export function LabPage({
             height: "100%",
             display: "flex",
             flexDirection: "column",
+            position: "relative",
             borderRadius: 26,
             overflow: "hidden",
             background: "rgba(6, 12, 20, 0.96)",
-            border: "1px solid rgba(122, 215, 255, 0.55)",
+            border: "1px solid rgba(122, 215, 255, 0.22)",
             boxShadow: "0 0 0 1px rgba(0,0,0,0.6), 0 16px 40px rgba(0,0,0,0.35)",
           }}
         >
@@ -179,6 +216,7 @@ export function LabPage({
               ))}
             </div>
           </div>
+          <PetCardTrace />
         </div>
       </div>
 
