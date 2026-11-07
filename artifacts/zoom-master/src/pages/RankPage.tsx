@@ -1,17 +1,11 @@
 import { useMemo } from "react";
-import type { FeedEvent, Planet } from "../hooks/useGameState";
 import { useGlobalStore } from "../store/globalStore";
 import { useT } from "../i18n/LanguageContext";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { TelegramAvatar } from "../components/TelegramAvatar";
 interface RankPageProps {
   balance: number;
-  seasonPoolEarned: number;
-  activeFarmRate: number;
-  totalTonSpent: number;
-  feedEvents: FeedEvent[];
   telegramId: string | null;
-  planets?: Planet[];
   visible?: boolean;
 }
 
@@ -69,12 +63,8 @@ function getTelegramFirstName(): string | null {
   }
 }
 
-export function RankPage({ balance, seasonPoolEarned, activeFarmRate, totalTonSpent: _totalTonSpent, feedEvents: _feedEvents, telegramId, planets: _planets = [], visible }: RankPageProps) {
+export function RankPage({ balance, telegramId, visible }: RankPageProps) {
   void visible;
-  void seasonPoolEarned;
-  void activeFarmRate;
-  void _totalTonSpent;
-  void _feedEvents;
   const { t } = useT();
 
   // All shared data is pre-loaded centrally — no per-mount fetch, no pop-in

@@ -83,19 +83,6 @@ async function refreshAll(telegramId: string | null) {
         set({ seasonEpoch: e && e > 0 ? e : fallback });
       }).catch(() => {}),
       fetchLeaderboard().then((lb) => set({ leaderboard: lb })).catch(() => {}),
-      fetchGlobalPool().then((p) => set({ globalPool: p })).catch(() => {}),
-      fetchMarketListings().then((m) => {
-        const mineIds = new Set(m.map((l) => l.id));
-        const minePlanets = new Set(m.map((l) => l.planetId).filter(Boolean));
-        const pending = state.marketListings.filter((l) => {
-          if (mineIds.has(l.id)) return false;
-          if (l.planetId && minePlanets.has(l.planetId)) return false;
-          const t = l.lastActivatedAt ? new Date(l.lastActivatedAt).getTime() : 0;
-          return Number.isFinite(t) && Date.now() - t < 180_000;
-        });
-        set({ marketListings: [...pending, ...m] });
-      }).catch(() => {}),
-      fetchTotalPool().then((tp) => set({ totalPool: tp })).catch(() => {}),
     ];
     if (telegramId) {
       tasks.push(fetchProfile(telegramId).then((p) => set({ profile: p })).catch(() => {}));
@@ -132,16 +119,10 @@ export function initGlobalStore(telegramId: string | null) {
   set({ initialized: true, lastFetch: Date.now() });
 
   void refreshAll(telegramId);
-  void refreshMarketSales();
 
-  // Periodic refresh — gated on document visibility
   intervals.push(setInterval(() => {
     if (!document.hidden) void refreshAll(currentTelegramId);
-  }, 15_000));
-
-  intervals.push(setInterval(() => {
-    if (!document.hidden) void refreshMarketSales();
-  }, 20_000));
+  }, 30_000));
 
   // Listen for global refresh / admin events to re-fetch on demand
   const onRefresh = () => { void refreshAll(currentTelegramId); };

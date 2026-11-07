@@ -1,5 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
-import * as THREE from "three";
+import {
+  Group, Mesh, MeshStandardMaterial, SphereGeometry, ConeGeometry, CylinderGeometry, Box3, Vector3, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock,
+} from "three";
 import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
 import { takePetClone, whenPetModelReady } from "../pet/petModel";
@@ -13,48 +15,48 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
 
 type Frame = "lab" | "collection";
 
-function standIn(id: PetId): THREE.Group {
+function standIn(id: PetId): Group {
   const color = id === "finch" ? 0xe7a56a : id === "lynx" ? 0xc47a2e : 0xf3e2c2;
-  const mat = new THREE.MeshStandardMaterial({ color, roughness: 0.48 });
-  const dark = new THREE.MeshStandardMaterial({ color: 0x2a1810, roughness: 0.4 });
-  const group = new THREE.Group();
-  const add = (mesh: THREE.Mesh) => {
+  const mat = new MeshStandardMaterial({ color, roughness: 0.48 });
+  const dark = new MeshStandardMaterial({ color: 0x2a1810, roughness: 0.4 });
+  const group = new Group();
+  const add = (mesh: Mesh) => {
     group.add(mesh);
     return mesh;
   };
   if (id === "finch") {
-    add(new THREE.Mesh(new THREE.SphereGeometry(0.42, 18, 14), mat)).scale.set(1.15, 0.85, 0.9);
-    const head = add(new THREE.Mesh(new THREE.SphereGeometry(0.26, 16, 12), mat));
+    add(new Mesh(new SphereGeometry(0.42, 18, 14), mat)).scale.set(1.15, 0.85, 0.9);
+    const head = add(new Mesh(new SphereGeometry(0.26, 16, 12), mat));
     head.position.set(0.48, 0.22, 0);
-    const beak = add(new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.28, 8), dark));
+    const beak = add(new Mesh(new ConeGeometry(0.08, 0.28, 8), dark));
     beak.rotation.z = -Math.PI / 2;
     beak.position.set(0.78, 0.2, 0);
-    const wing = add(new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), mat));
+    const wing = add(new Mesh(new SphereGeometry(0.22, 12, 10), mat));
     wing.scale.set(0.4, 1, 1.3);
     wing.position.set(0.05, 0.05, 0.28);
   } else if (id === "lynx") {
-    const body = add(new THREE.Mesh(new THREE.SphereGeometry(0.48, 18, 14), mat));
+    const body = add(new Mesh(new SphereGeometry(0.48, 18, 14), mat));
     body.scale.set(1.45, 0.72, 0.78);
-    const head = add(new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 12), mat));
+    const head = add(new Mesh(new SphereGeometry(0.28, 16, 12), mat));
     head.position.set(0.62, 0.28, 0);
-    const earL = add(new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.22, 6), mat));
+    const earL = add(new Mesh(new ConeGeometry(0.08, 0.22, 6), mat));
     earL.position.set(0.52, 0.58, 0.12);
     const earR = earL.clone();
     earR.position.z = -0.12;
     group.add(earR);
-    const tail = add(new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 0.55, 8), mat));
+    const tail = add(new Mesh(new CylinderGeometry(0.05, 0.08, 0.55, 8), mat));
     tail.rotation.z = Math.PI / 3;
     tail.position.set(-0.7, 0.28, 0);
-    add(new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), dark)).position.set(0.78, 0.34, 0.1);
+    add(new Mesh(new SphereGeometry(0.045, 8, 8), dark)).position.set(0.78, 0.34, 0.1);
   } else {
-    const body = add(new THREE.Mesh(new THREE.SphereGeometry(0.5, 18, 14), mat));
+    const body = add(new Mesh(new SphereGeometry(0.5, 18, 14), mat));
     body.scale.set(1.5, 0.75, 0.7);
-    const neck = add(new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.14, 0.45, 8), mat));
+    const neck = add(new Mesh(new CylinderGeometry(0.1, 0.14, 0.45, 8), mat));
     neck.position.set(0.55, 0.42, 0);
     neck.rotation.z = -0.5;
-    const head = add(new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 12), mat));
+    const head = add(new Mesh(new SphereGeometry(0.22, 14, 12), mat));
     head.position.set(0.78, 0.62, 0);
-    const antler = add(new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.42, 6), dark));
+    const antler = add(new Mesh(new CylinderGeometry(0.025, 0.035, 0.42, 6), dark));
     antler.position.set(0.7, 0.95, 0.08);
     antler.rotation.z = 0.3;
     const antler2 = antler.clone();
@@ -63,14 +65,14 @@ function standIn(id: PetId): THREE.Group {
     group.add(antler2);
   }
   group.updateMatrixWorld(true);
-  const box = new THREE.Box3().setFromObject(group);
-  const size = new THREE.Vector3();
-  const center = new THREE.Vector3();
+  const box = new Box3().setFromObject(group);
+  const size = new Vector3();
+  const center = new Vector3();
   box.getSize(size);
   box.getCenter(center);
   group.position.sub(center);
   const maxDim = Math.max(size.x, size.y, size.z) || 1;
-  const pivot = new THREE.Group();
+  const pivot = new Group();
   pivot.scale.setScalar(2.4 / maxDim);
   pivot.add(group);
   return pivot;
@@ -97,13 +99,13 @@ export function PetStage({
     const host = hostRef.current;
     if (!host) return;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 40);
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(32, 1, 0.1, 40);
     camera.position.set(0, 0.55, 10);
     camera.lookAt(0, 0, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    const renderer = new WebGLRenderer({ antialias: true, alpha: true });
+    renderer.outputColorSpace = SRGBColorSpace;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
     renderer.domElement.style.width = "100%";
@@ -112,15 +114,15 @@ export function PetStage({
     renderer.domElement.style.touchAction = "none";
     host.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xfff6ea, 1.35));
-    const key = new THREE.DirectionalLight(0xfff0d4, 2.4);
+    scene.add(new AmbientLight(0xfff6ea, 1.35));
+    const key = new DirectionalLight(0xfff0d4, 2.4);
     key.position.set(3, 4, 5);
     scene.add(key);
-    const fill = new THREE.DirectionalLight(0x9ec8ff, 0.7);
+    const fill = new DirectionalLight(0x9ec8ff, 0.7);
     fill.position.set(-3, 1.2, -2);
     scene.add(fill);
 
-    const rig = new THREE.Group();
+    const rig = new Group();
     scene.add(rig);
 
     let alive = true;
@@ -130,13 +132,13 @@ export function PetStage({
       const model = takeHomeCharClone();
       if (!model) return;
       model.updateMatrixWorld(true);
-      const box = new THREE.Box3().setFromObject(model);
-      const size = new THREE.Vector3();
-      const center = new THREE.Vector3();
+      const box = new Box3().setFromObject(model);
+      const size = new Vector3();
+      const center = new Vector3();
       box.getSize(size);
       box.getCenter(center);
       model.position.sub(center);
-      const holder = new THREE.Group();
+      const holder = new Group();
       const maxDim = Math.max(size.x, size.y, size.z) || 1;
       holder.scale.setScalar(2.6 / maxDim);
       holder.add(model);
@@ -205,7 +207,7 @@ export function PetStage({
     host.addEventListener("pointercancel", onCancel);
 
     let raf = 0;
-    const clock = new THREE.Clock();
+    const clock = new Clock();
     let t = 0;
     const loop = () => {
       const dt = Math.min(clock.getDelta(), 0.05);

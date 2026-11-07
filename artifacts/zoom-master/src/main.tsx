@@ -4,7 +4,6 @@ import App from "./App";
 import "./index.css";
 import { hapticLight } from "./utils/haptic";
 import { BootErrorBoundary } from "./components/BootErrorBoundary";
-import { clearLabForgeTestPizzaFlag } from "../../../lib/game-models/src/forge-lab-economy.ts";
 import { hideHtmlSplash } from "./components/SplashScreen";
 import { SPLASH_MS } from "./utils/bootSplash";
 
@@ -53,8 +52,6 @@ function configureTelegramViewport() {
 
 configureTelegramViewport();
 preloadPetModel();
-
-try { clearLabForgeTestPizzaFlag(); } catch { /**/ }
 
 {
   const start =

@@ -1,5 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
-import * as THREE from "three";
+import {
+  Object3D, Mesh, MeshStandardMaterial, Group, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock, NearestFilter,
+} from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 /**
@@ -9,7 +11,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
  */
 const MODEL_URL = "/models/home-char.glb";
 
-let cached: THREE.Object3D | null = null;
+let cached: Object3D | null = null;
 let started = false;
 const waiters = new Set<() => void>();
 
@@ -20,19 +22,19 @@ function preloadHomeChar() {
   loader.load(MODEL_URL, (gltf) => {
     const root = gltf.scene;
     root.traverse((obj) => {
-      const mesh = obj as THREE.Mesh;
+      const mesh = obj as Mesh;
       if (!mesh.isMesh) return;
       const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
       for (const mat of mats) {
-        const std = mat as THREE.MeshStandardMaterial;
+        const std = mat as MeshStandardMaterial;
         if (std.color) std.color.set(0xffffff);
         std.vertexColors = false;
         std.metalness = 0;
         std.roughness = 1;
         if (std.map) {
-          std.map.colorSpace = THREE.SRGBColorSpace;
-          std.map.magFilter = THREE.NearestFilter;
-          std.map.minFilter = THREE.NearestFilter;
+          std.map.colorSpace = SRGBColorSpace;
+          std.map.magFilter = NearestFilter;
+          std.map.minFilter = NearestFilter;
           std.map.needsUpdate = true;
         }
       }
@@ -45,7 +47,7 @@ function preloadHomeChar() {
 
 preloadHomeChar();
 
-export function takeHomeCharClone(): THREE.Object3D | null {
+export function takeHomeCharClone(): Object3D | null {
   return cached ? cached.clone(true) : null;
 }
 
@@ -68,15 +70,15 @@ export function HomeVoxelResident({ calm = false }: { calm?: boolean }) {
     const host = hostRef.current;
     if (!host) return;
 
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(26, 1, 0.05, 20);
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(26, 1, 0.05, 20);
     // Model is Y-up, feet at y=0, head near y=1.2, face toward +Z.
     // Sit the camera on +Z so the brown hood reads from the front.
     camera.position.set(0, 0.62, 3.2);
     camera.lookAt(0, 0.58, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    const renderer = new WebGLRenderer({ antialias: true, alpha: true });
+    renderer.outputColorSpace = SRGBColorSpace;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
     renderer.domElement.style.width = "100%";
@@ -85,15 +87,15 @@ export function HomeVoxelResident({ calm = false }: { calm?: boolean }) {
     renderer.domElement.style.pointerEvents = "none";
     host.appendChild(renderer.domElement);
 
-    scene.add(new THREE.AmbientLight(0xfff8ee, 1.55));
-    const key = new THREE.DirectionalLight(0xfff3df, 2.1);
+    scene.add(new AmbientLight(0xfff8ee, 1.55));
+    const key = new DirectionalLight(0xfff3df, 2.1);
     key.position.set(0.8, 2.4, 3.2);
     scene.add(key);
-    const fill = new THREE.DirectionalLight(0xd5e4ff, 0.45);
+    const fill = new DirectionalLight(0xd5e4ff, 0.45);
     fill.position.set(-1.8, 1.1, 1.4);
     scene.add(fill);
 
-    const rig = new THREE.Group();
+    const rig = new Group();
     scene.add(rig);
 
     let alive = true;
@@ -116,7 +118,7 @@ export function HomeVoxelResident({ calm = false }: { calm?: boolean }) {
     observer.observe(host);
 
     let raf = 0;
-    const clock = new THREE.Clock();
+    const clock = new Clock();
     let t = 0;
     const loop = () => {
       const dt = Math.min(clock.getDelta(), 0.05);

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import type { TonWalletProps } from "../components/TonWalletWidget";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
 import {
@@ -15,13 +14,8 @@ import {
   type CrumbRequest,
 } from "../pet/crumbs";
 
-interface WalletPageProps extends Omit<TonWalletProps, "onOpenWalletTab" | "labVariant"> {
-  balance: number;
-  stardustBalance: number;
-  redStarBalance: number;
-  nftStarBalance: number;
-  onOpenHistory?: () => void;
-  onBankedStardust?: (balance: number) => void;
+interface WalletPageProps {
+  telegramId: string | null;
   visible?: boolean;
 }
 
