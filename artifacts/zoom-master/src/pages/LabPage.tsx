@@ -22,15 +22,15 @@ function PetCardTrace() {
       const height = host.clientHeight;
       if (width < 2 || height < 2) return;
       svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
-      const inset = 5;
+      const inset = 2.5;
       const rects = [...svg.querySelectorAll("rect")];
       for (const rect of rects) {
         rect.setAttribute("x", String(inset));
         rect.setAttribute("y", String(inset));
         rect.setAttribute("width", String(width - inset * 2));
         rect.setAttribute("height", String(height - inset * 2));
-        rect.setAttribute("rx", "21");
-        rect.setAttribute("ry", "21");
+        rect.setAttribute("rx", "23.5");
+        rect.setAttribute("ry", "23.5");
       }
       const length = rects[0]?.getTotalLength() ?? 0;
       if (length <= 0) return;

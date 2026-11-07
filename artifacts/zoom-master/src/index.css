@@ -3502,22 +3502,22 @@ body, body * {
   stroke-linejoin: round;
 }
 .pet-card-trace-track {
-  stroke: rgba(122, 215, 255, 0.28);
-  stroke-width: 1.5;
+  stroke: rgba(70, 150, 255, 0.28);
+  stroke-width: 1;
 }
 .pet-card-trace-glow,
 .pet-card-trace-line {
   animation: pet-card-flow 4s linear infinite;
 }
 .pet-card-trace-glow {
-  stroke: rgba(150, 225, 255, 0.95);
-  stroke-width: 8;
-  filter: drop-shadow(0 0 6px rgba(122, 215, 255, 1)) drop-shadow(0 0 16px rgba(80, 190, 255, 0.9));
+  stroke: rgba(40, 130, 255, 0.55);
+  stroke-width: 3;
+  filter: drop-shadow(0 0 4px rgba(40, 140, 255, 1)) drop-shadow(0 0 10px rgba(20, 90, 255, 0.95));
 }
 .pet-card-trace-line {
-  stroke: #f7fdff;
-  stroke-width: 2;
-  filter: drop-shadow(0 0 4px #d8f6ff);
+  stroke: #4aa6ff;
+  stroke-width: 1.15;
+  filter: drop-shadow(0 0 3px rgba(30, 120, 255, 0.95));
 }
 @keyframes pet-card-flow {
   from { stroke-dashoffset: 0; }
