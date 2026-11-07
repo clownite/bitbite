@@ -63,7 +63,7 @@ const NAV: { id: Tab; label: string; icon: LucideIcon }[] = [
   { id: "wallet", label: "Profile", icon: UserRound },
 ];
 
-const ALL_TABS: Tab[] = ["lab", "farm", "earn", "rank", "shop", "wallet"];
+const ALL_TABS: Tab[] = ["lab", "home", "farm", "earn", "rank", "shop", "wallet"];
 /** Tabs that share the Lab void + stars (no grid). */
 const LAB_SPACE_TABS: Tab[] = ["farm", "earn", "rank", "wallet"];
 

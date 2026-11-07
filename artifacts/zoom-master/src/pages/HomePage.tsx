@@ -21,18 +21,12 @@ import { PixelPlant } from "../components/PixelPlant";
 import { useT } from "../i18n/LanguageContext";
 import {
   PixelAstronaut,
-  SleepingAstronaut,
-  CoffeeSteam,
   PixelBird,
-  WalkingAstronaut,
   WalkingVisitor,
   VISITOR_PALETTES,
-  ExercisingAstronaut,
-  PushupAstronaut,
-  DrinkingAstronaut,
-  ShoweringAstronaut,
   PixelPet,
 } from "../components/PixelAstronaut";
+import { HomeVoxelResident } from "../components/HomeVoxelResident";
 import { useAstronautActivity } from "../hooks/useAstronautActivity";
 import { GlobalChat } from "../components/GlobalChat";
 
@@ -2218,14 +2212,8 @@ function RoomLifeOverlay({ phase, visible, friends, forceSleep, forceSit }: { ph
     ? { left: walkStartX, top: basePos.top }
     : basePos;
 
-  // ── Walking transition ─────────────────────────────────────────
-  // The user wants every activity change to look like the astronaut
-  // PHYSICALLY walks to the new spot, not teleports. We:
-  //   1. detect a position change
-  //   2. enter `isMoving` mode → render WalkingAstronaut, facing the
-  //      direction of travel (compare left % values)
-  //   3. let CSS animate `left`/`top` over 1.4 s
-  //   4. exit `isMoving`, render the activity-specific sprite
+  // The slot slides between activities. The brown hood stays face-on;
+  // there is no yaw and no side-facing flip.
   const TRAVEL_MS = 1400;
   const prevPosRef = useRef(pos);
   const [isMoving, setIsMoving] = useState(false);
@@ -2533,286 +2521,21 @@ function RoomLifeOverlay({ phase, visible, friends, forceSleep, forceSit }: { ph
             ))}
           </>
         )}
-        {annoyed ? (
-          // Angry RED astronaut dashing across the room.
-          <div style={{ transform: `scaleX(${escapePos && parseFloat(escapePos.left) < parseFloat(pos.left) ? -1 : 1})` }}>
-            <div style={{ animation: "home-astro-bob 0.3s ease-in-out infinite" }}>
-              <WalkingVisitor width={spriteW} palette={ANNOYED_PALETTE} />
-            </div>
-          </div>
-        ) : welcome ? (
-          // Standing still + waving hand. Same standing sprite, plus a
-          // small skin-coloured hand that swings overhead like a wave.
-          <div style={{ position: "relative" }}>
-            <PixelAstronaut pose="stand" width={spriteW} />
-            <div
-              aria-hidden
-              style={{
-                position: "absolute",
-                left: "78%",
-                top: "8%",
-                width: Math.max(6, Math.round(spriteW * 0.22)),
-                height: Math.max(6, Math.round(spriteW * 0.22)),
-                background: "#f3f4f6",
-                borderRadius: 2,
-                transformOrigin: "50% 100%",
-                animation: "home-astro-wave 0.55s ease-in-out infinite",
-                pointerEvents: "none",
-              }}
-            />
-          </div>
-        ) : isMoving ? (
-          // Travelling between activity spots — show the walking sprite
-          // with bob, flipped to face the direction of travel.
-          <div style={{ transform: `scaleX(${walkFacing})` }}>
-            <div style={{ animation: "home-astro-bob 0.5s ease-in-out infinite" }}>
-              <WalkingAstronaut width={spriteW} />
-            </div>
-          </div>
-        ) : (
-          <div style={{ animation: jumping ? "home-astro-jump 0.6s ease-out 1" : undefined }}>
-        {activity === "sleep" && (
-          // Total figure ~1.8 × spriteW so the lying body has the same
-          // proportions as a standing astronaut tipped on its side.
-          // helmetWidth = spriteW makes the helmet render at the SAME
-          // visual size as in every other activity (stand, walk, etc.)
-          // — the user wanted the helmet not to shrink while sleeping.
-          <SleepingAstronaut
-            width={Math.round(spriteW * 1.8)}
-            helmetWidth={spriteW}
-          />
-        )}
-        {activity === "walk" && (
-          // 14 s cycle = walk → pause → walk → pause (see keyframe).
-          // ease-in-out smooths the start/stop of each leg of the walk
-          // so the pauses don't look like the animation hitched.
-          <div style={{ animation: "home-astro-walk 14s ease-in-out infinite" }}>
-            <div style={{ animation: "home-astro-bob 0.5s ease-in-out infinite" }}>
-              <WalkingAstronaut width={spriteW} />
-            </div>
-          </div>
-        )}
-        {activity === "coffee" && (
-          // Standing pose holding a mug — keeps the SAME full-height
-          // sprite as every other activity, so the character does not
-          // visually shrink when he takes a coffee.
-          <div style={{ position: "relative" }}>
-            <PixelAstronaut pose="coffee" width={spriteW} />
-            <CoffeeSteam />
-          </div>
-        )}
-        {activity === "snack" && <PixelAstronaut pose="snack" width={spriteW} />}
-        {activity === "window" && (
-          // Gentle horizontal sway — looks like he's leaning side to
-          // side at the window, NOT a full body turn (which the player
-          // explicitly disliked). 4 s cycle keeps it subtle.
-          <div style={{ animation: "home-astro-window-sway 4s ease-in-out infinite" }}>
-            <PixelAstronaut pose="stand" facing="up" width={spriteW} />
-          </div>
-        )}
-        {activity === "exercise" && <ExercisingAstronaut width={spriteW} />}
-        {activity === "pushups" && <PushupAstronaut width={spriteW} />}
-        {activity === "fridge" && <DrinkingAstronaut width={spriteW} />}
-        {activity === "shower" && <ShoweringAstronaut width={spriteW} />}
-        {activity === "play" && (
-          // Astronaut standing next to the pet with a tiny heart drifting
-          // up between them. Gentle bob suggests bending down to play.
-          <div style={{ position: "relative", animation: "home-astro-bob 0.7s ease-in-out infinite" }}>
-            <PixelAstronaut pose="stand" width={spriteW} />
-            <span
-              style={{
-                position: "absolute",
-                left: "100%",
-                bottom: "55%",
-                fontSize: Math.round(spriteW * 0.22),
-                color: "#ff7a8a",
-                textShadow: "0 0 4px rgba(0,0,0,0.5)",
-                animation: "home-play-heart 2.2s ease-in-out infinite",
-              }}
-            >
-              ♥
-            </span>
-          </div>
-        )}
-        {activity === "music" && (
-          // Listening to music — head bobs to the beat, three musical
-          // notes drift up from beside the helmet, each on its own delay.
-          <div style={{ position: "relative", animation: "home-astro-bob 0.45s ease-in-out infinite" }}>
-            <PixelAstronaut pose="stand" width={spriteW} />
-            {[0, 0.7, 1.4].map((d, i) => (
-              <span
-                key={i}
-                style={{
-                  position: "absolute",
-                  left: i % 2 === 0 ? "92%" : "-12%",
-                  bottom: "60%",
-                  fontSize: Math.round(spriteW * 0.26),
-                  color: "#9ad8ff",
-                  textShadow: "0 0 4px rgba(0,0,0,0.55)",
-                  animation: `home-music-note 2.4s ease-in-out ${d}s infinite`,
-                }}
-              >
-                ♪
-              </span>
-            ))}
-          </div>
-        )}
-        {activity === "pizza" && (
-          // Standing next to the fridge holding a slice of pizza.
-          // Same full-height standing sprite (no shrinking) + a small
-          // pixel pizza slice in the right hand + chew animation.
-          <div style={{ position: "relative", animation: "home-chew 0.6s ease-in-out infinite" }}>
-            <PixelAstronaut pose="stand" width={spriteW} />
-            <div
-              aria-hidden
-              style={{
-                position: "absolute",
-                left: "60%",
-                bottom: "38%",
-                width: Math.round(spriteW * 0.35),
-                height: Math.round(spriteW * 0.35),
-              }}
-            >
-              <PixelPizzaSlice size={Math.round(spriteW * 0.35)} />
-            </div>
-          </div>
-        )}
-        {activity === "paint" && (
-          // PAINTER — standing on the floor holding a small sheet of
-          // paper in one hand and a brush in the other. A few colored
-          // pixel dots already on the paper, with a tiny brush-stroke
-          // animation so it looks like he's actually painting.
-          <div style={{ position: "relative" }}>
-            <PixelAstronaut pose="stand" width={spriteW} />
-            {/* Paper held in front of the chest */}
-            <div
-              aria-hidden
-              style={{
-                position: "absolute",
-                left: "10%",
-                top: "38%",
-                width: Math.round(spriteW * 0.45),
-                height: Math.round(spriteW * 0.45),
-                background: "#fffaf0",
-                border: "2px solid #0a1a3d",
-              }}
-            >
-              {/* A few colored pixels — the ongoing painting */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", width: "100%", height: "100%" }}>
-                {["#d63a2a","#ffd166","#3da33d","#7fdfff","#7a4cc4","#ff8a3c","#fffaf0","#fffaf0",
-                  "#fffaf0","#3da33d","#d63a2a","#fffaf0","#fffaf0","#fffaf0","#7fdfff","#ffd166"
-                ].map((c, i) => (
-                  <div key={i} style={{ background: c }} />
-                ))}
-              </div>
-            </div>
-            {/* Brush — small wooden stick with a colored tip, swings
-                back and forth to mimic painting strokes. */}
-            <div
-              aria-hidden
-              style={{
-                position: "absolute",
-                left: "55%",
-                top: "55%",
-                width: Math.max(6, Math.round(spriteW * 0.30)),
-                height: Math.max(2, Math.round(spriteW * 0.08)),
-                background: "#8a5a2a",
-                transformOrigin: "0% 50%",
-                animation: "home-astro-paint 0.45s ease-in-out infinite",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  right: -Math.max(2, Math.round(spriteW * 0.06)),
-                  top: -Math.max(1, Math.round(spriteW * 0.03)),
-                  width: Math.max(3, Math.round(spriteW * 0.10)),
-                  height: Math.max(3, Math.round(spriteW * 0.14)),
-                  background: "#d63a2a",
-                }}
-              />
-            </div>
-          </div>
-        )}
-        {activity === "drum" && (
-          // DRUMMER — standing at the kitchen table, banging two white
-          // drumsticks on the surface. Three pixel notes (♪ ♫ ♬) pop
-          // out in a steady rhythm so it really reads as "playing".
-          <div style={{ position: "relative", animation: "home-astro-bob 0.3s ease-in-out infinite" }}>
-            <PixelAstronaut pose="stand" width={spriteW} />
-            {/* Two drumsticks angled toward the table top */}
-            {[-1, 1].map((side) => (
-              <div
-                key={side}
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  left: side < 0 ? "8%" : "70%",
-                  top: "55%",
-                  width: Math.max(2, Math.round(spriteW * 0.08)),
-                  height: Math.max(8, Math.round(spriteW * 0.40)),
-                  background: "#fffaf0",
-                  borderRadius: 1,
-                  transformOrigin: "50% 0%",
-                  animation: `home-astro-drumstick 0.30s ease-in-out ${side < 0 ? 0 : 0.15}s infinite`,
-                }}
-              />
-            ))}
-            {/* Rhythmic notes flying out of the kitchen table */}
-            {[
-              { d: 0,    side: -1, sym: "♪" },
-              { d: 0.30, side:  1, sym: "♫" },
-              { d: 0.60, side: -1, sym: "♬" },
-              { d: 0.90, side:  1, sym: "♪" },
-            ].map((n, i) => (
-              <span
-                key={i}
-                style={{
-                  position: "absolute",
-                  left: n.side > 0 ? "85%" : "0%",
-                  bottom: "-10%",
-                  fontSize: Math.round(spriteW * 0.28),
-                  color: "#9ad8ff",
-                  textShadow: "0 0 4px rgba(0,0,0,0.5)",
-                  animation: `home-music-note 1.6s ease-out ${n.d}s infinite`,
-                }}
-              >
-                {n.sym}
-              </span>
-            ))}
-          </div>
-        )}
-        {/* sing block below */}
-        {activity === "sing" && (
-          // Singing — gentler bob and louder notes (♫) coming OUT of the
-          // helmet area, fanning upward and to the sides.
-          <div style={{ position: "relative", animation: "home-astro-bob 0.6s ease-in-out infinite" }}>
-            <PixelAstronaut pose="stand" width={spriteW} />
-            {[
-              { d: 0,   side: -1, sym: "♫" },
-              { d: 0.6, side:  1, sym: "♪" },
-              { d: 1.2, side: -1, sym: "♬" },
-              { d: 1.8, side:  1, sym: "♫" },
-            ].map((n, i) => (
-              <span
-                key={i}
-                style={{
-                  position: "absolute",
-                  left: n.side > 0 ? "85%" : "-5%",
-                  bottom: "70%",
-                  fontSize: Math.round(spriteW * 0.30),
-                  color: "#ffd166",
-                  textShadow: "0 0 5px rgba(0,0,0,0.6)",
-                  animation: `home-sing-note 2.2s ease-out ${n.d}s infinite`,
-                }}
-              >
-                {n.sym}
-              </span>
-            ))}
-          </div>
-        )}
-          </div>
-        )}
+        {/* Brown hood (r0c3), always facing the camera, including while the
+            slot slides between spots. Sleep is a small frontal bob. */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: "100%",
+            height: "150%",
+            pointerEvents: "none",
+            animation: jumping ? "home-astro-jump 0.6s ease-out 1" : undefined,
+          }}
+        >
+          <HomeVoxelResident calm={activity === "sleep" && !annoyed} />
+        </div>
       </div>
 
       {/* Visitor — random guest who walks in every 20-50 minutes,

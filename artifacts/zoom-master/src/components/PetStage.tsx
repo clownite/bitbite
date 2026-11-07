@@ -3,6 +3,7 @@ import * as THREE from "three";
 import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
 import { takePetClone, whenPetModelReady } from "../pet/petModel";
+import { takeHomeCharClone, whenHomeCharReady } from "./HomeVoxelResident";
 
 function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
   const stageBoost = stage === 1 ? 0.86 : stage === 2 ? 1 : 1.12;
@@ -124,7 +125,30 @@ export function PetStage({
 
     let alive = true;
     let stopWait = () => { /**/ };
-    if (petId === "dolphin") {
+    const mountHomeChar = () => {
+      if (!alive || rig.children.length > 0) return;
+      const model = takeHomeCharClone();
+      if (!model) return;
+      model.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(model);
+      const size = new THREE.Vector3();
+      const center = new THREE.Vector3();
+      box.getSize(size);
+      box.getCenter(center);
+      model.position.sub(center);
+      const holder = new THREE.Group();
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      holder.scale.setScalar(2.6 / maxDim);
+      holder.add(model);
+      rig.add(holder);
+      renderer.render(scene, camera);
+    };
+    // The nav button labeled Home is this stage. Show the brown hood
+    // face-on. Collection keeps the winter-hood pet.
+    if (frame === "lab") {
+      mountHomeChar();
+      stopWait = whenHomeCharReady(mountHomeChar);
+    } else if (petId === "dolphin") {
       const mount = () => {
         if (!alive || rig.children.length > 0) return;
         const model = takePetClone();
@@ -188,14 +212,19 @@ export function PetStage({
       t += dt;
       const { stage, level } = petRef.current;
       rig.scale.setScalar(fitScale(level, stage));
-      rig.position.x = Math.sin(t * 0.55) * 0.12;
-      rig.position.y = Math.sin(t * 1.35) * 0.16;
       shake = shake > 0.02 ? shake * Math.exp(-dt * 14) : 0;
       const buzz = shake * Math.sin(t * 55);
-      rig.rotation.y = Math.sin(t * 0.65) * 0.28;
-      rig.rotation.z = Math.sin(t * 1.2) * 0.06 + buzz * 0.22;
-      rig.rotation.x = Math.sin(t * 1.5) * 0.06;
-      rig.position.x += buzz * 0.06;
+      if (frame === "lab") {
+        rig.position.x = buzz * 0.04;
+        rig.position.y = Math.sin(t * 1.35) * 0.08;
+        rig.rotation.set(0, 0, buzz * 0.04);
+      } else {
+        rig.position.x = Math.sin(t * 0.55) * 0.12 + buzz * 0.06;
+        rig.position.y = Math.sin(t * 1.35) * 0.16;
+        rig.rotation.y = Math.sin(t * 0.65) * 0.28;
+        rig.rotation.z = Math.sin(t * 1.2) * 0.06 + buzz * 0.22;
+        rig.rotation.x = Math.sin(t * 1.5) * 0.06;
+      }
       renderer.render(scene, camera);
       raf = requestAnimationFrame(loop);
     };
