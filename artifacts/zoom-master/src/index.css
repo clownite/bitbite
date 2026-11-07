@@ -3465,8 +3465,8 @@ body, body * {
 }
 .rarity-drop {
   display: block;
-  width: 18px;
-  height: 22px;
+  width: 13px;
+  height: 16px;
   margin: 0 auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
