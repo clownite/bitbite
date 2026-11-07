@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PETS, timeForOneCrumb } from "../pet/catalog";
+import { formatRate, PETS, timeForOneCrumb } from "../pet/catalog";
 import { buyPet, getPet, PET_SLOTS, subscribePet, type PetState } from "../pet/petProgress";
 
 interface ShopPageProps {
@@ -65,7 +65,7 @@ export function ShopPage({ gram, onPay }: ShopPageProps) {
                 {([1, 5, 10] as const).map((level) => (
                   <div key={level} style={{ borderRadius: 12, padding: "8px 8px 7px", background: "rgba(122,215,255,0.06)" }}>
                     <div style={{ fontSize: 10, letterSpacing: "0.12em", color: "rgba(186,220,236,0.55)" }}>LV {level}</div>
-                    <div style={{ marginTop: 2, fontSize: 14, fontWeight: 800, color: "#e8f7ff" }}>{item.rates[level].toFixed(2)}</div>
+                    <div style={{ marginTop: 2, fontSize: 14, fontWeight: 800, color: "#e8f7ff" }}>{formatRate(item.rates[level])}</div>
                     <div style={{ fontSize: 10, color: "rgba(186,220,236,0.5)" }}>{timeForOneCrumb(item.rates[level])}</div>
                   </div>
                 ))}

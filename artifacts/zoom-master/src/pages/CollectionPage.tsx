@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { PetStage } from "../components/PetStage";
 import { PetFarmPanel } from "../components/PetFarmButton";
-import { petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
+import { formatRate, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
 import {
   confirmGramUpgrade,
   getPet,
@@ -101,7 +101,7 @@ export function CollectionPage({
         <div style={{ marginTop: 6, fontSize: 11, color: "rgba(186,220,236,0.6)" }}>
           {pet.finished ? "Finished." : xpLabel(pet)}
           {" · "}
-          {active.rates[pet.level].toFixed(2)} / day · {timeForOneCrumb(active.rates[pet.level])} for 1 Crumb
+          {formatRate(active.rates[pet.level])} / day · {timeForOneCrumb(active.rates[pet.level])} for 1 Crumb
         </div>
         <div style={{ marginTop: 12 }}>
           <PetFarmPanel />
