@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { PetStage } from "../components/PetStage";
 import { PetFarmPanel } from "../components/PetFarmButton";
-import { dailyFarm, dexNumber, formatRate, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
+import { dailyFarm, formatRate, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
+import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PetCombatSheet } from "../components/PetCombatSheet";
 import {
   confirmGramUpgrade,
@@ -30,10 +31,13 @@ const cardShell = {
 export function CollectionPage({
   gram,
   onPay,
+  telegramId,
 }: {
   gram: number;
   onPay: (cost: number) => boolean;
+  telegramId?: string | null;
 }) {
+  const ownerId = petOwnerId(telegramId);
   const [pet, setPet] = useState<PetState>(getPet());
   useEffect(() => subscribePet(() => setPet(getPet())), []);
 
@@ -88,7 +92,10 @@ export function CollectionPage({
                 {selected ? "ON HOME" : `${index + 1}/${PET_SLOTS}`}
               </div>
               <div style={{ position: "absolute", left: 10, right: 10, bottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", pointerEvents: "none" }}>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "#e8f7ff" }}>{dexNumber(petDef(id).number)} {petDef(id).name}</span>
+                <span style={{ minWidth: 0 }}>
+                  <span style={{ display: "block", fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: petDef(id).element.color }}>{personalPetNumber(ownerId, id)}</span>
+                  <span style={{ display: "block", fontSize: 13, fontWeight: 800, color: "#e8f7ff" }}>{petDef(id).name}</span>
+                </span>
                 <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.06em", color: "#041018", background: petDef(id).element.color, borderRadius: 999, padding: "2px 6px" }}>{petDef(id).element.label}</span>
               </div>
             </div>
@@ -98,7 +105,10 @@ export function CollectionPage({
 
       <section style={{ marginTop: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f7ff" }}>{dexNumber(active.number)} {active.name}</div>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: active.element.color }}>{personalPetNumber(ownerId, pet.active)}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f7ff" }}>{active.name}</div>
+          </div>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#7ad7ff" }}>
             {`Stage ${pet.stage}/3 · level ${pet.level}`}
           </div>

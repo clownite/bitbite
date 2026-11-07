@@ -27,8 +27,6 @@ export type PetAbility = {
 export type PetDef = {
   id: PetId;
   name: string;
-  /** Species number. The same pet is the same number for every player. */
-  number: number;
   element: PetElement;
   ability: PetAbility;
   /** Level 1 value, then how much is added for each level after 1. */
@@ -40,10 +38,6 @@ export type PetDef = {
   rates: Record<PetLevel, number>;
   note: string;
 };
-
-export function dexNumber(number: number): string {
-  return `#${String(number).padStart(3, "0")}`;
-}
 
 /** Six battle stats. They rise with the pet's level and stop at level 10. */
 export function petCombat(pet: PetDef, level: number): PetCombat {
@@ -67,7 +61,6 @@ export const PETS: PetDef[] = [
   {
     id: "dolphin",
     name: "Dolphin",
-    number: 1,
     element: { id: "water", label: "Water", glyph: "💧", color: "#7ad7ff" },
     ability: { name: "Tidewall", text: "The first hit in a battle deals less damage." },
     base: { hp: 48, attack: 40, defense: 46, specialAttack: 42, specialDefense: 48, speed: 38 },
@@ -79,7 +72,6 @@ export const PETS: PetDef[] = [
   {
     id: "finch",
     name: "Finch",
-    number: 2,
     element: { id: "fire", label: "Fire", glyph: "🔥", color: "#ff7a3c" },
     ability: { name: "Blaze", text: "Below half HP, Fire moves hit harder." },
     base: { hp: 40, attack: 38, defense: 36, specialAttack: 52, specialDefense: 38, speed: 50 },
@@ -91,7 +83,6 @@ export const PETS: PetDef[] = [
   {
     id: "lynx",
     name: "Lynx",
-    number: 3,
     element: { id: "grass", label: "Grass", glyph: "🌿", color: "#7dce6a" },
     ability: { name: "Overgrow", text: "Below half HP, Grass moves hit harder." },
     base: { hp: 46, attack: 52, defense: 48, specialAttack: 36, specialDefense: 42, speed: 40 },
@@ -103,7 +94,6 @@ export const PETS: PetDef[] = [
   {
     id: "stag",
     name: "Stag",
-    number: 4,
     element: { id: "electric", label: "Electric", glyph: "⚡", color: "#ffe14a" },
     ability: { name: "Surge", text: "If it attacks first, the Electric move hits harder." },
     base: { hp: 38, attack: 40, defense: 34, specialAttack: 50, specialDefense: 36, speed: 56 },

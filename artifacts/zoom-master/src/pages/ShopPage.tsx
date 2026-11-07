@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { dexNumber, formatRate, PETS, timeForOneCrumb } from "../pet/catalog";
+import { formatRate, PETS, timeForOneCrumb } from "../pet/catalog";
+import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PixelMark } from "../components/PixelMark";
 import { PetCombatSheet } from "../components/PetCombatSheet";
 import { buyPet, getPet, PET_SLOTS, subscribePet, type PetState } from "../pet/petProgress";
@@ -30,7 +31,8 @@ interface ShopPageProps {
 }
 
 /** The shop sells pets. Nothing else. */
-export function ShopPage({ gram, onPay }: ShopPageProps) {
+export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
+  const ownerId = petOwnerId(telegramId);
   const [pet, setPet] = useState<PetState>(getPet());
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => subscribePet(() => setPet(getPet())), []);
@@ -59,7 +61,8 @@ export function ShopPage({ gram, onPay }: ShopPageProps) {
             >
               <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
                 <div>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: "#e8f7ff" }}>{dexNumber(item.number)} {item.name}</div>
+                  <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: item.element.color }}>{personalPetNumber(ownerId, item.id)}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "#e8f7ff" }}>{item.name}</div>
                   <div style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
                     <span style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", color: item.element.color }}>{item.element.label}</span>
                     <PixelMark glyph={item.element.glyph} label={item.element.label} />

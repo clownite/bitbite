@@ -176,9 +176,9 @@ function AppShell() {
               }}
             >
               {id === "lab" && (
-                <LabPage active={active} onOpenShop={() => setTab("shop")} muted={muted} setMuted={setMuted} />
+                <LabPage active={active} telegramId={session.telegramId} onOpenShop={() => setTab("shop")} muted={muted} setMuted={setMuted} />
               )}
-              {id === "farm" && <CollectionPage gram={session.gram} onPay={session.pay} />}
+              {id === "farm" && <CollectionPage gram={session.gram} onPay={session.pay} telegramId={session.telegramId} />}
               {id === "earn" && (
                 <EarnPage
                   visible={active}
@@ -195,7 +195,7 @@ function AppShell() {
               {id === "rank" && (
                 <RankPage balance={0} telegramId={session.telegramId} visible={active} />
               )}
-              {id === "shop" && <ShopPage gram={session.gram} onPay={session.pay} />}
+              {id === "shop" && <ShopPage gram={session.gram} onPay={session.pay} telegramId={session.telegramId} />}
               {id === "wallet" && (
                 <WalletPage telegramId={session.telegramId} visible={active} />
               )}
