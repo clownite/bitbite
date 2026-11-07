@@ -3463,6 +3463,31 @@ body.animations-paused * {
 body, body * {
   font-family: "Nunito", sans-serif !important;
 }
+.christmas-snow {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  overflow: hidden;
+  pointer-events: none;
+}
+.christmas-snow span {
+  position: absolute;
+  top: -8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 4px rgba(255, 255, 255, 0.45);
+  animation-name: christmas-snow-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes christmas-snow-fall {
+  0% { transform: translate3d(0, -12px, 0); }
+  100% { transform: translate3d(var(--drift), 105dvh, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .christmas-snow { display: none; }
+}
+
 .rarity-drop {
   display: block;
   width: 13px;

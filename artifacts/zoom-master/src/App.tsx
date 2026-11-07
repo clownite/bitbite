@@ -16,6 +16,7 @@ import { ShopPage } from "./pages/ShopPage";
 import { WalletPage } from "./pages/WalletPage";
 import { LanguageProvider } from "./i18n/LanguageContext";
 import { TelegramIdentity } from "./components/TelegramIdentity";
+import { ChristmasSnow } from "./components/ChristmasSnow";
 import { hideHtmlSplash } from "./components/SplashScreen";
 import { fetchMaintenanceStatus } from "./utils/api";
 import { initVersionCheck } from "./utils/appVersion";
@@ -240,6 +241,7 @@ function AppShell() {
           })}
         </div>
       </nav>
+      <ChristmasSnow />
     </div>
   );
 }
