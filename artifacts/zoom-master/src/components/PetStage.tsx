@@ -75,7 +75,7 @@ function standIn(id: PetId): THREE.Group {
   return pivot;
 }
 
-/** Dolphin uses the voxel model. Bought pets use an original shape until their GLB arrives. */
+/** The base pet uses the voxel character. Bought pets use an original shape until their GLB arrives. */
 export function PetStage({
   pet,
   frame,

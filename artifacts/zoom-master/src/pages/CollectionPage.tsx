@@ -131,8 +131,8 @@ export function CollectionPage({
         )}
         {pet.active === "dolphin" && (
           <div style={{ marginTop: 10, fontSize: 10, color: "rgba(186,220,236,0.38)" }}>
-            Voxel Dolphin by{" "}
-            <a href="https://sketchfab.com/pratamacam" target="_blank" rel="noreferrer" style={{ color: "inherit" }}>pratamacam</a>
+            Voxel character by{" "}
+            <a href="https://sketchfab.com/Rufian" target="_blank" rel="noreferrer" style={{ color: "inherit" }}>Rufián</a>
             {" · "}
             <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer" style={{ color: "inherit" }}>CC BY 4.0</a>
           </div>
