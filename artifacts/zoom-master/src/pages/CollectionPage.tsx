@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { PetStage } from "../components/PetStage";
 import { PetFarmPanel } from "../components/PetFarmButton";
-import { formatRate, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
+import { dailyFarm, formatRate, petDef, timeForOneCrumb, type PetId } from "../pet/catalog";
 import {
   confirmGramUpgrade,
   getPet,
@@ -41,6 +41,7 @@ export function CollectionPage({
   const ready = cost != null;
   const canPay = ready && gram + 1e-9 >= cost;
   const active = petDef(pet.active);
+  const rate = dailyFarm(pet.active, pet.level);
 
   return (
     <div className="h-full overflow-y-auto" style={{ padding: "8px 16px 28px" }}>
@@ -98,16 +99,16 @@ export function CollectionPage({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f7ff" }}>{active.name}</div>
           <div style={{ fontSize: 12, fontWeight: 700, color: "#7ad7ff" }}>
-            {pet.finished ? "Level 10" : `Stage ${pet.stage}/3 · level ${pet.level}`}
+            {`Stage ${pet.stage}/3 · level ${pet.level}`}
           </div>
         </div>
         <div style={{ marginTop: 8, height: 6, borderRadius: 999, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-          <div style={{ width: `${Math.min(100, (pet.xp / goal) * 100)}%`, height: "100%", background: "#7ad7ff" }} />
+          <div style={{ width: `${pet.finished ? 100 : Math.min(100, (pet.xp / goal) * 100)}%`, height: "100%", background: "#7ad7ff" }} />
         </div>
         <div style={{ marginTop: 6, fontSize: 11, color: "rgba(186,220,236,0.6)" }}>
           {pet.finished ? "Finished." : xpLabel(pet)}
           {" · "}
-          {formatRate(active.rates[pet.level])} / day · {timeForOneCrumb(active.rates[pet.level])} for 1 Crumb
+          {formatRate(rate)} / day · {timeForOneCrumb(rate)} for 1 Crumb
         </div>
         <div style={{ marginTop: 12 }}>
           <PetFarmPanel />
@@ -133,7 +134,7 @@ export function CollectionPage({
               color: canPay ? "#041018" : "rgba(186,220,236,0.35)",
             }}
           >
-            {pet.level === 1 ? `Pay ${LEVEL5_GRAM} GRAM · level 5` : `Pay ${LEVEL10_GRAM} GRAM · level 10`}
+            {pet.level < 5 ? `Pay ${LEVEL5_GRAM} GRAM · level 5` : `Pay ${LEVEL10_GRAM} GRAM · level 10`}
           </button>
         )}
         <div style={{ marginTop: 10, fontSize: 11, color: "rgba(186,220,236,0.55)" }}>

@@ -3,18 +3,17 @@ import { settleFarm } from "./crumbs";
 
 /** One shared pet. Everyone starts on the same base form. */
 
-export const STAGE_XP: Record<1 | 2 | 3, number> = { 1: 1000, 2: 2000, 3: 3000 };
-/** 1000 + 2000 + 3000. Two of these, with a GRAM gate between them, finish the pet. */
-export const CYCLE_XP = 6000;
-/** First gate was not given a number. 3 GRAM unlocks level 5; 6 GRAM finishes at level 10. */
+/** Every level is the same bar. Level 5 opens stage 2. Level 10 opens stage 3. */
+export const LEVEL_XP = 1000;
+export const PET_LEVELS = 10;
+/** Four bars, then 3 GRAM, and the pet becomes level 5. */
+export const LEVEL5_XP = LEVEL_XP * 4;
+/** Five more bars, then 6 GRAM, and the pet becomes level 10. Nine bars in all. */
+export const LEVEL10_XP = LEVEL_XP * 9;
 export const LEVEL5_GRAM = 3;
 export const LEVEL10_GRAM = 6;
 
-/**
- * One claim every 24h. A week is 80 XP.
- * Stage 1 (1000) takes about three months. A full 6000 XP cycle takes about a year and a half.
- * Bought models, priced in GRAM, are the faster path.
- */
+/** One claim every 24h. A week is 80 XP. Each pet level is another 1000 XP. */
 export const DAILY_XP = [8, 8, 10, 10, 12, 14, 18] as const;
 export const DAILY_XP_WEEK = DAILY_XP.reduce((sum, n) => sum + n, 0);
 export const DAY_MS = 24 * 60 * 60 * 1000;
@@ -34,10 +33,17 @@ export const PET_TAP_GAP_MS = 3000;
 /** Collection holds five pets. The dolphin takes the first slot. */
 export const PET_SLOTS = 5;
 
-export type PetLevel = 1 | 5 | 10;
+export type PetLevel = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
+export type PetStage = 1 | 2 | 3;
+
+export function stageForLevel(level: number): PetStage {
+  if (level >= 10) return 3;
+  if (level >= 5) return 2;
+  return 1;
+}
 
 export type PetCore = {
-  stage: 1 | 2 | 3;
+  stage: PetStage;
   xp: number;
   level: PetLevel;
   finished: boolean;
@@ -62,7 +68,8 @@ export type PetState = PetCore & {
   claimedInviteTask: boolean;
 };
 
-const KEY = "biscotto-pet-v3";
+const KEY = "biscotto-pet-v4";
+const LEGACY_KEY = "biscotto-pet-v3";
 
 const FRESH: PetCore = { stage: 1, xp: 0, level: 1, finished: false };
 
@@ -86,14 +93,43 @@ const START: PetState = {
   claimedInviteTask: false,
 };
 
+function asLevel(value: unknown): PetLevel {
+  const level = Math.floor(Number(value));
+  if (level >= 1 && level <= PET_LEVELS) return level as PetLevel;
+  return 1;
+}
+
 function coreOf(p: Partial<PetCore> | undefined): PetCore {
-  const stage = p?.stage === 2 || p?.stage === 3 ? p.stage : 1;
-  const level: PetLevel = p?.level === 5 || p?.level === 10 ? p.level : 1;
+  const level = asLevel(p?.level);
+  if (level >= PET_LEVELS || p?.finished) return { stage: 3, xp: 0, level: 10, finished: true };
   return {
-    stage,
+    stage: stageForLevel(level),
     xp: Math.max(0, Number(p?.xp) || 0),
     level,
-    finished: !!p?.finished,
+    finished: false,
+  };
+}
+
+/** Old saves used three stage bars and jumped from level 1 to 5 to 10. */
+function migrateCore(p: Partial<PetCore> | undefined): PetCore {
+  const oldLevel = p?.level === 5 || p?.level === 10 ? p.level : 1;
+  const oldStage = p?.stage === 2 || p?.stage === 3 ? p.stage : 1;
+  const xp = Math.max(0, Number(p?.xp) || 0);
+  if (p?.finished || oldLevel === 10) return { stage: 3, xp: 0, level: 10, finished: true };
+  const gained = oldStage === 1 ? xp : oldStage === 2 ? 1000 + xp : 3000 + xp;
+  const start = oldLevel === 5 ? 5 : 1;
+  let level = start;
+  let left = gained;
+  const gate = start === 5 ? 9 : 4;
+  while (level < gate && left >= LEVEL_XP) {
+    left -= LEVEL_XP;
+    level += 1;
+  }
+  return {
+    stage: stageForLevel(level),
+    xp: left,
+    level: level as PetLevel,
+    finished: false,
   };
 }
 
@@ -108,16 +144,19 @@ function syncActive(draft: PetState): PetState {
 
 function load(): PetState {
   try {
-    const raw = localStorage.getItem(KEY);
+    const current = localStorage.getItem(KEY);
+    const legacy = current ? null : localStorage.getItem(LEGACY_KEY);
+    const raw = current ?? legacy;
     if (!raw) return { ...START };
     const p = JSON.parse(raw) as Partial<PetState>;
+    const readCore = current ? coreOf : migrateCore;
     const owned = (Array.isArray(p.owned) ? p.owned : ["dolphin"]).filter(
       (id): id is PetId => id === "dolphin" || id === "finch" || id === "lynx" || id === "stag",
     );
     if (!owned.includes("dolphin")) owned.unshift("dolphin");
     const active: PetId = owned.includes(p.active as PetId) ? (p.active as PetId) : "dolphin";
     const byId: Partial<Record<PetId, PetCore>> = {};
-    for (const id of owned) byId[id] = coreOf(p.byId?.[id] ?? (id === "dolphin" ? p : undefined));
+    for (const id of owned) byId[id] = readCore(p.byId?.[id] ?? (id === "dolphin" ? p : undefined));
     const core = byId[active] ?? { ...FRESH };
     return {
       ...core,
@@ -154,12 +193,14 @@ function emit() {
 function applyXp(amount: number) {
   if (amount <= 0 || state.finished) return;
   let xp = state.xp + amount;
-  let stage = state.stage;
-  while (stage < 3 && xp >= STAGE_XP[stage]) {
-    xp -= STAGE_XP[stage];
-    stage = (stage + 1) as 2 | 3;
+  let level = state.level;
+  while (xp >= LEVEL_XP && level < PET_LEVELS) {
+    const next = level + 1;
+    if (next === 5 || next === 10) break;
+    xp -= LEVEL_XP;
+    level = next as PetLevel;
   }
-  state = syncActive({ ...state, stage, xp });
+  state = syncActive({ ...state, level, xp, stage: stageForLevel(level), finished: false });
 }
 
 export function getPet(): PetState {
@@ -197,8 +238,8 @@ export function subscribePet(fn: () => void): () => void {
   return () => listeners.delete(fn);
 }
 
-export function stageGoal(stage: 1 | 2 | 3): number {
-  return STAGE_XP[stage];
+export function stageGoal(_stage?: PetStage): number {
+  return LEVEL_XP;
 }
 
 export function xpFromCrumbs(crumbs: number): number {
@@ -207,28 +248,28 @@ export function xpFromCrumbs(crumbs: number): number {
 }
 
 export function cycleFilled(pet: PetState): number {
-  const before = pet.stage === 1 ? 0 : pet.stage === 2 ? STAGE_XP[1] : STAGE_XP[1] + STAGE_XP[2];
-  return before + Math.min(pet.xp, STAGE_XP[pet.stage]);
+  if (pet.finished) return LEVEL10_XP;
+  return (pet.level - 1) * LEVEL_XP + pet.xp;
 }
 
 export function xpLabel(pet: PetState): string {
   if (pet.finished) return "Finished";
-  const goal = STAGE_XP[pet.stage];
-  if (pet.stage === 3 && pet.xp > goal) return `${goal} / ${goal} XP · ${Math.floor(pet.xp - goal)} banked`;
-  return `${Math.floor(pet.xp)} / ${goal} XP`;
+  const shown = Math.floor(Math.min(pet.xp, LEVEL_XP));
+  const banked = Math.floor(pet.xp - LEVEL_XP);
+  if (banked > 0) return `${LEVEL_XP} / ${LEVEL_XP} XP · ${banked} banked`;
+  return `${shown} / ${LEVEL_XP} XP`;
 }
 
 export function gramCost(pet: PetState): number | null {
-  if (pet.finished) return null;
-  if (pet.stage !== 3 || pet.xp < STAGE_XP[3]) return null;
-  if (pet.level === 1) return LEVEL5_GRAM;
-  if (pet.level === 5) return LEVEL10_GRAM;
+  if (pet.finished || pet.xp < LEVEL_XP) return null;
+  if (pet.level === 4) return LEVEL5_GRAM;
+  if (pet.level === 9) return LEVEL10_GRAM;
   return null;
 }
 
 export function xpBlocked(pet: PetState): "done" | "gate" | null {
   if (pet.finished) return "done";
-  if (pet.stage === 3 && pet.xp >= STAGE_XP[3] && gramCost(pet) != null) return "gate";
+  if (gramCost(pet) != null) return "gate";
   return null;
 }
 
@@ -324,16 +365,15 @@ export type TapResult = {
 };
 
 /**
- * A full week: the check-in (80), 4 taps a day (28), daily tasks (210) and weekly tasks (72).
- * That is 390 XP. Stage 3 starts in about 54 days. The first GRAM gate is about 108 days.
- * Daily tasks are one tap (6), all 4 taps (10), 15 minutes on Home (8) and a share (6).
+ * A full week is 390 XP. Each level is 1000 XP, about 18 days.
+ * Level 5, and stage 2, arrive after 4000 XP. Level 10, and stage 3, after 9000.
  */
-export function basePetStageDays(): { reachStage3: number; fillStage3: number } {
+export function basePetStageDays(): { reachLevel5: number; reachLevel10: number } {
   const perWeek = DAILY_XP_WEEK + PET_TAP_MAX * 7 * PET_TAP_XP + 30 * 7 + 72;
   const perDay = perWeek / 7;
   return {
-    reachStage3: Math.round((STAGE_XP[1] + STAGE_XP[2]) / perDay),
-    fillStage3: Math.round(CYCLE_XP / perDay),
+    reachLevel5: Math.round(LEVEL5_XP / perDay),
+    reachLevel10: Math.round(LEVEL10_XP / perDay),
   };
 }
 
@@ -406,16 +446,17 @@ export function tapPet(now = Date.now()): TapResult {
   return { xp: gained, count: count + 1, max: PET_TAP_MAX, reason: "ok" };
 }
 
-/** Call only after GRAM has been spent. Banked XP carries into the next cycle. */
+/** Call only after GRAM has been spent. Banked XP carries into the next level. */
 export function confirmGramUpgrade() {
-  if (state.finished || state.stage !== 3 || state.xp < STAGE_XP[3]) return;
+  const cost = gramCost(state);
+  if (cost == null) return;
   settleFarm();
-  const extra = state.xp - STAGE_XP[3];
-  if (state.level === 1) {
-    state = syncActive({ ...state, stage: 1, xp: 0, level: 5, finished: false });
+  const extra = state.xp - LEVEL_XP;
+  if (state.level === 4) {
+    state = syncActive({ ...state, stage: 2, xp: 0, level: 5, finished: false });
     if (extra > 0) applyXp(extra);
-  } else if (state.level === 5) {
-    state = syncActive({ ...state, stage: 3, xp: STAGE_XP[3], level: 10, finished: true });
+  } else if (state.level === 9) {
+    state = syncActive({ ...state, stage: 3, xp: 0, level: 10, finished: true });
   }
   emit();
 }

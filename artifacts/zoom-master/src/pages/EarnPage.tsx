@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { claimDailyReward, fetchTasksState, peekTasksState, bumpTasksPlanetsBuilt, claimTask, type TasksState, redeemServerCode } from "../utils/api";
 import { useGlobalStore, refreshDailyStatus, applyDailyClaimResult } from "../store/globalStore";
-import { addPetXp, claimDailyPetXp, CYCLE_XP, DAILY_XP, DAILY_XP_WEEK, dailyXpStatus, getPet, INVITE_XP, LEVEL10_GRAM, LEVEL5_GRAM, subscribePet, syncReferralXp, xpFromCrumbs, type PetState } from "../pet/petProgress";
+import { addPetXp, claimDailyPetXp, DAILY_XP, DAILY_XP_WEEK, dailyXpStatus, getPet, INVITE_XP, LEVEL_XP, LEVEL10_GRAM, LEVEL5_GRAM, subscribePet, syncReferralXp, xpFromCrumbs, type PetState } from "../pet/petProgress";
 import { QuestBoard } from "../components/QuestBoard";
 import { useT } from "../i18n/LanguageContext";
 import { SpaceTicketIcon, SpeedBoltIcon } from "../components/icons/GameIcons";
@@ -373,9 +373,9 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
               className="mb-3 rounded-xl px-3 py-2 text-[11px] font-bold text-center"
               style={{ color: "#7ad7ff", background: "rgba(122,215,255,0.08)", border: "1px solid rgba(122,215,255,0.28)" }}
             >
-              {pet.level === 1
-                ? `Stage 3 is full. Pay ${LEVEL5_GRAM} GRAM in Collection for level 5.`
-                : `Stage 3 is full. Pay ${LEVEL10_GRAM} GRAM in Collection for level 10.`}
+              {pet.level < 5
+                ? `Level 4 is full. Pay ${LEVEL5_GRAM} GRAM in Collection for level 5.`
+                : `Level 9 is full. Pay ${LEVEL10_GRAM} GRAM in Collection for level 10.`}
             </div>
           )}
 
@@ -438,7 +438,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
             </div>
           )}
           <p className="mt-2.5 text-[10px] text-center leading-snug" style={{ color: "rgba(255,255,255,0.34)" }}>
-            {t("earn.dailyPizzaHint")} {CYCLE_XP.toLocaleString()} XP reaches the next GRAM gate. A week of claims is {DAILY_XP_WEEK.toLocaleString()} XP.
+            {t("earn.dailyPizzaHint")} Each level is {LEVEL_XP.toLocaleString()} XP. A week of claims is {DAILY_XP_WEEK.toLocaleString()} XP.
           </p>
         </section>
 

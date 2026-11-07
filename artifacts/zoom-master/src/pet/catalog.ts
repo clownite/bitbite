@@ -61,8 +61,15 @@ export function petDef(id: PetId): PetDef {
   return PETS.find((p) => p.id === id) ?? PETS[0];
 }
 
-export function dailyFarm(id: PetId, level: PetLevel): number {
-  return petDef(id).rates[level];
+/** Production stays on three steps. Levels 1–4 use level 1, 5–9 use level 5, 10 uses level 10. */
+export function farmTier(level: number): PetLevel {
+  if (level >= 10) return 10;
+  if (level >= 5) return 5;
+  return 1;
+}
+
+export function dailyFarm(id: PetId, level: number): number {
+  return petDef(id).rates[farmTier(level)];
 }
 
 /** Two decimals, or three when the rate does not land on a hundredth. */

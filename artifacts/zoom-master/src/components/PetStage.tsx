@@ -9,8 +9,8 @@ import { notePetTap } from "../pet/quests";
 import { takeHomeCharClone, whenHomeCharReady } from "./HomeVoxelResident";
 
 function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
-  const stageBoost = stage === 1 ? 0.86 : stage === 2 ? 1 : 1.12;
-  const levelBoost = level === 1 ? 1 : level === 5 ? 1.18 : 1.34;
+  const stageBoost = stage === 1 ? 0.9 : stage === 2 ? 1.05 : 1.2;
+  const levelBoost = 1 + (level - 1) * 0.025;
   return stageBoost * levelBoost;
 }
 

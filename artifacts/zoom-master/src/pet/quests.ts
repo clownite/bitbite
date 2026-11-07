@@ -4,7 +4,8 @@ import { addPetXp, PET_TAP_MAX } from "./petProgress";
  * XP on top of the daily check-in and the 4 pet taps.
  * Only those 4 XP taps count. A full day is the check-in (about 11), the taps (4)
  * and the daily tasks (30). The weekly tasks add 72. Together that is 390 XP a week.
- * Stage 1 (1000 XP) is about 18 days. The GRAM gate at 6000 XP is about 15 weeks.
+ * One level is 1000 XP, about 18 days. Level 5 (stage 2) is 4000 XP.
+ * Level 10 (stage 3) is 9000 XP.
  */
 export const QUEST_XP = {
   tap1: 6,
