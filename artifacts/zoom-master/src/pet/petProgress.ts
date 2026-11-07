@@ -77,6 +77,20 @@ const LEGACY_KEY = "biscotto-pet-v3";
 
 const FRESH: PetCore = { stage: 1, xp: 0, level: 1, finished: false };
 
+const ROSTER: PetId[] = ["dolphin", "finch", "lynx", "stag"];
+
+/** Emberin, Lynvyr and Cervolt sit in the collection beside Aquin. */
+function grantRoster(owned: PetId[], byId: Partial<Record<PetId, PetCore>>): boolean {
+  let added = false;
+  for (const id of ROSTER) {
+    if (owned.includes(id) || owned.length >= PET_SLOTS) continue;
+    owned.push(id);
+    byId[id] = byId[id] ?? { ...FRESH };
+    added = true;
+  }
+  return added;
+}
+
 const START: PetState = {
   ...FRESH,
   active: "dolphin",
@@ -157,7 +171,12 @@ function load(): PetState {
     const current = localStorage.getItem(KEY);
     const legacy = current ? null : localStorage.getItem(LEGACY_KEY);
     const raw = current ?? legacy;
-    if (!raw) return { ...START };
+    if (!raw) {
+      const owned = [...START.owned];
+      const byId: Partial<Record<PetId, PetCore>> = { ...START.byId };
+      grantRoster(owned, byId);
+      return { ...START, owned, byId };
+    }
     const p = JSON.parse(raw) as Partial<PetState>;
     const readCore = current ? coreOf : migrateCore;
     const owned = (Array.isArray(p.owned) ? p.owned : ["dolphin"]).filter(
@@ -167,6 +186,7 @@ function load(): PetState {
     const active: PetId = owned.includes(p.active as PetId) ? (p.active as PetId) : "dolphin";
     const byId: Partial<Record<PetId, PetCore>> = {};
     for (const id of owned) byId[id] = readCore(p.byId?.[id] ?? (id === "dolphin" ? p : undefined));
+    grantRoster(owned, byId);
     const core = byId[active] ?? { ...FRESH };
     return {
       ...core,
@@ -200,6 +220,12 @@ function emit() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /**/ }
   listeners.forEach((fn) => fn());
 }
+
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY) || "null") as { owned?: unknown } | null;
+  const before = Array.isArray(saved?.owned) ? saved.owned.length : 0;
+  if (state.owned.length > before) emit();
+} catch { /**/ }
 
 function applyXp(amount: number) {
   if (amount <= 0 || state.finished) return;
