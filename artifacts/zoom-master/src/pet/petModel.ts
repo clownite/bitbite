@@ -1,7 +1,6 @@
 import {
-  Object3D, Mesh, MeshStandardMaterial, Group, Box3, Vector3, SRGBColorSpace,
-} from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+  Object3D, Mesh, MeshStandardMaterial, Group, Box3, Vector3, SRGBColorSpace, GLTFLoader,
+} from "../vendor/three-pet.js";
 
 /** One character from 25 Voxel Chars by Rufián, CC BY 4.0. https://sketchfab.com/3d-models/25-voxel-chars-977cd691acea4d85b303c48e767b304b */
 const PET_URL = "/models/pet.glb";

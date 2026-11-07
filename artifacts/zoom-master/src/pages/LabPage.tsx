@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShoppingBag } from "lucide-react";
+import ShoppingBag from "lucide-react/dist/esm/icons/shopping-bag.js";
 import { SettingsMenu } from "../components/SettingsMenu";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { PetFarmPanel, useCrumbsBalance } from "../components/PetFarmButton";

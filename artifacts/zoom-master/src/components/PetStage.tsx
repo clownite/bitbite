@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import {
   Group, Mesh, MeshStandardMaterial, SphereGeometry, ConeGeometry, CylinderGeometry, Box3, Vector3, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock,
-} from "three";
+} from "../vendor/three-pet.js";
 import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
 import { takePetClone, whenPetModelReady } from "../pet/petModel";

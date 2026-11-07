@@ -1,8 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
 import {
-  Object3D, Mesh, MeshStandardMaterial, Group, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock, NearestFilter,
-} from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+  Object3D, Mesh, MeshStandardMaterial, Group, Scene, PerspectiveCamera, WebGLRenderer, SRGBColorSpace, AmbientLight, DirectionalLight, Clock, NearestFilter, GLTFLoader,
+} from "../vendor/three-pet.js";
 
 /**
  * Front-row brown hood (grid r0c3) from 25 Voxel Chars by Rufián, CC BY 4.0.

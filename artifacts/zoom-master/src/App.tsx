@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { House, LayoutGrid, Gem, Medal, UserRound, type LucideIcon } from "lucide-react";
+import House from "lucide-react/dist/esm/icons/house.js";
+import LayoutGrid from "lucide-react/dist/esm/icons/layout-grid.js";
+import Gem from "lucide-react/dist/esm/icons/gem.js";
+import Medal from "lucide-react/dist/esm/icons/medal.js";
+import UserRound from "lucide-react/dist/esm/icons/user-round.js";
 import { usePetSession } from "./hooks/usePetSession";
 import { useGlobalInit } from "./store/globalStore";
 import { LabSpaceBackground } from "./components/LabSpaceBackground";
@@ -20,7 +24,7 @@ import { initVersionCheck } from "./utils/appVersion";
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 type Tab = "lab" | "farm" | "earn" | "rank" | "shop" | "wallet";
 
-const NAV: { id: Tab; label: string; icon: LucideIcon }[] = [
+const NAV: { id: Tab; label: string; icon: typeof House }[] = [
   { id: "lab", label: "Home", icon: House },
   { id: "farm", label: "Collection", icon: LayoutGrid },
   { id: "earn", label: "Earn", icon: Gem },
