@@ -4,7 +4,7 @@ import { SettingsMenu } from "../components/SettingsMenu";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { useCrumbsBalance, useFarm } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
-import { dailyFarm, petDef } from "../pet/catalog";
+import { petDef } from "../pet/catalog";
 import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs } from "../pet/crumbs";
 import { noteHomeActive } from "../pet/quests";
@@ -29,9 +29,8 @@ export function LabPage({
   const taps = petTapStatus();
   const farm = useFarm();
   const chosen = petDef(pet.active);
-  const farmScore = Math.max(1, Math.round((dailyFarm(pet.active, pet.level) / 9) * 100));
   const stats = [
-    { label: "Farm", value: String(farmScore) },
+    { label: chosen.element.label, value: "rarity" },
     { label: "HP", value: "hearts" },
     { label: "Tap", value: `${taps.count}/4` },
     { label: "Stage", value: String(pet.stage) },
@@ -115,7 +114,26 @@ export function LabPage({
             <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
               {stats.map((stat) => (
                 <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                  {stat.value === "hearts" ? (
+                  {stat.value === "rarity" ? (
+                    <div style={{ display: "flex", justifyContent: "center", height: 16, alignItems: "center" }} aria-label={`${chosen.element.label} rarity`}>
+                      {chosen.element.id === "water" ? (
+                        <svg width="12" height="14" viewBox="0 0 8 10" shapeRendering="crispEdges" aria-hidden>
+                          <rect x="3" y="0" width="2" height="1" fill={chosen.element.color} />
+                          <rect x="2" y="1" width="4" height="1" fill={chosen.element.color} />
+                          <rect x="1" y="2" width="6" height="1" fill={chosen.element.color} />
+                          <rect x="1" y="3" width="6" height="2" fill={chosen.element.color} />
+                          <rect x="1" y="5" width="6" height="2" fill={chosen.element.color} />
+                          <rect x="2" y="7" width="4" height="1" fill={chosen.element.color} />
+                          <rect x="3" y="8" width="2" height="1" fill={chosen.element.color} />
+                          <rect x="2" y="3" width="1" height="1" fill="#ffffff" />
+                        </svg>
+                      ) : (
+                        <svg width="12" height="12" viewBox="0 0 8 8" shapeRendering="crispEdges" aria-hidden>
+                          <rect x="1" y="1" width="6" height="6" fill={chosen.element.color} />
+                        </svg>
+                      )}
+                    </div>
+                  ) : stat.value === "hearts" ? (
                     <div style={{ display: "flex", justifyContent: "center", gap: 3, height: 16, alignItems: "center" }} aria-label="3 lives">
                       {[0, 1, 2].map((heart) => (
                         <svg key={heart} width="12" height="11" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
