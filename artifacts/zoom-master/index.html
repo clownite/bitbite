@@ -255,49 +255,25 @@
           enterBtn.classList.add("is-ready");
         }
         function paintCookie(canvas) {
-          var src = document.createElement("canvas");
-          src.width = 64;
-          src.height = 64;
-          var sctx = src.getContext("2d");
-          if (!sctx) return;
-          sctx.font = "54px \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Noto Color Emoji\", sans-serif";
-          sctx.textAlign = "center";
-          sctx.textBaseline = "middle";
-          sctx.fillText("🍪", 32, 36);
-          var pixels = sctx.getImageData(0, 0, 64, 64).data;
-          var minX = 64, minY = 64, maxX = 0, maxY = 0, seen = false;
-          for (var y = 0; y < 64; y++) {
-            for (var x = 0; x < 64; x++) {
-              if (pixels[(y * 64 + x) * 4 + 3] < 20) continue;
-              seen = true;
-              if (x < minX) minX = x;
-              if (y < minY) minY = y;
-              if (x > maxX) maxX = x;
-              if (y > maxY) maxY = y;
-            }
-          }
           var ctx = canvas.getContext("2d");
           if (!ctx) return;
+          var n = 13;
+          var mid = (n - 1) / 2;
+          var chips = { "4,4": 1, "8,3": 1, "6,6": 1, "9,8": 1, "4,9": 1 };
+          canvas.width = n;
+          canvas.height = n;
           ctx.imageSmoothingEnabled = false;
-          if (!seen) {
-            var dough = ["..#####..", ".#######.", "########.", "###o####.", "########.", "####o###.", ".######o.", ".##o####.", "..#####.."];
-            canvas.width = 9;
-            canvas.height = 9;
-            dough.forEach(function (row, yy) {
-              row.split("").forEach(function (bit, xx) {
-                if (bit === ".") return;
-                ctx.fillStyle = bit === "o" ? "#5c3317" : "#e0a84a";
-                ctx.fillRect(xx, yy, 1, 1);
-              });
-            });
-            return;
+          for (var y = 0; y < n; y++) {
+            for (var x = 0; x < n; x++) {
+              var dx = x - mid;
+              var dy = y - mid;
+              var dist = Math.sqrt(dx * dx + dy * dy);
+              if (dist > mid + 0.2) continue;
+              var edge = dist > mid - 1.15;
+              ctx.fillStyle = chips[x + "," + y] ? "#4a2a12" : edge ? "#c4843a" : dx + dy < -2 ? "#f3d7a1" : "#e6b15a";
+              ctx.fillRect(x, y, 1, 1);
+            }
           }
-          var cols = 11;
-          var rows = Math.max(11, Math.round(((maxY - minY + 1) / (maxX - minX + 1)) * cols));
-          canvas.width = cols;
-          canvas.height = rows;
-          ctx.imageSmoothingEnabled = false;
-          ctx.drawImage(src, minX, minY, maxX - minX + 1, maxY - minY + 1, 0, 0, cols, rows);
         }
         var cookie = document.getElementById("splash-cookie");
         if (cookie) paintCookie(cookie);

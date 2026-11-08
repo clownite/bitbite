@@ -1,5 +1,26 @@
 import { useEffect, useRef } from "react";
 
+/** A whole cookie. The emoji itself is bitten on the left, so this one is drawn round. */
+function paintWholeCookie(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement) {
+  const n = 13;
+  const center = (n - 1) / 2;
+  canvas.width = n;
+  canvas.height = n;
+  const chips = new Set(["4,4", "8,3", "6,6", "9,8", "4,9"]);
+  ctx.imageSmoothingEnabled = false;
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      const dx = x - center;
+      const dy = y - center;
+      if (Math.hypot(dx, dy) > center + 0.2) continue;
+      const edge = Math.hypot(dx, dy) > center - 1.15;
+      const chip = chips.has(`${x},${y}`);
+      ctx.fillStyle = chip ? "#4a2a12" : edge ? "#c4843a" : dx + dy < -2 ? "#f3d7a1" : "#e6b15a";
+      ctx.fillRect(x, y, 1, 1);
+    }
+  }
+}
+
 /** The emoji, drawn small and scaled up so the same glyph reads as pixels. */
 export function PixelMark({ glyph, label, center = false, size }: { glyph: string; label: string; center?: boolean; size?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -7,6 +28,41 @@ export function PixelMark({ glyph, label, center = false, size }: { glyph: strin
     const canvas = ref.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
+    if (glyph === "🍪") {
+      paintWholeCookie(ctx, canvas);
+      const cols = canvas.width;
+      const rows = canvas.height;
+      const base = ctx.getImageData(0, 0, cols, rows);
+      const chips: { x: number; y: number; c: number[] }[] = [];
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const i = (y * cols + x) * 4;
+          const r = base.data[i];
+          const g = base.data[i + 1];
+          const b = base.data[i + 2];
+          const a = base.data[i + 3];
+          if (a < 40) continue;
+          if (r < 90 && g < 60) chips.push({ x, y, c: [r, g, b, a] });
+        }
+      }
+      if (!chips.length) return;
+      let raf = 0;
+      const tick = (now: number) => {
+        const glimmer = Math.sin(now / 1400) * 10;
+        ctx.putImageData(base, 0, 0);
+        for (const chip of chips) {
+          const n = Math.round(Math.sin(now / 1400 + chip.x) * glimmer);
+          const r = Math.max(0, Math.min(255, chip.c[0] + n));
+          const g = Math.max(0, Math.min(255, chip.c[1] + n));
+          const b = Math.max(0, Math.min(255, chip.c[2] + Math.round(n * 0.4)));
+          ctx.fillStyle = `rgba(${r},${g},${b},${chip.c[3] / 255})`;
+          ctx.fillRect(chip.x, chip.y, 1, 1);
+        }
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(raf);
+    }
     const src = document.createElement("canvas");
     src.width = 64;
     src.height = 64;
@@ -37,37 +93,6 @@ export function PixelMark({ glyph, label, center = false, size }: { glyph: strin
     canvas.height = rows;
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, minX, minY, maxX - minX + 1, maxY - minY + 1, 0, 0, cols, rows);
-    if (glyph !== "🍪") return;
-    const base = ctx.getImageData(0, 0, cols, rows);
-    const chips: { x: number; y: number; c: number[] }[] = [];
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        const i = (y * cols + x) * 4;
-        const r = base.data[i];
-        const g = base.data[i + 1];
-        const b = base.data[i + 2];
-        const a = base.data[i + 3];
-        if (a < 40) continue;
-        if (r > 70 && r > g + 15 && g > 30 && b < r - 25) chips.push({ x, y, c: [r, g, b, a] });
-      }
-    }
-    if (!chips.length) return;
-    let raf = 0;
-    const tick = (now: number) => {
-      const glimmer = Math.sin(now / 1400) * 10;
-      ctx.putImageData(base, 0, 0);
-      for (const chip of chips) {
-        const n = Math.round(Math.sin(now / 1400 + chip.x) * glimmer);
-        const r = Math.max(0, Math.min(255, chip.c[0] + n));
-        const g = Math.max(0, Math.min(255, chip.c[1] + n));
-        const b = Math.max(0, Math.min(255, chip.c[2] + Math.round(n * 0.4)));
-        ctx.fillStyle = `rgba(${r},${g},${b},${chip.c[3] / 255})`;
-        ctx.fillRect(chip.x, chip.y, 1, 1);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
   }, [glyph]);
   return (
     <canvas
