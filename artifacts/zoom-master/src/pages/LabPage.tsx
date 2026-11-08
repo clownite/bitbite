@@ -218,6 +218,7 @@ export function LabPage({
               <button
                 type="button"
                 className={farm.pending >= 0.0001 ? "claim-3d" : "claim-3d is-empty"}
+                style={{ ["--claim" as string]: chosen.element.color }}
                 disabled={farm.pending < 0.0001}
                 onClick={() => { claimFarm(); }}
               >

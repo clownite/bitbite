@@ -3763,17 +3763,23 @@ body, body * {
   color: #041018;
 }
 .claim-3d {
+  --claim: #7ad7ff;
   border: none;
   border-radius: 16px;
   padding: 14px 18px;
   font-weight: 900;
   letter-spacing: 0.08em;
-  color: #1a0e06;
-  background: linear-gradient(180deg, #fff6d2 0%, #f0b15a 46%, #d4922e 100%);
+  color: #041018;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--claim) 48%, white) 0%,
+    var(--claim) 48%,
+    color-mix(in srgb, var(--claim) 76%, black) 100%
+  );
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.75) inset,
-    0 5px 0 #8a5714,
-    0 10px 18px rgba(0, 0, 0, 0.35);
+    0 5px 0 color-mix(in srgb, var(--claim) 52%, black),
+    0 10px 18px color-mix(in srgb, var(--claim) 40%, transparent);
   transform: translateY(0);
   transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
@@ -3781,14 +3787,14 @@ body, body * {
   transform: translateY(4px);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.45) inset,
-    0 1px 0 #8a5714,
+    0 1px 0 color-mix(in srgb, var(--claim) 52%, black),
     0 4px 10px rgba(0, 0, 0, 0.3);
 }
 .claim-3d.is-empty,
 .claim-3d:disabled {
-  color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 0 rgba(255, 255, 255, 0.06);
+  color: color-mix(in srgb, var(--claim) 55%, rgba(4, 16, 24, 0.45));
+  background: color-mix(in srgb, var(--claim) 22%, rgba(255, 255, 255, 0.06));
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--claim) 28%, transparent);
 }
 @media (prefers-reduced-motion: reduce) {
   .pet-card-trace-glow,
