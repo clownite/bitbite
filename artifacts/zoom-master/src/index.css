@@ -2701,42 +2701,14 @@ body.animations-paused * {
   text-align: center;
   padding: max(54px, calc(env(safe-area-inset-top, 0px) + 36px)) 24px 0;
 }
-#splash-screen .splash-scene {
+#splash-flight {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 62%;
-  z-index: 1;
-}
-#splash-screen .splash-scene svg {
+  inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
   display: block;
-}
-.splash-fly {
-  width: 140%;
-  height: 140%;
-  margin-left: -20%;
-  transform-origin: 50% 30%;
-  animation: splash-fly 9s linear infinite;
-}
-.splash-layer-far { animation: splash-drift 14s linear infinite; }
-.splash-layer-mid { animation: splash-drift 8s linear infinite; }
-.splash-layer-near { animation: splash-drift 5.5s linear infinite; }
-.splash-cloud { animation: splash-cloud 11s linear infinite; }
-.splash-cloud-b { animation-duration: 16s; }
-@keyframes splash-fly {
-  from { transform: scale(1.02) translate3d(0, 6%, 0); }
-  to { transform: scale(1.28) translate3d(0, 16%, 0); }
-}
-@keyframes splash-drift {
-  from { transform: translate3d(0, 0, 0); }
-  to { transform: translate3d(-8%, 10%, 0); }
-}
-@keyframes splash-cloud {
-  from { transform: translateX(0); }
-  to { transform: translateX(80px); }
+  pointer-events: none;
 }
 #splash-enter:disabled {
   opacity: 0.4;

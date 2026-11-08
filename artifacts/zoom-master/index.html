@@ -28,7 +28,7 @@
         z-index: 2147483647;
         display: flex;
         flex-direction: column;
-        background: #14081c;
+        background: #8fd0ff;
         opacity: 1;
         isolation: isolate;
         overflow: hidden;
@@ -44,8 +44,8 @@
         position: absolute;
         inset: 0;
         background:
-          radial-gradient(circle at 50% 18%, rgba(255, 214, 140, 0.2), transparent 28%),
-          linear-gradient(180deg, #1a1030 0%, #3a2458 28%, #c46a78 62%, #f0b07a 78%, #6d88b0 100%);
+          radial-gradient(circle at 74% 16%, rgba(255, 244, 196, 0.45), transparent 22%),
+          linear-gradient(180deg, #8fd0ff 0%, #b7e7c5 38%, #7dcea0 68%, #3e9a62 100%);
       }
       #splash-screen .splash-copy {
         position: relative;
@@ -76,47 +76,36 @@
       }
       #splash-screen .splash-sub span {
         display: block;
-        color: #ffe14a;
+        color: #083526;
       }
-      #splash-screen .splash-scene {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        height: 62%;
-        z-index: 1;
-      }
-      #splash-screen .splash-scene svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-      #splash-screen .splash-snow {
+      #splash-flight {
         position: absolute;
         inset: 0;
-        z-index: 4;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        display: block;
         pointer-events: none;
+      }
+      .splash-meter {
+        position: relative;
+        z-index: 3;
+        margin: auto 56px 12px;
+        height: 3px;
+        border-radius: 99px;
+        background: rgba(255, 255, 255, 0.28);
         overflow: hidden;
       }
-      #splash-screen .splash-snow i {
-        position: absolute;
-        top: -6px;
-        width: 3px;
-        height: 3px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.75);
-        animation: splashSnow 14s linear infinite;
+      .splash-meter span {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: #ffffff;
+        box-shadow: 0 0 8px #ffffff, 0 0 16px rgba(255, 255, 255, 0.95);
+        animation: splash-meter 2.4s linear forwards;
       }
-      #splash-screen .splash-snow i:nth-child(1) { left: 8%; animation-duration: 13s; }
-      #splash-screen .splash-snow i:nth-child(2) { left: 22%; animation-duration: 17s; animation-delay: -4s; }
-      #splash-screen .splash-snow i:nth-child(3) { left: 37%; animation-duration: 15s; animation-delay: -8s; width: 2px; height: 2px; }
-      #splash-screen .splash-snow i:nth-child(4) { left: 51%; animation-duration: 18s; animation-delay: -2s; }
-      #splash-screen .splash-snow i:nth-child(5) { left: 66%; animation-duration: 12s; animation-delay: -6s; width: 2px; height: 2px; }
-      #splash-screen .splash-snow i:nth-child(6) { left: 80%; animation-duration: 16s; animation-delay: -11s; }
-      #splash-screen .splash-snow i:nth-child(7) { left: 92%; animation-duration: 19s; animation-delay: -3s; width: 2px; height: 2px; }
-      @keyframes splashSnow {
-        from { transform: translateY(-8px); }
-        to { transform: translateY(100dvh); }
+      @keyframes splash-meter {
+        to { width: 100%; }
       }
       #splash-enter {
         position: relative;
@@ -124,8 +113,8 @@
         margin: auto 22px max(22px, env(safe-area-inset-bottom, 0px));
         height: 54px;
         border-radius: 999px;
-        border: 1.5px solid rgba(255, 248, 238, 0.72);
-        background: #120e1c;
+        border: 1.5px solid rgba(255, 255, 255, 0.72);
+        background: #0c3d28;
         color: #fff8ee;
         font-family: 'Nunito', system-ui, sans-serif;
         font-weight: 900;
@@ -155,26 +144,7 @@
         <div class="splash-title">ZOOM</div>
         <div class="splash-sub">One small life.<span>A world that answers.</span></div>
       </div>
-      <div class="splash-scene" aria-hidden="true">
-        <div class="splash-fly">
-          <svg viewBox="0 0 390 520" preserveAspectRatio="xMidYMax slice">
-            <g class="splash-layer splash-layer-far">
-              <circle cx="292" cy="78" r="26" fill="#fff4c4" />
-              <circle cx="292" cy="78" r="48" fill="#fff4c4" opacity="0.22" />
-              <ellipse class="splash-cloud" cx="80" cy="110" rx="36" ry="10" fill="#ffffff" opacity="0.55" />
-              <ellipse class="splash-cloud splash-cloud-b" cx="210" cy="150" rx="48" ry="12" fill="#ffffff" opacity="0.4" />
-              <path d="M-40 280 L40 170 L120 250 L200 120 L290 240 L390 150 L460 260 L460 540 L-40 540 Z" fill="#8fd6a4" />
-            </g>
-            <g class="splash-layer splash-layer-mid">
-              <path d="M-80 320 L20 160 L140 280 L230 140 L340 270 L470 180 L520 330 L520 560 L-80 560 Z" fill="#1f7a48" />
-            </g>
-            <g class="splash-layer splash-layer-near">
-              <path d="M-120 390 L10 250 L160 360 L280 230 L420 350 L560 250 L620 420 L620 620 L-120 620 Z" fill="#0c4630" />
-              <path d="M-40 470 C90 440 180 490 280 450 C360 420 430 460 470 448 L470 620 L-40 620 Z" fill="#083526" />
-            </g>
-          </svg>
-        </div>
-      </div>
+      <canvas id="splash-flight" aria-hidden="true"></canvas>
       <div class="splash-meter" aria-hidden="true"><span id="splash-meter-fill"></span></div>
       <button type="button" id="splash-enter" disabled>ENTER</button>
       <button type="button" id="splash-retry-btn">Riprova</button>
@@ -250,6 +220,143 @@
         }, 8000);
 
         function applySplashSubtitle() { /**/ }
+
+        (function flyOverMountains() {
+          var canvas = document.getElementById("splash-flight");
+          if (!canvas) return;
+          var ctx = canvas.getContext("2d");
+          if (!ctx) return;
+          var dpr = 1;
+          var peaks = [];
+          var gusts = [];
+          function resize() {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            var rect = canvas.getBoundingClientRect();
+            canvas.width = Math.max(1, Math.round(rect.width * dpr));
+            canvas.height = Math.max(1, Math.round(rect.height * dpr));
+          }
+          function makePeak(z) {
+            return {
+              z: z,
+              x: Math.random() * 1.2 - 0.1,
+              h: 0.82 + Math.random() * 0.18,
+              w: 0.9 + Math.random() * 0.55,
+              lean: Math.random() * 0.06 - 0.03
+            };
+          }
+          for (var i = 0; i < 7; i++) peaks.push(makePeak(i / 7));
+          function makeGust() {
+            return {
+              x: Math.random() * 1.4 - 0.2,
+              y: Math.random(),
+              len: 22 + Math.random() * 70,
+              v: 0.18 + Math.random() * 0.55,
+              a: 0.16 + Math.random() * 0.28
+            };
+          }
+          for (var g = 0; g < 16; g++) gusts.push(makeGust());
+          function mix(z) {
+            var stops = [[143, 214, 164], [46, 150, 96], [12, 70, 48], [8, 53, 38]];
+            var t = Math.max(0, Math.min(0.999, z));
+            var scaled = t * (stops.length - 1);
+            var index = Math.floor(scaled);
+            var k = scaled - index;
+            var p = stops[index];
+            var q = stops[index + 1];
+            return [
+              Math.round(p[0] + (q[0] - p[0]) * k),
+              Math.round(p[1] + (q[1] - p[1]) * k),
+              Math.round(p[2] + (q[2] - p[2]) * k)
+            ];
+          }
+          resize();
+          window.addEventListener("resize", resize);
+          var last = performance.now();
+          var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          function frame(now) {
+            if (!document.getElementById("splash-screen")) return;
+            var rect = canvas.getBoundingClientRect();
+            if (Math.round(rect.width * dpr) !== canvas.width || Math.round(rect.height * dpr) !== canvas.height) resize();
+            var dt = still ? 0 : Math.min(0.034, (now - last) / 1000);
+            last = now;
+            var w = canvas.width / dpr;
+            var h = canvas.height / dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, h);
+              var horizon = h * 0.5;
+            var bob = still ? 0 : Math.sin(now / 1100) * 5;
+            peaks.sort(function (a, b) { return a.z - b.z; });
+            for (var n = 0; n < peaks.length; n++) {
+              var m = peaks[n];
+              m.z += dt * (0.055 + m.z * 0.34);
+              if (m.z > 1.18) {
+                var fresh = makePeak(-0.02);
+                m.z = fresh.z;
+                m.x = fresh.x;
+                m.h = fresh.h;
+                m.w = fresh.w;
+                m.lean = fresh.lean;
+              }
+              var z = Math.max(0, m.z);
+              var baseY = horizon + Math.pow(z, 0.82) * (h * 0.92) + bob * z;
+              var cx = w * (0.5 + (m.x - 0.5) * (0.42 + z * 1.7));
+              var peakH = h * (0.42 * m.h) * (0.78 + z * 0.55);
+              var half = w * m.w * (0.42 + z * 0.7);
+              var tipX = cx + half * m.lean;
+              var tipY = baseY - peakH;
+              var col = mix(z);
+              ctx.beginPath();
+              ctx.moveTo(tipX, tipY);
+              ctx.lineTo(cx + half, baseY + 30);
+              ctx.lineTo(cx - half, baseY + 30);
+              ctx.closePath();
+              ctx.fillStyle = "rgb(" + col[0] + "," + col[1] + "," + col[2] + ")";
+              ctx.fill();
+              ctx.beginPath();
+              ctx.moveTo(tipX, tipY);
+              ctx.lineTo(cx - half * 0.04, baseY + 30);
+              ctx.lineTo(cx - half, baseY + 30);
+              ctx.closePath();
+              ctx.fillStyle = "rgba(255,255,255,0.16)";
+              ctx.fill();
+              if (z < 0.32) {
+                ctx.beginPath();
+                ctx.moveTo(tipX, tipY);
+                ctx.lineTo(tipX + half * 0.07, tipY + peakH * 0.07);
+                ctx.lineTo(tipX - half * 0.07, tipY + peakH * 0.07);
+                ctx.closePath();
+                ctx.fillStyle = "rgba(255,248,238,0.9)";
+                ctx.fill();
+              }
+            }
+            for (var k = 0; k < gusts.length; k++) {
+              var s = gusts[k];
+              var rush = 0.35 + s.y;
+              s.x += dt * s.v * rush;
+              s.y += dt * 0.045 * rush;
+              if (s.x > 1.3 || s.y > 1.08) {
+                var born = makeGust();
+                s.x = -0.25;
+                s.y = born.y * 0.72;
+                s.len = born.len;
+                s.v = born.v;
+                s.a = born.a;
+              }
+              var sy = s.y * h + bob * 0.3;
+              var sx = s.x * w;
+              var len = s.len * (0.7 + s.y * 0.8);
+              ctx.strokeStyle = "rgba(255,255,255," + s.a + ")";
+              ctx.lineWidth = s.y > 0.62 ? 1.6 : 1;
+              ctx.lineCap = "round";
+              ctx.beginPath();
+              ctx.moveTo(sx, sy);
+              ctx.lineTo(sx - len, sy - len * 0.16);
+              ctx.stroke();
+            }
+            if (!still) requestAnimationFrame(frame);
+          }
+          requestAnimationFrame(frame);
+        })();
 
         var retryBtn = document.getElementById("splash-retry-btn");
         if (retryBtn) {
