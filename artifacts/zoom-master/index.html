@@ -308,17 +308,6 @@
             ctx.lineWidth = 3;
             ctx.lineJoin = "round";
             ctx.stroke();
-            for (var c = 1; c < top.length - 1; c++) {
-              if (top[c].crest < top[c - 1].crest || top[c].crest < top[c + 1].crest || top[c].crest < 0.9) continue;
-              var tip = top[c];
-              ctx.beginPath();
-              ctx.moveTo(tip.x, tip.y - 8);
-              ctx.lineTo(tip.x + 11, tip.y + 6);
-              ctx.lineTo(tip.x - 11, tip.y + 6);
-              ctx.closePath();
-              ctx.fillStyle = "rgba(255,252,248,0.95)";
-              ctx.fill();
-            }
           }
           resize();
           window.addEventListener("resize", resize);
