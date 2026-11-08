@@ -156,14 +156,24 @@
         <div class="splash-sub">One small life.<span>A world that answers.</span></div>
       </div>
       <div class="splash-scene" aria-hidden="true">
-        <svg viewBox="0 0 390 520" preserveAspectRatio="xMidYMax slice">
-          <circle cx="292" cy="78" r="26" fill="#fff4c4" />
-          <circle cx="292" cy="78" r="40" fill="#fff4c4" opacity="0.28" />
-          <path d="M-10 250 L70 120 L130 210 L200 70 L270 200 L340 110 L410 230 L410 520 L-10 520 Z" fill="#1f7a48" />
-          <path d="M-10 310 L90 190 L170 280 L250 160 L330 270 L410 180 L410 520 L-10 520 Z" fill="#14643a" />
-          <path d="M-10 380 L120 300 L220 360 L320 290 L410 340 L410 520 L-10 520 Z" fill="#0c4630" />
-          <path d="M0 450 C80 430 160 460 240 440 C310 424 360 448 390 436 L390 520 L0 520 Z" fill="#083526" />
-        </svg>
+        <div class="splash-fly">
+          <svg viewBox="0 0 390 520" preserveAspectRatio="xMidYMax slice">
+            <g class="splash-layer splash-layer-far">
+              <circle cx="292" cy="78" r="26" fill="#fff4c4" />
+              <circle cx="292" cy="78" r="48" fill="#fff4c4" opacity="0.22" />
+              <ellipse class="splash-cloud" cx="80" cy="110" rx="36" ry="10" fill="#ffffff" opacity="0.55" />
+              <ellipse class="splash-cloud splash-cloud-b" cx="210" cy="150" rx="48" ry="12" fill="#ffffff" opacity="0.4" />
+              <path d="M-40 280 L40 170 L120 250 L200 120 L290 240 L390 150 L460 260 L460 540 L-40 540 Z" fill="#8fd6a4" />
+            </g>
+            <g class="splash-layer splash-layer-mid">
+              <path d="M-80 320 L20 160 L140 280 L230 140 L340 270 L470 180 L520 330 L520 560 L-80 560 Z" fill="#1f7a48" />
+            </g>
+            <g class="splash-layer splash-layer-near">
+              <path d="M-120 390 L10 250 L160 360 L280 230 L420 350 L560 250 L620 420 L620 620 L-120 620 Z" fill="#0c4630" />
+              <path d="M-40 470 C90 440 180 490 280 450 C360 420 430 460 470 448 L470 620 L-40 620 Z" fill="#083526" />
+            </g>
+          </svg>
+        </div>
       </div>
       <div class="splash-meter" aria-hidden="true"><span id="splash-meter-fill"></span></div>
       <button type="button" id="splash-enter" disabled>ENTER</button>
@@ -204,18 +214,33 @@
 
         var enterBtn = document.getElementById("splash-enter");
         var splashReady = false;
-        if (enterBtn) {
-          enterBtn.onclick = function() {
-            if (!splashReady) return;
-            hideSplash();
-          };
-        }
-        setTimeout(function() {
+        function armEnter() {
+          if (splashReady) return;
           splashReady = true;
           if (!enterBtn) return;
           enterBtn.disabled = false;
           enterBtn.classList.add("is-ready");
-        }, 2400);
+        }
+        if (enterBtn) {
+          enterBtn.onclick = function() {
+            if (!splashReady || enterBtn.disabled) return;
+            hideSplash();
+          };
+        }
+        var meter = document.getElementById("splash-meter-fill");
+        if (meter) meter.addEventListener("animationend", armEnter);
+        setTimeout(armEnter, 2600);
+        var SPLASH_COPY = {
+          en: ["One small life.", "A world that answers."],
+          it: ["Una vita piccola.", "Un mondo che risponde."],
+          es: ["Una vida pequeña.", "Un mundo que responde."],
+          fil: ["Isang munting buhay.", "Isang mundong sumasagot."],
+          ru: ["Одна маленькая жизнь.", "Мир, который отвечает."],
+          uk: ["Одне маленьке життя.", "Світ, який відповідає."]
+        };
+        var sub = document.querySelector(".splash-sub");
+        var lines = SPLASH_COPY[splashLang()] || SPLASH_COPY.en;
+        if (sub) sub.innerHTML = lines[0] + "<span>" + lines[1] + "</span>";
 
         setTimeout(function() {
           if (!window.__zoomReactBooted) {

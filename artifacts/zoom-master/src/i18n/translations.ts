@@ -1,4 +1,5 @@
 import { LOCALE_EXTRAS } from "./localeExtras";
+import { SURFACE } from "./surface";
 import { es } from "./langs/es";
 import { fil } from "./langs/fil";
 
@@ -2282,12 +2283,12 @@ const uk: Dict = {
 };
 
 export const DICTS: Record<Lang, Dict> = {
-  en: { ...en, ...LOCALE_EXTRAS.en },
-  it: { ...it, ...LOCALE_EXTRAS.it },
-  ru: { ...ru, ...LOCALE_EXTRAS.ru },
-  uk: { ...uk, ...LOCALE_EXTRAS.uk },
-  es: { ...LOCALE_EXTRAS.es, ...es },
-  fil: { ...LOCALE_EXTRAS.fil, ...fil },
+  en: { ...en, ...LOCALE_EXTRAS.en, ...SURFACE.en },
+  it: { ...it, ...LOCALE_EXTRAS.it, ...SURFACE.it },
+  ru: { ...ru, ...LOCALE_EXTRAS.ru, ...SURFACE.ru },
+  uk: { ...uk, ...LOCALE_EXTRAS.uk, ...SURFACE.uk },
+  es: { ...LOCALE_EXTRAS.es, ...es, ...SURFACE.es },
+  fil: { ...LOCALE_EXTRAS.fil, ...fil, ...SURFACE.fil },
 };
 
 export function translate(lang: Lang, key: string, vars?: Record<string, string | number>): string {

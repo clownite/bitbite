@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { UPCOMING_PRIZES, nextReset, weeklyInvestors, type InvestorRow } from "../pet/invested";
 import { getTelegramViewer } from "../utils/telegram";
+import { useT } from "../i18n/LanguageContext";
 
 interface RankPageProps {
   balance: number;
@@ -27,6 +28,7 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
     };
   }, []);
 
+  const { t } = useT();
   const you = getTelegramViewer();
   const youId = telegramId || you.id;
 
@@ -36,10 +38,10 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
   return (
     <div className="flex flex-col h-full overflow-hidden" style={{ background: "transparent" }}>
       <div className="px-5 pt-4 pb-2 flex-shrink-0">
-        <div className="text-[11px] font-black tracking-[0.2em]" style={{ color: "#7ad7ff" }}>THIS WEEK</div>
-        <h2 className="font-black text-2xl tracking-tight" style={{ color: "#e8f7ff" }}>Top 10</h2>
+        <div className="text-[11px] font-black tracking-[0.2em]" style={{ color: "#7ad7ff" }}>{t("rank.week")}</div>
+        <h2 className="font-black text-2xl tracking-tight" style={{ color: "#e8f7ff" }}>{t("rank.title")}</h2>
         <p className="text-[12px] mt-1" style={{ color: "rgba(186,220,236,0.62)" }}>
-          GRAM put into Zoom. The board clears Monday {nextReset()}.
+          {t("rank.blurb", { day: nextReset() })}
         </p>
       </div>
 
@@ -89,7 +91,7 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
                 <div className="flex-1 min-w-0">
                   <div className="font-black text-sm truncate" style={{ color: "#e8f7ff" }}>
                     {entry.name}
-                    {isUser && <span className="text-xs font-bold ml-1" style={{ color: "#7ad7ff" }}>you</span>}
+                    {isUser && <span className="text-xs font-bold ml-1" style={{ color: "#7ad7ff" }}>{t("rank.you")}</span>}
                   </div>
                 </div>
                 <div className="text-sm font-black tabular-nums" style={{ color: "#7ad7ff" }}>{formatGram(entry.amount)} GRAM</div>
@@ -99,7 +101,7 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
         </div>
 
         <section className="rounded-2xl p-3 mt-3" style={{ background: "rgba(122,215,255,0.08)", border: "1px solid rgba(122,215,255,0.2)" }}>
-          <div className="text-[11px] font-black tracking-[0.16em]" style={{ color: "#7ad7ff" }}>XP ON THE NEXT RESET</div>
+          <div className="text-[11px] font-black tracking-[0.16em]" style={{ color: "#7ad7ff" }}>{t("rank.prizes")}</div>
           <div className="grid grid-cols-4 gap-1.5 mt-2">
             {UPCOMING_PRIZES.map((prize) => (
               <div key={prize.place} className="rounded-xl px-2 py-2 text-center" style={{ background: "rgba(4,16,24,0.45)" }}>

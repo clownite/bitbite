@@ -148,11 +148,12 @@ export function LabPage({
   const rechargeMs = taps.nextReadyAt > now ? taps.nextReadyAt - now : 0;
   const farm = useFarm();
   const chosen = petDef(pet.active);
+  const elementName = t(`pet.element.${chosen.element.id}`);
   const stats = [
-    { label: chosen.element.label, value: "rarity" },
-    { label: "HP", value: "hearts" },
-    { label: "Tap", value: `${taps.count}/4` },
-    { label: "Stage", value: String(pet.stage) },
+    { id: "element", label: elementName, value: "rarity" },
+    { id: "hp", label: "HP", value: "hearts" },
+    { id: "tap", label: t("pet.tap"), value: `${taps.count}/4` },
+    { id: "stage", label: t("pet.stage"), value: String(pet.stage) },
   ];
   useEffect(() => {
     if (!active) return;
@@ -191,11 +192,11 @@ export function LabPage({
           <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
               <div style={{ textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
-                {personalPetNumber(ownerId, pet.active)} {chosen.name} · STAGE {pet.stage}/3 · LEVEL {pet.level}
+                {personalPetNumber(ownerId, pet.active)} {chosen.name} · {t("pet.stageLine", { s: pet.stage, l: pet.level })}
                 <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)} · {taps.count}/{taps.max}</span>
               </div>
               <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#041018", background: chosen.element.color, borderRadius: 999, padding: "3px 7px" }}>
-                {chosen.element.label}
+                {elementName}
               </span>
             </div>
             <div
@@ -210,9 +211,9 @@ export function LabPage({
               }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", color: "rgba(186,220,236,0.7)" }}>FARM</div>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", color: "rgba(186,220,236,0.7)" }}>{t("pet.farm")}</div>
                 <div style={{ marginTop: 2, fontSize: 26, fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{formatCrumbs(farm.pending)}</div>
-                <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.7)" }}>{formatCrumbs(farm.cap)} / day · level {pet.level}</div>
+                <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.7)" }}>{formatCrumbs(farm.cap)} {t("pet.perDay")} · {t("pet.level", { n: pet.level })}</div>
               </div>
               <button
                 type="button"
@@ -220,14 +221,14 @@ export function LabPage({
                 disabled={farm.pending < 0.0001}
                 onClick={() => { claimFarm(); }}
               >
-                CLAIM
+                {t("pet.claim")}
               </button>
             </div>
             <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
               {stats.map((stat) => (
-                <div key={stat.label} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div key={stat.id} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
                   {stat.value === "rarity" ? (
-                    <PixelMark glyph={chosen.element.glyph} label={chosen.element.label} center />
+                    <PixelMark glyph={chosen.element.glyph} label={elementName} center />
                   ) : stat.value === "hearts" ? (
                     <>
                       <div style={{ display: "flex", justifyContent: "center", gap: 2, height: 16, alignItems: "center" }} aria-label={`${taps.max - taps.count} of ${taps.max} lives`}>

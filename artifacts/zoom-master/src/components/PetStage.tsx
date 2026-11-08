@@ -7,6 +7,7 @@ import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
 import { notePetTap } from "../pet/quests";
 import { takeCharClone, whenCharReady } from "./HomeVoxelResident";
+import { translate, type Lang } from "../i18n/translations";
 
 function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
   const stageBoost = stage === 1 ? 0.9 : stage === 2 ? 1.05 : 1.2;
@@ -23,8 +24,23 @@ function smoothStep(value: number): number {
 
 type Blink = {
   apply: (closed: number) => void;
-  pose: (t: number, wave: number) => void;
   dispose: () => void;
+};
+
+function ui(key: string, vars?: Record<string, string | number>): string {
+  let lang: Lang = "en";
+  try {
+    const saved = localStorage.getItem("zoom-lang");
+    if (saved === "it" || saved === "es" || saved === "fil" || saved === "ru" || saved === "uk") lang = saved;
+  } catch { /**/ }
+  return translate(lang, key, vars);
+}
+
+const TRICK: Record<PetId, { arc: number; spin: number }> = {
+  dolphin: { arc: 0.42, spin: 0.55 },
+  finch: { arc: 0.34, spin: 2.3 },
+  lynx: { arc: 0.56, spin: 1.15 },
+  stag: { arc: 0.64, spin: 1.65 },
 };
 
 function paletteOf(mesh: Mesh): { data: Uint8ClampedArray; width: number } | null {
@@ -123,16 +139,7 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
     }
   }
 
-  const arms: { index: number; x: number; y: number; side: number }[] = [];
-  for (let i = 0; i < position.count; i++) {
-    const x = position.getX(i);
-    const y = position.getY(i);
-    // Outer hands only. Head, hood, and the red bandana sit higher and must stay.
-    if (Math.abs(x) < 0.48 || y < 0.35 || y > 0.62) continue;
-    arms.push({ index: i, x, y, side: x >= 0 ? 1 : -1 });
-  }
-
-  if (seams.length < 6 && arms.length < 4) {
+  if (seams.length < 6) {
     geometry.dispose();
     source.geometry = original;
     return null;
@@ -144,28 +151,6 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
         position.setY(seam.index, seam.rest + (seam.shut - seam.rest) * shut);
       }
       position.needsUpdate = true;
-    },
-    pose(t: number, wave: number) {
-      const still = wave < 0;
-      const sway = still ? 0 : Math.sin(t * 1.35) * 0.18;
-      for (const arm of arms) {
-        const pivotX = arm.side * 0.32;
-        const pivotY = 0.62;
-        const dx = arm.x - pivotX;
-        const dy = arm.y - pivotY;
-        const current = Math.atan2(dy, dx);
-        const down = arm.side > 0 ? -1.35 : -Math.PI + 1.35;
-        let delta = down - current;
-        if (delta > Math.PI) delta -= Math.PI * 2;
-        if (delta < -Math.PI) delta += Math.PI * 2;
-        let angle = delta * 0.82 + sway;
-        if (!still && wave > 0 && arm.side > 0) angle += wave * 1.35;
-        const c = Math.cos(angle);
-        const s = Math.sin(angle);
-        position.setX(arm.index, pivotX + dx * c - dy * s);
-        position.setY(arm.index, pivotY + dx * s + dy * c);
-      }
-      if (arms.length) position.needsUpdate = true;
     },
     dispose() {
       geometry.dispose();
@@ -258,39 +243,65 @@ export function PetStage({
 
     let pressed = false;
     let lastTapAt = 0;
-    let shake = 0;
+    let pointerX = 0;
+    let moved = 0;
+    let userYaw = 0;
+    let trick: { t0: number; arc: number; slide: number; spinY: number; spinZ: number } | null = null;
 
     const onDown = (e: PointerEvent) => {
       if (e.pointerType === "touch" && e.isPrimary === false) return;
       pressed = true;
+      pointerX = e.clientX;
+      moved = 0;
     };
-    const onUp = (e: PointerEvent) => {
+    const onMove = (e: PointerEvent) => {
+      if (!pressed) return;
+      const dx = e.clientX - pointerX;
+      moved += Math.abs(dx);
+      pointerX = e.clientX;
+      if (moved > 8) userYaw += dx * 0.012;
+    };
+    const onUp = () => {
       if (!pressed) return;
       pressed = false;
-      if (e.pointerType === "mouse" && Date.now() - lastTapAt < 700) return;
+      if (moved > 12) {
+        const kill = (ev: Event) => { ev.stopPropagation(); ev.preventDefault(); };
+        host.addEventListener("click", kill, { capture: true, once: true });
+        return;
+      }
+      if (Date.now() - lastTapAt < 700) return;
       lastTapAt = Date.now();
+      const who = TRICK[petId];
+      const sign = Math.random() < 0.5 ? -1 : 1;
+      trick = {
+        t0: t,
+        arc: who.arc * (0.8 + Math.random() * 0.45),
+        slide: (Math.random() * 2 - 1) * (frame === "lab" ? 0.34 : 0.1),
+        spinY: sign * who.spin * (0.65 + Math.random() * 0.7),
+        spinZ: (Math.random() * 2 - 1) * (0.35 + who.spin * 0.12),
+      };
       if (frame === "collection") {
-        flashRef.current("Added to Home");
+        flashRef.current(ui("pet.added"));
         window.setTimeout(() => flashRef.current(null), 1200);
         return;
       }
       const result = tapPet();
       if (result.reason === "ok") {
         notePetTap();
-        shake = 1;
-        flashRef.current(`+${result.xp} XP · ${result.count}/${result.max}`);
+        flashRef.current(ui("pet.xpFlash", { xp: result.xp, n: result.count, max: result.max }));
       } else if (result.reason === "wait") {
-        flashRef.current("Wait 3 seconds");
+        flashRef.current(ui("pet.wait"));
       } else if (result.reason === "gate") {
-        flashRef.current("Pay GRAM in Collection");
+        flashRef.current(ui("pet.payGram"));
       } else {
-        flashRef.current(`${result.max}/${result.max} Tap`);
+        flashRef.current(ui("pet.tapFull", { max: result.max }));
       }
       window.setTimeout(() => flashRef.current(null), 1200);
     };
     const onCancel = () => { pressed = false; };
     if (frame !== "shop") {
       host.addEventListener("pointerdown", onDown);
+      host.addEventListener("pointermove", onMove);
       host.addEventListener("pointerup", onUp);
       host.addEventListener("pointercancel", onCancel);
     }
@@ -300,9 +311,6 @@ export function PetStage({
     let t = 0;
     let blinkAt = 0.7 + Math.random() * 1.1;
     let blinkStart = -1;
-    let waveAt = 2.5 + Math.random() * 3;
-    let waveStart = -1;
-    let hopAt = 4 + Math.random() * 4;
     const loop = () => {
       const dt = Math.min(clock.getDelta(), 0.05);
       t += dt;
@@ -311,6 +319,7 @@ export function PetStage({
       if (frame === "shop") {
         rig.scale.setScalar(1.55);
         rig.position.set(0, 0, 0);
+        rig.rotation.set(0, 0, 0);
       } else if (frame === "lab") {
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
@@ -318,31 +327,31 @@ export function PetStage({
       } else {
         rig.scale.setScalar(fit);
       }
-      shake = frame === "shop" || shake <= 0.02 ? 0 : shake * Math.exp(-dt * 14);
-      const buzz = shake * Math.sin(t * 55);
-      let wave = frame === "shop" ? -1 : 0;
-      let hopY = 0;
       if (frame !== "shop") {
-        if (waveStart < 0) {
-          if (t >= waveAt) waveStart = t;
-        } else {
-          const p = (t - waveStart) / 0.9;
-          if (p < 1) wave = Math.sin(Math.min(1, p) * Math.PI);
-          else {
-            waveStart = -1;
-            waveAt = t + 4 + Math.random() * 5;
+        if (trick) {
+          const p = (t - trick.t0) / 3;
+          if (p >= 1) {
+            trick = null;
+            rig.position.set(0, 0, 0);
+            rig.rotation.set(0, userYaw, 0);
+          } else {
+            const air = 1 - smoothStep(Math.max(0, (p - 0.78) / 0.22));
+            const hop = Math.sin(Math.min(p / 0.78, 1) * Math.PI);
+            const capY = frame === "lab" ? 0.62 : 0.16;
+            const capX = frame === "lab" ? 0.38 : 0.1;
+            const x = Math.max(-capX, Math.min(capX, trick.slide * Math.sin(p * Math.PI) * air));
+            rig.position.set(x, Math.min(capY, trick.arc * hop), 0);
+            rig.rotation.set(
+              trick.spinZ * Math.sin(p * Math.PI) * air * 0.4,
+              userYaw + trick.spinY * Math.sin(p * Math.PI) * air,
+              trick.spinZ * 0.3 * Math.sin(p * Math.PI * 2) * air,
+            );
           }
+        } else {
+          rig.position.set(0, 0, 0);
+          rig.rotation.set(0, userYaw, 0);
         }
-        if (t >= hopAt) {
-          const p = (t - hopAt) / 0.42;
-          if (p < 1) hopY = Math.sin(p * Math.PI) * (frame === "lab" ? 0.16 : 0.08);
-          else hopAt = t + 5 + Math.random() * 6;
-        }
-        rig.position.x = buzz * 0.04;
-        rig.position.y = Math.sin(t * 1.15) * (frame === "lab" ? 0.04 : 0.03) + hopY;
       }
-      rig.rotation.set(0, 0, 0);
-      if (blink) blink.pose(t, wave);
       if (blink) {
         const span = 0.28;
         let closed = 0;
@@ -372,6 +381,7 @@ export function PetStage({
       observer.disconnect();
       if (frame !== "shop") {
         host.removeEventListener("pointerdown", onDown);
+        host.removeEventListener("pointermove", onMove);
         host.removeEventListener("pointerup", onUp);
         host.removeEventListener("pointercancel", onCancel);
       }

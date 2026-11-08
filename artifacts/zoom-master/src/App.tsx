@@ -14,7 +14,7 @@ import { EarnPage } from "./pages/EarnPage";
 import { RankPage } from "./pages/RankPage";
 import { ShopPage } from "./pages/ShopPage";
 import { WalletPage } from "./pages/WalletPage";
-import { LanguageProvider } from "./i18n/LanguageContext";
+import { LanguageProvider, useT } from "./i18n/LanguageContext";
 import { TelegramIdentity } from "./components/TelegramIdentity";
 import { ChristmasSnow } from "./components/ChristmasSnow";
 import { hideHtmlSplash } from "./components/SplashScreen";
@@ -22,16 +22,18 @@ import { fetchMaintenanceStatus } from "./utils/api";
 import { initVersionCheck } from "./utils/appVersion";
 import { noteVisit } from "./pet/quests";
 import { FirstGuide, type GuideTab } from "./components/FirstGuide";
+import { hapticSoft } from "./utils/haptic";
+import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 type Tab = "lab" | "farm" | "earn" | "rank" | "shop" | "wallet";
 
-const NAV: { id: Tab; label: string; icon: typeof House }[] = [
-  { id: "lab", label: "Home", icon: House },
-  { id: "farm", label: "Collection", icon: LayoutGrid },
-  { id: "earn", label: "Earn", icon: Gem },
-  { id: "rank", label: "TOP 10", icon: Medal },
-  { id: "wallet", label: "Profile", icon: UserRound },
+const NAV: { id: Tab; key: string; icon: typeof House }[] = [
+  { id: "lab", key: "pet.nav.home", icon: House },
+  { id: "farm", key: "pet.nav.collection", icon: LayoutGrid },
+  { id: "earn", key: "pet.nav.earn", icon: Gem },
+  { id: "rank", key: "pet.nav.top", icon: Medal },
+  { id: "wallet", key: "pet.nav.profile", icon: UserRound },
 ];
 
 const ALL_TABS: Tab[] = ["lab", "farm", "earn", "rank", "shop", "wallet"];
@@ -89,6 +91,7 @@ export default function App() {
 }
 
 function AppShell() {
+  const { t } = useT();
   const [tab, setTab] = useState<Tab>("lab");
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("zoom-bgm-muted") === "1"; } catch { return false; }
@@ -116,18 +119,23 @@ function AppShell() {
   }, []);
 
   useEffect(() => {
-    const audio = new Audio(`${import.meta.env.BASE_PATH || "/"}bgm.mp3?v=22`);
-    audio.loop = true;
-    audio.preload = "none";
-    audio.volume = muted ? 0 : 0.18;
-    audio.muted = muted;
-    const start = () => { void audio.play().catch(() => { /**/ }); };
-    window.addEventListener("pointerdown", start, { once: true });
-    return () => {
-      window.removeEventListener("pointerdown", start);
-      audio.pause();
-    };
+    try { localStorage.setItem("zoom-bgm-muted", muted ? "1" : "0"); } catch { /**/ }
+    setChiptuneMuted(muted);
   }, [muted]);
+
+  useEffect(() => {
+    const wake = () => resumeChiptune();
+    const tap = (e: PointerEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el?.closest?.("button, a, canvas, [role='button']")) hapticSoft();
+    };
+    window.addEventListener("pointerdown", wake);
+    document.addEventListener("pointerup", tap);
+    return () => {
+      window.removeEventListener("pointerdown", wake);
+      document.removeEventListener("pointerup", tap);
+    };
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -179,7 +187,7 @@ function AppShell() {
               {id === "lab" && (
                 <LabPage active={active} telegramId={session.telegramId} onOpenShop={() => setTab("shop")} muted={muted} setMuted={setMuted} />
               )}
-              {id === "farm" && <CollectionPage gram={session.gram} onPay={session.pay} telegramId={session.telegramId} />}
+              {id === "farm" && <CollectionPage gram={session.gram} onPay={session.pay} telegramId={session.telegramId} onOpenShop={() => setTab("shop")} />}
               {id === "earn" && (
                 <EarnPage
                   visible={active}
@@ -236,7 +244,7 @@ function AppShell() {
                 style={{ color: active ? "#7ad7ff" : "rgba(186, 220, 236, 0.55)", background: "transparent", border: "none" }}
               >
                 <Icon size={22} strokeWidth={active ? 2.4 : 1.7} />
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.04em" }}>{item.label}</div>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.04em" }}>{t(item.key)}</div>
               </button>
             );
           })}

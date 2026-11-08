@@ -202,7 +202,7 @@ export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, header
                   paddingLeft: 2,
                 }}
               >
-                {t("common.audio").toUpperCase()}
+                {t("common.audio").toUpperCase()} · {t("pet.music")}
               </div>
               <button
                 type="button"

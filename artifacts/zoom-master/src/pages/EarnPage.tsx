@@ -215,7 +215,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
     setTimeout(() => setRedeemStatus(null), 4000);
   };
 
-  const nextMilestone = MILESTONES.find(m => m.count > referralCount);
+  void MILESTONES;
 
   // ───────────────── Long-term tasks (planet milestones + sponsor) ─────────────────
   // Paint instantly from cache/catalog — never flash a loading screen on tab open.
@@ -360,7 +360,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
         <section className="earn-panel">
           <div className="flex items-end justify-between mb-3">
             <div>
-              <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>Daily</div>
+              <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>{t("earn.dailyKicker")}</div>
               <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)" }}>{t("earn.dailyStreak")}</div>
             </div>
             <div className="earn-reward-chip earn-reward-chip--gold" aria-label={`+${upcomingReward} XP`}>
@@ -374,8 +374,8 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
               style={{ color: "#7ad7ff", background: "rgba(122,215,255,0.08)", border: "1px solid rgba(122,215,255,0.28)" }}
             >
               {pet.level < 5
-                ? `Level 4 is full. Pay ${LEVEL5_GRAM} GRAM in Collection for level 5.`
-                : `Level 9 is full. Pay ${LEVEL10_GRAM} GRAM in Collection for level 10.`}
+                ? t("earn.gate5", { n: LEVEL5_GRAM })
+                : t("earn.gate10", { n: LEVEL10_GRAM })}
             </div>
           )}
 
@@ -427,9 +427,9 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
               : canClaim
                 ? `${t("earn.claimBtn")} · D${upcomingDay} · +${upcomingReward} XP`
                 : xpStatus.blocked === "done"
-                  ? "Level 10"
+                  ? t("earn.level10")
                   : xpStatus.blocked === "gate"
-                    ? "Pay GRAM in Collection"
+                    ? t("earn.payCollection")
                     : t("earn.nextIn", { h: hLeft, m: mLeft, s: sLeft })}
           </button>
           {claimMsg && (
@@ -438,7 +438,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
             </div>
           )}
           <p className="mt-2.5 text-[10px] text-center leading-snug" style={{ color: "rgba(255,255,255,0.34)" }}>
-            {t("earn.dailyPizzaHint")} Each level is {LEVEL_XP.toLocaleString()} XP. A week of claims is {DAILY_XP_WEEK.toLocaleString()} XP.
+            {t("earn.dailyPizzaHint")} {t("earn.levelNote", { xp: LEVEL_XP.toLocaleString(), week: DAILY_XP_WEEK.toLocaleString() })}
           </p>
         </section>
 
@@ -448,80 +448,51 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
           onReward={(message) => setClaimMsg(message)}
         />
 
-        {/* Invite */}
-        <section className="earn-panel">
-          <div className="mb-3">
-            <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>Invite</div>
-            <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)" }}>{t("earn.referralProgram")}</div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="earn-reward-chip earn-reward-chip--gold">+{INVITE_XP} XP / invite</span>
-            </div>
-          </div>
-
+        <section className="invite-card">
+          <div className="invite-card-glow" aria-hidden />
+          <div className="invite-kicker">{t("earn.referralProgram")}</div>
+          <div className="invite-count">{referralCount.toLocaleString()}</div>
+          <div className="invite-count-label">{t("earn.invitedWord")}</div>
+          <div className="invite-code">{referralCode || "—"}</div>
+          <div className="invite-chip">{t("earn.perInvite", { n: INVITE_XP })}</div>
           <button
+            type="button"
+            className="invite-share"
             onClick={() => {
               const text = encodeURIComponent(t("earn.shareInviteText"));
               const url = encodeURIComponent(referralLink);
               window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank");
             }}
-            className="earn-cta earn-cta--ghost mb-2"
           >
             {t("earn.inviteFriends")}
           </button>
-          <div className="flex items-center gap-2 text-xs mb-3" style={{ color: "rgba(255,255,255,0.4)" }}>
-            <span>{t("earn.idLabel")}</span>
-            <span className="font-bold font-mono" style={{ color: "var(--earn-cyan)" }}>{referralCode}</span>
-            <span>·</span>
-            <span className="font-bold" style={{ color: "#00e676" }}>{referralCount.toLocaleString()} invited</span>
-          </div>
-
           {referralSpeedBonus > 0 && (
-            <div className="mb-3 rounded-xl px-3 py-2.5 flex items-center gap-2" style={{ border: "1px solid rgba(0,230,118,0.22)", background: "rgba(0,230,118,0.05)" }}>
-              <SpeedBoltIcon size={20} />
-              <div className="flex-1 min-w-0">
-                <div className="font-black text-xs" style={{ color: "#00e676" }}>+{Math.round(referralSpeedBonus * 100)}% speed</div>
-                <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.4)" }}>{referredBy ? t("earn.speedActiveJoined") : t("earn.speedActiveSub")}</div>
-              </div>
+            <div className="invite-speed">
+              <SpeedBoltIcon size={18} />
+              <span>+{Math.round(referralSpeedBonus * 100)}% · {referredBy ? t("earn.speedActiveJoined") : t("earn.speedActiveSub")}</span>
             </div>
           )}
-
-          <p className="text-[11px] leading-snug" style={{ color: "rgba(186,220,236,0.55)" }}>
-            Invites pay XP only. Crumbs come from farming the pet, and 1 Crumb withdraws as 1 GRAM.
-          </p>
+          <p className="invite-note">{t("earn.inviteOnly")}</p>
         </section>
 
-        {/* Redeem */}
-        <section className="earn-panel">
-          <div className="flex items-center gap-2 mb-3">
-            <SpaceTicketIcon size={22} />
-            <div className="font-black text-[15px]" style={{ color: "var(--earn-ink)" }}>{t("earn.redeemCode")}</div>
-          </div>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={redeemInput}
-              onChange={(e) => setRedeemInput(e.target.value.toUpperCase())}
-              onKeyDown={(e) => e.key === "Enter" && handleRedeem()}
-              placeholder=""
-              className="flex-1 px-3 py-2.5 rounded-xl text-sm font-mono font-bold uppercase outline-none"
-              style={{ background: "rgba(0,0,0,0.3)", border: "1px solid rgba(158,197,232,0.2)", color: "var(--earn-cyan)", letterSpacing: "0.06em" }}
-              data-testid="input-redeem-code"
-            />
-            <button onClick={handleRedeem} className="earn-cta earn-cta--ghost !w-auto px-4" data-testid="button-redeem">
-              {t("earn.go")}
-            </button>
-          </div>
+        <section className="redeem-vault">
+          <div className="redeem-mark" aria-hidden><SpaceTicketIcon size={28} /></div>
+          <div className="redeem-title">{t("earn.redeemCode")}</div>
+          <p className="redeem-hint">{t("earn.redeemHint")}</p>
+          <input
+            type="text"
+            value={redeemInput}
+            onChange={(e) => setRedeemInput(e.target.value.toUpperCase())}
+            onKeyDown={(e) => e.key === "Enter" && handleRedeem()}
+            placeholder="····"
+            className="redeem-input"
+            data-testid="input-redeem-code"
+          />
+          <button type="button" onClick={handleRedeem} className="redeem-go" data-testid="button-redeem">
+            {t("earn.go")}
+          </button>
           {redeemStatus && (
-            <div
-              className="mt-2 text-xs font-bold text-center py-2.5 rounded-xl"
-              style={{
-                color: redeemStatus.type === "error" ? "#ff5252" : redeemStatus.type === "sun" ? "#ffb347" : "#00e676",
-                background: redeemStatus.type === "error" ? "rgba(255,82,82,0.08)" : redeemStatus.type === "sun" ? "rgba(255,179,71,0.1)" : "rgba(0,230,118,0.08)",
-                border: `1px solid ${redeemStatus.type === "error" ? "rgba(255,82,82,0.2)" : redeemStatus.type === "sun" ? "rgba(255,179,71,0.25)" : "rgba(0,230,118,0.2)"}`,
-              }}
-            >
-              {redeemStatus.message}
-            </div>
+            <div className={`redeem-status is-${redeemStatus.type}`}>{redeemStatus.message}</div>
           )}
         </section>
 

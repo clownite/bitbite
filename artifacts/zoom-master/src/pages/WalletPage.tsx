@@ -3,6 +3,7 @@ import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { PixelBankCard } from "../components/PixelBankCard";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
 import { getTelegramViewer } from "../utils/telegram";
+import { useT } from "../i18n/LanguageContext";
 import {
   CRUMB_GRAM,
   formatCrumbs,
@@ -25,6 +26,7 @@ const ADDRESS_RE = /^(EQ|UQ|kQ|0Q|Ef|Uf|kf|0f)[A-Za-z0-9_-]{46}$/;
 
 /** Crumbs farmed from the pet. 1 Crumb = 1 GRAM, paid only after you accept the request. */
 export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
+  const { t } = useT();
   const [balance, setBalance] = useState(getCrumbs().balance);
   const [requests, setRequests] = useState<CrumbRequest[]>(getCrumbs().requests);
   const [amount, setAmount] = useState("");
@@ -61,43 +63,43 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
     const n = Math.floor(Number(amount));
     const addr = wallet.trim();
     if (!telegramId) {
-      setNote("Open the app from Telegram so the request can reach your bot.");
+      setNote(t("wallet.note.telegram"));
       return;
     }
     if (!Number.isFinite(n) || n < WITHDRAW_MIN) {
-      setNote(`Enter at least ${WITHDRAW_MIN} Crumbs.`);
+      setNote(t("wallet.note.min", { n: WITHDRAW_MIN }));
       return;
     }
     if (n > getCrumbs().balance) {
-      setNote("Not enough Crumbs.");
+      setNote(t("wallet.note.funds"));
       return;
     }
     if (!ADDRESS_RE.test(addr) && !/^-?\d+:[0-9a-fA-F]{64}$/.test(addr)) {
-      setNote("Enter a GRAM wallet address.");
+      setNote(t("wallet.note.address"));
       return;
     }
     if (getCrumbs().requests.some((r) => r.status === "pending")) {
-      setNote("One request at a time. Wait until this one is accepted or declined.");
+      setNote(t("wallet.note.one"));
       return;
     }
     setBusy(true);
     const localId = `${Date.now()}`;
     if (!takeCrumbs(n)) {
       setBusy(false);
-      setNote("Not enough Crumbs.");
+      setNote(t("wallet.note.funds"));
       return;
     }
     const res = await requestCrumbsWithdrawal({ telegramId, amount: n, walletAddress: addr });
     if (!res.ok || !res.id) {
       addCrumbs(n);
       setBusy(false);
-      setNote(res.error || "The bot did not receive it. Crumbs were returned.");
+      setNote(res.error || t("wallet.note.back"));
       return;
     }
     rememberRequest({ localId, serverId: res.id, amount: n, wallet: addr, status: "pending", createdAt: Date.now() });
     setAmount("");
     setBusy(false);
-    setNote("Request sent. You will accept or decline it from your bot.");
+    setNote(t("wallet.note.sent"));
   };
 
   const viewer = getTelegramViewer();
@@ -115,11 +117,11 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   return (
     <div className="flex flex-col overflow-y-auto" style={{ height: "100%", padding: "8px 16px 28px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.18em", color: "#7ad7ff" }}>PROFILE</div>
+        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.18em", color: "#7ad7ff" }}>{t("wallet.profile")}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
           <div style={{ minWidth: 0, textAlign: "right" }}>
             <div style={{ fontSize: 13, fontWeight: 800, color: "#e8f7ff", lineHeight: 1.1 }}>{viewer.name}</div>
-            <div style={{ fontSize: 11, color: "rgba(186,220,236,0.55)" }}>{viewer.username || "Telegram"}</div>
+            <div style={{ fontSize: 11, color: "rgba(186,220,236,0.55)" }}>{viewer.username || t("wallet.telegram")}</div>
           </div>
           <div
             style={{
@@ -159,7 +161,7 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
       >
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
           <div>
-            <div style={{ fontSize: 11, letterSpacing: "0.18em", fontWeight: 800, color: "rgba(186,220,236,0.55)" }}>CRUMBS</div>
+            <div style={{ fontSize: 11, letterSpacing: "0.18em", fontWeight: 800, color: "rgba(186,220,236,0.55)" }}>{t("wallet.crumbs")}</div>
             <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 10, fontSize: 40, fontWeight: 900, color: "#e8f7ff", lineHeight: 0.95 }}>
               <ZoomCubeIcon size={32} />
               <span>{formatCrumbs(balance)}</span>
@@ -184,20 +186,20 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-          <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.14em", color: "#e8f7ff" }}>WITHDRAW</div>
-          <div style={{ fontSize: 11, fontWeight: 800, color: "#7ad7ff" }}>MIN {WITHDRAW_MIN}</div>
+          <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.14em", color: "#e8f7ff" }}>{t("wallet.withdraw")}</div>
+          <div style={{ fontSize: 11, fontWeight: 800, color: "#7ad7ff" }}>{t("wallet.min", { n: WITHDRAW_MIN })}</div>
         </div>
         <input
           inputMode="numeric"
           value={amount}
           onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
-          placeholder={`${WITHDRAW_MIN} Crumbs minimum`}
+          placeholder={t("wallet.amountPh", { n: WITHDRAW_MIN })}
           style={field}
         />
         <input
           value={wallet}
           onChange={(e) => setWallet(e.target.value.trim())}
-          placeholder="GRAM wallet (UQ… or EQ…)"
+          placeholder={t("wallet.addressPh")}
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
@@ -209,7 +211,7 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
           onClick={() => void submit()}
           style={{ border: "none", borderRadius: 16, padding: "13px 14px", fontWeight: 900, letterSpacing: "0.04em", background: "#7ad7ff", color: "#041018" }}
         >
-          {busy ? "Sending…" : "Request withdrawal"}
+          {busy ? "…" : t("wallet.request")}
         </button>
         {note && <div style={{ fontSize: 12, color: "#9fd4ee" }}>{note}</div>}
       </section>
@@ -220,7 +222,7 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
             <div key={r.localId} style={{ borderRadius: 16, padding: "12px 14px", background: "rgba(7,16,24,0.88)", border: "1px solid rgba(122,215,255,0.2)", color: "#e8f7ff" }}>
               <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800 }}>
                 <span>{r.amount} Crumbs</span>
-                <span style={{ color: r.status === "paid" ? "#8dcea0" : r.status === "rejected" ? "#e0a090" : "#7ad7ff" }}>{r.status}</span>
+                <span style={{ color: r.status === "paid" ? "#8dcea0" : r.status === "rejected" ? "#e0a090" : "#7ad7ff" }}>{t(`wallet.${r.status}`)}</span>
               </div>
               <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.45)", wordBreak: "break-all" }}>{r.wallet}</div>
             </div>

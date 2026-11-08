@@ -30,6 +30,23 @@ function impact(style: "light" | "medium" | "heavy") {
   vibrateMs(style === "light" ? 8 : style === "medium" ? 16 : 26);
 }
 
+/** A short, soft tap. Telegram's soft impact when the phone has it. */
+export function hapticSoft() {
+  if (tooSoon()) return;
+  const hf = tgHaptic();
+  let used = false;
+  if (hf) {
+    try {
+      hf.impactOccurred("soft");
+      used = true;
+    } catch { /**/ }
+    if (!used) {
+      try { hf.impactOccurred("light"); used = true; } catch { /**/ }
+    }
+  }
+  if (!used) vibrateMs(9);
+}
+
 export function hapticLight() {
   try { impact("light"); } catch { /**/ }
 }

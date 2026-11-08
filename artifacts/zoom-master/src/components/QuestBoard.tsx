@@ -11,19 +11,25 @@ import {
 import { crumbsEarned } from "../pet/crumbs";
 import {
   claimQuest,
-  formatQuestProgress,
   noteShare,
   questRows,
   subscribeQuests,
   type QuestGroup,
   type QuestRow,
 } from "../pet/quests";
+import { useT } from "../i18n/LanguageContext";
 
-const GROUPS: { id: QuestGroup; label: string }[] = [
-  { id: "daily", label: "Daily" },
-  { id: "weekly", label: "Weekly" },
-  { id: "achievement", label: "Achievements" },
+const GROUPS: { id: QuestGroup }[] = [
+  { id: "daily" },
+  { id: "weekly" },
+  { id: "achievement" },
 ];
+
+function questLine(row: QuestRow, t: (key: string, vars?: Record<string, string | number>) => string): string {
+  if (row.id === "home15") return t("quest.min", { n: Math.min(15, Math.floor(row.progress / 60000)) });
+  if (row.goal === 1) return row.progress >= 1 ? t("quest.ready") : t("quest.notYet");
+  return `${Math.min(row.progress, row.goal)}/${row.goal}`;
+}
 
 export function QuestBoard({
   referralCount,
@@ -34,6 +40,7 @@ export function QuestBoard({
   referralCode: string;
   onReward: (message: string) => void;
 }) {
+  const { t } = useT();
   const [rows, setRows] = useState<QuestRow[]>(() => questRows(referralCount, crumbsEarned()));
   const [pet, setPet] = useState<PetState>(getPet());
   const [group, setGroup] = useState<QuestGroup>("daily");
@@ -58,7 +65,7 @@ export function QuestBoard({
 
   const share = () => {
     const pet = getPet();
-    const text = encodeURIComponent(`My pet is stage ${pet.stage}, level ${pet.level}. Come farm Crumbs.`);
+    const text = encodeURIComponent(t("quest.shareText"));
     const url = encodeURIComponent(`https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`);
     noteShare();
     window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank");
@@ -87,7 +94,7 @@ export function QuestBoard({
                 padding: "10px 6px",
               }}
             >
-              {item.label}
+              {t(`quest.${item.id}`)}
             </button>
           );
         })}
@@ -96,15 +103,15 @@ export function QuestBoard({
         {visible.map((row) => (
           <div key={row.id} className="earn-row">
             <div className="min-w-0">
-              <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{row.title}</div>
+              <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t(`quest.${row.id}`)}</div>
               <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>
-                {row.detail} · {formatQuestProgress(row)} · +{row.xp} XP
+                {t(`quest.${row.id}d`)} · {questLine(row, t)} · +{row.xp} XP
               </div>
             </div>
             {row.id === "share" && !row.claimed && !row.ready ? (
-              <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={share}>Share</button>
+              <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={share}>{t("quest.shareBtn")}</button>
             ) : row.claimed ? (
-              <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
+              <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>{t("quest.done")}</span>
             ) : (
               <button
                 type="button"
@@ -115,7 +122,7 @@ export function QuestBoard({
                   if (gained > 0) onReward(`+${gained} XP`);
                 }}
               >
-                {row.ready ? "Claim" : formatQuestProgress(row)}
+                {row.ready ? t("quest.claim") : questLine(row, t)}
               </button>
             )}
           </div>
@@ -124,50 +131,50 @@ export function QuestBoard({
           <>
             <div className="earn-row">
               <div className="min-w-0">
-                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Join community</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Once · +{TASK_ONCE_XP} XP</div>
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.community")}</div>
+                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>{t("quest.communityd", { n: TASK_ONCE_XP })}</div>
               </div>
               {pet.claimedCommunity ? (
-                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
+                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>{t("quest.done")}</span>
               ) : pet.openedCommunity ? (
-                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("community"); if (n > 0) onReward(`+${n} XP`); }}>Claim</button>
+                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("community"); if (n > 0) onReward(`+${n} XP`); }}>{t("quest.claim")}</button>
               ) : (
-                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => openLink("community", "https://t.me/ZoomVerse")}>Open</button>
+                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => openLink("community", "https://t.me/ZoomVerse")}>{t("quest.open")}</button>
               )}
             </div>
             <div className="earn-row">
               <div className="min-w-0">
-                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Join chat</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Once · +{TASK_ONCE_XP} XP</div>
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.chat")}</div>
+                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>{t("quest.chatd", { n: TASK_ONCE_XP })}</div>
               </div>
               {pet.claimedChat ? (
-                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
+                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>{t("quest.done")}</span>
               ) : pet.openedChat ? (
-                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("chat"); if (n > 0) onReward(`+${n} XP`); }}>Claim</button>
+                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("chat"); if (n > 0) onReward(`+${n} XP`); }}>{t("quest.claim")}</button>
               ) : (
-                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => openLink("chat", "https://t.me/ZoomVerse_Chat")}>Open</button>
+                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => openLink("chat", "https://t.me/ZoomVerse_Chat")}>{t("quest.open")}</button>
               )}
             </div>
             <div className="earn-row">
               <div className="min-w-0">
-                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>Invite a friend</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>Once, when a friend joins · +{TASK_INVITE_ONCE_XP} XP</div>
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.friend")}</div>
+                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>{t("quest.friendd", { n: TASK_INVITE_ONCE_XP })}</div>
               </div>
               {pet.claimedInviteTask ? (
-                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>Done</span>
+                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>{t("quest.done")}</span>
               ) : referralCount > 0 ? (
-                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("invite", referralCount); if (n > 0) onReward(`+${n} XP`); }}>Claim</button>
+                <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("invite", referralCount); if (n > 0) onReward(`+${n} XP`); }}>{t("quest.claim")}</button>
               ) : (
                 <button
                   type="button"
                   className="earn-cta earn-cta--ghost !w-auto px-3"
                   onClick={() => {
-                    const text = encodeURIComponent("Come farm Crumbs with me.");
+                    const text = encodeURIComponent(t("quest.shareText"));
                     const url = encodeURIComponent(`https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`);
                     window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank");
                   }}
                 >
-                  Invite
+                  {t("quest.invite")}
                 </button>
               )}
             </div>
