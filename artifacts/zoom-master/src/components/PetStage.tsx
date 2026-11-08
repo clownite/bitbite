@@ -128,13 +128,12 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
       const x = position.getX(i);
       const y = position.getY(i);
       const z = position.getZ(i);
-      const u = uv ? uv.getX(i) : 1;
-      const eyeOrSkin = u > 0.97 || u < 0.1;
-      const greenEye = u > 0.6 && u < 0.7;
-      if ((!eyeOrSkin && !greenEye) || Math.abs(z - 0.25) > 0.001 || x < -0.251 || x > 0.251) continue;
-      const onSeam = Math.abs(y - 0.9) < 0.001 || Math.abs(y - 0.7) < 0.001 || (greenEye && Math.abs(y - 0.6) < 0.001);
-      if (!onSeam) continue;
-      seams.push({ index: i, rest: y, shut: y > 0.8 ? 0.7 : 0.66 });
+      const u = uv ? uv.getX(i) : 0;
+      // Only the black pupils. The green band and the skin stay still.
+      if (u < 0.97 || Math.abs(z - 0.25) > 0.001 || x < -0.201 || x > 0.201) continue;
+      if (Math.abs(y - 0.9) < 0.001 || Math.abs(y - 0.7) < 0.001) {
+        seams.push({ index: i, rest: y, shut: y > 0.8 ? 0.732 : 0.708 });
+      }
     }
   } else {
     const palette = paletteOf(source);
