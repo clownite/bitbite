@@ -132,20 +132,17 @@ function AppShell() {
   }, [muted]);
 
   useEffect(() => {
-    const wake = () => resumeChiptune();
-    const tap = (e: PointerEvent) => {
+    const down = (e: PointerEvent) => {
+      resumeChiptune();
       const el = e.target as HTMLElement | null;
-      if (el?.closest?.("button, a, canvas, [role='button']")) {
-        hapticSoft();
-        playClick();
-      }
+      const hit = el?.closest?.("button, a, canvas, [role='button']");
+      if (!hit) return;
+      hapticSoft();
+      if (hit.closest(".claim-3d")) return;
+      playClick();
     };
-    window.addEventListener("pointerdown", wake);
-    document.addEventListener("pointerup", tap);
-    return () => {
-      window.removeEventListener("pointerdown", wake);
-      document.removeEventListener("pointerup", tap);
-    };
+    window.addEventListener("pointerdown", down);
+    return () => window.removeEventListener("pointerdown", down);
   }, []);
 
   useEffect(() => {

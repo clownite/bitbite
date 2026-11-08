@@ -3931,6 +3931,115 @@ body, body * {
 .cookie-still {
   display: inline-flex;
 }
+.pet-note {
+  position: absolute;
+  right: 16px;
+  bottom: 22px;
+  z-index: 6;
+  width: 54px;
+  height: 40px;
+  padding: 0;
+  border: 3px solid #1a1208;
+  background: #fff6e4;
+  box-shadow: 3px 3px 0 #1a1208;
+  image-rendering: pixelated;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.pet-note.is-shake {
+  animation: pet-note-shake 0.28s steps(2) infinite;
+}
+.pet-note.is-open {
+  display: block;
+  width: min(230px, 78%);
+  height: auto;
+  min-height: 92px;
+  padding: 12px 12px 10px;
+  text-align: left;
+  animation: none;
+}
+.pet-note.is-away {
+  animation: pet-note-away 0.65s ease forwards;
+}
+.pet-note-stamp {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 12px;
+  background: #d24a4a;
+  box-shadow: inset 0 0 0 2px #fff6e4;
+}
+.pet-note.is-open .pet-note-stamp { display: none; }
+.pet-note-mark {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1208;
+}
+.pet-note-body {
+  display: block;
+  color: #1a1208;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+.pet-note-caret {
+  display: inline-block;
+  width: 7px;
+  height: 12px;
+  margin-left: 1px;
+  background: #1a1208;
+  vertical-align: -1px;
+}
+.pet-note-xp {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: #0c6e8a;
+}
+.pet-hearts {
+  position: absolute;
+  left: 50%;
+  top: 42%;
+  z-index: 7;
+  pointer-events: none;
+}
+.pet-hearts i {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #ff4d6d;
+  transform: rotate(45deg);
+  animation: pet-heart-up 1.05s ease forwards;
+}
+.pet-hearts i::before,
+.pet-hearts i::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: #ff4d6d;
+  border-radius: 50%;
+}
+.pet-hearts i::before { left: -7px; }
+.pet-hearts i::after { top: -7px; }
+.pet-hearts i:nth-child(1) { animation-delay: 0s; }
+.pet-hearts i:nth-child(2) { margin-left: 16px; animation-delay: 0.08s; }
+.pet-hearts i:nth-child(3) { margin-left: -18px; animation-delay: 0.14s; }
+@keyframes pet-note-shake {
+  0% { transform: translateX(0) rotate(-2deg); }
+  50% { transform: translateX(1px) rotate(2deg); }
+  100% { transform: translateX(0) rotate(-2deg); }
+}
+@keyframes pet-note-away {
+  to { transform: translateX(130%) rotate(10deg); opacity: 0; }
+}
+@keyframes pet-heart-up {
+  0% { transform: translateY(0) rotate(45deg) scale(0.7); opacity: 1; }
+  100% { transform: translateY(-74px) rotate(45deg) scale(1); opacity: 0; }
+}
 .crumb-fly {
   position: fixed;
   z-index: 80;

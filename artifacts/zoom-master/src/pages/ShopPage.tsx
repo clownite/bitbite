@@ -84,7 +84,7 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
               >
                 <PetStage pet={poster} frame="shop" petId={item.id} />
                 <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2, pointerEvents: "none" }}>
-                  <PixelMark glyph={item.element.glyph} label={t(`pet.element.${item.element.id}`)} size={26} />
+                  <PixelMark glyph={item.element.glyph} label={t(`pet.element.${item.element.id}`)} />
                 </div>
                 <div
                   style={{

@@ -54,24 +54,15 @@ export function PixelMark({ glyph, label, center = false, size }: { glyph: strin
     if (!chips.length) return;
     let raf = 0;
     const tick = (now: number) => {
-      const shift = Math.round(Math.sin(now / 480));
+      const glimmer = Math.sin(now / 1400) * 10;
       ctx.putImageData(base, 0, 0);
       for (const chip of chips) {
-        const i = (chip.y * cols + chip.x) * 4;
-        ctx.fillStyle = "rgba(0,0,0,0)";
-        const px = ctx.getImageData(chip.x, chip.y, 1, 1).data;
-        void px;
-        base.data[i + 3] = 0;
-      }
-      ctx.putImageData(base, 0, 0);
-      for (const chip of chips) {
-        const nx = Math.max(0, Math.min(cols - 1, chip.x + shift));
-        ctx.fillStyle = `rgba(${chip.c[0]},${chip.c[1]},${chip.c[2]},${chip.c[3] / 255})`;
-        ctx.fillRect(nx, chip.y, 1, 1);
-      }
-      for (const chip of chips) {
-        const i = (chip.y * cols + chip.x) * 4;
-        base.data[i + 3] = chip.c[3];
+        const n = Math.round(Math.sin(now / 1400 + chip.x) * glimmer);
+        const r = Math.max(0, Math.min(255, chip.c[0] + n));
+        const g = Math.max(0, Math.min(255, chip.c[1] + n));
+        const b = Math.max(0, Math.min(255, chip.c[2] + Math.round(n * 0.4)));
+        ctx.fillStyle = `rgba(${r},${g},${b},${chip.c[3] / 255})`;
+        ctx.fillRect(chip.x, chip.y, 1, 1);
       }
       raf = requestAnimationFrame(tick);
     };

@@ -106,7 +106,7 @@ export function CollectionPage({
             >
               <PetStage pet={pet} frame="collection" petId={id} />
               <div style={{ position: "absolute", top: 8, right: 8, zIndex: 2, pointerEvents: "none" }}>
-                <PixelMark glyph={petDef(id).element.glyph} label={t(`pet.element.${petDef(id).element.id}`)} size={22} />
+                <PixelMark glyph={petDef(id).element.glyph} label={t(`pet.element.${petDef(id).element.id}`)} />
               </div>
               <div style={{ position: "absolute", left: 10, top: 10, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#e8f7ff", pointerEvents: "none" }}>
                 {selected ? t("pet.onHome") : `${index + 1}/${PET_SLOTS}`}

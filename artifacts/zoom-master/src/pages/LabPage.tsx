@@ -10,6 +10,7 @@ import { PixelMark } from "../components/PixelMark";
 import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs } from "../pet/crumbs";
 import { playClaim } from "../audio/sfx";
+import { PetPostcard } from "../components/PetPostcard";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
 
@@ -189,6 +190,7 @@ export function LabPage({
         >
           <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }}>
             <PetStage pet={pet} frame="lab" petId={pet.active} />
+            <PetPostcard active={active} petName={chosen.name} />
           </div>
           <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>

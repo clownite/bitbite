@@ -123,6 +123,19 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
         seams.push({ index: i, rest: y, shut: y > 0.8 ? 0.732 : 0.708 });
       }
     }
+  } else if (petId === "finch") {
+    for (let i = 0; i < position.count; i++) {
+      const x = position.getX(i);
+      const y = position.getY(i);
+      const z = position.getZ(i);
+      const u = uv ? uv.getX(i) : 1;
+      const eyeOrSkin = u > 0.97 || u < 0.1;
+      const greenEye = u > 0.6 && u < 0.7;
+      if ((!eyeOrSkin && !greenEye) || Math.abs(z - 0.25) > 0.001 || x < -0.251 || x > 0.251) continue;
+      const onSeam = Math.abs(y - 0.9) < 0.001 || Math.abs(y - 0.7) < 0.001 || (greenEye && Math.abs(y - 0.6) < 0.001);
+      if (!onSeam) continue;
+      seams.push({ index: i, rest: y, shut: y > 0.8 ? 0.7 : 0.66 });
+    }
   } else {
     const palette = paletteOf(source);
     if (palette) {
@@ -337,6 +350,10 @@ export function PetStage({
     host.addEventListener("pointerup", onUp);
     host.addEventListener("pointercancel", onCancel);
 
+    let helloAt = -1;
+    const onHello = () => { helloAt = t; };
+    window.addEventListener("zoom-pet-hello", onHello);
+
     let raf = 0;
     const clock = new Clock();
     let t = 0;
@@ -349,8 +366,8 @@ export function PetStage({
       const fit = fitScale(level, stage);
       if (frame === "shop") {
         rig.scale.setScalar(1.55);
-        rig.position.set(0, 0, 0);
-        rig.rotation.set(0, userYaw, 0);
+        rig.position.set(Math.sin(t * 0.65) * 0.012, Math.sin(t * 1.05) * 0.018, 0);
+        rig.rotation.set(Math.sin(t * 0.45) * 0.01, userYaw + Math.sin(t * 0.35) * 0.028, Math.sin(t * 0.7) * 0.01);
       } else if (frame === "lab") {
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
@@ -386,6 +403,14 @@ export function PetStage({
           rig.rotation.set(0, userYaw, 0);
         }
       }
+      if (helloAt >= 0 && frame === "lab") {
+        const hop = (t - helloAt) / 0.55;
+        if (hop >= 1) helloAt = -1;
+        else {
+          rig.position.y += Math.sin(hop * Math.PI) * 0.14;
+          rig.rotation.z += Math.sin(hop * Math.PI) * 0.05;
+        }
+      }
       if (blink) {
         const span = 0.28;
         let closed = 0;
@@ -413,6 +438,7 @@ export function PetStage({
       stopWait();
       cancelAnimationFrame(raf);
       observer.disconnect();
+      window.removeEventListener("zoom-pet-hello", onHello);
       host.removeEventListener("pointerdown", onDown);
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerup", onUp);

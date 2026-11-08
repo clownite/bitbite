@@ -232,6 +232,12 @@ function applyXp(amount: number) {
   state = syncActive({ ...state, ...walkLevels(state.level, state.xp + amount) });
 }
 
+/** A little XP that does not spend one of the four daily taps. */
+export function grantXp(amount: number) {
+  applyXp(amount);
+  emit();
+}
+
 export function getPet(): PetState {
   return state;
 }

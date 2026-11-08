@@ -46,9 +46,9 @@ export function setChiptuneMuted(next: boolean) {
   if (master) master.gain.value = next ? 0 : 0.2;
 }
 
-export function resumeChiptune() {
+function ensure(): AudioContext | null {
   const AC = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-  if (!AC) return;
+  if (!AC) return null;
   if (!ctx) {
     ctx = new AC();
     master = ctx.createGain();
@@ -57,5 +57,24 @@ export function resumeChiptune() {
     nextAt = ctx.currentTime + 0.06;
     schedule();
   }
-  void ctx.resume();
+  return ctx;
+}
+
+export function resumeChiptune() {
+  const audio = ensure();
+  if (audio) void audio.resume();
+}
+
+/** A sound on the same clock as the music, so the first tap is not late. */
+export function playNotes(notes: { freq: number; at: number; dur: number; gain: number }[]) {
+  const audio = ensure();
+  if (!audio || !master) return;
+  const ring = () => {
+    const start = audio.currentTime + 0.012;
+    for (const note of notes) {
+      blip(note.freq, start + note.at, note.dur, "square", note.gain);
+    }
+  };
+  if (audio.state === "suspended") void audio.resume().then(ring);
+  else ring();
 }
