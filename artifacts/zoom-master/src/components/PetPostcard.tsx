@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useT } from "../i18n/LanguageContext";
-import { postcardLine } from "../pet/postcards";
+import { postcardAt, postcardLine } from "../pet/postcards";
 import { grantXp } from "../pet/petProgress";
 import { hapticSoft } from "../utils/haptic";
 
@@ -41,14 +41,15 @@ type Phase = "closed" | "writing" | "away";
 
 /**
  * A pixel postcard from the pet.
- * It shakes until you open it, writes one letter at a time, then leaves to the right.
+ * It shakes until you open it, writes one letter at a time, and stays until you tap it away.
  */
 export function PetPostcard({ active, petName }: { active: boolean; petName: string }) {
   const { lang, t } = useT();
   const [phase, setPhase] = useState<Phase | null>(null);
-  const [full, setFull] = useState("");
+  const [lineId, setLineId] = useState<number | null>(null);
   const [shown, setShown] = useState("");
   const [hearts, setHearts] = useState(false);
+  const full = lineId == null ? "" : postcardAt(lang, petName, lineId);
 
   useEffect(() => {
     if (!active) return;
@@ -73,7 +74,7 @@ export function PetPostcard({ active, petName }: { active: boolean; petName: str
         now.count += 1;
         now.nextAt = Date.now() + AGAIN_MS;
         save(now);
-        setFull(line.text);
+        setLineId(line.id);
         setShown("");
         setHearts(false);
         setPhase("closed");
@@ -90,10 +91,7 @@ export function PetPostcard({ active, petName }: { active: boolean; petName: str
     const id = window.setInterval(() => {
       i += 1;
       setShown(full.slice(0, i));
-      if (i >= full.length) {
-        window.clearInterval(id);
-        window.setTimeout(() => setPhase("away"), 1300);
-      }
+      if (i >= full.length) window.clearInterval(id);
     }, 28);
     return () => window.clearInterval(id);
   }, [phase, full]);
@@ -106,13 +104,16 @@ export function PetPostcard({ active, petName }: { active: boolean; petName: str
 
   if (!phase) return null;
 
-  const open = () => {
-    if (phase !== "closed") return;
-    setPhase("writing");
-    setHearts(true);
-    grantXp(LETTER_XP);
-    hapticSoft();
-    window.dispatchEvent(new Event("zoom-pet-hello"));
+  const onNote = () => {
+    if (phase === "closed") {
+      setPhase("writing");
+      setHearts(true);
+      grantXp(LETTER_XP);
+      hapticSoft();
+      window.dispatchEvent(new Event("zoom-pet-hello"));
+      return;
+    }
+    if (phase === "writing") setPhase("away");
   };
 
   return (
@@ -120,7 +121,7 @@ export function PetPostcard({ active, petName }: { active: boolean; petName: str
       <button
         type="button"
         className={phase === "closed" ? "pet-note is-shake" : phase === "away" ? "pet-note is-open is-away" : "pet-note is-open"}
-        onClick={open}
+        onClick={onNote}
         aria-label={t("pet.letter")}
       >
         <span className="pet-note-stamp" />

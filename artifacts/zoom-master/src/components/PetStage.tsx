@@ -129,8 +129,9 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
       const y = position.getY(i);
       const z = position.getZ(i);
       const u = uv ? uv.getX(i) : 0;
-      // Only the black pupils. The green band and the skin stay still.
-      if (u < 0.97 || Math.abs(z - 0.25) > 0.001 || x < -0.201 || x > 0.201) continue;
+      // Same seam as Aquin: the black pupil and the skin lid. Not the green band, not the red scarf.
+      const pupil = u > 0.97 || u < 0.1;
+      if (!pupil || Math.abs(z - 0.25) > 0.001 || x < -0.201 || x > 0.201) continue;
       if (Math.abs(y - 0.9) < 0.001 || Math.abs(y - 0.7) < 0.001) {
         seams.push({ index: i, rest: y, shut: y > 0.8 ? 0.732 : 0.708 });
       }

@@ -3936,8 +3936,8 @@ body, body * {
   right: 16px;
   bottom: 22px;
   z-index: 6;
-  width: 54px;
-  height: 40px;
+  width: 40px;
+  height: 30px;
   padding: 0;
   border: 3px solid #1a1208;
   background: #fff6e4;
@@ -3952,10 +3952,10 @@ body, body * {
 }
 .pet-note.is-open {
   display: block;
-  width: min(230px, 78%);
+  width: min(168px, 62%);
   height: auto;
-  min-height: 92px;
-  padding: 12px 12px 10px;
+  min-height: 0;
+  padding: 8px 8px 6px;
   text-align: left;
   animation: none;
 }
@@ -3980,7 +3980,7 @@ body, body * {
 .pet-note-body {
   display: block;
   color: #1a1208;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.35;
   font-weight: 600;
 }
