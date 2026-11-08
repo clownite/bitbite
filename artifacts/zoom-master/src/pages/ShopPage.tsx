@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { formatRate, PETS, petCombat } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PetStage } from "../components/PetStage";
+import { PixelMark } from "../components/PixelMark";
+import { StatGlyph } from "../components/StatGlyph";
 import { buyPet, getPet, LEVEL5_GRAM, LEVEL10_GRAM, PET_SLOTS, subscribePet, type PetState } from "../pet/petProgress";
-import { recordGramInvested } from "../pet/invested";
+import { settlePetPayments, startPetPayment } from "../pet/payPet";
 import { useT } from "../i18n/LanguageContext";
 
 interface ShopPageProps {
@@ -33,6 +35,7 @@ interface ShopPageProps {
 /** The shop sells pets. Nothing else. */
 export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
   const { t } = useT();
+  void onPay;
   const ownerId = petOwnerId(telegramId);
   const [pet, setPet] = useState<PetState>(getPet());
   const [note, setNote] = useState<string | null>(null);
@@ -51,15 +54,15 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
         {PETS.map((item) => {
           const owned = pet.owned.includes(item.id);
           const slotsFull = pet.owned.length >= PET_SLOTS;
-          const canBuy = !owned && !slotsFull && item.price > 0 && gram + 1e-9 >= item.price;
+          const canBuy = !owned && !slotsFull;
           const stats = petCombat(item, 1);
           const statLine = [
-            ["HP", stats.hp],
-            ["Atk", stats.attack],
-            ["Def", stats.defense],
-            ["Sp.A", stats.specialAttack],
-            ["Sp.D", stats.specialDefense],
-            ["Spe", stats.speed],
+            ["hp", "HP", stats.hp],
+            ["atk", "Atk", stats.attack],
+            ["def", "Def", stats.defense],
+            ["spa", "Sp.A", stats.specialAttack],
+            ["spd", "Sp.D", stats.specialDefense],
+            ["spe", "Spe", stats.speed],
           ] as const;
           return (
             <article
@@ -80,6 +83,9 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
                 }}
               >
                 <PetStage pet={poster} frame="shop" petId={item.id} />
+                <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2, pointerEvents: "none" }}>
+                  <PixelMark glyph={item.element.glyph} label={t(`pet.element.${item.element.id}`)} size={26} />
+                </div>
                 <div
                   style={{
                     position: "absolute",
@@ -103,6 +109,8 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: item.element.color }}>{personalPetNumber(ownerId, item.id)}</div>
                     <div style={{ fontSize: 20, fontWeight: 800, color: "#e8f7ff", lineHeight: 1.1 }}>{item.name}</div>
+                    <div style={{ marginTop: 4, fontSize: 12, fontWeight: 800, color: item.element.color }}>{t(`pet.ability.${item.id}.name`)}</div>
+                    <div style={{ marginTop: 2, fontSize: 11, lineHeight: 1.35, color: "rgba(186,220,236,0.72)" }}>{t(`pet.ability.${item.id}.text`)}</div>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: item.element.color }}>{t(`pet.element.${item.element.id}`)}</div>
@@ -110,8 +118,9 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
                   </div>
                 </div>
                 <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 4 }}>
-                  {statLine.map(([label, value]) => (
-                    <div key={label} style={{ textAlign: "center", borderRadius: 10, padding: "6px 0 5px", background: "rgba(122,215,255,0.06)" }}>
+                  {statLine.map(([id, label, value]) => (
+                    <div key={id} style={{ textAlign: "center", borderRadius: 10, padding: "6px 0 5px", background: "rgba(122,215,255,0.06)" }}>
+                      <StatGlyph id={id} />
                       <div style={{ fontSize: 8, letterSpacing: "0.04em", color: "rgba(186,220,236,0.5)" }}>{label}</div>
                       <div style={{ marginTop: 2, fontSize: 13, fontWeight: 800, color: "#e8f7ff" }}>{value}</div>
                     </div>
@@ -141,19 +150,20 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
                   ) : (
                     <button
                       type="button"
-                      disabled={!canBuy}
+                      disabled={slotsFull}
                       onClick={() => {
-                        if (!canBuy) {
-                          setNote(t("pet.need", { n: item.price, name: item.name }));
+                        if (item.price <= 0) {
+                          buyPet(item.id);
+                          setNote(t("pet.got", { name: item.name }));
                           return;
                         }
-                        if (!onPay(item.price)) {
-                          setNote(t("pet.needShort"));
-                          return;
-                        }
-                        buyPet(item.id);
-                        recordGramInvested(item.price);
-                        setNote(t("pet.got", { name: item.name }));
+                        startPetPayment(item.id, item.name, item.price);
+                        setNote(t("pet.payOpen"));
+                        window.setTimeout(() => {
+                          void settlePetPayments().then((ids) => {
+                            if (ids.includes(item.id)) setNote(t("pet.got", { name: item.name }));
+                          });
+                        }, 4000);
                       }}
                       style={{
                         width: "100%",

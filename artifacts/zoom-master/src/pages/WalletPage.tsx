@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { PixelBankCard } from "../components/PixelBankCard";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
-import { getTelegramViewer } from "../utils/telegram";
 import { useT } from "../i18n/LanguageContext";
 import {
   CRUMB_GRAM,
@@ -102,9 +101,6 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
     setNote(t("wallet.note.sent"));
   };
 
-  const viewer = getTelegramViewer();
-  const initial = viewer.name.slice(0, 1).toUpperCase();
-
   const field = {
     borderRadius: 14,
     border: "1px solid rgba(122,215,255,0.28)",
@@ -116,36 +112,7 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
 
   return (
     <div className="flex flex-col overflow-y-auto" style={{ height: "100%", padding: "8px 16px 28px" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.18em", color: "#7ad7ff" }}>{t("wallet.profile")}</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-          <div style={{ minWidth: 0, textAlign: "right" }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: "#e8f7ff", lineHeight: 1.1 }}>{viewer.name}</div>
-            <div style={{ fontSize: 11, color: "rgba(186,220,236,0.55)" }}>{viewer.username || t("wallet.telegram")}</div>
-          </div>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 12,
-              overflow: "hidden",
-              display: "grid",
-              placeItems: "center",
-              background: "#071018",
-              border: "1px solid rgba(122,215,255,0.45)",
-              color: "#7ad7ff",
-              fontWeight: 900,
-              flexShrink: 0,
-            }}
-          >
-            {viewer.photoUrl ? (
-              <img src={viewer.photoUrl} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-            ) : (
-              initial
-            )}
-          </div>
-        </div>
-      </div>
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.18em", color: "#7ad7ff" }}>{t("wallet.profile")}</div>
 
       <PixelBankCard crumbs={formatCrumbs(balance)} />
 

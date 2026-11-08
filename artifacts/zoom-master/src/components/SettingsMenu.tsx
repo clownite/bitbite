@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from "react";
 import { LANGS, useT } from "../i18n/LanguageContext";
+import { clicksEnabled, setClicksEnabled } from "../audio/sfx";
 
 const CYAN = "#9EC5E8";
 const CYAN_BORDER = "rgba(158,197,232,0.35)";
@@ -22,6 +23,7 @@ interface SettingsMenuProps {
 export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, headerButton = false }: SettingsMenuProps) {
   const { lang, setLang, t } = useT();
   const [open, setOpen] = useState(false);
+  const [clicks, setClicks] = useState(clicksEnabled);
 
   // ESC closes the modal — small QoL on desktop / web preview.
   useEffect(() => {
@@ -255,6 +257,32 @@ export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, header
                     }}
                   />
                 </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !clicks;
+                  setClicksEnabled(next);
+                  setClicks(next);
+                }}
+                data-testid="settings-sfx-toggle"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "12px 14px",
+                  borderRadius: 12,
+                  border: "1px solid rgba(255,255,255,0.10)",
+                  background: "rgba(255,255,255,0.03)",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  letterSpacing: "0.04em",
+                  cursor: "pointer",
+                }}
+              >
+                <span style={{ flex: 1, textAlign: "left" }}>{t("pet.sfx")}</span>
+                <span style={{ color: clicks ? "#9EC5E8" : "rgba(255,255,255,0.45)" }}>{clicks ? "ON" : "OFF"}</span>
               </button>
             </div>
 

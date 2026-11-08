@@ -9,6 +9,7 @@ import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PixelMark } from "../components/PixelMark";
 import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs } from "../pet/crumbs";
+import { playClaim } from "../audio/sfx";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
 
@@ -220,7 +221,29 @@ export function LabPage({
                 className={farm.pending >= 0.0001 ? "claim-3d" : "claim-3d is-empty"}
                 style={{ ["--claim" as string]: chosen.element.color }}
                 disabled={farm.pending < 0.0001}
-                onClick={() => { claimFarm(); }}
+                onClick={(event) => {
+                  claimFarm();
+                  playClaim();
+                  const from = event.currentTarget.getBoundingClientRect();
+                  const wallet = document.querySelector("[data-crumb-wallet]");
+                  const to = wallet?.getBoundingClientRect();
+                  if (!to) return;
+                  for (let i = 0; i < 6; i++) {
+                    const crumb = document.createElement("span");
+                    crumb.className = "crumb-fly";
+                    crumb.textContent = "🍪";
+                    crumb.style.left = `${from.left + from.width / 2}px`;
+                    crumb.style.top = `${from.top + from.height / 2}px`;
+                    document.body.appendChild(crumb);
+                    const dx = to.left + to.width / 2 - (from.left + from.width / 2) + (i - 2.5) * 6;
+                    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
+                    crumb.animate([
+                      { transform: "translate(-50%, -50%) scale(0.4) rotateX(0deg)", opacity: 1 },
+                      { transform: `translate(calc(-50% + ${dx * 0.45}px), calc(-50% + ${dy * 0.35 - 28}px)) scale(1.15) rotateY(180deg)`, opacity: 1, offset: 0.45 },
+                      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.35) rotateY(360deg)`, opacity: 0.15 },
+                    ], { duration: 720, delay: i * 50, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" }).onfinish = () => crumb.remove();
+                  }
+                }}
               >
                 {t("pet.claim")}
               </button>
@@ -276,7 +299,7 @@ export function LabPage({
               className="font-black text-base tracking-wide whitespace-nowrap inline-flex items-center gap-1.5"
               style={{ color: "#ffffff", letterSpacing: "0.06em" }}
             >
-              <ZoomCubeIcon size={18} />
+              <span data-crumb-wallet><ZoomCubeIcon size={18} /></span>
               {formatCrumbs(crumbs)}
             </span>
           </div>

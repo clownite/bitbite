@@ -23,6 +23,8 @@ import { initVersionCheck } from "./utils/appVersion";
 import { noteVisit } from "./pet/quests";
 import { FirstGuide, type GuideTab } from "./components/FirstGuide";
 import { hapticSoft } from "./utils/haptic";
+import { playClick } from "./audio/sfx";
+import { settlePetPayments } from "./pet/payPet";
 import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
@@ -112,9 +114,15 @@ function AppShell() {
     };
     document.addEventListener("visibilitychange", onShow);
     window.addEventListener("focus", onShow);
+    void settlePetPayments();
+    const onPay = () => { if (!document.hidden) void settlePetPayments(); };
+    document.addEventListener("visibilitychange", onPay);
+    window.addEventListener("focus", onPay);
     return () => {
       document.removeEventListener("visibilitychange", onShow);
       window.removeEventListener("focus", onShow);
+      document.removeEventListener("visibilitychange", onPay);
+      window.removeEventListener("focus", onPay);
     };
   }, []);
 
@@ -127,7 +135,10 @@ function AppShell() {
     const wake = () => resumeChiptune();
     const tap = (e: PointerEvent) => {
       const el = e.target as HTMLElement | null;
-      if (el?.closest?.("button, a, canvas, [role='button']")) hapticSoft();
+      if (el?.closest?.("button, a, canvas, [role='button']")) {
+        hapticSoft();
+        playClick();
+      }
     };
     window.addEventListener("pointerdown", wake);
     document.addEventListener("pointerup", tap);

@@ -28,7 +28,7 @@ function prepareChar(root: Object3D) {
     const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
     for (const mat of mats) {
       const std = mat as MeshStandardMaterial;
-      if (std.color) std.color.set(0xffffff);
+      if (std.color) std.color.set(std.map ? 0xffffff : 0x1a2430);
       std.vertexColors = false;
       std.metalness = 0;
       std.roughness = 1;

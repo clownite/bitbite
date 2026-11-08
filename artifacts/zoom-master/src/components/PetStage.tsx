@@ -71,15 +71,24 @@ function nearColor(color: [number, number, number], target: [number, number, num
     && Math.abs(color[2] - target[2]) <= slack;
 }
 
-/** The black eye voxels. Emberin's green band and Cervolt's hat are not eyes. */
+function eyeRow(y: number): boolean {
+  return Math.abs(y - 0.7) < 0.03 || Math.abs(y - 0.9) < 0.03;
+}
+
+/** The black eye corners, the same pair Aquin closes. Hair, hat and teeth are not eyes. */
 function isEye(petId: PetId, color: [number, number, number], x: number, y: number, z: number): boolean {
+  if (!eyeRow(y)) return false;
   if (petId === "finch") {
-    return nearColor(color, [17, 17, 17], 8) && z > 0.2 && y > 0.65 && y < 0.95 && x > -0.25 && x < 0.25;
+    const onEye = Math.abs(Math.abs(x) - 0.1) < 0.03 || Math.abs(Math.abs(x) - 0.2) < 0.03;
+    return nearColor(color, [17, 17, 17], 6) && Math.abs(z - 0.25) < 0.03 && onEye;
   }
-  if (petId === "lynx") return nearColor(color, [221, 221, 221], 20) && z > 0.35 && y > 0.7 && y < 1.05;
+  if (petId === "lynx") {
+    const onEye = Math.abs(Math.abs(x) - 0.1) < 0.03 || Math.abs(Math.abs(x) - 0.2) < 0.03;
+    return nearColor(color, [34, 34, 34], 6) && Math.abs(z - 0.2) < 0.03 && onEye;
+  }
   if (petId === "stag") {
-    const dark = color[0] < 90 && color[1] < 90 && color[2] < 90;
-    return dark && z > 0.22 && z < 0.38 && y > 0.84 && y < 1.06 && x > -0.2 && x < 0.42;
+    const onEye = Math.abs(x - 0.1) < 0.03 || Math.abs(x - 0.2) < 0.03 || Math.abs(x - 0.3) < 0.03;
+    return nearColor(color, [34, 34, 34], 6) && Math.abs(z - 0.3) < 0.03 && onEye;
   }
   return false;
 }
@@ -169,6 +178,7 @@ export function PetStage({
   petId?: PetId;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const [boot, setBoot] = useState(0);
   const [flash, setFlash] = useState<string | null>(null);
   const flashRef = useRef(setFlash);
   flashRef.current = setFlash;
@@ -184,15 +194,21 @@ export function PetStage({
     camera.position.set(0, frame === "lab" ? 0 : 0.55, 10);
     camera.lookAt(0, 0, 0);
 
-    const renderer = new WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
     renderer.outputColorSpace = SRGBColorSpace;
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setClearColor(0x000000, 0);
     renderer.domElement.style.width = "100%";
     renderer.domElement.style.height = "100%";
     renderer.domElement.style.display = "block";
-    renderer.domElement.style.touchAction = "none";
+    renderer.domElement.style.touchAction = frame === "shop" ? "pan-y" : "none";
+    renderer.domElement.style.background = "transparent";
     host.appendChild(renderer.domElement);
+    const onLost = (event: Event) => {
+      event.preventDefault();
+      window.setTimeout(() => setBoot((n) => n + 1), 250);
+    };
+    renderer.domElement.addEventListener("webglcontextlost", onLost);
 
     scene.add(new AmbientLight(0xfff6ea, 1.35));
     const key = new DirectionalLight(0xfff0d4, 2.4);
@@ -219,6 +235,21 @@ export function PetStage({
       box.getSize(size);
       box.getCenter(center);
       model.position.sub(center);
+      let faceSum = 0;
+      let faceCount = 0;
+      model.traverse((obj) => {
+        const mesh = obj as Mesh;
+        const position = mesh.isMesh ? mesh.geometry?.attributes?.position : null;
+        if (!position) return;
+        for (let i = 0; i < position.count; i++) {
+          const x = position.getX(i);
+          if (position.getZ(i) > 0.18 && Math.abs(x) < 0.35) {
+            faceSum += x;
+            faceCount += 1;
+          }
+        }
+      });
+      if (faceCount > 8) model.position.x -= faceSum / faceCount;
       const holder = new Group();
       const maxDim = Math.max(size.x, size.y, size.z) || 1;
       holder.scale.setScalar(2.6 / maxDim);
@@ -264,9 +295,11 @@ export function PetStage({
     const onUp = () => {
       if (!pressed) return;
       pressed = false;
-      if (moved > 12) {
-        const kill = (ev: Event) => { ev.stopPropagation(); ev.preventDefault(); };
-        host.addEventListener("click", kill, { capture: true, once: true });
+      if (moved > 12 || frame === "shop") {
+        if (moved > 12) {
+          const kill = (ev: Event) => { ev.stopPropagation(); ev.preventDefault(); };
+          host.addEventListener("click", kill, { capture: true, once: true });
+        }
         return;
       }
       if (Date.now() - lastTapAt < 700) return;
@@ -299,12 +332,10 @@ export function PetStage({
       window.setTimeout(() => flashRef.current(null), 1200);
     };
     const onCancel = () => { pressed = false; };
-    if (frame !== "shop") {
-      host.addEventListener("pointerdown", onDown);
-      host.addEventListener("pointermove", onMove);
-      host.addEventListener("pointerup", onUp);
-      host.addEventListener("pointercancel", onCancel);
-    }
+    host.addEventListener("pointerdown", onDown);
+    host.addEventListener("pointermove", onMove);
+    host.addEventListener("pointerup", onUp);
+    host.addEventListener("pointercancel", onCancel);
 
     let raf = 0;
     const clock = new Clock();
@@ -319,7 +350,7 @@ export function PetStage({
       if (frame === "shop") {
         rig.scale.setScalar(1.55);
         rig.position.set(0, 0, 0);
-        rig.rotation.set(0, 0, 0);
+        rig.rotation.set(0, userYaw, 0);
       } else if (frame === "lab") {
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
@@ -347,6 +378,9 @@ export function PetStage({
               trick.spinZ * 0.3 * Math.sin(p * Math.PI * 2) * air,
             );
           }
+        } else if (frame === "lab") {
+          rig.position.set(Math.sin(t * 0.7) * 0.015, Math.sin(t * 1.15) * 0.028, 0);
+          rig.rotation.set(Math.sin(t * 0.5) * 0.012, userYaw + Math.sin(t * 0.45) * 0.045, Math.sin(t * 0.8) * 0.018);
         } else {
           rig.position.set(0, 0, 0);
           rig.rotation.set(0, userYaw, 0);
@@ -379,17 +413,16 @@ export function PetStage({
       stopWait();
       cancelAnimationFrame(raf);
       observer.disconnect();
-      if (frame !== "shop") {
-        host.removeEventListener("pointerdown", onDown);
-        host.removeEventListener("pointermove", onMove);
-        host.removeEventListener("pointerup", onUp);
-        host.removeEventListener("pointercancel", onCancel);
-      }
+      host.removeEventListener("pointerdown", onDown);
+      host.removeEventListener("pointermove", onMove);
+      host.removeEventListener("pointerup", onUp);
+      host.removeEventListener("pointercancel", onCancel);
+      renderer.domElement.removeEventListener("webglcontextlost", onLost);
       blink?.dispose();
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };
-  }, [frame, petId]);
+  }, [frame, petId, boot]);
 
   return (
     <div
@@ -398,7 +431,8 @@ export function PetStage({
         position: "absolute",
         inset: 0,
         touchAction: frame === "shop" ? "pan-y" : "none",
-        pointerEvents: frame === "shop" ? "none" : "auto",
+        pointerEvents: "auto",
+        background: "transparent",
       }}
       aria-label={frame === "shop" ? "Pet" : "Pet. Tap for a little XP."}
     >

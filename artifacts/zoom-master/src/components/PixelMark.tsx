@@ -37,6 +37,46 @@ export function PixelMark({ glyph, label, center = false, size }: { glyph: strin
     canvas.height = rows;
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(src, minX, minY, maxX - minX + 1, maxY - minY + 1, 0, 0, cols, rows);
+    if (glyph !== "🍪") return;
+    const base = ctx.getImageData(0, 0, cols, rows);
+    const chips: { x: number; y: number; c: number[] }[] = [];
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const i = (y * cols + x) * 4;
+        const r = base.data[i];
+        const g = base.data[i + 1];
+        const b = base.data[i + 2];
+        const a = base.data[i + 3];
+        if (a < 40) continue;
+        if (r > 70 && r > g + 15 && g > 30 && b < r - 25) chips.push({ x, y, c: [r, g, b, a] });
+      }
+    }
+    if (!chips.length) return;
+    let raf = 0;
+    const tick = (now: number) => {
+      const shift = Math.round(Math.sin(now / 480));
+      ctx.putImageData(base, 0, 0);
+      for (const chip of chips) {
+        const i = (chip.y * cols + chip.x) * 4;
+        ctx.fillStyle = "rgba(0,0,0,0)";
+        const px = ctx.getImageData(chip.x, chip.y, 1, 1).data;
+        void px;
+        base.data[i + 3] = 0;
+      }
+      ctx.putImageData(base, 0, 0);
+      for (const chip of chips) {
+        const nx = Math.max(0, Math.min(cols - 1, chip.x + shift));
+        ctx.fillStyle = `rgba(${chip.c[0]},${chip.c[1]},${chip.c[2]},${chip.c[3] / 255})`;
+        ctx.fillRect(nx, chip.y, 1, 1);
+      }
+      for (const chip of chips) {
+        const i = (chip.y * cols + chip.x) * 4;
+        base.data[i + 3] = chip.c[3];
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [glyph]);
   return (
     <canvas
