@@ -93,6 +93,52 @@ function isEye(petId: PetId, color: [number, number, number], x: number, y: numb
   return false;
 }
 
+type PupilCorner = { x: number; y: number; z: number };
+
+/**
+ * The black pupils are a front face with the head hollow behind them.
+ * A skin patch sits just behind each pupil, so closing the black quad
+ * shows skin instead of the red bandana. The bandana vertices never move.
+ */
+function lidsBehindPupils(mesh: Mesh, pupils: PupilCorner[], skinU: number, skinV: number): Mesh | null {
+  if (pupils.length !== 8) return null;
+  const geometry = mesh.geometry;
+  const position = geometry.attributes.position;
+  const Geom = geometry.constructor as new () => typeof geometry;
+  const Attr = position.constructor as new (array: Float32Array, itemSize: number) => typeof position;
+  const lidGeom = new Geom();
+  const pos = new Float32Array(8 * 3);
+  const uv = new Float32Array(8 * 2);
+  const normal = new Float32Array(8 * 3);
+  const indexOf = new Map<string, number>();
+  pupils.forEach((corner, n) => {
+    pos[n * 3] = corner.x;
+    pos[n * 3 + 1] = corner.y;
+    pos[n * 3 + 2] = corner.z - 0.004;
+    uv[n * 2] = skinU;
+    uv[n * 2 + 1] = skinV;
+    normal[n * 3 + 2] = 1;
+    const side = corner.x < 0 ? "L" : "R";
+    const row = corner.y > 0.8 ? "T" : "B";
+    const col = Math.abs(corner.x) > 0.15 ? "O" : "I";
+    indexOf.set(`${side}${row}${col}`, n);
+  });
+  const at = (key: string) => indexOf.get(key);
+  // Same winding as the pupil quads, so the skin faces the camera.
+  const tris = [
+    at("LBI"), at("LTO"), at("LBO"), at("LTI"), at("LTO"), at("LBI"),
+    at("RBO"), at("RTI"), at("RBI"), at("RTO"), at("RTI"), at("RBO"),
+  ];
+  if (tris.some((n) => n == null)) return null;
+  lidGeom.setAttribute("position", new Attr(pos, 3));
+  lidGeom.setAttribute("uv", new Attr(uv, 2));
+  lidGeom.setAttribute("normal", new Attr(normal, 3));
+  lidGeom.setIndex(tris as number[]);
+  const lid = new Mesh(lidGeom, mesh.material);
+  mesh.add(lid);
+  return lid;
+}
+
 /**
  * Close the eyes into a line. The hood keeps its skin seams so the face
  * does not open a hole. The other three pinch their own eye voxels.
@@ -110,6 +156,7 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
   const position = geometry.attributes.position;
   const uv = geometry.attributes.uv;
   const seams: { index: number; rest: number; shut: number }[] = [];
+  let pupilLid: Mesh | null = null;
 
   if (petId === "dolphin") {
     for (let i = 0; i < position.count; i++) {
@@ -124,18 +171,26 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
       }
     }
   } else if (petId === "finch") {
+    const pupils: PupilCorner[] = [];
+    let skinU = 0.033;
+    let skinV = 0.5;
     for (let i = 0; i < position.count; i++) {
       const x = position.getX(i);
       const y = position.getY(i);
       const z = position.getZ(i);
       const u = uv ? uv.getX(i) : 0;
-      // Same seam as Aquin: the black pupil and the skin lid. Not the green band, not the red scarf.
-      const pupil = u > 0.97 || u < 0.1;
-      if (!pupil || Math.abs(z - 0.25) > 0.001 || x < -0.201 || x > 0.201) continue;
+      if (uv && u < 0.05) {
+        skinU = u;
+        skinV = uv.getY(i);
+      }
+      // Only the two black pupil quads. Not the skin, not the green band, not the red bandana.
+      if (u < 0.97 || Math.abs(z - 0.25) > 0.001 || x < -0.201 || x > 0.201) continue;
       if (Math.abs(y - 0.9) < 0.001 || Math.abs(y - 0.7) < 0.001) {
-        seams.push({ index: i, rest: y, shut: y > 0.8 ? 0.732 : 0.708 });
+        pupils.push({ x, y, z });
+        seams.push({ index: i, rest: y, shut: y > 0.8 ? 0.816 : 0.784 });
       }
     }
+    pupilLid = lidsBehindPupils(source, pupils, skinU, skinV);
   } else {
     const palette = paletteOf(source);
     if (palette) {
@@ -175,6 +230,7 @@ function bindBlink(model: Object3D, petId: PetId): Blink | null {
       position.needsUpdate = true;
     },
     dispose() {
+      pupilLid?.geometry.dispose();
       geometry.dispose();
     },
   };
