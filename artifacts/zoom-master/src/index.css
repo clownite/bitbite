@@ -2675,10 +2675,25 @@ body.animations-paused * {
     radial-gradient(circle at 74% 16%, rgba(255, 244, 196, 0.45), transparent 22%),
     linear-gradient(180deg, #8fd0ff 0%, #b7e7c5 38%, #7dcea0 68%, #3e9a62 100%);
 }
+.splash-noel {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(8, 18, 40, 0.2) 0%, rgba(10, 24, 40, 0.05) 36%, rgba(6, 14, 28, 0.32) 100%);
+}
+.splash-dock {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 0 22px max(18px, env(safe-area-inset-bottom, 0px));
+}
 .splash-meter {
   position: relative;
-  z-index: 3;
-  margin: auto 56px 12px;
+  z-index: 5;
+  margin: 0 34px 14px;
   height: 3px;
   border-radius: 99px;
   background: rgba(255, 255, 255, 0.28);
@@ -2697,7 +2712,7 @@ body.animations-paused * {
 }
 #splash-screen .splash-copy {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   text-align: center;
   padding: max(54px, calc(env(safe-area-inset-top, 0px) + 36px)) 24px 0;
 }
@@ -2716,8 +2731,10 @@ body.animations-paused * {
 }
 #splash-enter {
   position: relative;
-  z-index: 3;
-  margin: 0 22px max(22px, env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  display: block;
+  width: 100%;
+  margin: 0;
   height: 54px;
   border-radius: 999px;
   border: 1.5px solid rgba(255, 255, 255, 0.72);
