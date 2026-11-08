@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { PixelBankCard } from "../components/PixelBankCard";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
@@ -23,6 +24,43 @@ interface WalletPageProps {
 
 const ADDRESS_RE = /^(EQ|UQ|kQ|0Q|Ef|Uf|kf|0f)[A-Za-z0-9_-]{46}$/;
 
+function shortAddress(address: string): string {
+  return address.length > 10 ? `${address.slice(0, 4)}…${address.slice(-4)}` : address;
+}
+
+/** Top-right of the card. Telegram Wallet stays linked after the first connect. */
+function WalletConnect() {
+  const { t } = useT();
+  const [ui] = useTonConnectUI();
+  const address = useTonAddress();
+  const linked = address.length > 0;
+  return (
+    <button
+      type="button"
+      data-testid="wallet-connect"
+      onClick={() => void ui.openModal()}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-end",
+        gap: 2,
+        padding: "8px 12px",
+        borderRadius: 14,
+        border: "1px solid rgba(122,215,255,0.55)",
+        background: "rgba(8, 24, 36, 0.92)",
+        color: "#e8f7ff",
+        boxShadow: "0 0 16px rgba(122,215,255,0.28)",
+        cursor: "pointer",
+      }}
+    >
+      <span style={{ fontSize: 11, fontWeight: 900, letterSpacing: "0.12em" }}>
+        {linked ? t("wallet.connected") : t("wallet.connect")}
+      </span>
+      {linked ? <span style={{ fontSize: 10, fontWeight: 700, color: "#7ad7ff" }}>{shortAddress(address)}</span> : null}
+    </button>
+  );
+}
+
 /** Crumbs farmed from the pet. 1 Crumb = 1 GRAM, paid only after you accept the request. */
 export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   const { t } = useT();
@@ -32,6 +70,12 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   const [wallet, setWallet] = useState("");
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const linkedAddress = useTonAddress();
+
+  useEffect(() => {
+    if (!linkedAddress) return;
+    setWallet((current) => current || linkedAddress);
+  }, [linkedAddress]);
 
   useEffect(() => subscribeCrumbs(() => {
     setBalance(getCrumbs().balance);
@@ -112,7 +156,10 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
 
   return (
     <div className="flex flex-col overflow-y-auto" style={{ height: "100%", padding: "8px 16px 28px" }}>
-      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.18em", color: "#7ad7ff" }}>{t("wallet.profile")}</div>
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.18em", color: "#7ad7ff", paddingTop: 8 }}>{t("wallet.profile")}</div>
+        <WalletConnect />
+      </div>
 
       <PixelBankCard crumbs={formatCrumbs(balance)} />
 

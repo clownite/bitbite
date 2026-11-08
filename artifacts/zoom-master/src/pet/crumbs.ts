@@ -67,22 +67,39 @@ function emit() {
   listeners.forEach((fn) => fn());
 }
 
+/** A gap this long means the app was closed, the phone was off, or the page was frozen. */
+const AWAY_MS = 20_000;
+
 /**
- * Fill the pet up to its own daily maximum, then stop.
- * Time spent already full is dropped, so the tank stays frozen until Claim.
+ * While the app is open, the tank fills up to one day and waits for Claim.
+ * While it is closed, the same daily rate keeps running for the whole absence
+ * and is claimed into the wallet. It never pays faster than the pet's rate.
  */
 export function settleFarm(now = Date.now()) {
   const from = state.lastTickAt || now;
   const elapsed = Math.max(0, now - from);
-  const cap = dailyFarm(getActivePetId(), getPet().level);
-  const room = Math.max(0, cap - state.pending);
   if (elapsed < 1000) return 0;
+  const cap = dailyFarm(getActivePetId(), getPet().level);
+  const produced = cap > 0 ? (elapsed / DAY_MS) * cap : 0;
+  if (elapsed >= AWAY_MS) {
+    const collected = state.pending + produced;
+    state = {
+      ...state,
+      balance: round8(state.balance + collected),
+      earned: round8(state.earned + collected),
+      pending: 0,
+      lastTickAt: now,
+    };
+    emit();
+    return collected;
+  }
+  const room = Math.max(0, cap - state.pending);
   if (room <= 1e-10) {
     state = { ...state, lastTickAt: now };
     emit();
     return 0;
   }
-  const gain = Math.min(room, (elapsed / DAY_MS) * cap);
+  const gain = Math.min(room, produced);
   state = {
     ...state,
     pending: round8(state.pending + gain),
@@ -91,6 +108,17 @@ export function settleFarm(now = Date.now()) {
   emit();
   return gain;
 }
+
+function watchFarm() {
+  const sync = () => settleFarm();
+  document.addEventListener("visibilitychange", sync);
+  window.addEventListener("pageshow", sync);
+  window.addEventListener("pagehide", sync);
+  window.addEventListener("focus", sync);
+  sync();
+}
+
+if (typeof window !== "undefined") queueMicrotask(watchFarm);
 
 export function farmStatus(now = Date.now()) {
   settleFarm(now);

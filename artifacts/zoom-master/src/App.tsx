@@ -26,6 +26,7 @@ import { hapticSoft } from "./utils/haptic";
 import { playClick } from "./audio/sfx";
 import { settlePetPayments } from "./pet/payPet";
 import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
+import { TonConnectUIProvider } from "@tonconnect/ui-react";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 type Tab = "lab" | "farm" | "earn" | "rank" | "shop" | "wallet";
@@ -84,11 +85,28 @@ function BootSplashGate() {
   return <AppShell />;
 }
 
+const TELEGRAM_WALLET = {
+  appName: "telegram-wallet",
+  name: "Wallet",
+  imageUrl: "https://wallet.tg/images/logo-288.png",
+  aboutUrl: "https://wallet.tg/",
+  universalLink: "https://t.me/wallet/start",
+  bridgeUrl: "https://bridge.tonapi.io/bridge",
+  platforms: ["ios", "android", "macos", "windows", "linux"],
+};
+
 export default function App() {
+  const manifestUrl = `${window.location.origin}/tonconnect-manifest.json`;
   return (
-    <LanguageProvider>
-      <BootSplashGate />
-    </LanguageProvider>
+    <TonConnectUIProvider
+      manifestUrl={manifestUrl}
+      restoreConnection
+      walletsListConfiguration={{ includeWallets: [TELEGRAM_WALLET] }}
+    >
+      <LanguageProvider>
+        <BootSplashGate />
+      </LanguageProvider>
+    </TonConnectUIProvider>
   );
 }
 
