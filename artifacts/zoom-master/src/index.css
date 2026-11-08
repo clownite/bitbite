@@ -2652,7 +2652,7 @@ body.animations-paused * {
 .zoom-splash-sub,
 #splash-screen .splash-sub {
   margin-top: 14px;
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 800;
   font-style: italic;
   letter-spacing: 0;
@@ -2733,24 +2733,28 @@ body.animations-paused * {
   display: block;
   pointer-events: none;
 }
-#splash-enter:disabled {
-  opacity: 0.4;
-  pointer-events: none;
-}
 #splash-enter {
   position: relative;
   z-index: 5;
   display: block;
-  width: 100%;
-  margin: 0;
-  height: 54px;
-  border-radius: 999px;
-  border: 1.5px solid rgba(255, 255, 255, 0.72);
-  background: #0c3d28;
-  color: #fff8ee;
-  font-weight: 900;
-  font-size: 16px;
-  letter-spacing: 0.16em;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: transparent;
+  font-size: 0;
+  letter-spacing: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+#splash-cookie {
+  width: 64px;
+  height: 64px;
+  image-rendering: pixelated;
+  pointer-events: none;
 }
 #splash-enter:disabled {
   opacity: 0.4;
@@ -2758,7 +2762,7 @@ body.animations-paused * {
 }
 #splash-enter.is-ready {
   opacity: 1;
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.45);
+  box-shadow: none;
 }
 .zoom-splash-sub-maint {
   max-width: 280px;
@@ -3659,6 +3663,10 @@ body.animations-paused * {
 /* Placeholder brand: round type, warm chrome, cookie that bobs in place. */
 body, body * {
   font-family: "Fredoka", "Nunito", sans-serif !important;
+}
+#splash-screen,
+#splash-screen * {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif !important;
 }
 .christmas-snow {
   position: fixed;

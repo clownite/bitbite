@@ -58,13 +58,13 @@
         animation: splash-in 0.7s ease forwards;
       }
       @keyframes splash-in {
-        from { opacity: 0; transform: translateY(8px); }
-        to { opacity: 1; transform: none; }
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
       .splash-title {
         position: relative;
         display: inline-block;
-        font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
       }
       .splash-m { position: relative; }
       #splash-gift {
@@ -77,9 +77,12 @@
         image-rendering: pixelated;
         pointer-events: none;
       }
+      #splash-screen,
+      #splash-screen * {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
       #splash-screen .splash-title {
         margin: 0;
-        font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
         font-weight: 900;
         font-size: 42px;
         letter-spacing: 0.08em;
@@ -88,7 +91,6 @@
       }
       #splash-screen .splash-sub {
         margin-top: 14px;
-        font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
         font-size: 28px;
         font-weight: 800;
         font-style: italic;
@@ -153,17 +155,28 @@
         position: relative;
         z-index: 5;
         display: block;
-        width: 100%;
-        margin: 0;
-        height: 54px;
-        border-radius: 999px;
-        border: 1.5px solid rgba(255, 255, 255, 0.72);
-        background: #0c3d28;
-        color: #fff8ee;
-        font-family: 'Fredoka', 'Nunito', system-ui, sans-serif;
-        font-weight: 900;
-        font-size: 16px;
-        letter-spacing: 0.16em;
+        width: 76px;
+        height: 76px;
+        margin: 0 auto;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        background: transparent;
+        cursor: pointer;
+      }
+      #splash-cookie {
+        width: 64px;
+        height: 64px;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        pointer-events: none;
+      }
+      .splash-bit {
+        position: fixed;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
+        pointer-events: none;
+        z-index: 2147483647;
       }
       #splash-retry-btn {
         display: none;
@@ -196,7 +209,7 @@
       <div class="splash-dock">
         <button type="button" id="splash-retry-btn">Riprova</button>
         <div class="splash-meter" aria-hidden="true"><span id="splash-meter-fill"></span></div>
-        <button type="button" id="splash-enter" disabled>ENTER</button>
+        <button type="button" id="splash-enter" disabled aria-label="Enter"><canvas id="splash-cookie" width="11" height="11"></canvas></button>
       </div>
     </div>
     <script>
@@ -241,10 +254,96 @@
           enterBtn.disabled = false;
           enterBtn.classList.add("is-ready");
         }
+        function paintCookie(canvas) {
+          var src = document.createElement("canvas");
+          src.width = 64;
+          src.height = 64;
+          var sctx = src.getContext("2d");
+          if (!sctx) return;
+          sctx.font = "54px \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Noto Color Emoji\", sans-serif";
+          sctx.textAlign = "center";
+          sctx.textBaseline = "middle";
+          sctx.fillText("🍪", 32, 36);
+          var pixels = sctx.getImageData(0, 0, 64, 64).data;
+          var minX = 64, minY = 64, maxX = 0, maxY = 0, seen = false;
+          for (var y = 0; y < 64; y++) {
+            for (var x = 0; x < 64; x++) {
+              if (pixels[(y * 64 + x) * 4 + 3] < 20) continue;
+              seen = true;
+              if (x < minX) minX = x;
+              if (y < minY) minY = y;
+              if (x > maxX) maxX = x;
+              if (y > maxY) maxY = y;
+            }
+          }
+          var ctx = canvas.getContext("2d");
+          if (!ctx) return;
+          ctx.imageSmoothingEnabled = false;
+          if (!seen) {
+            var dough = ["..#####..", ".#######.", "########.", "###o####.", "########.", "####o###.", ".######o.", ".##o####.", "..#####.."];
+            canvas.width = 9;
+            canvas.height = 9;
+            dough.forEach(function (row, yy) {
+              row.split("").forEach(function (bit, xx) {
+                if (bit === ".") return;
+                ctx.fillStyle = bit === "o" ? "#5c3317" : "#e0a84a";
+                ctx.fillRect(xx, yy, 1, 1);
+              });
+            });
+            return;
+          }
+          var cols = 11;
+          var rows = Math.max(11, Math.round(((maxY - minY + 1) / (maxX - minX + 1)) * cols));
+          canvas.width = cols;
+          canvas.height = rows;
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(src, minX, minY, maxX - minX + 1, maxY - minY + 1, 0, 0, cols, rows);
+        }
+        var cookie = document.getElementById("splash-cookie");
+        if (cookie) paintCookie(cookie);
+        function breakCookie() {
+          if (!cookie) return;
+          var box = cookie.getBoundingClientRect();
+          var sw = cookie.width;
+          var sh = cookie.height;
+          var cuts = [
+            { x: 0, y: 0, dx: -52, dy: -78, rot: -32 },
+            { x: 1, y: 0, dx: 56, dy: -70, rot: 28 },
+            { x: 0, y: 1, dx: -40, dy: -30, rot: 22 },
+            { x: 1, y: 1, dx: 44, dy: -24, rot: -20 }
+          ];
+          cookie.style.visibility = "hidden";
+          cuts.forEach(function (cut) {
+            var pw = Math.ceil(sw / 2);
+            var ph = Math.ceil(sh / 2);
+            var bit = document.createElement("canvas");
+            bit.width = pw;
+            bit.height = ph;
+            bit.className = "splash-bit";
+            var bctx = bit.getContext("2d");
+            if (bctx) {
+              bctx.imageSmoothingEnabled = false;
+              bctx.drawImage(cookie, cut.x * Math.floor(sw / 2), cut.y * Math.floor(sh / 2), pw, ph, 0, 0, pw, ph);
+            }
+            bit.style.left = (box.left + cut.x * box.width / 2) + "px";
+            bit.style.top = (box.top + cut.y * box.height / 2) + "px";
+            bit.style.width = (box.width / 2) + "px";
+            bit.style.height = (box.height / 2) + "px";
+            document.body.appendChild(bit);
+            bit.animate([
+              { transform: "translate(0px, 0px) rotate(0deg)", opacity: 1 },
+              { transform: "translate(" + cut.dx + "px, " + cut.dy + "px) rotate(" + cut.rot + "deg)", opacity: 0 }
+            ], { duration: 460, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" });
+            setTimeout(function () { bit.remove(); }, 480);
+          });
+        }
         if (enterBtn) {
           enterBtn.onclick = function() {
-            if (!splashReady || enterBtn.disabled) return;
-            hideSplash();
+            if (!splashReady || enterBtn.disabled || enterBtn.dataset.broke) return;
+            enterBtn.dataset.broke = "1";
+            enterBtn.disabled = true;
+            breakCookie();
+            setTimeout(hideSplash, 420);
           };
         }
         var meter = document.getElementById("splash-meter-fill");
@@ -278,28 +377,38 @@
           if (gift) {
             var g = gift.getContext("2d");
             if (g) {
+              var ink = {
+                r: "#e23b4a",
+                w: "#ffd0d6",
+                d: "#8e1830",
+                g: "#f6d56a",
+                h: "#fff3c4",
+                b: "#d4263c",
+                s: "#9a1830",
+                l: "#ff6d7c"
+              };
               var pix = [
-                "0001111110000000",
-                "0011111111000000",
-                "0111111111100000",
-                "0011111111000000",
-                "0001111110000000",
-                "1111111111111110",
-                "1111111111111110",
-                "1100111111100110",
-                "1111111111111110",
-                "1111111111111110",
-                "1111111111111110",
-                "1111111111111110",
-                "0111111111111100",
-                "0011111111111000",
-                "0001111111110000",
-                "0000000000000000"
+                "....rr....rr....",
+                "...rwwr..rwwr...",
+                "..rd.rrrr.dr....",
+                "...rrrrrrrrr....",
+                "....rrggrr......",
+                ".....rgggr......",
+                "..llllllllllll..",
+                ".lbbbbbbbbbbbbl.",
+                ".bbbbbbggbbbbbb.",
+                ".bbbbbbggbbbbbb.",
+                ".bbbggggggggbbb.",
+                ".bbbbhhggbbbbbb.",
+                ".bbbbbbggbbbbbb.",
+                ".sbbbbbbbbbbbbs.",
+                "..ssssssssssss..",
+                "................"
               ];
               pix.forEach(function (row, y) {
                 row.split("").forEach(function (bit, x) {
-                  if (bit !== "1") return;
-                  g.fillStyle = y < 5 ? "#d4243a" : (x > 6 && x < 9 ? "#f4d35e" : "#e23b4a");
+                  if (!ink[bit]) return;
+                  g.fillStyle = ink[bit];
                   g.fillRect(x, y, 1, 1);
                 });
               });
