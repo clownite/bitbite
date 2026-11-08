@@ -255,25 +255,70 @@
           enterBtn.classList.add("is-ready");
         }
         function paintCookie(canvas) {
+          var src = document.createElement("canvas");
+          src.width = 64;
+          src.height = 64;
+          var sctx = src.getContext("2d");
           var ctx = canvas.getContext("2d");
-          if (!ctx) return;
-          var n = 13;
-          var mid = (n - 1) / 2;
-          var chips = { "4,4": 1, "8,3": 1, "6,6": 1, "9,8": 1, "4,9": 1 };
-          canvas.width = n;
-          canvas.height = n;
-          ctx.imageSmoothingEnabled = false;
-          for (var y = 0; y < n; y++) {
-            for (var x = 0; x < n; x++) {
-              var dx = x - mid;
-              var dy = y - mid;
-              var dist = Math.sqrt(dx * dx + dy * dy);
-              if (dist > mid + 0.2) continue;
-              var edge = dist > mid - 1.15;
-              ctx.fillStyle = chips[x + "," + y] ? "#4a2a12" : edge ? "#c4843a" : dx + dy < -2 ? "#f3d7a1" : "#e6b15a";
-              ctx.fillRect(x, y, 1, 1);
+          if (!sctx || !ctx) return;
+          sctx.font = "54px \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Noto Color Emoji\", sans-serif";
+          sctx.textAlign = "center";
+          sctx.textBaseline = "middle";
+          sctx.fillText("🍪", 32, 36);
+          var pixels = sctx.getImageData(0, 0, 64, 64).data;
+          var minX = 64, minY = 64, maxX = 0, maxY = 0, seen = false;
+          for (var y = 0; y < 64; y++) {
+            for (var x = 0; x < 64; x++) {
+              if (pixels[(y * 64 + x) * 4 + 3] < 20) continue;
+              seen = true;
+              if (x < minX) minX = x;
+              if (y < minY) minY = y;
+              if (x > maxX) maxX = x;
+              if (y > maxY) maxY = y;
             }
           }
+          if (!seen) return;
+          var cols = 11;
+          var rows = Math.max(11, Math.round(((maxY - minY + 1) / (maxX - minX + 1)) * cols));
+          canvas.width = cols;
+          canvas.height = rows;
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(src, minX, minY, maxX - minX + 1, maxY - minY + 1, 0, 0, cols, rows);
+          var img = ctx.getImageData(0, 0, cols, rows);
+          var data = img.data;
+          var cx = (cols - 1) / 2;
+          var cy = (rows - 1) / 2;
+          var rad = Math.min(cx, cy) + 0.45;
+          function doughAt(px, py) {
+            var i = (py * cols + px) * 4;
+            var r = data[i], g = data[i + 1], b = data[i + 2];
+            return data[i + 3] > 40 && !(r < 140 && g < 100 && r > g + 15 && b < r - 25);
+          }
+          for (y = 0; y < rows; y++) {
+            for (x = 0; x < cols; x++) {
+              if (Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) > rad) continue;
+              if (data[(y * cols + x) * 4 + 3] > 40) continue;
+              var best = 1e9;
+              var color = [214, 140, 60];
+              for (var yy = 0; yy < rows; yy++) {
+                for (var xx = 0; xx < cols; xx++) {
+                  if (!doughAt(xx, yy)) continue;
+                  var dist = (xx - x) * (xx - x) + (yy - y) * (yy - y);
+                  if (dist < best) {
+                    best = dist;
+                    var ii = (yy * cols + xx) * 4;
+                    color = [data[ii], data[ii + 1], data[ii + 2]];
+                  }
+                }
+              }
+              var put = (y * cols + x) * 4;
+              data[put] = color[0];
+              data[put + 1] = color[1];
+              data[put + 2] = color[2];
+              data[put + 3] = 255;
+            }
+          }
+          ctx.putImageData(img, 0, 0);
         }
         var cookie = document.getElementById("splash-cookie");
         if (cookie) paintCookie(cookie);
