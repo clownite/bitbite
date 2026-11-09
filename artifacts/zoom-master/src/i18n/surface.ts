@@ -156,6 +156,8 @@ const en: Pack = {
   "pet.lightOn": "Turn the light on",
   "pet.hungry": "Hungry",
   "pet.messy": "Clean up",
+  "pet.sick": "Sick",
+  "pet.cure": "Cure",
 };
 
 const it: Pack = {
@@ -312,6 +314,8 @@ const it: Pack = {
   "pet.lightOn": "Accendi la luce",
   "pet.hungry": "Ha fame",
   "pet.messy": "Da pulire",
+  "pet.sick": "Sta male",
+  "pet.cure": "Cura",
 };
 
 const es: Pack = {
@@ -442,6 +446,8 @@ const es: Pack = {
   "pet.lightOn": "Encender la luz",
   "pet.hungry": "Tiene hambre",
   "pet.messy": "Por limpiar",
+  "pet.sick": "Enfermo",
+  "pet.cure": "Curar",
 };
 
 const fil: Pack = {
@@ -540,6 +546,8 @@ const fil: Pack = {
   "pet.lightOn": "Buksan ang ilaw",
   "pet.hungry": "Gutom",
   "pet.messy": "Linisin",
+  "pet.sick": "May sakit",
+  "pet.cure": "Gamutin",
 };
 
 const ru: Pack = {
@@ -686,6 +694,8 @@ const ru: Pack = {
   "pet.lightOn": "Включить свет",
   "pet.hungry": "Голоден",
   "pet.messy": "Убрать",
+  "pet.sick": "Болеет",
+  "pet.cure": "Лечить",
 };
 
 const uk: Pack = {
@@ -790,6 +800,8 @@ const uk: Pack = {
   "pet.lightOn": "Увімкнути світло",
   "pet.hungry": "Голодний",
   "pet.messy": "Прибрати",
+  "pet.sick": "Хворіє",
+  "pet.cure": "Лікувати",
 };
 
 export const SURFACE: Record<Lang, Pack> = { en, it, es, fil, ru, uk };

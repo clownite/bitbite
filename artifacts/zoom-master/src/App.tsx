@@ -27,6 +27,8 @@ import { playClick } from "./audio/sfx";
 import { settlePetPayments } from "./pet/payPet";
 import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
+import { careView, subscribeCare } from "./pet/care";
+import { subscribeCrumbs } from "./pet/crumbs";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 type Tab = "lab" | "farm" | "earn" | "rank" | "shop" | "wallet";
@@ -118,6 +120,16 @@ function AppShell() {
   });
   const session = usePetSession();
   useGlobalInit(session.telegramId);
+  const [care, setCare] = useState(() => careView());
+  useEffect(() => {
+    const pull = () => setCare(careView());
+    const unsubCare = subscribeCare(pull);
+    const unsubFarm = subscribeCrumbs(pull);
+    return () => {
+      unsubCare();
+      unsubFarm();
+    };
+  }, []);
 
   const initialMaint = readMaintCache();
   const [maintenance, setMaintenance] = useState<MaintSnapshot>(() => (
@@ -265,12 +277,23 @@ function AppShell() {
             return (
               <button
                 key={item.id}
-                className="flex-1 flex flex-col items-center justify-center gap-1"
+                className={`flex-1 flex flex-col items-center justify-center gap-1${item.id === "lab" && care.call ? " nav-call" : ""}`}
                 onClick={() => setTab(item.id)}
-                style={{ color: active ? "#7ad7ff" : "rgba(186, 220, 236, 0.55)", background: "transparent", border: "none" }}
+                style={{ position: "relative", color: active ? "#7ad7ff" : "rgba(186, 220, 236, 0.55)", background: "transparent", border: "none" }}
               >
-                <Icon size={22} strokeWidth={active ? 2.4 : 1.7} />
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.04em" }}>{t(item.key)}</div>
+                <span style={{ position: "relative", display: "grid" }}>
+                  <Icon size={22} strokeWidth={active ? 2.4 : 1.7} />
+                  {item.id === "lab" && care.call ? <span className="nav-call-dot" /> : null}
+                </span>
+                <div style={{
+                  fontSize: item.id === "lab" && tab !== "lab" && care.bubble ? 9 : 10,
+                  fontWeight: 800,
+                  letterSpacing: "0.02em",
+                  whiteSpace: "nowrap",
+                  color: item.id === "lab" && tab !== "lab" && care.bubble ? "#ffd0dc" : undefined,
+                }}>
+                  {item.id === "lab" && tab !== "lab" && care.bubble ? t(care.bubble) : t(item.key)}
+                </div>
               </button>
             );
           })}

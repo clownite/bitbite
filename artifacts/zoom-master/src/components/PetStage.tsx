@@ -246,7 +246,7 @@ export function PetStage({
   pet: PetState;
   frame: Frame;
   petId?: PetId;
-  room?: { asleep: boolean; dark: boolean };
+  room?: { asleep: boolean; dark: boolean; sick?: boolean; calling?: boolean };
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const moodRef = useRef(room);
@@ -487,8 +487,9 @@ export function PetStage({
       }
       if (blink) {
         const sleepy = frame === "lab" && moodRef.current?.asleep;
+        const sick = frame === "lab" && moodRef.current?.sick && !sleepy;
         const span = sleepy ? 0.9 : 0.28;
-        let closed = 0;
+        let closed = sick ? 0.9 : 0;
         if (blinkStart < 0) {
           if (t >= blinkAt) blinkStart = t;
         } else {
@@ -536,6 +537,7 @@ export function PetStage({
   return (
     <div
       ref={hostRef}
+      className={room?.calling ? "pet-stage is-calling" : "pet-stage"}
       style={{
         position: "absolute",
         inset: 0,

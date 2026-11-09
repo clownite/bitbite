@@ -212,7 +212,7 @@ export function LabPage({
           }}
         >
           <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }} data-testid="pet-room">
-            <PetStage pet={pet} frame="lab" petId={pet.active} room={{ asleep: care.asleep, dark: care.dark }} />
+            <PetStage pet={pet} frame="lab" petId={pet.active} room={{ asleep: care.asleep, dark: care.dark, sick: care.sick, calling: care.calling }} />
             <PetPostcard active={active} petName={chosen.name} />
             <PetRoom care={care} toast={wakeToast} />
           </div>
@@ -242,7 +242,7 @@ export function LabPage({
                 <div style={{ marginTop: 2, fontSize: 26, fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{formatCrumbs(farm.pending)}</div>
                 <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.7)" }}>
                   {formatCrumbs(farm.cap)} {t("pet.perDay")} · {t("pet.level", { n: pet.level })}
-                  {care.factor < 0.97 ? ` · ${care.hungry ? t("pet.hungry") : t("pet.messy")}` : ""}
+                  {care.factor < 0.97 ? ` · ${care.sick ? t("pet.sick") : care.hungry ? t("pet.hungry") : t("pet.messy")}` : ""}
                 </div>
               </div>
               <button

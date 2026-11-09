@@ -1,4 +1,5 @@
-import { cleanMess, feed, toggleLight, type CareView } from "../pet/care";
+import { useEffect, useState } from "react";
+import { cleanMess, cure, feed, toggleLight, type CareView } from "../pet/care";
 import { settleFarm } from "../pet/crumbs";
 import { playClick } from "../audio/sfx";
 import { useT } from "../i18n/LanguageContext";
@@ -68,6 +69,16 @@ export function PetRoom({
 }) {
   const { t } = useT();
   const lampOn = !care.lightOff;
+  const [thanks, setThanks] = useState(0);
+  const praise = () => {
+    window.dispatchEvent(new Event("zoom-pet-hello"));
+    setThanks((n) => n + 1);
+  };
+  useEffect(() => {
+    if (thanks <= 0) return;
+    const hide = window.setTimeout(() => setThanks(0), 1100);
+    return () => window.clearTimeout(hide);
+  }, [thanks]);
   return (
     <div className="pet-room-layer">
       {care.dark ? <div className="pet-room-shade" /> : null}
@@ -89,7 +100,7 @@ export function PetRoom({
           aria-label={t("pet.messy")}
           onClick={() => {
             settleFarm();
-            if (cleanMess(crumb.id)) playClick();
+            if (cleanMess(crumb.id)) praise();
           }}
         >
           <PixelCookie />
@@ -102,7 +113,7 @@ export function PetRoom({
         aria-label={care.cookies >= 3 ? t("pet.full") : t("pet.feed")}
         onClick={() => {
           settleFarm();
-          if (feed()) playClick();
+          if (feed()) praise();
         }}
       >
         <PixelBowl cookies={care.cookies} />
@@ -123,6 +134,27 @@ export function PetRoom({
         >
           <PixelLamp on={lampOn} />
         </button>
+      ) : null}
+      {care.calling && care.bubble ? (
+        <div className="pet-call" data-testid="pet-call" role="status">{t(care.bubble)}</div>
+      ) : null}
+      {care.sick ? (
+        <button
+          type="button"
+          className="pet-cure"
+          data-testid="pet-cure"
+          onClick={() => {
+            settleFarm();
+            if (cure()) praise();
+          }}
+        >
+          {t("pet.cure")}
+        </button>
+      ) : null}
+      {thanks > 0 ? (
+        <span className="pet-hearts" key={thanks} aria-hidden>
+          <i /><i /><i />
+        </span>
       ) : null}
       {toast > 0 ? <div className="pet-wake">+{toast} XP</div> : null}
     </div>

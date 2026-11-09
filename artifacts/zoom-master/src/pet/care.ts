@@ -3,6 +3,8 @@
 export const BOWL_MS = 10 * 60 * 60 * 1000;
 export const MESS_MS = 4 * 60 * 60 * 1000;
 export const CARE_XP = 8;
+/** Both an empty bowl and a dirty floor, for this long, and the pet gets sick. */
+export const SICK_MS = 2 * 60 * 60 * 1000;
 const MAX_MESS = 4;
 const STEP_MS = 60_000;
 
@@ -23,6 +25,11 @@ export type CareState = {
   lightOff: boolean;
   wakeFor: string;
   wakeXp: number;
+  /** When the bowl went empty while crumbs were already on the floor. 0 means it is not happening. */
+  neglectSince: number;
+  sick: boolean;
+  /** Local date the free cure was used. */
+  curedOn: string;
 };
 
 const KEY = "biscotto-care-v1";
@@ -37,6 +44,9 @@ function fresh(now = Date.now()): CareState {
     lightOff: false,
     wakeFor: "",
     wakeXp: 0,
+    neglectSince: 0,
+    sick: false,
+    curedOn: "",
   };
 }
 
@@ -67,6 +77,9 @@ function load(): CareState {
       lightOff: p.lightOff === true,
       wakeFor: typeof p.wakeFor === "string" ? p.wakeFor : "",
       wakeXp: Math.max(0, Number(p.wakeXp) || 0),
+      neglectSince: Math.max(0, Number(p.neglectSince) || 0),
+      sick: p.sick === true,
+      curedOn: typeof p.curedOn === "string" ? p.curedOn : "",
     };
   } catch {
     return born;
@@ -100,11 +113,17 @@ export function finishedNightId(now = Date.now()): string | null {
   return `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`;
 }
 
-/** Full bowl and a clean floor stay at 1. An empty bowl and four crumbs land near 0.7. */
-export function carePace(bowl: number, mess: number): number {
+/** Full bowl and a clean floor stay at 1. An empty bowl and four crumbs land near 0.7. Sickness takes another tenth. */
+export function carePace(bowl: number, mess: number, sick = false): number {
   const hunger = bowl <= 0.05 ? 0.84 : bowl < 0.2 ? 0.93 : 1;
   const dirt = 1 - Math.min(MAX_MESS, Math.max(0, mess)) * 0.04;
-  return Math.round(hunger * dirt * 1000) / 1000;
+  const pace = hunger * dirt * (sick ? 0.9 : 1);
+  return Math.round(pace * 1000) / 1000;
+}
+
+function dayKey(now: number): string {
+  const day = new Date(now);
+  return `${day.getFullYear()}-${day.getMonth() + 1}-${day.getDate()}`;
 }
 
 function freeSlot(messes: FloorCrumb[]): number {
@@ -117,15 +136,19 @@ function freeSlot(messes: FloorCrumb[]): number {
 
 export function stepCare(current: CareState, now: number): { state: CareState; factor: number } {
   const elapsed = Math.max(0, now - current.at);
-  if (elapsed < 1000) return { state: current, factor: carePace(current.bowl, current.messes.length) };
+  const sickNow = current.sick === true;
+  if (elapsed < 1000) return { state: current, factor: carePace(current.bowl, current.messes.length, sickNow) };
   let bowl = current.bowl;
   let nextMessAt = current.nextMessAt;
   const messes = current.messes.slice();
+  let neglectSince = current.neglectSince || 0;
+  let sick = sickNow;
+  const curedOn = current.curedOn || "";
   let cursor = current.at;
   let weighted = 0;
   while (cursor < now) {
     const slice = Math.min(STEP_MS, now - cursor);
-    weighted += carePace(bowl, messes.length) * slice;
+    weighted += carePace(bowl, messes.length, sick) * slice;
     bowl = Math.max(0, bowl - slice / BOWL_MS);
     const sliceEnd = cursor + slice;
     while (messes.length < MAX_MESS && nextMessAt <= sliceEnd) {
@@ -133,6 +156,13 @@ export function stepCare(current: CareState, now: number): { state: CareState; f
       nextMessAt += MESS_MS;
     }
     if (messes.length >= MAX_MESS && nextMessAt <= sliceEnd) nextMessAt = sliceEnd + MESS_MS;
+    const both = bowl <= 0.05 && messes.length > 0;
+    if (both) {
+      if (neglectSince <= 0) neglectSince = sliceEnd;
+      if (!sick && sliceEnd - neglectSince >= SICK_MS && curedOn !== dayKey(sliceEnd)) sick = true;
+    } else {
+      neglectSince = 0;
+    }
     cursor = sliceEnd;
   }
   const night = finishedNightId(now);
@@ -145,6 +175,9 @@ export function stepCare(current: CareState, now: number): { state: CareState; f
       bowl,
       nextMessAt,
       messes,
+      neglectSince,
+      sick,
+      curedOn,
       wakeFor: grant ? night : current.wakeFor,
       wakeXp: current.wakeXp + (grant ? CARE_XP : 0),
     },
@@ -153,7 +186,7 @@ export function stepCare(current: CareState, now: number): { state: CareState; f
 
 function visibleKey(row: CareState): string {
   const cookies = row.bowl <= 0.05 ? 0 : Math.ceil(row.bowl * 3);
-  return `${cookies}|${row.messes.map((crumb) => crumb.id).join(",")}|${row.lightOff}|${row.wakeXp}|${row.wakeFor}`;
+  return `${cookies}|${row.messes.map((crumb) => crumb.id).join(",")}|${row.lightOff}|${row.wakeXp}|${row.wakeFor}|${row.sick ? 1 : 0}`;
 }
 
 /** Move the room forward and return the average farm pace for that gap. */
@@ -184,6 +217,18 @@ export function cleanMess(id: number, now = Date.now()): boolean {
   return true;
 }
 
+/** One free cure a day. It clears the sickness and leaves the bowl and the floor as they are. */
+export function cure(now = Date.now()): boolean {
+  const stepped = stepCare(state, now).state;
+  const today = dayKey(now);
+  if (!stepped.sick || stepped.curedOn === today) {
+    commit(stepped, visibleKey(state) !== visibleKey(stepped));
+    return false;
+  }
+  commit({ ...stepped, sick: false, neglectSince: 0, curedOn: today }, true);
+  return true;
+}
+
 export function toggleLight(now = Date.now()) {
   const stepped = stepCare(state, now).state;
   commit({ ...stepped, lightOff: !stepped.lightOff }, true);
@@ -207,11 +252,20 @@ export type CareView = {
   wakeXp: number;
   hungry: boolean;
   showLamp: boolean;
+  sick: boolean;
+  /** The pet wants the person, even from another screen. */
+  call: boolean;
+  /** Awake call: the pet shakes and shows the bubble. */
+  calling: boolean;
+  bubble: "pet.sick" | "pet.hungry" | "pet.messy" | null;
 };
 
 export function careView(now = Date.now()): CareView {
   const asleep = isAsleep(now);
   const cookies = state.bowl <= 0.05 ? 0 : Math.min(3, Math.ceil(state.bowl * 3));
+  const hungry = state.bowl < 0.2;
+  const messy = state.messes.length > 0;
+  const bubble = state.sick ? "pet.sick" : hungry ? "pet.hungry" : messy ? "pet.messy" : null;
   return {
     bowl: state.bowl,
     cookies,
@@ -219,9 +273,13 @@ export function careView(now = Date.now()): CareView {
     lightOff: state.lightOff,
     asleep,
     dark: asleep && state.lightOff,
-    factor: carePace(state.bowl, state.messes.length),
+    factor: carePace(state.bowl, state.messes.length, state.sick),
     wakeXp: state.wakeXp,
-    hungry: state.bowl < 0.2,
+    hungry,
     showLamp: asleep || state.lightOff,
+    sick: state.sick,
+    call: bubble != null,
+    calling: bubble != null && !(asleep && state.lightOff),
+    bubble,
   };
 }

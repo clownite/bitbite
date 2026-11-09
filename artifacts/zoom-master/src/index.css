@@ -4164,8 +4164,78 @@ body, body * {
   letter-spacing: 0.06em;
   pointer-events: none;
 }
+.pet-call {
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  z-index: 5;
+  padding: 5px 8px 6px;
+  background: #fff6e4;
+  color: #1a1208;
+  border: 3px solid #1a1208;
+  box-shadow: 3px 3px 0 #1a1208;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.pet-call::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  bottom: -7px;
+  width: 8px;
+  height: 8px;
+  background: #fff6e4;
+  border-right: 3px solid #1a1208;
+  border-bottom: 3px solid #1a1208;
+  transform: rotate(45deg);
+}
+.pet-cure {
+  position: absolute;
+  left: 76px;
+  bottom: 14px;
+  z-index: 5;
+  pointer-events: auto;
+  padding: 6px 12px;
+  border: 3px solid #1a1208;
+  background: #ffd0dc;
+  color: #1a1208;
+  box-shadow: 3px 3px 0 #1a1208;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.pet-stage.is-calling canvas {
+  animation: pet-call-burst 3.2s steps(2) infinite;
+  transform-origin: 50% 70%;
+}
+@keyframes pet-call-burst {
+  0%, 78%, 100% { transform: none; }
+  82% { transform: translateX(3px) rotate(1.6deg); }
+  86% { transform: translateX(-3px) rotate(-1.6deg); }
+  90% { transform: translateX(2px) rotate(1deg); }
+  94% { transform: none; }
+}
+.nav-call-dot {
+  position: absolute;
+  top: -2px;
+  right: -6px;
+  width: 8px;
+  height: 8px;
+  background: #ff4d6d;
+  box-shadow: 0 0 0 2px #041018;
+}
+.nav-call svg {
+  animation: pet-call-burst 3.2s steps(2) infinite;
+  transform-origin: 50% 80%;
+}
 @media (prefers-reduced-motion: reduce) {
   .pet-zzz span,
-  .pet-bowl.is-hungry { animation: none; }
+  .pet-bowl.is-hungry,
+  .pet-stage.is-calling canvas,
+  .nav-call svg { animation: none; }
 }
 
