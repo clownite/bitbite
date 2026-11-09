@@ -79,16 +79,9 @@ export function PetRoom({
     const hide = window.setTimeout(() => setThanks(0), 1100);
     return () => window.clearTimeout(hide);
   }, [thanks]);
+  if (care.dark) return null;
   return (
     <div className="pet-room-layer">
-      {care.dark ? <div className="pet-room-shade" /> : null}
-      {care.dark ? (
-        <div className="pet-zzz" aria-hidden>
-          <span>Z</span>
-          <span>Z</span>
-          <span>Z</span>
-        </div>
-      ) : null}
       <div className="pet-floor" />
       {care.messes.map((crumb) => (
         <button

@@ -4164,6 +4164,51 @@ body, body * {
   letter-spacing: 0.06em;
   pointer-events: none;
 }
+.home-night {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background: #000000;
+  display: grid;
+  place-items: center;
+}
+.home-night .pet-zzz {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  gap: 12px;
+}
+.home-night .pet-zzz span { font-size: 32px; }
+.home-night .pet-zzz span:nth-child(2) { font-size: 24px; }
+.home-night .pet-zzz span:nth-child(3) { font-size: 18px; }
+.home-sheet {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+  z-index: 45;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+  padding: 12px 14px 13px;
+  border-radius: 16px;
+  border: 1px solid rgba(122, 215, 255, 0.4);
+  background: rgba(6, 12, 18, 0.96);
+  color: #e8f7ff;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+}
+.home-sheet strong {
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: #7ad7ff;
+}
+.home-sheet span {
+  font-size: 13px;
+  line-height: 1.35;
+  font-weight: 700;
+}
 .pet-call {
   position: absolute;
   left: 10px;

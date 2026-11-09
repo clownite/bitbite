@@ -428,7 +428,7 @@ export function PetStage({
       if (frame === "shop") {
         rig.scale.setScalar(1.55);
         rig.position.set(Math.sin(t * 0.65) * 0.012, Math.sin(t * 1.05) * 0.018, 0);
-        rig.rotation.set(Math.sin(t * 0.45) * 0.01, userYaw + Math.sin(t * 0.35) * 0.028, Math.sin(t * 0.7) * 0.01);
+        rig.rotation.set(Math.sin(t * 0.45) * 0.01, userYaw + t * 0.28, Math.sin(t * 0.7) * 0.01);
       } else if (frame === "lab") {
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
@@ -485,7 +485,9 @@ export function PetStage({
           rig.rotation.z += Math.sin(hop * Math.PI) * 0.05;
         }
       }
-      if (blink) {
+      if (frame === "lab" && moodRef.current?.dark) {
+        blink?.apply(1);
+      } else if (blink) {
         const sleepy = frame === "lab" && moodRef.current?.asleep;
         const sick = frame === "lab" && moodRef.current?.sick && !sleepy;
         const span = sleepy ? 0.9 : 0.28;

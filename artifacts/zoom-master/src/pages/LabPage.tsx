@@ -4,12 +4,12 @@ import { SettingsMenu } from "../components/SettingsMenu";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { useCrumbsBalance, useFarm } from "../components/PetFarmButton";
 import { PetStage } from "../components/PetStage";
-import { petDef } from "../pet/catalog";
+import { petCombat, petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PixelMark } from "../components/PixelMark";
-import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
-import { careView, subscribeCare, takeCareXp } from "../pet/care";
+import { careView, subscribeCare, takeCareXp, toggleLight } from "../pet/care";
 import { addPetXp } from "../pet/petProgress";
 import { playClaim } from "../audio/sfx";
 import { PetPostcard } from "../components/PetPostcard";
@@ -63,65 +63,6 @@ function PetCardTrace({ color }: { color: string }) {
   );
 }
 
-function HeartShape({ tone }: { tone: "full" | "empty" }) {
-  if (tone === "empty") {
-    const edge = "#8ea3b8";
-    return (
-      <svg width="11" height="10" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
-        <rect x="1" y="0" width="2" height="1" fill={edge} />
-        <rect x="5" y="0" width="2" height="1" fill={edge} />
-        <rect x="0" y="1" width="1" height="2" fill={edge} />
-        <rect x="7" y="1" width="1" height="2" fill={edge} />
-        <rect x="1" y="3" width="1" height="1" fill={edge} />
-        <rect x="6" y="3" width="1" height="1" fill={edge} />
-        <rect x="2" y="4" width="1" height="1" fill={edge} />
-        <rect x="5" y="4" width="1" height="1" fill={edge} />
-        <rect x="3" y="5" width="2" height="1" fill={edge} />
-      </svg>
-    );
-  }
-  return (
-    <svg width="11" height="10" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
-      <rect x="1" y="0" width="2" height="1" fill="#ff3355" />
-      <rect x="5" y="0" width="2" height="1" fill="#ff3355" />
-      <rect x="0" y="1" width="8" height="2" fill="#ff2040" />
-      <rect x="1" y="3" width="6" height="1" fill="#ff2040" />
-      <rect x="2" y="4" width="4" height="1" fill="#e01838" />
-      <rect x="3" y="5" width="2" height="1" fill="#e01838" />
-      <rect x="1" y="1" width="1" height="1" fill="#ff8aa0" />
-    </svg>
-  );
-}
-
-function ChargingHeart({ startedAt }: { startedAt: number }) {
-  const [elapsed] = useState(() => Math.min(PET_TAP_RECHARGE_MS, Math.max(0, Date.now() - startedAt)));
-  return (
-    <span className="tap-heart">
-      <HeartShape tone="empty" />
-      <span
-        className="tap-heart-fill"
-        style={{
-          clipPath: `inset(${(1 - elapsed / PET_TAP_RECHARGE_MS) * 100}% 0 0 0)`,
-          animationDuration: `${PET_TAP_RECHARGE_MS}ms`,
-          animationDelay: `${-elapsed}ms`,
-        }}
-      >
-        <HeartShape tone="full" />
-      </span>
-    </span>
-  );
-}
-
-function rechargeLabel(ms: number): string {
-  const capped = Math.max(0, Math.min(ms, PET_TAP_RECHARGE_MS));
-  const totalMinutes = Math.ceil(capped / 60000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  if (hours >= 1 && minutes === 0) return `${hours}h`;
-  if (hours >= 1) return `${hours}h ${String(minutes).padStart(2, "0")}m`;
-  return `${Math.max(1, minutes)}m`;
-}
-
 /** Home is the active pet and its Crumb farm. The model forge is gone. */
 export function LabPage({
   onOpenShop,
@@ -143,6 +84,7 @@ export function LabPage({
   const [now, setNow] = useState(() => Date.now());
   const [care, setCare] = useState(() => careView());
   const [wakeToast, setWakeToast] = useState(0);
+  const [sheet, setSheet] = useState<null | "ability" | "hp" | "tap" | "stage">(null);
   useEffect(() => subscribePet(() => {
     setPet(getPet());
     setNow(Date.now());
@@ -170,16 +112,27 @@ export function LabPage({
     window.setTimeout(() => setWakeToast(0), 1600);
   }, [care.wakeXp]);
   const taps = petTapStatus(now);
-  const rechargeMs = taps.nextReadyAt > now ? taps.nextReadyAt - now : 0;
   const farm = useFarm();
   const chosen = petDef(pet.active);
   const elementName = t(`pet.element.${chosen.element.id}`);
+  const abilityName = t(`pet.ability.${pet.active}.name`);
+  const abilityText = t(`pet.ability.${pet.active}.text`);
+  const hp = petCombat(chosen, pet.level).hp;
   const stats = [
-    { id: "element", label: elementName, value: "rarity" },
-    { id: "hp", label: "HP", value: "hearts" },
-    { id: "tap", label: t("pet.tap"), value: `${taps.count}/4` },
-    { id: "stage", label: t("pet.stage"), value: String(pet.stage) },
+    { id: "ability" as const, label: abilityName, value: "mark" },
+    { id: "hp" as const, label: "HP", value: String(hp) },
+    { id: "tap" as const, label: t("pet.tap"), value: `${taps.count}/${taps.max}` },
+    { id: "stage" as const, label: t("pet.stage"), value: String(pet.stage) },
   ];
+  const sheetBody = sheet === "ability"
+    ? t("pet.sheet.abilityBody", { name: abilityName, text: abilityText })
+    : sheet === "hp"
+      ? t("pet.sheet.hpBody", { n: hp })
+      : sheet === "tap"
+        ? t("pet.sheet.tapBody", { n: taps.count, max: taps.max })
+        : sheet === "stage"
+          ? t("pet.sheet.stageBody", { s: pet.stage, l: pet.level })
+          : "";
   useEffect(() => {
     if (!active) return;
     const id = window.setInterval(() => {
@@ -213,7 +166,7 @@ export function LabPage({
         >
           <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }} data-testid="pet-room">
             <PetStage pet={pet} frame="lab" petId={pet.active} room={{ asleep: care.asleep, dark: care.dark, sick: care.sick, calling: care.calling }} />
-            <PetPostcard active={active} petName={chosen.name} />
+            <PetPostcard active={active && !care.dark} petName={chosen.name} />
             <PetRoom care={care} toast={wakeToast} />
           </div>
           <div style={{ padding: "0 12px 12px" }}>
@@ -249,7 +202,7 @@ export function LabPage({
                 type="button"
                 className={farm.pending >= 0.0001 ? "claim-3d" : "claim-3d is-empty"}
                 style={{ ["--claim" as string]: chosen.element.color }}
-                disabled={farm.pending < 0.0001}
+                disabled={farm.pending < 0.0001 || care.dark}
                 onClick={(event) => {
                   claimFarm();
                   playClaim();
@@ -279,33 +232,63 @@ export function LabPage({
             </div>
             <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
               {stats.map((stat) => (
-                <div key={stat.id} style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                  {stat.value === "rarity" ? (
+                <button
+                  key={stat.id}
+                  type="button"
+                  data-testid={`stat-${stat.id}`}
+                  aria-expanded={sheet === stat.id}
+                  onClick={() => setSheet((open) => (open === stat.id ? null : stat.id))}
+                  style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: sheet === stat.id ? "rgba(122, 215, 255, 0.16)" : "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)", color: "inherit", font: "inherit", cursor: "pointer" }}
+                >
+                  {stat.value === "mark" ? (
                     <PixelMark glyph={chosen.element.glyph} label={elementName} center />
-                  ) : stat.value === "hearts" ? (
-                    <>
-                      <div style={{ display: "flex", justifyContent: "center", gap: 2, height: 16, alignItems: "center" }} aria-label={`${taps.max - taps.count} of ${taps.max} lives`}>
-                        {taps.hearts.map((heart, index) => (
-                          heart.startedAt == null
-                            ? <HeartShape key={`ready-${index}`} tone="full" />
-                            : <ChargingHeart key={`${heart.startedAt}-${index}`} startedAt={heart.startedAt} />
-                        ))}
-                      </div>
-                      {rechargeMs > 0 ? (
-                        <div style={{ fontSize: 8, fontWeight: 800, letterSpacing: "0.04em", color: "rgba(186,220,236,0.7)" }}>{rechargeLabel(rechargeMs)}</div>
-                      ) : null}
-                    </>
                   ) : (
                     <div style={{ fontSize: 14, fontWeight: 900, color: "#ffffff" }}>{stat.value}</div>
                   )}
                   <div style={{ marginTop: 2, fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: "rgba(186,220,236,0.55)" }}>{stat.label}</div>
-                </div>
+                </button>
               ))}
             </div>
           </div>
+          {care.dark ? (
+            <div className="home-night" data-testid="home-night">
+              <div className="pet-zzz" aria-hidden>
+                <span>Z</span>
+                <span>Z</span>
+                <span>Z</span>
+              </div>
+              <button
+                type="button"
+                className="pet-lamp"
+                data-testid="pet-lamp"
+                aria-label={t("pet.lightOn")}
+                onClick={() => toggleLight()}
+              >
+                <svg width="28" height="28" viewBox="0 0 9 9" shapeRendering="crispEdges" aria-hidden>
+                  <rect x="3" y="0" width="3" height="1" fill="#8aa0b4" />
+                  <rect x="2" y="1" width="5" height="1" fill="#8aa0b4" />
+                  <rect x="2" y="2" width="5" height="3" fill="#243140" />
+                  <rect x="4" y="5" width="1" height="2" fill="#c9d6e2" />
+                  <rect x="2" y="7" width="5" height="1" fill="#9eb0c2" />
+                </svg>
+              </button>
+            </div>
+          ) : null}
           <PetCardTrace color={chosen.element.color} />
         </div>
       </div>
+
+      {sheet && !care.dark ? (
+        <button
+          type="button"
+          className="home-sheet"
+          data-testid="home-sheet"
+          onClick={() => setSheet(null)}
+        >
+          <strong>{t(`pet.sheet.${sheet}`)}</strong>
+          <span>{sheetBody}</span>
+        </button>
+      ) : null}
 
       <div className="absolute inset-0 pointer-events-none">
         <div

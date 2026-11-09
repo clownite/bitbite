@@ -158,6 +158,14 @@ const en: Pack = {
   "pet.messy": "Clean up",
   "pet.sick": "Sick",
   "pet.cure": "Cure",
+  "pet.sheet.ability": "Ability",
+  "pet.sheet.hp": "HP",
+  "pet.sheet.tap": "Tap",
+  "pet.sheet.stage": "Stage",
+  "pet.sheet.abilityBody": "{name}. {text}",
+  "pet.sheet.hpBody": "{n} HP. How much it can take once battles start.",
+  "pet.sheet.tapBody": "{n}/{max} used. One tap is 1 XP. A used tap comes back within 24 hours.",
+  "pet.sheet.stageBody": "Stage {s} of 3, level {l}. Level 5 opens stage 2. Level 10 opens stage 3.",
 };
 
 const it: Pack = {
@@ -316,6 +324,14 @@ const it: Pack = {
   "pet.messy": "Da pulire",
   "pet.sick": "Sta male",
   "pet.cure": "Cura",
+  "pet.sheet.ability": "Abilità",
+  "pet.sheet.hp": "HP",
+  "pet.sheet.tap": "Tocco",
+  "pet.sheet.stage": "Stadio",
+  "pet.sheet.abilityBody": "{name}. {text}",
+  "pet.sheet.hpBody": "{n} HP. Quanti colpi regge quando iniziano le battaglie.",
+  "pet.sheet.tapBody": "{n}/{max} usati. Un tocco vale 1 XP. Un tocco usato torna entro 24 ore.",
+  "pet.sheet.stageBody": "Stadio {s} di 3, livello {l}. Il livello 5 apre lo stadio 2. Il livello 10 apre lo stadio 3.",
 };
 
 const es: Pack = {
@@ -448,6 +464,14 @@ const es: Pack = {
   "pet.messy": "Por limpiar",
   "pet.sick": "Enfermo",
   "pet.cure": "Curar",
+  "pet.sheet.ability": "Habilidad",
+  "pet.sheet.hp": "HP",
+  "pet.sheet.tap": "Toque",
+  "pet.sheet.stage": "Etapa",
+  "pet.sheet.abilityBody": "{name}. {text}",
+  "pet.sheet.hpBody": "{n} HP. Cuánto aguanta cuando empiecen las batallas.",
+  "pet.sheet.tapBody": "{n}/{max} usados. Un toque vale 1 XP. Un toque usado vuelve en 24 horas.",
+  "pet.sheet.stageBody": "Etapa {s} de 3, nivel {l}. El nivel 5 abre la etapa 2. El nivel 10 abre la etapa 3.",
 };
 
 const fil: Pack = {
@@ -548,6 +572,14 @@ const fil: Pack = {
   "pet.messy": "Linisin",
   "pet.sick": "May sakit",
   "pet.cure": "Gamutin",
+  "pet.sheet.ability": "Kakayahan",
+  "pet.sheet.hp": "HP",
+  "pet.sheet.tap": "Tap",
+  "pet.sheet.stage": "Yugto",
+  "pet.sheet.abilityBody": "{name}. {text}",
+  "pet.sheet.hpBody": "{n} HP. Ilang tama ang kaya nito sa laban.",
+  "pet.sheet.tapBody": "{n}/{max} nagamit. Isang tap ay 1 XP. Bumabalik ang tap sa loob ng 24 oras.",
+  "pet.sheet.stageBody": "Yugto {s} sa 3, level {l}. Level 5 ang yugto 2. Level 10 ang yugto 3.",
 };
 
 const ru: Pack = {
@@ -696,6 +728,14 @@ const ru: Pack = {
   "pet.messy": "Убрать",
   "pet.sick": "Болеет",
   "pet.cure": "Лечить",
+  "pet.sheet.ability": "Способность",
+  "pet.sheet.hp": "HP",
+  "pet.sheet.tap": "Касание",
+  "pet.sheet.stage": "Стадия",
+  "pet.sheet.abilityBody": "{name}. {text}",
+  "pet.sheet.hpBody": "{n} HP. Сколько оно выдержит, когда начнутся бои.",
+  "pet.sheet.tapBody": "{n}/{max} использовано. Одно касание — 1 XP. Касание возвращается за 24 часа.",
+  "pet.sheet.stageBody": "Стадия {s} из 3, уровень {l}. Уровень 5 открывает стадию 2. Уровень 10 открывает стадию 3.",
 };
 
 const uk: Pack = {
@@ -802,6 +842,14 @@ const uk: Pack = {
   "pet.messy": "Прибрати",
   "pet.sick": "Хворіє",
   "pet.cure": "Лікувати",
+  "pet.sheet.ability": "Здібність",
+  "pet.sheet.hp": "HP",
+  "pet.sheet.tap": "Дотик",
+  "pet.sheet.stage": "Стадія",
+  "pet.sheet.abilityBody": "{name}. {text}",
+  "pet.sheet.hpBody": "{n} HP. Скільки витримає, коли почнуться бої.",
+  "pet.sheet.tapBody": "{n}/{max} використано. Один дотик — 1 XP. Дотик повертається за 24 години.",
+  "pet.sheet.stageBody": "Стадія {s} із 3, рівень {l}. Рівень 5 відкриває стадію 2. Рівень 10 відкриває стадію 3.",
 };
 
 export const SURFACE: Record<Lang, Pack> = { en, it, es, fil, ru, uk };
