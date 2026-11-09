@@ -7,7 +7,7 @@ import { PetStage } from "../components/PetStage";
 import { petCombat, petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PixelMark } from "../components/PixelMark";
-import { getPet, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
 import { careView, subscribeCare, takeCareXp, toggleLight } from "../pet/care";
 import { addPetXp } from "../pet/petProgress";
@@ -16,6 +16,55 @@ import { PetPostcard } from "../components/PetPostcard";
 import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
+
+function HeartShape({ tone }: { tone: "full" | "empty" }) {
+  if (tone === "empty") {
+    const edge = "#8ea3b8";
+    return (
+      <svg width="11" height="10" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
+        <rect x="1" y="0" width="2" height="1" fill={edge} />
+        <rect x="5" y="0" width="2" height="1" fill={edge} />
+        <rect x="0" y="1" width="1" height="2" fill={edge} />
+        <rect x="7" y="1" width="1" height="2" fill={edge} />
+        <rect x="1" y="3" width="1" height="1" fill={edge} />
+        <rect x="6" y="3" width="1" height="1" fill={edge} />
+        <rect x="2" y="4" width="1" height="1" fill={edge} />
+        <rect x="5" y="4" width="1" height="1" fill={edge} />
+        <rect x="3" y="5" width="2" height="1" fill={edge} />
+      </svg>
+    );
+  }
+  return (
+    <svg width="11" height="10" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
+      <rect x="1" y="0" width="2" height="1" fill="#ff3355" />
+      <rect x="5" y="0" width="2" height="1" fill="#ff3355" />
+      <rect x="0" y="1" width="8" height="2" fill="#ff2040" />
+      <rect x="1" y="3" width="6" height="1" fill="#ff2040" />
+      <rect x="2" y="4" width="4" height="1" fill="#e01838" />
+      <rect x="3" y="5" width="2" height="1" fill="#e01838" />
+      <rect x="1" y="1" width="1" height="1" fill="#ff8aa0" />
+    </svg>
+  );
+}
+
+function ChargingHeart({ startedAt }: { startedAt: number }) {
+  const [elapsed] = useState(() => Math.min(PET_TAP_RECHARGE_MS, Math.max(0, Date.now() - startedAt)));
+  return (
+    <span className="tap-heart">
+      <HeartShape tone="empty" />
+      <span
+        className="tap-heart-fill"
+        style={{
+          clipPath: `inset(${(1 - elapsed / PET_TAP_RECHARGE_MS) * 100}% 0 0 0)`,
+          animationDuration: `${PET_TAP_RECHARGE_MS}ms`,
+          animationDelay: `${-elapsed}ms`,
+        }}
+      >
+        <HeartShape tone="full" />
+      </span>
+    </span>
+  );
+}
 
 /** A glow that travels the pet card forever. The loop length matches the border, so it never jumps. */
 function PetCardTrace({ color }: { color: string }) {
@@ -121,7 +170,7 @@ export function LabPage({
   const stats = [
     { id: "ability" as const, label: abilityName, value: "mark" },
     { id: "hp" as const, label: "HP", value: String(hp) },
-    { id: "tap" as const, label: t("pet.tap"), value: `${taps.count}/${taps.max}` },
+    { id: "tap" as const, label: t("pet.tap"), value: "hearts" },
     { id: "stage" as const, label: t("pet.stage"), value: String(pet.stage) },
   ];
   const sheetBody = sheet === "ability"
@@ -173,7 +222,7 @@ export function LabPage({
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
               <div style={{ textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
                 {personalPetNumber(ownerId, pet.active)} {chosen.name} · {t("pet.stageLine", { s: pet.stage, l: pet.level })}
-                <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)} · {taps.count}/{taps.max}</span>
+                <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)}</span>
               </div>
               <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#041018", background: chosen.element.color, borderRadius: 999, padding: "3px 7px" }}>
                 {elementName}
@@ -242,6 +291,14 @@ export function LabPage({
                 >
                   {stat.value === "mark" ? (
                     <PixelMark glyph={chosen.element.glyph} label={elementName} center />
+                  ) : stat.value === "hearts" ? (
+                    <div style={{ display: "flex", justifyContent: "center", gap: 2, height: 16, alignItems: "center" }} aria-label={`${taps.max - taps.count} of ${taps.max}`}>
+                      {taps.hearts.map((heart, index) => (
+                        heart.startedAt == null
+                          ? <HeartShape key={`ready-${index}`} tone="full" />
+                          : <ChargingHeart key={`${heart.startedAt}-${index}`} startedAt={heart.startedAt} />
+                      ))}
+                    </div>
                   ) : (
                     <div style={{ fontSize: 14, fontWeight: 900, color: "#ffffff" }}>{stat.value}</div>
                   )}
