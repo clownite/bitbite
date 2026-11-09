@@ -1,4 +1,5 @@
 import { dailyFarm } from "./catalog";
+import { careProductionFactor } from "./care";
 import { getActivePetId, getPet } from "./petProgress";
 
 /** Farmed Crumbs. 1 Crumb withdraws as 1 GRAM, after you accept it from the bot. */
@@ -80,7 +81,8 @@ export function settleFarm(now = Date.now()) {
   const elapsed = Math.max(0, now - from);
   if (elapsed < 1000) return 0;
   const cap = dailyFarm(getActivePetId(), getPet().level);
-  const produced = cap > 0 ? (elapsed / DAY_MS) * cap : 0;
+  const pace = careProductionFactor(now);
+  const produced = cap > 0 ? (elapsed / DAY_MS) * cap * pace : 0;
   if (elapsed >= AWAY_MS) {
     const collected = state.pending + produced;
     state = {

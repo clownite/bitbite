@@ -241,12 +241,16 @@ export function PetStage({
   pet,
   frame,
   petId = "dolphin",
+  room,
 }: {
   pet: PetState;
   frame: Frame;
   petId?: PetId;
+  room?: { asleep: boolean; dark: boolean };
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const moodRef = useRef(room);
+  moodRef.current = room;
   const [boot, setBoot] = useState(0);
   const [flash, setFlash] = useState<string | null>(null);
   const flashRef = useRef(setFlash);
@@ -279,7 +283,8 @@ export function PetStage({
     };
     renderer.domElement.addEventListener("webglcontextlost", onLost);
 
-    scene.add(new AmbientLight(0xfff6ea, 1.35));
+    const ambient = new AmbientLight(0xfff6ea, 1.35);
+    scene.add(ambient);
     const key = new DirectionalLight(0xfff0d4, 2.4);
     key.position.set(3, 4, 5);
     scene.add(key);
@@ -427,16 +432,19 @@ export function PetStage({
       } else if (frame === "lab") {
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
-        rig.scale.setScalar(((0.68 + grown * 0.04) * view) / 2.6);
+        rig.scale.setScalar(((0.38 + grown * 0.03) * view) / 2.6);
+        key.intensity = moodRef.current?.dark ? 0.18 : 2.4;
+        ambient.intensity = moodRef.current?.dark ? 0.22 : 1.35;
       } else {
         rig.scale.setScalar(fit);
       }
+      const homeLift = frame === "lab" ? 0.95 - (moodRef.current?.asleep ? 0.24 : 0) : 0;
       if (frame !== "shop") {
         if (trick) {
           const p = (t - trick.t0) / 3;
           if (p >= 1) {
             trick = null;
-            rig.position.set(0, 0, 0);
+            rig.position.set(0, homeLift, 0);
             rig.rotation.set(0, userYaw, 0);
           } else {
             const air = 1 - smoothStep(Math.max(0, (p - 0.78) / 0.22));
@@ -444,7 +452,7 @@ export function PetStage({
             const capY = frame === "lab" ? 0.62 : 0.16;
             const capX = frame === "lab" ? 0.38 : 0.1;
             const x = Math.max(-capX, Math.min(capX, trick.slide * Math.sin(p * Math.PI) * air));
-            rig.position.set(x, Math.min(capY, trick.arc * hop), 0);
+            rig.position.set(x, homeLift + Math.min(capY, trick.arc * hop), 0);
             rig.rotation.set(
               trick.spinZ * Math.sin(p * Math.PI) * air * 0.4,
               userYaw + trick.spinY * Math.sin(p * Math.PI) * air,
@@ -452,8 +460,18 @@ export function PetStage({
             );
           }
         } else if (frame === "lab") {
-          rig.position.set(Math.sin(t * 0.7) * 0.015, Math.sin(t * 1.15) * 0.028, 0);
-          rig.rotation.set(Math.sin(t * 0.5) * 0.012, userYaw + Math.sin(t * 0.45) * 0.045, Math.sin(t * 0.8) * 0.018);
+          const sleepy = moodRef.current?.asleep;
+          const bob = sleepy ? 0.4 : 1;
+          rig.position.set(
+            Math.sin(t * 0.7 * bob) * 0.012,
+            homeLift + Math.sin(t * 1.15 * bob) * (sleepy ? 0.008 : 0.02),
+            0,
+          );
+          rig.rotation.set(
+            sleepy ? 0.14 : Math.sin(t * 0.5) * 0.012,
+            userYaw + Math.sin(t * 0.45 * bob) * (sleepy ? 0.02 : 0.045),
+            sleepy ? -0.06 : Math.sin(t * 0.8) * 0.018,
+          );
         } else {
           rig.position.set(0, 0, 0);
           rig.rotation.set(0, userYaw, 0);
@@ -468,13 +486,22 @@ export function PetStage({
         }
       }
       if (blink) {
-        const span = 0.28;
+        const sleepy = frame === "lab" && moodRef.current?.asleep;
+        const span = sleepy ? 0.9 : 0.28;
         let closed = 0;
         if (blinkStart < 0) {
           if (t >= blinkAt) blinkStart = t;
         } else {
           const p = (t - blinkStart) / span;
-          if (p < 0.36) closed = smoothStep(p / 0.36);
+          if (sleepy) {
+            if (p < 0.16) closed = smoothStep(p / 0.16);
+            else if (p < 0.72) closed = 1;
+            else if (p < 1) closed = 1 - smoothStep((p - 0.72) / 0.28);
+            else {
+              blinkStart = -1;
+              blinkAt = t + 1.5 + Math.random() * 2.4;
+            }
+          } else if (p < 0.36) closed = smoothStep(p / 0.36);
           else if (p < 0.52) closed = 1;
           else if (p < 1) closed = 1 - smoothStep((p - 0.52) / 0.48);
           else {

@@ -150,6 +150,12 @@ const en: Pack = {
   "quest.shareBtn": "Share",
   "quest.community": "Join community",
   "quest.communityd": "Once · +{n} XP",
+  "pet.feed": "Feed",
+  "pet.full": "Full",
+  "pet.lightOff": "Turn the light off",
+  "pet.lightOn": "Turn the light on",
+  "pet.hungry": "Hungry",
+  "pet.messy": "Clean up",
 };
 
 const it: Pack = {
@@ -300,6 +306,12 @@ const it: Pack = {
   "quest.shareBtn": "Condividi",
   "quest.community": "Entra nella community",
   "quest.communityd": "Una volta · +{n} XP",
+  "pet.feed": "Nutri",
+  "pet.full": "Piena",
+  "pet.lightOff": "Spegni la luce",
+  "pet.lightOn": "Accendi la luce",
+  "pet.hungry": "Ha fame",
+  "pet.messy": "Da pulire",
 };
 
 const es: Pack = {
@@ -424,6 +436,12 @@ const es: Pack = {
   "quest.friend": "Invita a un amigo",
   "quest.friendd": "Una vez, cuando un amigo entra · +{n} XP",
   "quest.shareText": "Ven a cultivar Crumbs conmigo.",
+  "pet.feed": "Dar de comer",
+  "pet.full": "Llena",
+  "pet.lightOff": "Apagar la luz",
+  "pet.lightOn": "Encender la luz",
+  "pet.hungry": "Tiene hambre",
+  "pet.messy": "Por limpiar",
 };
 
 const fil: Pack = {
@@ -516,6 +534,12 @@ const fil: Pack = {
   "quest.chat": "Sumali sa chat",
   "quest.friend": "Mag-imbita ng kaibigan",
   "quest.shareText": "Halika, mag-ani tayo ng Crumbs.",
+  "pet.feed": "Pakain",
+  "pet.full": "Puno",
+  "pet.lightOff": "Patayin ang ilaw",
+  "pet.lightOn": "Buksan ang ilaw",
+  "pet.hungry": "Gutom",
+  "pet.messy": "Linisin",
 };
 
 const ru: Pack = {
@@ -656,6 +680,12 @@ const ru: Pack = {
   "quest.shareBtn": "Поделиться",
   "quest.community": "Вступить в сообщество",
   "quest.communityd": "Один раз · +{n} XP",
+  "pet.feed": "Покормить",
+  "pet.full": "Полна",
+  "pet.lightOff": "Выключить свет",
+  "pet.lightOn": "Включить свет",
+  "pet.hungry": "Голоден",
+  "pet.messy": "Убрать",
 };
 
 const uk: Pack = {
@@ -754,6 +784,12 @@ const uk: Pack = {
   "quest.chat": "Увійти в чат",
   "quest.friend": "Запросити друга",
   "quest.shareText": "Ходімо вирощувати Crumbs разом.",
+  "pet.feed": "Нагодувати",
+  "pet.full": "Повна",
+  "pet.lightOff": "Вимкнути світло",
+  "pet.lightOn": "Увімкнути світло",
+  "pet.hungry": "Голодний",
+  "pet.messy": "Прибрати",
 };
 
 export const SURFACE: Record<Lang, Pack> = { en, it, es, fil, ru, uk };

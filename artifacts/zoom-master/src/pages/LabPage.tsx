@@ -8,9 +8,12 @@ import { petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PixelMark } from "../components/PixelMark";
 import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
-import { claimFarm, formatCrumbs } from "../pet/crumbs";
+import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
+import { careView, subscribeCare, takeCareXp } from "../pet/care";
+import { addPetXp } from "../pet/petProgress";
 import { playClaim } from "../audio/sfx";
 import { PetPostcard } from "../components/PetPostcard";
+import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
 
@@ -138,6 +141,8 @@ export function LabPage({
   const crumbs = useCrumbsBalance();
   const [pet, setPet] = useState<PetState>(getPet());
   const [now, setNow] = useState(() => Date.now());
+  const [care, setCare] = useState(() => careView());
+  const [wakeToast, setWakeToast] = useState(0);
   useEffect(() => subscribePet(() => {
     setPet(getPet());
     setNow(Date.now());
@@ -146,6 +151,24 @@ export function LabPage({
     const id = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => window.clearInterval(id);
   }, []);
+  useEffect(() => {
+    const pull = () => setCare(careView());
+    const unsubCare = subscribeCare(pull);
+    const unsubFarm = subscribeCrumbs(pull);
+    return () => {
+      unsubCare();
+      unsubFarm();
+    };
+  }, []);
+  useEffect(() => {
+    if (care.wakeXp <= 0) return;
+    const amount = takeCareXp();
+    if (amount <= 0) return;
+    const gained = addPetXp(amount);
+    if (gained <= 0) return;
+    setWakeToast(gained);
+    window.setTimeout(() => setWakeToast(0), 1600);
+  }, [care.wakeXp]);
   const taps = petTapStatus(now);
   const rechargeMs = taps.nextReadyAt > now ? taps.nextReadyAt - now : 0;
   const farm = useFarm();
@@ -188,9 +211,10 @@ export function LabPage({
             boxShadow: `0 0 0 1px rgba(0,0,0,0.6), 0 0 32px ${chosen.element.color}55, 0 16px 40px rgba(0,0,0,0.35)`,
           }}
         >
-          <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }}>
-            <PetStage pet={pet} frame="lab" petId={pet.active} />
+          <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }} data-testid="pet-room">
+            <PetStage pet={pet} frame="lab" petId={pet.active} room={{ asleep: care.asleep, dark: care.dark }} />
             <PetPostcard active={active} petName={chosen.name} />
+            <PetRoom care={care} toast={wakeToast} />
           </div>
           <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
@@ -216,7 +240,10 @@ export function LabPage({
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", color: "rgba(186,220,236,0.7)" }}>{t("pet.farm")}</div>
                 <div style={{ marginTop: 2, fontSize: 26, fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{formatCrumbs(farm.pending)}</div>
-                <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.7)" }}>{formatCrumbs(farm.cap)} {t("pet.perDay")} · {t("pet.level", { n: pet.level })}</div>
+                <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.7)" }}>
+                  {formatCrumbs(farm.cap)} {t("pet.perDay")} · {t("pet.level", { n: pet.level })}
+                  {care.factor < 0.97 ? ` · ${care.hungry ? t("pet.hungry") : t("pet.messy")}` : ""}
+                </div>
               </div>
               <button
                 type="button"
