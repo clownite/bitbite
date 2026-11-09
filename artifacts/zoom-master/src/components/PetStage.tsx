@@ -6,6 +6,8 @@ import {
 import type { PetId } from "../pet/catalog";
 import { tapPet, type PetState } from "../pet/petProgress";
 import { notePetTap } from "../pet/quests";
+import { PLAY_BASE_Y } from "../pet/cookieGame";
+import { playPose } from "../pet/playPose";
 import { takeCharClone, whenCharReady } from "./HomeVoxelResident";
 import { translate, type Lang } from "../i18n/translations";
 
@@ -15,7 +17,57 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
   return stageBoost * levelBoost;
 }
 
-type Frame = "lab" | "collection" | "shop";
+type Frame = "lab" | "collection" | "shop" | "play";
+
+type PoseName = "rest" | "lookL" | "lookR" | "hop" | "sit" | "eat";
+
+const POSE_SCRIPT: { name: PoseName; dur: number }[] = [
+  { name: "rest", dur: 2.15 },
+  { name: "lookL", dur: 0.95 },
+  { name: "rest", dur: 1.05 },
+  { name: "lookR", dur: 0.95 },
+  { name: "rest", dur: 1.35 },
+  { name: "hop", dur: 0.74 },
+  { name: "rest", dur: 1.55 },
+  { name: "sit", dur: 1.4 },
+];
+
+function poseEase(p: number): number {
+  const inn = smoothStep(Math.min(1, p / 0.2));
+  const out = 1 - smoothStep(Math.max(0, (p - 0.75) / 0.25));
+  return inn * out;
+}
+
+/** One short pose, then back to the middle of the card. Nothing leaves the frame. */
+function poseAt(name: PoseName, p: number, t: number, lift: number, yaw: number) {
+  const e = name === "rest" ? 1 : poseEase(Math.min(1, p));
+  const bob = Math.sin(t * 1.15) * 0.018;
+  if (name === "lookL" || name === "lookR") {
+    return { x: 0, y: lift + bob * 0.6, rx: 0, ry: yaw + (name === "lookL" ? -0.68 : 0.68) * e, rz: 0 };
+  }
+  if (name === "hop") {
+    return { x: 0, y: lift + Math.sin(Math.min(p, 1) * Math.PI) * 0.3, rx: 0, ry: yaw, rz: 0 };
+  }
+  if (name === "sit") {
+    return { x: 0, y: lift - 0.08 * e, rx: 0.26 * e, ry: yaw, rz: -0.045 * e };
+  }
+  if (name === "eat") {
+    return {
+      x: Math.max(-0.34, -0.2 * e),
+      y: lift + Math.sin(p * Math.PI * 4) * 0.04 * e,
+      rx: 0.34 * e,
+      ry: yaw - 0.18 * e,
+      rz: 0,
+    };
+  }
+  return {
+    x: Math.sin(t * 0.7) * 0.012,
+    y: lift + bob,
+    rx: Math.sin(t * 0.5) * 0.012,
+    ry: yaw + Math.sin(t * 0.45) * 0.04,
+    rz: Math.sin(t * 0.8) * 0.016,
+  };
+}
 
 function smoothStep(value: number): number {
   const t = Math.min(1, Math.max(0, value));
@@ -369,6 +421,7 @@ export function PetStage({
     const onUp = () => {
       if (!pressed) return;
       pressed = false;
+      if (frame === "play") return;
       if (moved > 12 || frame === "shop") {
         if (moved > 12) {
           const kill = (ev: Event) => { ev.stopPropagation(); ev.preventDefault(); };
@@ -414,6 +467,11 @@ export function PetStage({
     let helloAt = -1;
     const onHello = () => { helloAt = t; };
     window.addEventListener("zoom-pet-hello", onHello);
+    let eatUntil = -1;
+    const onEat = () => { eatUntil = t + 1.25; };
+    window.addEventListener("zoom-pet-eat", onEat);
+    let poseStep = 0;
+    let poseT0 = 0;
 
     let raf = 0;
     const clock = new Clock();
@@ -429,19 +487,25 @@ export function PetStage({
         rig.scale.setScalar(1.55);
         rig.position.set(Math.sin(t * 0.65) * 0.012, Math.sin(t * 1.05) * 0.018, 0);
         rig.rotation.set(Math.sin(t * 0.45) * 0.01, userYaw + t * 0.28, Math.sin(t * 0.7) * 0.01);
-      } else if (frame === "lab") {
+      } else if (frame === "lab" || frame === "play") {
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
-        rig.scale.setScalar(((0.38 + grown * 0.03) * view) / 2.6);
-        key.intensity = moodRef.current?.dark ? 0.18 : 2.4;
-        ambient.intensity = moodRef.current?.dark ? 0.22 : 1.35;
+        const small = frame === "play" ? 0.32 : 0.38;
+        rig.scale.setScalar(((small + grown * 0.03) * view) / 2.6);
+        key.intensity = frame === "lab" && moodRef.current?.dark ? 0.18 : 2.4;
+        ambient.intensity = frame === "lab" && moodRef.current?.dark ? 0.22 : 1.35;
       } else {
         rig.scale.setScalar(fit);
       }
       const homeLift = frame === "lab" ? 0.95 - (moodRef.current?.asleep ? 0.24 : 0) : 0;
-      if (frame !== "shop") {
+      if (frame === "play") {
+        rig.position.set(playPose.x, PLAY_BASE_Y + playPose.y, 0);
+        rig.rotation.set(0, playPose.face * 0.28, 0);
+        host.dataset.pose = "play";
+      } else if (frame !== "shop") {
         if (trick) {
           const p = (t - trick.t0) / 3;
+          if (frame === "lab") poseT0 += dt;
           if (p >= 1) {
             trick = null;
             rig.position.set(0, homeLift, 0);
@@ -460,24 +524,46 @@ export function PetStage({
             );
           }
         } else if (frame === "lab") {
-          const sleepy = moodRef.current?.asleep;
-          const bob = sleepy ? 0.4 : 1;
-          rig.position.set(
-            Math.sin(t * 0.7 * bob) * 0.012,
-            homeLift + Math.sin(t * 1.15 * bob) * (sleepy ? 0.008 : 0.02),
-            0,
-          );
-          rig.rotation.set(
-            sleepy ? 0.14 : Math.sin(t * 0.5) * 0.012,
-            userYaw + Math.sin(t * 0.45 * bob) * (sleepy ? 0.02 : 0.045),
-            sleepy ? -0.06 : Math.sin(t * 0.8) * 0.018,
-          );
+          const mood = moodRef.current;
+          let pose: PoseName = "rest";
+          let p = 0;
+          if (mood?.dark) {
+            pose = "rest";
+            host.dataset.pose = "sleep";
+          } else if (t < eatUntil) {
+            pose = "eat";
+            p = (t - (eatUntil - 1.25)) / 1.25;
+            host.dataset.pose = "eat";
+          } else if (mood?.asleep) {
+            pose = "sit";
+            p = 0.5;
+            host.dataset.pose = "sit";
+          } else if (mood?.calling) {
+            pose = "rest";
+            host.dataset.pose = "call";
+          } else {
+            const current = POSE_SCRIPT[poseStep % POSE_SCRIPT.length];
+            if (t - poseT0 >= current.dur) {
+              poseStep = (poseStep + 1) % POSE_SCRIPT.length;
+              poseT0 = t;
+            }
+            pose = POSE_SCRIPT[poseStep % POSE_SCRIPT.length].name;
+            p = (t - poseT0) / POSE_SCRIPT[poseStep % POSE_SCRIPT.length].dur;
+            host.dataset.pose = pose;
+          }
+          const at = pose === "rest" && mood?.calling
+            ? { x: 0, y: homeLift + Math.sin(t * 1.1) * 0.01, rx: 0.08, ry: userYaw, rz: 0 }
+            : pose === "rest" && mood?.dark
+              ? { x: 0, y: homeLift, rx: 0, ry: 0, rz: 0 }
+              : poseAt(pose, p, t, homeLift, userYaw);
+          rig.position.set(Math.max(-0.38, Math.min(0.38, at.x)), at.y, 0);
+          rig.rotation.set(at.rx, at.ry, at.rz);
         } else {
           rig.position.set(0, 0, 0);
           rig.rotation.set(0, userYaw, 0);
         }
       }
-      if (helloAt >= 0 && frame === "lab") {
+      if (helloAt >= 0 && frame === "lab" && t >= eatUntil) {
         const hop = (t - helloAt) / 0.55;
         if (hop >= 1) helloAt = -1;
         else {
@@ -525,6 +611,7 @@ export function PetStage({
       cancelAnimationFrame(raf);
       observer.disconnect();
       window.removeEventListener("zoom-pet-hello", onHello);
+      window.removeEventListener("zoom-pet-eat", onEat);
       host.removeEventListener("pointerdown", onDown);
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerup", onUp);
@@ -544,7 +631,7 @@ export function PetStage({
         position: "absolute",
         inset: 0,
         touchAction: frame === "shop" ? "pan-y" : "none",
-        pointerEvents: "auto",
+        pointerEvents: frame === "play" ? "none" : "auto",
         background: "transparent",
       }}
       aria-label={frame === "shop" ? "Pet" : "Pet. Tap for a little XP."}

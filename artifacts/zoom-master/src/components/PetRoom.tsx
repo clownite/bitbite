@@ -106,7 +106,10 @@ export function PetRoom({
         aria-label={care.cookies >= 3 ? t("pet.full") : t("pet.feed")}
         onClick={() => {
           settleFarm();
-          if (feed()) praise();
+          if (feed()) {
+            window.dispatchEvent(new Event("zoom-pet-eat"));
+            praise();
+          }
         }}
       >
         <PixelBowl cookies={care.cookies} />

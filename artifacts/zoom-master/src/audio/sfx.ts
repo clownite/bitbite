@@ -22,6 +22,21 @@ export function playClick() {
   playNotes([{ freq: 880, at: 0, dur: 0.04, gain: 0.05 }]);
 }
 
+/** A cookie caught in the game. Silent when clicks are off. */
+export function playBite() {
+  if (off) return;
+  playNotes([
+    { freq: 660, at: 0, dur: 0.05, gain: 0.05 },
+    { freq: 880, at: 0.05, dur: 0.09, gain: 0.05 },
+  ]);
+}
+
+/** A cookie that hit the floor. Silent when clicks are off. */
+export function playMiss() {
+  if (off) return;
+  playNotes([{ freq: 180, at: 0, dur: 0.12, gain: 0.045 }]);
+}
+
 /** Coins landing. This stays on even when clicks are off. */
 export function playClaim() {
   playNotes([

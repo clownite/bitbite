@@ -4,6 +4,8 @@ import LayoutGrid from "lucide-react/dist/esm/icons/layout-grid.js";
 import Gem from "lucide-react/dist/esm/icons/gem.js";
 import Medal from "lucide-react/dist/esm/icons/medal.js";
 import UserRound from "lucide-react/dist/esm/icons/user-round.js";
+import { GamePage } from "./pages/GamePage";
+import { settleCookieWeek } from "./pet/cookieBoard";
 import { usePetSession } from "./hooks/usePetSession";
 import { useGlobalInit } from "./store/globalStore";
 import { LabSpaceBackground } from "./components/LabSpaceBackground";
@@ -31,18 +33,31 @@ import { careView, subscribeCare } from "./pet/care";
 import { subscribeCrumbs } from "./pet/crumbs";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
-type Tab = "lab" | "farm" | "earn" | "rank" | "shop" | "wallet";
+type Tab = "lab" | "farm" | "play" | "earn" | "rank" | "shop" | "wallet";
+
+function CookieNavIcon({ size = 22 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 9 9" shapeRendering="crispEdges" aria-hidden>
+      <rect x="2" y="0" width="5" height="1" fill="currentColor" />
+      <rect x="1" y="1" width="7" height="1" fill="currentColor" />
+      <rect x="0" y="2" width="9" height="5" fill="currentColor" />
+      <rect x="1" y="7" width="7" height="1" fill="currentColor" />
+      <rect x="2" y="8" width="5" height="1" fill="currentColor" />
+    </svg>
+  );
+}
 
 const NAV: { id: Tab; key: string; icon: typeof House }[] = [
   { id: "lab", key: "pet.nav.home", icon: House },
   { id: "farm", key: "pet.nav.collection", icon: LayoutGrid },
+  { id: "play", key: "pet.nav.play", icon: CookieNavIcon },
   { id: "earn", key: "pet.nav.earn", icon: Gem },
   { id: "rank", key: "pet.nav.top", icon: Medal },
   { id: "wallet", key: "pet.nav.profile", icon: UserRound },
 ];
 
-const ALL_TABS: Tab[] = ["lab", "farm", "earn", "rank", "shop", "wallet"];
-const LAB_SPACE_TABS: Tab[] = ["farm", "earn", "rank", "wallet", "shop"];
+const ALL_TABS: Tab[] = ["lab", "farm", "play", "earn", "rank", "shop", "wallet"];
+const LAB_SPACE_TABS: Tab[] = ["farm", "play", "earn", "rank", "wallet", "shop"];
 
 function readMaintCache(): MaintSnapshot | null {
   try {
@@ -139,6 +154,7 @@ function AppShell() {
   useEffect(() => {
     initVersionCheck();
     noteVisit();
+    settleCookieWeek();
     const onShow = () => {
       if (!document.hidden) noteVisit();
     };
@@ -226,6 +242,7 @@ function AppShell() {
                 <LabPage active={active} telegramId={session.telegramId} onOpenShop={() => setTab("shop")} muted={muted} setMuted={setMuted} />
               )}
               {id === "farm" && <CollectionPage gram={session.gram} onPay={session.pay} telegramId={session.telegramId} onOpenShop={() => setTab("shop")} />}
+              {id === "play" && <GamePage active={active} />}
               {id === "earn" && (
                 <EarnPage
                   visible={active}
@@ -286,7 +303,7 @@ function AppShell() {
                   {item.id === "lab" && care.call ? <span className="nav-call-dot" /> : null}
                 </span>
                 <div style={{
-                  fontSize: item.id === "lab" && tab !== "lab" && care.bubble ? 9 : 10,
+                  fontSize: item.id === "lab" && tab !== "lab" && care.bubble ? 8 : 9,
                   fontWeight: 800,
                   letterSpacing: "0.02em",
                   whiteSpace: "nowrap",
