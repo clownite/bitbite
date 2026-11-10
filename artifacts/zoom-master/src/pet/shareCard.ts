@@ -8,7 +8,8 @@ import { getPet } from "./petProgress";
 
 function waitReady(id: ReturnType<typeof getPet>["active"]): Promise<void> {
   return new Promise((resolve) => {
-    const stop = whenCharReady(id, () => {
+    let stop = () => { /**/ };
+    stop = whenCharReady(id, () => {
       stop();
       resolve();
     });

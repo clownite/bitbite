@@ -1,4 +1,4 @@
-/** Cookies score only when tapped in the air. A bomb that reaches the floor ends the run. */
+/** Cookies score only when tapped in the air. A bomb ends the run only if it is tapped. */
 
 export const SERIES = 8;
 /** A drop that reaches this screen fraction has fallen. */
@@ -7,8 +7,8 @@ export const PLAY_SPAN = 3.2;
 export const PLAY_CAM = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
 /** World Y so the feet sit on the arena floor, not in the air. */
 export const PLAY_BASE_Y = -1.55;
-const FALL = 0.32;
-const GAP = 1.2;
+const FALL = 0.52;
+const GAP = 0.85;
 
 export type DropKind = "cookie" | "bomb";
 
@@ -17,6 +17,7 @@ export type Drop = {
   kind: DropKind;
   x: number;
   y: number;
+  vx: number;
   vy: number;
   gone: "caught" | "miss" | "boom" | null;
   ttl: number;
@@ -33,8 +34,6 @@ export type Run = {
   caughtThisTick: number;
   bombedThisTick: number;
 };
-
-const LANES = [0.3, 0.5, 0.7, 0.4, 0.62];
 
 /** First drop is a cookie. Three bombs sit in the rest of the series, with a cookie between them. */
 export function makeScript(random = Math.random): DropKind[] {
@@ -58,7 +57,7 @@ export function freshRun(): Run {
   };
 }
 
-/** A cookie tapped while it is still in the air scores. A tapped bomb is pushed away and does not score. */
+/** A cookie tapped in the air scores. A tapped bomb ends the run. A bomb left alone does not. */
 export function tapDrop(run: Run, id: number): Run {
   if (run.phase !== "play") return run;
   const hit = run.drops.find((drop) => drop.id === id && !drop.gone);
@@ -66,7 +65,9 @@ export function tapDrop(run: Run, id: number): Run {
   if (hit.kind === "bomb") {
     return {
       ...run,
-      drops: run.drops.map((drop) => (drop.id === id ? { ...drop, gone: "miss", ttl: 0.28 } : drop)),
+      phase: "boom",
+      bombedThisTick: 1,
+      drops: run.drops.map((drop) => (drop.id === id ? { ...drop, gone: "boom", ttl: 0.45 } : drop)),
     };
   }
   return {
@@ -74,6 +75,33 @@ export function tapDrop(run: Run, id: number): Run {
     score: run.score + 1,
     caughtThisTick: 1,
     drops: run.drops.map((drop) => (drop.id === id ? { ...drop, gone: "caught", ttl: 0.35 } : drop)),
+  };
+}
+
+/** Right to left, left to right, and a sideways drift from above. */
+function launch(kind: DropKind, id: number): Drop {
+  const roll = Math.random();
+  let x = 0.5;
+  let vx = 0;
+  if (roll < 0.42) {
+    x = 0.86 + Math.random() * 0.2;
+    vx = -(0.22 + Math.random() * 0.2);
+  } else if (roll < 0.7) {
+    x = -0.06 + Math.random() * 0.16;
+    vx = 0.22 + Math.random() * 0.2;
+  } else {
+    x = 0.18 + Math.random() * 0.64;
+    vx = (Math.random() < 0.5 ? -1 : 1) * (0.16 + Math.random() * 0.26);
+  }
+  return {
+    id,
+    kind,
+    x,
+    y: -0.08,
+    vx,
+    vy: FALL + Math.random() * 0.16,
+    gone: null,
+    ttl: 0,
   };
 }
 
@@ -98,17 +126,12 @@ export function stepRun(run: Run, dtIn: number): Run {
       continue;
     }
     const y = drop.y + drop.vy * dt;
-    if (y >= FLOOR_Y) {
-      if (drop.kind === "bomb") {
-        bombedThisTick += 1;
-        phase = "boom";
-        drops.push({ ...drop, y: FLOOR_Y, gone: "boom", ttl: 0.55 });
-      } else {
-        drops.push({ ...drop, y: FLOOR_Y, gone: "miss", ttl: 0.35 });
-      }
+    const x = drop.x + drop.vx * dt;
+    if (y >= FLOOR_Y || x < -0.14 || x > 1.14) {
+      drops.push({ ...drop, x, y: Math.min(y, FLOOR_Y), gone: "miss", ttl: 0.28 });
       continue;
     }
-    drops.push({ ...drop, y });
+    drops.push({ ...drop, x, y });
   }
 
   let spawned = run.spawned;
@@ -116,15 +139,7 @@ export function stepRun(run: Run, dtIn: number): Run {
   let nextId = run.nextId;
   const alive = drops.filter((drop) => !drop.gone).length;
   if (phase === "play" && untilSpawn <= 0 && spawned < run.script.length && alive < 3) {
-    drops.push({
-      id: nextId,
-      kind: run.script[spawned],
-      x: LANES[spawned % LANES.length],
-      y: -0.08,
-      vy: FALL,
-      gone: null,
-      ttl: 0,
-    });
+    drops.push(launch(run.script[spawned], nextId));
     nextId += 1;
     spawned += 1;
     untilSpawn = GAP;

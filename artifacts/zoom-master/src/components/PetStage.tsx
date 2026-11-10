@@ -22,14 +22,7 @@ type Frame = "lab" | "collection" | "shop" | "play";
 type PoseName = "rest" | "lookL" | "lookR" | "hop" | "sit" | "eat";
 
 const POSE_SCRIPT: { name: PoseName; dur: number }[] = [
-  { name: "rest", dur: 2.15 },
-  { name: "lookL", dur: 0.95 },
-  { name: "rest", dur: 1.05 },
-  { name: "lookR", dur: 0.95 },
-  { name: "rest", dur: 1.35 },
-  { name: "hop", dur: 0.74 },
-  { name: "rest", dur: 1.55 },
-  { name: "sit", dur: 1.4 },
+  { name: "rest", dur: 4 },
 ];
 
 function poseEase(p: number): number {
@@ -61,11 +54,11 @@ function poseAt(name: PoseName, p: number, t: number, lift: number, yaw: number)
     };
   }
   return {
-    x: Math.sin(t * 0.7) * 0.012,
-    y: lift + bob,
-    rx: Math.sin(t * 0.5) * 0.012,
-    ry: yaw + Math.sin(t * 0.45) * 0.04,
-    rz: Math.sin(t * 0.8) * 0.016,
+    x: 0,
+    y: lift + bob * 0.35,
+    rx: 0,
+    ry: yaw,
+    rz: 0,
   };
 }
 
@@ -441,9 +434,9 @@ export function PetStage({
       trick = {
         t0: t,
         arc: who.arc * (0.8 + Math.random() * 0.45),
-        slide: (Math.random() * 2 - 1) * (frame === "lab" ? 0.34 : 0.1),
-        spinY: sign * who.spin * (0.65 + Math.random() * 0.7),
-        spinZ: (Math.random() * 2 - 1) * (0.35 + who.spin * 0.12),
+        slide: frame === "lab" ? 0 : (Math.random() * 2 - 1) * 0.1,
+        spinY: frame === "lab" ? 0 : sign * who.spin * (0.65 + Math.random() * 0.7),
+        spinZ: frame === "lab" ? 0 : (Math.random() * 2 - 1) * (0.35 + who.spin * 0.12),
       };
       if (frame === "collection") {
         flashRef.current(ui("pet.added"));
@@ -502,7 +495,7 @@ export function PetStage({
       } else {
         rig.scale.setScalar(fit);
       }
-      const homeLift = frame === "lab" ? -2.05 : 0;
+      const homeLift = frame === "lab" ? -2.55 : 0;
       if (frame === "play") {
         rig.position.set(playPose.x, PLAY_BASE_Y + playPose.y, 0);
         rig.rotation.set(0, playPose.face * 0.28, 0);
@@ -540,9 +533,8 @@ export function PetStage({
             p = (t - (eatUntil - 1.25)) / 1.25;
             host.dataset.pose = "eat";
           } else if (mood?.asleep) {
-            pose = "sit";
-            p = 0.5;
-            host.dataset.pose = "sit";
+            pose = "rest";
+            host.dataset.pose = "sleep";
           } else if (mood?.calling) {
             pose = "rest";
             host.dataset.pose = "call";
@@ -557,10 +549,10 @@ export function PetStage({
             host.dataset.pose = pose;
           }
           const at = pose === "rest" && mood?.calling
-            ? { x: 0, y: homeLift + Math.sin(t * 1.1) * 0.01, rx: 0.08, ry: userYaw, rz: 0 }
+            ? { x: 0, y: homeLift, rx: 0, ry: 0, rz: 0 }
             : pose === "rest" && mood?.dark
               ? { x: 0, y: homeLift, rx: 0, ry: 0, rz: 0 }
-              : poseAt(pose, p, t, homeLift, userYaw);
+              : poseAt(pose, p, t, homeLift, 0);
           rig.position.set(Math.max(-0.38, Math.min(0.38, at.x)), at.y, 0);
           rig.rotation.set(at.rx, at.ry, at.rz);
         } else {

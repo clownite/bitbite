@@ -68,13 +68,9 @@ function emit() {
   listeners.forEach((fn) => fn());
 }
 
-/** A gap this long means the app was closed, the phone was off, or the page was frozen. */
-const AWAY_MS = 20_000;
-
 /**
- * While the app is open, the tank fills up to one day and waits for Claim.
- * While it is closed, the same daily rate keeps running for the whole absence
- * and is claimed into the wallet. It never pays faster than the pet's rate.
+ * The tank fills up to one day and waits for Claim, with the app open or closed.
+ * Closing the app keeps the crumbs on the pet. It never pays faster than the pet's rate.
  */
 export function settleFarm(now = Date.now()) {
   const from = state.lastTickAt || now;
@@ -83,18 +79,6 @@ export function settleFarm(now = Date.now()) {
   const cap = dailyFarm(getActivePetId(), getPet().level);
   const pace = careProductionFactor(now);
   const produced = cap > 0 ? (elapsed / DAY_MS) * cap * pace : 0;
-  if (elapsed >= AWAY_MS) {
-    const collected = state.pending + produced;
-    state = {
-      ...state,
-      balance: round8(state.balance + collected),
-      earned: round8(state.earned + collected),
-      pending: 0,
-      lastTickAt: now,
-    };
-    emit();
-    return collected;
-  }
   const room = Math.max(0, cap - state.pending);
   if (room <= 1e-10) {
     state = { ...state, lastTickAt: now };

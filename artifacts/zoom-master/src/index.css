@@ -4070,12 +4070,12 @@ body, body * {
 }
 .pet-floor {
   position: absolute;
-  left: 18%;
-  right: 18%;
-  bottom: 6%;
-  height: 18px;
+  left: 16%;
+  right: 16%;
+  bottom: 1%;
+  height: 28px;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.38), transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(148, 160, 172, 0.55), rgba(70, 80, 92, 0.22) 62%, transparent 74%);
   pointer-events: none;
 }
 .pet-zzz {
