@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
 import { ackCookieBanner, cookieBoard, nextReset, recordCookies, xpForPlace, type BoardRow } from "../pet/cookieBoard";
+import { cookiePlays, noteFinishedSeries, PLAYS_PER_DAY, playsLeft, type PlayDay } from "../pet/cookiePlays";
 import {
   freshRun, rigX, SERIES, stagePoint, startRun, stepRun, tapDrop, type Run,
 } from "../pet/cookieGame";
@@ -99,6 +100,7 @@ export function GamePage({ active }: { active: boolean }) {
   const [pet, setPet] = useState<PetState>(() => getPet());
   const [run, setRun] = useState<Run>(() => freshRun());
   const [board, setBoard] = useState(() => cookieBoard());
+  const [plays, setPlays] = useState<PlayDay>(() => cookiePlays());
   const [boardOpen, setBoardOpen] = useState(false);
   const [hint, setHint] = useState(true);
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -112,7 +114,10 @@ export function GamePage({ active }: { active: boolean }) {
   useEffect(() => subscribePet(() => setPet(getPet())), []);
 
   useEffect(() => {
-    const pull = () => setBoard(cookieBoard());
+    const pull = () => {
+      setBoard(cookieBoard());
+      setPlays(cookiePlays());
+    };
     pull();
     window.addEventListener("focus", pull);
     return () => window.removeEventListener("focus", pull);
@@ -122,6 +127,7 @@ export function GamePage({ active }: { active: boolean }) {
     if (run.phase !== "clear" || recorded.current) return;
     recorded.current = true;
     if (run.score > 0) recordCookies(run.score);
+    setPlays(noteFinishedSeries());
     setBoard(cookieBoard());
   }, [run.phase, run.score]);
 
@@ -158,7 +164,12 @@ export function GamePage({ active }: { active: boolean }) {
     return () => cancelAnimationFrame(raf);
   }, [active]);
 
+  const left = playsLeft(plays);
   const begin = () => {
+    if (playsLeft(cookiePlays()) <= 0) {
+      setPlays(cookiePlays());
+      return;
+    }
     const next = startRun();
     runRef.current = next;
     recorded.current = false;
@@ -186,6 +197,7 @@ export function GamePage({ active }: { active: boolean }) {
             <div>
               <div className="cookie-board-kicker">{t("play.kicker")}</div>
               <h2>{t("play.title")}</h2>
+              <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left, max: PLAYS_PER_DAY })}</div>
             </div>
             <button type="button" className="cookie-board-btn" data-testid="cookie-board-open" onClick={() => setBoardOpen(true)}>
               {t("play.board")}
@@ -246,17 +258,26 @@ export function GamePage({ active }: { active: boolean }) {
             <div className="cookie-score" data-testid="cookie-score">{run.score}</div>
           </div>
           {run.phase === "play" && hint ? <div className="cookie-hint">{t("play.hint")}</div> : null}
-          {run.phase === "idle" ? (
+          {run.phase === "idle" && left > 0 ? (
             <button type="button" className="cookie-go" data-testid="cookie-start" onClick={begin}>
               {t("play.start")}
             </button>
+          ) : null}
+          {run.phase === "idle" && left === 0 ? (
+            <div className="cookie-over" data-testid="cookie-plays-done">
+              <strong>{t("play.playsDone")}</strong>
+            </div>
           ) : null}
           {run.phase === "clear" || run.phase === "boom" ? (
             <div className="cookie-over" data-testid="cookie-over">
               <strong>{run.phase === "boom" ? t("play.boom") : t("play.over")}</strong>
               <span>{run.phase === "boom" ? t("play.lost") : t("play.caught", { n: run.score })}</span>
               {run.phase === "clear" ? <span>{t("play.weekYou", { n: board.yours })}</span> : null}
-              <button type="button" className="cookie-go" onClick={begin}>{t("play.again")}</button>
+              {left > 0 ? (
+                <button type="button" className="cookie-go" data-testid="cookie-again" onClick={begin}>{t("play.again")}</button>
+              ) : (
+                <span data-testid="cookie-plays-done">{t("play.playsDone")}</span>
+              )}
             </div>
           ) : null}
         </div>

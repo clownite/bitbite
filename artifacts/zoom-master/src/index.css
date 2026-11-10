@@ -4310,6 +4310,13 @@ body, body * {
   font-weight: 900;
   letter-spacing: -0.03em;
 }
+.cookie-plays {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #7ad7ff;
+}
 .cookie-board-btn {
   flex-shrink: 0;
   border: 1px solid rgba(122, 215, 255, 0.55);
