@@ -38,7 +38,7 @@ function poseEase(p: number): number {
   return inn * out;
 }
 
-/** One short pose, then back to the middle of the card. Nothing leaves the frame. */
+/** One short pose, then back onto the card floor. Nothing leaves the frame. */
 function poseAt(name: PoseName, p: number, t: number, lift: number, yaw: number) {
   const e = name === "rest" ? 1 : poseEase(Math.min(1, p));
   const bob = Math.sin(t * 1.15) * 0.018;
@@ -502,7 +502,7 @@ export function PetStage({
       } else {
         rig.scale.setScalar(fit);
       }
-      const homeLift = frame === "lab" ? 0.95 - (moodRef.current?.asleep ? 0.24 : 0) : 0;
+      const homeLift = frame === "lab" ? -2.05 : 0;
       if (frame === "play") {
         rig.position.set(playPose.x, PLAY_BASE_Y + playPose.y, 0);
         rig.rotation.set(0, playPose.face * 0.28, 0);

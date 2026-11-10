@@ -1,9 +1,8 @@
-/** The pet stays on the ground. Cookies and bombs fall. A tap ducks. */
+/** Cookies score only when tapped in the air. A bomb that reaches the floor ends the run. */
 
 export const SERIES = 8;
-export const DUCK_S = 0.45;
-/** The line where a falling thing meets the pet. */
-export const GRAB_Y = 0.78;
+/** A drop that reaches this screen fraction has fallen. */
+export const FLOOR_Y = 0.9;
 export const PLAY_SPAN = 3.2;
 export const PLAY_CAM = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
 /** World Y so the feet sit on the arena floor, not in the air. */
@@ -16,9 +15,10 @@ export type DropKind = "cookie" | "bomb";
 export type Drop = {
   id: number;
   kind: DropKind;
+  x: number;
   y: number;
   vy: number;
-  gone: "caught" | "dodged" | "boom" | null;
+  gone: "caught" | "miss" | "boom" | null;
   ttl: number;
 };
 
@@ -27,14 +27,14 @@ export type Run = {
   script: DropKind[];
   spawned: number;
   drops: Drop[];
-  duckT: number;
   score: number;
   untilSpawn: number;
   nextId: number;
   caughtThisTick: number;
-  duckedThisTick: number;
   bombedThisTick: number;
 };
+
+const LANES = [0.3, 0.5, 0.7, 0.4, 0.62];
 
 /** First drop is a cookie. Three bombs sit in the rest of the series, with a cookie between them. */
 export function makeScript(random = Math.random): DropKind[] {
@@ -50,13 +50,30 @@ export function freshRun(): Run {
     script: [],
     spawned: 0,
     drops: [],
-    duckT: -1,
     score: 0,
     untilSpawn: 0.4,
     nextId: 1,
     caughtThisTick: 0,
-    duckedThisTick: 0,
     bombedThisTick: 0,
+  };
+}
+
+/** A cookie tapped while it is still in the air scores. A tapped bomb is pushed away and does not score. */
+export function tapDrop(run: Run, id: number): Run {
+  if (run.phase !== "play") return run;
+  const hit = run.drops.find((drop) => drop.id === id && !drop.gone);
+  if (!hit || hit.y >= FLOOR_Y) return run;
+  if (hit.kind === "bomb") {
+    return {
+      ...run,
+      drops: run.drops.map((drop) => (drop.id === id ? { ...drop, gone: "miss", ttl: 0.28 } : drop)),
+    };
+  }
+  return {
+    ...run,
+    score: run.score + 1,
+    caughtThisTick: 1,
+    drops: run.drops.map((drop) => (drop.id === id ? { ...drop, gone: "caught", ttl: 0.35 } : drop)),
   };
 }
 
@@ -64,36 +81,13 @@ export function startRun(script = makeScript()): Run {
   return { ...freshRun(), phase: "play", script: script.slice(0, SERIES) };
 }
 
-export function requestDuck(run: Run): Run {
-  if (run.phase !== "play") return run;
-  if (run.duckT >= 0 && run.duckT < DUCK_S) return run;
-  return { ...run, duckT: 0 };
-}
-
-export function ducking(run: Run): boolean {
-  return run.duckT >= 0 && run.duckT < DUCK_S;
-}
-
-/** 0 upright, 1 at the bottom of the crouch. */
-export function crouch(run: Run): number {
-  if (!ducking(run)) return 0;
-  return Math.sin((run.duckT / DUCK_S) * Math.PI);
-}
-
 export function stepRun(run: Run, dtIn: number): Run {
   if (run.phase !== "play") {
-    return { ...run, caughtThisTick: 0, duckedThisTick: 0, bombedThisTick: 0 };
+    return { ...run, caughtThisTick: 0, bombedThisTick: 0 };
   }
   const dt = Math.min(0.05, Math.max(0, dtIn));
-  let duckT = run.duckT;
-  if (duckT >= 0) {
-    duckT += dt;
-    if (duckT >= DUCK_S) duckT = -1;
-  }
-  const low = duckT >= 0 && duckT < DUCK_S;
   let score = run.score;
   let caughtThisTick = 0;
-  let duckedThisTick = 0;
   let bombedThisTick = 0;
   let phase: Run["phase"] = "play";
   const drops: Drop[] = [];
@@ -104,23 +98,13 @@ export function stepRun(run: Run, dtIn: number): Run {
       continue;
     }
     const y = drop.y + drop.vy * dt;
-    if (drop.y < GRAB_Y && y >= GRAB_Y) {
+    if (y >= FLOOR_Y) {
       if (drop.kind === "bomb") {
-        if (low) {
-          duckedThisTick += 1;
-          drops.push({ ...drop, y: GRAB_Y, gone: "dodged", ttl: 0.35 });
-        } else {
-          bombedThisTick += 1;
-          phase = "boom";
-          drops.push({ ...drop, y: GRAB_Y, gone: "boom", ttl: 0.6 });
-        }
-      } else if (low) {
-        duckedThisTick += 1;
-        drops.push({ ...drop, y: GRAB_Y, gone: "dodged", ttl: 0.35 });
+        bombedThisTick += 1;
+        phase = "boom";
+        drops.push({ ...drop, y: FLOOR_Y, gone: "boom", ttl: 0.55 });
       } else {
-        score += 1;
-        caughtThisTick += 1;
-        drops.push({ ...drop, y: GRAB_Y, gone: "caught", ttl: 0.4 });
+        drops.push({ ...drop, y: FLOOR_Y, gone: "miss", ttl: 0.35 });
       }
       continue;
     }
@@ -135,6 +119,7 @@ export function stepRun(run: Run, dtIn: number): Run {
     drops.push({
       id: nextId,
       kind: run.script[spawned],
+      x: LANES[spawned % LANES.length],
       y: -0.08,
       vy: FALL,
       gone: null,
@@ -154,12 +139,10 @@ export function stepRun(run: Run, dtIn: number): Run {
     phase,
     spawned,
     drops,
-    duckT,
     score,
     untilSpawn,
     nextId,
     caughtThisTick,
-    duckedThisTick,
     bombedThisTick,
   };
 }

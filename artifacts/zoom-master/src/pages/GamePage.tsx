@@ -3,7 +3,7 @@ import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
 import { ackCookieBanner, cookieBoard, nextReset, recordCookies, xpForPlace, type BoardRow } from "../pet/cookieBoard";
 import {
-  crouch, freshRun, requestDuck, rigX, SERIES, stagePoint, startRun, stepRun, type Run,
+  freshRun, rigX, SERIES, stagePoint, startRun, stepRun, tapDrop, type Run,
 } from "../pet/cookieGame";
 import { playPose } from "../pet/playPose";
 import { getPet, subscribePet, type PetState } from "../pet/petProgress";
@@ -145,17 +145,12 @@ export function GamePage({ active }: { active: boolean }) {
       if (prev.phase === "play") {
         const next = stepRun(prev, dt);
         runRef.current = next;
-        if (next.caughtThisTick > 0) {
-          playBite();
-          hapticSoft();
-        }
         if (next.bombedThisTick > 0) playMiss();
         setRun(next);
       }
-      const pose = runRef.current;
       const sway = Math.sin(now / 700) * 0.12;
       playPose.x = rigX(0.5);
-      playPose.y = -crouch(pose) * 0.07;
+      playPose.y = Math.sin(now / 520) * 0.012;
       playPose.face = sway;
       raf = requestAnimationFrame(loop);
     };
@@ -171,15 +166,16 @@ export function GamePage({ active }: { active: boolean }) {
     setHint(true);
   };
 
-  const duck = () => {
-    const current = runRef.current;
-    if (current.phase !== "play") return;
-    const next = requestDuck(current);
-    if (next === current) return;
+  const tap = (id: number) => {
+    const next = tapDrop(runRef.current, id);
+    if (next === runRef.current) return;
     runRef.current = next;
     setRun(next);
     setHint(false);
-    playClick();
+    if (next.caughtThisTick > 0) {
+      playBite();
+      hapticSoft();
+    } else playClick();
   };
 
   return (
@@ -218,10 +214,6 @@ export function GamePage({ active }: { active: boolean }) {
           ref={arenaRef}
           className={run.phase === "boom" ? "cookie-arena is-boom" : "cookie-arena"}
           data-testid="cookie-arena"
-          onPointerDown={(event) => {
-            if ((event.target as HTMLElement).closest("button")) return;
-            duck();
-          }}
           style={{
             background: `radial-gradient(ellipse 70% 28% at 50% 92%, ${color}66, transparent 70%), linear-gradient(180deg, #163044 0%, #071018 72%)`,
             borderColor: `${color}88`,
@@ -230,12 +222,23 @@ export function GamePage({ active }: { active: boolean }) {
           <PetStage pet={pet} frame="play" petId={pet.active} />
           <div className="cookie-floor" />
           {size.w > 0 && run.drops.map((drop) => {
-            const point = stagePoint(0.5, drop.y, size.w, size.h);
-            const gone = drop.gone === "caught" ? "is-caught" : drop.gone === "dodged" ? "is-miss" : drop.gone === "boom" ? "is-boom" : "";
+            const point = stagePoint(drop.x, drop.y, size.w, size.h);
+            const gone = drop.gone === "caught" ? "is-caught" : drop.gone === "miss" ? "is-miss" : drop.gone === "boom" ? "is-boom" : "";
             return (
-              <i key={drop.id} className={`cookie-bit ${gone}`} style={{ left: point.left, top: point.top }}>
-                {drop.kind === "bomb" ? <PixelBomb /> : <PixelCookie dim={drop.gone === "dodged"} />}
-              </i>
+              <button
+                key={drop.id}
+                type="button"
+                className={`cookie-bit ${gone}`}
+                data-testid={drop.kind === "bomb" ? "fall-bomb" : "fall-cookie"}
+                style={{ left: point.left, top: point.top }}
+                disabled={drop.gone != null}
+                onPointerDown={(event) => {
+                  event.stopPropagation();
+                  tap(drop.id);
+                }}
+              >
+                {drop.kind === "bomb" ? <PixelBomb /> : <PixelCookie dim={drop.gone === "miss"} />}
+              </button>
             );
           })}
           <div className="cookie-hud">

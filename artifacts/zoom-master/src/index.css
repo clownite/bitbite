@@ -4384,12 +4384,21 @@ body, body * {
 .cookie-shadow { bottom: 9%; }
 .cookie-bit {
   position: absolute;
-  width: 22px;
-  height: 22px;
-  margin-left: -11px;
-  margin-top: -11px;
-  pointer-events: none;
+  width: 46px;
+  height: 46px;
+  margin-left: -23px;
+  margin-top: -23px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  z-index: 5;
   filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.25));
+}
+.cookie-bit:disabled {
+  pointer-events: none;
 }
 .cookie-bit.is-caught {
   animation: cookie-pop 0.42s steps(3) forwards;
