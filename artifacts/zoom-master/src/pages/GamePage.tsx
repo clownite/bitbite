@@ -3,7 +3,7 @@ import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
 import { ackCookieBanner, cookieBoard, nextReset, recordCookies, xpForPlace, type BoardRow } from "../pet/cookieBoard";
 import {
-  freshRun, hop, LIVES, PLAY_JUMP, requestJump, rigX, stagePoint, startRun, stepRun, type Run,
+  crouch, freshRun, requestDuck, rigX, SERIES, stagePoint, startRun, stepRun, type Run,
 } from "../pet/cookieGame";
 import { playPose } from "../pet/playPose";
 import { getPet, subscribePet, type PetState } from "../pet/petProgress";
@@ -30,65 +30,83 @@ function PixelCookie({ dim = false }: { dim?: boolean }) {
   );
 }
 
-function Board({ rows, yours, place }: { rows: BoardRow[]; yours: number; place: number }) {
-  const { t } = useT();
+function PixelBomb() {
   return (
-    <section className="cookie-board" data-testid="cookie-board">
-      <div className="cookie-board-kicker">{t("rank.title")}</div>
-      <div className="cookie-rows">
-        {rows.map((row, index) => {
-          const rank = index + 1;
-          const isYou = rank === place;
-          return (
-            <div key={row.telegramId} className={isYou ? "cookie-row is-you" : "cookie-row"}>
-              <span className="cookie-place">{rank}</span>
-              <span className="cookie-name">
-                {row.name.split(" ")[0]}
-                {isYou ? <em>{t("rank.you")}</em> : null}
-              </span>
-              <span className="cookie-count">{row.amount}</span>
-            </div>
-          );
-        })}
-        {place === 0 && yours > 0 ? (
-          <div className="cookie-row is-you">
-            <span className="cookie-place">·</span>
-            <span className="cookie-name">{t("rank.you")}</span>
-            <span className="cookie-count">{yours}</span>
-          </div>
-        ) : null}
-      </div>
-      <div className="cookie-prizes">
-        <div className="cookie-board-kicker">{t("play.prizes")}</div>
-        <div className="cookie-prize-grid">
-          {[1, 2, 3].map((placeNo) => (
-            <div key={placeNo}>
-              <span>#{placeNo}</span>
-              <strong>{xpForPlace(placeNo)} XP</strong>
-            </div>
-          ))}
-          <div>
-            <span>#4–10</span>
-            <strong>{xpForPlace(4)} XP</strong>
-          </div>
-        </div>
-      </div>
-    </section>
+    <svg width="22" height="22" viewBox="0 0 9 9" shapeRendering="crispEdges" aria-hidden>
+      <rect x="4" y="0" width="1" height="1" fill="#ffb020" />
+      <rect x="4" y="1" width="1" height="2" fill="#f4f7fb" />
+      <rect x="2" y="3" width="5" height="1" fill="#2a3140" />
+      <rect x="1" y="4" width="7" height="3" fill="#1a1e28" />
+      <rect x="2" y="7" width="5" height="1" fill="#2a3140" />
+      <rect x="2" y="4" width="1" height="1" fill="#8d97a8" />
+    </svg>
   );
 }
 
-/** Catch falling cookies with one tap. The weekly ten reset on Monday and pay XP. */
+function Board({ rows, yours, place, onClose }: { rows: BoardRow[]; yours: number; place: number; onClose: () => void }) {
+  const { t } = useT();
+  return (
+    <div className="cookie-sheet" data-testid="cookie-board" onClick={onClose} role="presentation">
+      <div className="cookie-sheet-card" onClick={(event) => event.stopPropagation()}>
+        <div className="cookie-board-kicker">{t("rank.title")}</div>
+        <div className="cookie-rows">
+          {rows.map((row, index) => {
+            const rank = index + 1;
+            const isYou = rank === place;
+            return (
+              <div key={row.telegramId} className={isYou ? "cookie-row is-you" : "cookie-row"}>
+                <span className="cookie-place">{rank}</span>
+                <span className="cookie-name">
+                  {row.name.split(" ")[0]}
+                  {isYou ? <em>{t("rank.you")}</em> : null}
+                </span>
+                <span className="cookie-count">{row.amount}</span>
+              </div>
+            );
+          })}
+          {place === 0 && yours > 0 ? (
+            <div className="cookie-row is-you">
+              <span className="cookie-place">·</span>
+              <span className="cookie-name">{t("rank.you")}</span>
+              <span className="cookie-count">{yours}</span>
+            </div>
+          ) : null}
+        </div>
+        <div className="cookie-prizes">
+          <div className="cookie-board-kicker">{t("play.prizes")}</div>
+          <div className="cookie-prize-grid">
+            {[1, 2, 3].map((placeNo) => (
+              <div key={placeNo}>
+                <span>#{placeNo}</span>
+                <strong>{xpForPlace(placeNo)} XP</strong>
+              </div>
+            ))}
+            <div>
+              <span>#4–10</span>
+              <strong>{xpForPlace(4)} XP</strong>
+            </div>
+          </div>
+        </div>
+        <button type="button" className="cookie-go" onClick={onClose}>{t("play.close")}</button>
+      </div>
+    </div>
+  );
+}
+
+/** Cookies and bombs fall on a pet that stays on the ground. A finished series is the score. */
 export function GamePage({ active }: { active: boolean }) {
   const { t } = useT();
   const [pet, setPet] = useState<PetState>(() => getPet());
   const [run, setRun] = useState<Run>(() => freshRun());
   const [board, setBoard] = useState(() => cookieBoard());
+  const [boardOpen, setBoardOpen] = useState(false);
   const [hint, setHint] = useState(true);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const runRef = useRef(run);
   runRef.current = run;
   const arenaRef = useRef<HTMLDivElement>(null);
   const sized = useRef({ w: 0, h: 0 });
+  const recorded = useRef(false);
   const color = petDef(pet.active).element.color;
 
   useEffect(() => subscribePet(() => setPet(getPet())), []);
@@ -99,6 +117,13 @@ export function GamePage({ active }: { active: boolean }) {
     window.addEventListener("focus", pull);
     return () => window.removeEventListener("focus", pull);
   }, []);
+
+  useEffect(() => {
+    if (run.phase !== "clear" || recorded.current) return;
+    recorded.current = true;
+    if (run.score > 0) recordCookies(run.score);
+    setBoard(cookieBoard());
+  }, [run.phase, run.score]);
 
   useEffect(() => {
     if (!active) return;
@@ -121,19 +146,17 @@ export function GamePage({ active }: { active: boolean }) {
         const next = stepRun(prev, dt);
         runRef.current = next;
         if (next.caughtThisTick > 0) {
-          recordCookies(next.caughtThisTick);
           playBite();
           hapticSoft();
-          setBoard(cookieBoard());
         }
-        if (next.missedThisTick > 0) playMiss();
+        if (next.bombedThisTick > 0) playMiss();
         setRun(next);
       }
       const pose = runRef.current;
-      const air = pose.phase === "play" ? hop(pose) * PLAY_JUMP : Math.sin(now / 480) * 0.04;
-      playPose.x = rigX(pose.phase === "play" ? pose.petX : 0.5);
-      playPose.y = air;
-      playPose.face = pose.phase === "play" ? pose.dir : 1;
+      const sway = Math.sin(now / 700) * 0.12;
+      playPose.x = rigX(0.5);
+      playPose.y = -crouch(pose) * 0.07;
+      playPose.face = sway;
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -143,14 +166,15 @@ export function GamePage({ active }: { active: boolean }) {
   const begin = () => {
     const next = startRun();
     runRef.current = next;
+    recorded.current = false;
     setRun(next);
     setHint(true);
   };
 
-  const jump = () => {
+  const duck = () => {
     const current = runRef.current;
     if (current.phase !== "play") return;
-    const next = requestJump(current);
+    const next = requestDuck(current);
     if (next === current) return;
     runRef.current = next;
     setRun(next);
@@ -158,14 +182,19 @@ export function GamePage({ active }: { active: boolean }) {
     playClick();
   };
 
-  const shadow = size.w > 0 ? stagePoint(run.phase === "play" ? run.petX : 0.5, 0.86, size.w, size.h) : null;
-
   return (
     <div className="cookie-page">
       <div className="cookie-scroll">
         <header className="cookie-head">
-          <div className="cookie-board-kicker">{t("play.kicker")}</div>
-          <h2>{t("play.title")}</h2>
+          <div className="cookie-head-row">
+            <div>
+              <div className="cookie-board-kicker">{t("play.kicker")}</div>
+              <h2>{t("play.title")}</h2>
+            </div>
+            <button type="button" className="cookie-board-btn" data-testid="cookie-board-open" onClick={() => setBoardOpen(true)}>
+              {t("play.board")}
+            </button>
+          </div>
           <p>{t("play.blurb", { day: nextReset() })}</p>
         </header>
 
@@ -187,44 +216,31 @@ export function GamePage({ active }: { active: boolean }) {
 
         <div
           ref={arenaRef}
-          className={run.phase === "play" && run.missedThisTick > 0 ? "cookie-arena is-miss" : "cookie-arena"}
+          className={run.phase === "boom" ? "cookie-arena is-boom" : "cookie-arena"}
           data-testid="cookie-arena"
           onPointerDown={(event) => {
             if ((event.target as HTMLElement).closest("button")) return;
-            jump();
+            duck();
           }}
           style={{
-            background: `radial-gradient(ellipse 80% 46% at 50% 86%, ${color}66, transparent 70%), linear-gradient(180deg, #163044 0%, #071018 72%)`,
+            background: `radial-gradient(ellipse 70% 28% at 50% 92%, ${color}66, transparent 70%), linear-gradient(180deg, #163044 0%, #071018 72%)`,
             borderColor: `${color}88`,
           }}
         >
           <PetStage pet={pet} frame="play" petId={pet.active} />
           <div className="cookie-floor" />
-          {shadow ? <div className="cookie-pet-shadow" style={{ left: shadow.left }} /> : null}
-          {size.w > 0 && run.cookies.map((crumb) => {
-            const point = stagePoint(crumb.x, crumb.gone === "miss" ? 0.9 : crumb.y, size.w, size.h);
+          {size.w > 0 && run.drops.map((drop) => {
+            const point = stagePoint(0.5, drop.y, size.w, size.h);
+            const gone = drop.gone === "caught" ? "is-caught" : drop.gone === "dodged" ? "is-miss" : drop.gone === "boom" ? "is-boom" : "";
             return (
-              <span key={crumb.id}>
-                {!crumb.gone && <i className="cookie-shadow" style={{ left: point.left, opacity: Math.min(0.7, crumb.y) }} />}
-                <i
-                  className={crumb.gone === "ok" ? "cookie-bit is-caught" : crumb.gone === "miss" ? "cookie-bit is-miss" : "cookie-bit"}
-                  style={{ left: point.left, top: point.top }}
-                >
-                  <PixelCookie dim={crumb.gone === "miss"} />
-                </i>
-              </span>
+              <i key={drop.id} className={`cookie-bit ${gone}`} style={{ left: point.left, top: point.top }}>
+                {drop.kind === "bomb" ? <PixelBomb /> : <PixelCookie dim={drop.gone === "dodged"} />}
+              </i>
             );
           })}
           <div className="cookie-hud">
-            <div className="cookie-lives" aria-label={`${LIVES - run.misses}`}>
-              {Array.from({ length: LIVES }, (_, index) => (
-                <PixelCookie key={index} dim={index < run.misses} />
-              ))}
-            </div>
-            <div className="cookie-score" data-testid="cookie-score">
-              {run.score}
-              {run.streak >= 2 ? <small>{run.streak}</small> : null}
-            </div>
+            <div className="cookie-lives">{run.phase === "play" ? `${run.spawned}/${SERIES}` : ""}</div>
+            <div className="cookie-score" data-testid="cookie-score">{run.score}</div>
           </div>
           {run.phase === "play" && hint ? <div className="cookie-hint">{t("play.hint")}</div> : null}
           {run.phase === "idle" ? (
@@ -232,18 +248,17 @@ export function GamePage({ active }: { active: boolean }) {
               {t("play.start")}
             </button>
           ) : null}
-          {run.phase === "over" ? (
+          {run.phase === "clear" || run.phase === "boom" ? (
             <div className="cookie-over" data-testid="cookie-over">
-              <strong>{t("play.over")}</strong>
-              <span>{t("play.caught", { n: run.score })}</span>
-              <span>{t("play.weekYou", { n: board.yours })}</span>
+              <strong>{run.phase === "boom" ? t("play.boom") : t("play.over")}</strong>
+              <span>{run.phase === "boom" ? t("play.lost") : t("play.caught", { n: run.score })}</span>
+              {run.phase === "clear" ? <span>{t("play.weekYou", { n: board.yours })}</span> : null}
               <button type="button" className="cookie-go" onClick={begin}>{t("play.again")}</button>
             </div>
           ) : null}
         </div>
-
-        <Board rows={board.rows} yours={board.yours} place={board.place} />
       </div>
+      {boardOpen ? <Board rows={board.rows} yours={board.yours} place={board.place} onClose={() => setBoardOpen(false)} /> : null}
     </div>
   );
 }

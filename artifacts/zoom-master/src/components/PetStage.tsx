@@ -316,8 +316,13 @@ export function PetStage({
 
     const scene = new Scene();
     const camera = new PerspectiveCamera(32, 1, 0.1, 40);
-    camera.position.set(0, frame === "lab" ? 0 : 0.55, 10);
-    camera.lookAt(0, 0, 0);
+    if (frame === "play") {
+      camera.position.set(0, -0.15, 10);
+      camera.lookAt(0, -0.62, 0);
+    } else {
+      camera.position.set(0, frame === "lab" ? 0 : 0.55, 10);
+      camera.lookAt(0, 0, 0);
+    }
 
     const renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
     renderer.outputColorSpace = SRGBColorSpace;

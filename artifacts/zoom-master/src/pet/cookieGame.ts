@@ -1,189 +1,169 @@
-/** One-finger cookie jump. The pet walks. A tap hops. Cookies fall in that lane. */
+/** The pet stays on the ground. Cookies and bombs fall. A tap ducks. */
 
-export const WALK_MIN = 0.18;
-export const WALK_MAX = 0.82;
-export const JUMP_S = 0.48;
-export const CATCH_X = 0.085;
-/** Screen fraction where a jump can meet a cookie. Matches the pet's chest at the top of the hop. */
-export const CATCH_Y0 = 0.4;
-export const CATCH_Y1 = 0.56;
-export const FLOOR_Y = 0.9;
-export const LIVES = 3;
-/** Rig travel from the center, in world units. Shared with the play stage. */
+export const SERIES = 8;
+export const DUCK_S = 0.45;
+/** The line where a falling thing meets the pet. */
+export const GRAB_Y = 0.78;
 export const PLAY_SPAN = 3.2;
-/** World units across the vertical view at fov 32° and camera z = 10. */
 export const PLAY_CAM = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
-export const PLAY_BASE_Y = -0.72;
-export const PLAY_JUMP = 1.05;
+/** World Y so the feet sit on the arena floor, not in the air. */
+export const PLAY_BASE_Y = -1.55;
+const FALL = 0.32;
+const GAP = 1.2;
 
-export type Crumb = {
+export type DropKind = "cookie" | "bomb";
+
+export type Drop = {
   id: number;
-  x: number;
+  kind: DropKind;
   y: number;
   vy: number;
-  gone: "ok" | "miss" | null;
+  gone: "caught" | "dodged" | "boom" | null;
   ttl: number;
 };
 
 export type Run = {
-  phase: "idle" | "play" | "over";
-  petX: number;
-  dir: 1 | -1;
-  jumpT: number;
-  cookies: Crumb[];
+  phase: "idle" | "play" | "clear" | "boom";
+  script: DropKind[];
+  spawned: number;
+  drops: Drop[];
+  duckT: number;
   score: number;
-  misses: number;
-  streak: number;
-  pace: number;
-  fall: number;
-  gap: number;
   untilSpawn: number;
   nextId: number;
   caughtThisTick: number;
-  missedThisTick: number;
+  duckedThisTick: number;
+  bombedThisTick: number;
 };
+
+/** First drop is a cookie. Three bombs sit in the rest of the series, with a cookie between them. */
+export function makeScript(random = Math.random): DropKind[] {
+  const script: DropKind[] = Array.from({ length: SERIES }, () => "cookie");
+  const shift = random() < 0.5 ? 0 : 1;
+  for (const slot of [2, 4, 6]) script[Math.min(SERIES - 1, slot + shift)] = "bomb";
+  return script;
+}
 
 export function freshRun(): Run {
   return {
     phase: "idle",
-    petX: 0.5,
-    dir: 1,
-    jumpT: -1,
-    cookies: [],
+    script: [],
+    spawned: 0,
+    drops: [],
+    duckT: -1,
     score: 0,
-    misses: 0,
-    streak: 0,
-    pace: 0.1,
-    fall: 0.17,
-    gap: 1.45,
-    untilSpawn: 0.45,
+    untilSpawn: 0.4,
     nextId: 1,
     caughtThisTick: 0,
-    missedThisTick: 0,
+    duckedThisTick: 0,
+    bombedThisTick: 0,
   };
 }
 
-export function startRun(): Run {
-  return { ...freshRun(), phase: "play" };
+export function startRun(script = makeScript()): Run {
+  return { ...freshRun(), phase: "play", script: script.slice(0, SERIES) };
 }
 
-/** 0 on the ground, 1 at the top of the hop. */
-export function hop(run: Run): number {
-  if (run.jumpT < 0) return 0;
-  const p = run.jumpT / JUMP_S;
-  if (p >= 1) return 0;
-  return Math.sin(p * Math.PI);
+export function requestDuck(run: Run): Run {
+  if (run.phase !== "play") return run;
+  if (run.duckT >= 0 && run.duckT < DUCK_S) return run;
+  return { ...run, duckT: 0 };
 }
 
-export function requestJump(run: Run): Run {
-  if (run.phase !== "play" || run.jumpT >= 0) return run;
-  return { ...run, jumpT: 0 };
+export function ducking(run: Run): boolean {
+  return run.duckT >= 0 && run.duckT < DUCK_S;
 }
 
-export function pushCookie(run: Run, x: number, y: number, vy = run.fall): Run {
-  return {
-    ...run,
-    nextId: run.nextId + 1,
-    cookies: [...run.cookies, { id: run.nextId, x, y, vy, gone: null, ttl: 0 }],
-  };
+/** 0 upright, 1 at the bottom of the crouch. */
+export function crouch(run: Run): number {
+  if (!ducking(run)) return 0;
+  return Math.sin((run.duckT / DUCK_S) * Math.PI);
 }
 
-function bandOf(score: number): number {
-  return Math.floor(score / 4);
-}
-
-export function stepRun(run: Run, dtIn: number, random = Math.random): Run {
-  if (run.phase !== "play") return { ...run, caughtThisTick: 0, missedThisTick: 0 };
+export function stepRun(run: Run, dtIn: number): Run {
+  if (run.phase !== "play") {
+    return { ...run, caughtThisTick: 0, duckedThisTick: 0, bombedThisTick: 0 };
+  }
   const dt = Math.min(0.05, Math.max(0, dtIn));
-  let jumpT = run.jumpT;
-  if (jumpT >= 0) {
-    jumpT += dt;
-    if (jumpT >= JUMP_S) jumpT = -1;
+  let duckT = run.duckT;
+  if (duckT >= 0) {
+    duckT += dt;
+    if (duckT >= DUCK_S) duckT = -1;
   }
-  let petX = run.petX + run.dir * run.pace * dt;
-  let dir = run.dir;
-  if (petX > WALK_MAX) {
-    petX = WALK_MAX;
-    dir = -1;
-  } else if (petX < WALK_MIN) {
-    petX = WALK_MIN;
-    dir = 1;
-  }
-  const jumping = { ...run, jumpT };
-  const apex = hop(jumping) > 0.62;
-
+  const low = duckT >= 0 && duckT < DUCK_S;
   let score = run.score;
-  let misses = run.misses;
-  let streak = run.streak;
   let caughtThisTick = 0;
-  let missedThisTick = 0;
-  const cookies: Crumb[] = [];
-  for (const crumb of run.cookies) {
-    if (crumb.gone) {
-      const ttl = crumb.ttl - dt;
-      if (ttl > 0) cookies.push({ ...crumb, ttl });
+  let duckedThisTick = 0;
+  let bombedThisTick = 0;
+  let phase: Run["phase"] = "play";
+  const drops: Drop[] = [];
+  for (const drop of run.drops) {
+    if (drop.gone) {
+      const ttl = drop.ttl - dt;
+      if (ttl > 0) drops.push({ ...drop, ttl });
       continue;
     }
-    const y = crumb.y + crumb.vy * dt;
-    const crossed = y >= CATCH_Y0 && crumb.y <= CATCH_Y1;
-    if (apex && crossed && Math.abs(crumb.x - petX) < CATCH_X) {
-      score += 1;
-      streak += 1;
-      caughtThisTick += 1;
-      cookies.push({ ...crumb, y: Math.min(y, CATCH_Y1), gone: "ok", ttl: 0.42 });
+    const y = drop.y + drop.vy * dt;
+    if (drop.y < GRAB_Y && y >= GRAB_Y) {
+      if (drop.kind === "bomb") {
+        if (low) {
+          duckedThisTick += 1;
+          drops.push({ ...drop, y: GRAB_Y, gone: "dodged", ttl: 0.35 });
+        } else {
+          bombedThisTick += 1;
+          phase = "boom";
+          drops.push({ ...drop, y: GRAB_Y, gone: "boom", ttl: 0.6 });
+        }
+      } else if (low) {
+        duckedThisTick += 1;
+        drops.push({ ...drop, y: GRAB_Y, gone: "dodged", ttl: 0.35 });
+      } else {
+        score += 1;
+        caughtThisTick += 1;
+        drops.push({ ...drop, y: GRAB_Y, gone: "caught", ttl: 0.4 });
+      }
       continue;
     }
-    if (y >= FLOOR_Y) {
-      misses += 1;
-      streak = 0;
-      missedThisTick += 1;
-      cookies.push({ ...crumb, y: FLOOR_Y, gone: "miss", ttl: 0.45 });
-      continue;
-    }
-    cookies.push({ ...crumb, y });
+    drops.push({ ...drop, y });
   }
 
-  let pace = run.pace;
-  let fall = run.fall;
-  let gap = run.gap;
-  if (bandOf(score) > bandOf(run.score)) {
-    pace = Math.min(0.2, pace + 0.012);
-    fall = Math.min(0.4, fall + 0.028);
-    gap = Math.max(0.72, gap - 0.08);
-  }
-
+  let spawned = run.spawned;
   let untilSpawn = run.untilSpawn - dt;
   let nextId = run.nextId;
-  const alive = cookies.filter((crumb) => !crumb.gone).length;
-  if (untilSpawn <= 0 && misses < LIVES && alive < 2) {
-    let x = WALK_MIN + random() * (WALK_MAX - WALK_MIN);
-    const crowded = cookies.find((crumb) => !crumb.gone && Math.abs(crumb.x - x) < 0.14);
-    if (crowded) x = x < 0.5 ? Math.min(WALK_MAX, x + 0.22) : Math.max(WALK_MIN, x - 0.22);
-    cookies.push({ id: nextId, x, y: -0.06, vy: fall, gone: null, ttl: 0 });
+  const alive = drops.filter((drop) => !drop.gone).length;
+  if (phase === "play" && untilSpawn <= 0 && spawned < run.script.length && alive < 3) {
+    drops.push({
+      id: nextId,
+      kind: run.script[spawned],
+      y: -0.08,
+      vy: FALL,
+      gone: null,
+      ttl: 0,
+    });
     nextId += 1;
-    untilSpawn = gap;
+    spawned += 1;
+    untilSpawn = GAP;
+  }
+
+  if (phase === "play" && spawned >= run.script.length && drops.every((drop) => drop.gone)) {
+    phase = "clear";
   }
 
   return {
-    phase: misses >= LIVES ? "over" : "play",
-    petX,
-    dir,
-    jumpT,
-    cookies,
+    ...run,
+    phase,
+    spawned,
+    drops,
+    duckT,
     score,
-    misses,
-    streak,
-    pace,
-    fall,
-    gap,
     untilSpawn,
     nextId,
     caughtThisTick,
-    missedThisTick,
+    duckedThisTick,
+    bombedThisTick,
   };
 }
 
-/** Where a normalized point sits in the arena, using the same x as the 3D pet. */
 export function stagePoint(nx: number, ny: number, width: number, height: number): { left: number; top: number } {
   const x = (nx - 0.5) * PLAY_SPAN;
   return {

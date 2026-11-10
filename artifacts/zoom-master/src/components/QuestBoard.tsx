@@ -18,6 +18,12 @@ import {
   type QuestRow,
 } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
+import { shareHomeCard } from "../pet/shareCard";
+import { petDef } from "../pet/catalog";
+import { personalPetNumber, petOwnerId } from "../pet/number";
+
+const COMMUNITY_URL = "https://t.me/bitbitecookie";
+const CHAT_URL = "https://t.me/bitbitechats";
 
 const GROUPS: { id: QuestGroup }[] = [
   { id: "daily" },
@@ -64,11 +70,12 @@ export function QuestBoard({
   };
 
   const share = () => {
-    const pet = getPet();
-    const text = encodeURIComponent(t("quest.shareText"));
-    const url = encodeURIComponent(`https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`);
-    noteShare();
-    window.open(`https://t.me/share/url?url=${url}&text=${text}`, "_blank");
+    const active = getPet();
+    const who = petDef(active.active);
+    const caption = `${personalPetNumber(petOwnerId(), active.active)} ${who.name}\n${t("quest.shareText")}\nhttps://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`;
+    void shareHomeCard(caption, t(`pet.element.${who.element.id}`)).then((result) => {
+      if (result !== "cancelled") noteShare();
+    });
   };
 
   const visible = rows.filter((row) => row.group === group);
@@ -139,7 +146,7 @@ export function QuestBoard({
               ) : pet.openedCommunity ? (
                 <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("community"); if (n > 0) onReward(`+${n} XP`); }}>{t("quest.claim")}</button>
               ) : (
-                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => openLink("community", "https://t.me/ZoomVerse")}>{t("quest.open")}</button>
+                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => openLink("community", COMMUNITY_URL)}>{t("quest.open")}</button>
               )}
             </div>
             <div className="earn-row">
@@ -152,7 +159,7 @@ export function QuestBoard({
               ) : pet.openedChat ? (
                 <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("chat"); if (n > 0) onReward(`+${n} XP`); }}>{t("quest.claim")}</button>
               ) : (
-                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => openLink("chat", "https://t.me/ZoomVerse_Chat")}>{t("quest.open")}</button>
+                <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" onClick={() => openLink("chat", CHAT_URL)}>{t("quest.open")}</button>
               )}
             </div>
             <div className="earn-row">
