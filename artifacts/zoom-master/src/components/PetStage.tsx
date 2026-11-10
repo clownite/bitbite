@@ -495,7 +495,7 @@ export function PetStage({
       } else {
         rig.scale.setScalar(fit);
       }
-      const homeLift = frame === "lab" ? -2.55 : 0;
+      const homeLift = frame === "lab" ? -1.62 : 0;
       if (frame === "play") {
         rig.position.set(playPose.x, PLAY_BASE_Y + playPose.y, 0);
         rig.rotation.set(0, playPose.face * 0.28, 0);

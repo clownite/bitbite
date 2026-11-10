@@ -4070,12 +4070,12 @@ body, body * {
 }
 .pet-floor {
   position: absolute;
-  left: 16%;
-  right: 16%;
-  bottom: 1%;
-  height: 28px;
+  left: 18%;
+  right: 18%;
+  bottom: 7%;
+  height: 16px;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(148, 160, 172, 0.55), rgba(70, 80, 92, 0.22) 62%, transparent 74%);
+  background: radial-gradient(ellipse at center, rgba(148, 160, 172, 0.5), rgba(70, 80, 92, 0.16) 68%, transparent 76%);
   pointer-events: none;
 }
 .pet-zzz {
@@ -4309,6 +4309,34 @@ body, body * {
   font-size: 26px;
   font-weight: 900;
   letter-spacing: -0.03em;
+}
+.tg-share {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px 12px calc(96px + env(safe-area-inset-bottom, 0px));
+  background: rgba(0, 0, 0, 0.62);
+}
+.tg-share-card {
+  width: min(440px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 22px;
+  background: #07141d;
+  border: 1px solid rgba(122, 215, 255, 0.35);
+  color: #e8f7ff;
+}
+.tg-share-card strong {
+  font-size: 16px;
+  font-weight: 900;
+}
+.tg-share-card .cookie-go {
+  width: 100%;
 }
 .cookie-plays {
   margin-top: 2px;
