@@ -9,7 +9,7 @@ import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PixelMark } from "../components/PixelMark";
 import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
-import { markHere, readAway, type AwayKind } from "../pet/away";
+import { dismissAway, markHere, readAway, type AwayKind } from "../pet/away";
 import { careView, subscribeCare, takeCareXp, toggleLight } from "../pet/care";
 import { addPetXp } from "../pet/petProgress";
 import { playClaim } from "../audio/sfx";
@@ -257,7 +257,7 @@ export function LabPage({
             {pet.stage > 1 ? <div className={pet.stage === 3 ? "grown-ring s3" : "grown-ring"} style={{ "--ink": chosen.element.color } as CSSProperties} /> : null}
             {pet.stage === 3 ? <div className="grown-star" style={{ color: chosen.element.color }}>✦</div> : null}
             {away && life.form !== "egg" ? (
-              <button type="button" className="away-note" data-testid="away-note" onClick={() => setAway(null)}>
+              <button type="button" className="away-note" data-testid="away-note" onClick={() => { dismissAway(); setAway(null); }}>
                 <span>{t("away.title")}</span>
                 {t(`away.${away}`)}
               </button>

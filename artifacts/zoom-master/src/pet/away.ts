@@ -37,6 +37,12 @@ export function readAway(mess: number, bowl: number, asleep: boolean, now = Date
   return kind;
 }
 
+/** The person tapped the note. It stays gone until the next real absence. */
+export function dismissAway(now = Date.now()) {
+  const snap = load();
+  save({ ...snap, kind: "", toldAt: now });
+}
+
 /** Remember this moment as the last time the pet was seen. */
 export function markHere(mess: number, bowl: number, now = Date.now()) {
   const snap = load();
