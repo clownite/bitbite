@@ -18,6 +18,7 @@ import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
 import { focusLife, readLife } from "../pet/life";
 import { LifeEgg } from "../components/LifeEgg";
+import { NumberGame } from "../components/NumberGame";
 import { useT } from "../i18n/LanguageContext";
 
 function HeartShape({ tone }: { tone: "full" | "empty" }) {
@@ -254,6 +255,7 @@ export function LabPage({
               </button>
             ) : null}
             <PetPostcard active={active && !care.dark} petName={chosen.name} />
+            {care.dark ? null : <NumberGame />}
             <PetRoom care={care} toast={wakeToast} />
           </div>
           <div style={{ padding: "0 12px 12px" }}>
