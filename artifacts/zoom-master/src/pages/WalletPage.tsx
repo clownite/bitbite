@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
-import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { PixelBankCard } from "../components/PixelBankCard";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
 import { useT } from "../i18n/LanguageContext";
+import { petDef } from "../pet/catalog";
+import { personalPetNumber, petOwnerId } from "../pet/number";
+import { getPet, subscribePet, type PetState } from "../pet/petProgress";
+import { getTelegramViewer } from "../utils/telegram";
 import {
   CRUMB_GRAM,
   formatCrumbs,
@@ -70,7 +73,12 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   const [wallet, setWallet] = useState("");
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [pet, setPet] = useState<PetState>(getPet);
   const linkedAddress = useTonAddress();
+  const viewer = getTelegramViewer();
+  const def = petDef(pet.active);
+  const number = personalPetNumber(petOwnerId(telegramId), pet.active);
 
   useEffect(() => {
     if (!linkedAddress) return;
@@ -81,6 +89,8 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
     setBalance(getCrumbs().balance);
     setRequests(getCrumbs().requests);
   }), []);
+
+  useEffect(() => subscribePet(() => setPet(getPet())), []);
 
   useEffect(() => {
     if (!visible || !telegramId) return;
@@ -145,104 +155,86 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
     setNote(t("wallet.note.sent"));
   };
 
-  const field = {
-    borderRadius: 14,
-    border: "1px solid rgba(122,215,255,0.28)",
-    background: "rgba(0,0,0,0.35)",
-    color: "#e8f7ff",
-    padding: "13px 14px",
-    fontWeight: 700,
-  } as const;
-
   return (
-    <div className="flex flex-col overflow-y-auto" style={{ height: "100%", padding: "8px 16px 28px" }}>
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
-        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.18em", color: "#7ad7ff", paddingTop: 8 }}>{t("wallet.profile")}</div>
+    <div className="profile-page">
+      <header className="profile-head">
+        <div>
+          <div className="profile-kicker">{t("wallet.booklet")}</div>
+          <h2>{number} {def.name}</h2>
+        </div>
         <WalletConnect />
-      </div>
+      </header>
 
       <PixelBankCard crumbs={formatCrumbs(balance)} />
 
-      <section
-        style={{
-          marginTop: 4,
-          borderRadius: 24,
-          padding: "16px 16px 14px",
-          background: "linear-gradient(180deg, rgba(10,28,42,0.92), rgba(5,12,18,0.94))",
-          border: "1px solid rgba(122,215,255,0.32)",
-          boxShadow: "0 16px 36px rgba(0,0,0,0.28)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
-          <div>
-            <div style={{ fontSize: 11, letterSpacing: "0.18em", fontWeight: 800, color: "rgba(186,220,236,0.55)" }}>{t("wallet.crumbs")}</div>
-            <div style={{ marginTop: 6, display: "flex", alignItems: "center", gap: 10, fontSize: 40, fontWeight: 900, color: "#e8f7ff", lineHeight: 0.95 }}>
-              <ZoomCubeIcon size={32} />
-              <span>{formatCrumbs(balance)}</span>
-            </div>
-          </div>
-          <div style={{ textAlign: "right", paddingBottom: 4, fontSize: 13, fontWeight: 800, color: "#7ad7ff" }}>
-            {formatCrumbs(balance * CRUMB_GRAM)} GRAM
-          </div>
+      <article className="libretto" style={{ "--ink": def.element.color } as CSSProperties}>
+        <div className="libretto-stitch" />
+        <div className="libretto-page">
+          <span>{t("wallet.you")}</span>
+          <strong>{viewer.name === "You" ? t("wallet.you") : viewer.name}</strong>
+          {viewer.username ? <em>{viewer.username}</em> : null}
         </div>
-      </section>
-
-      <section
-        style={{
-          marginTop: 14,
-          borderRadius: 24,
-          padding: "16px 16px 14px",
-          background: "rgba(7,16,24,0.88)",
-          border: "1px solid rgba(122,215,255,0.22)",
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
-        }}
-      >
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-          <div style={{ fontSize: 13, fontWeight: 900, letterSpacing: "0.14em", color: "#e8f7ff" }}>{t("wallet.withdraw")}</div>
-          <div style={{ fontSize: 11, fontWeight: 800, color: "#7ad7ff" }}>{t("wallet.min", { n: WITHDRAW_MIN })}</div>
+        <div className="libretto-page">
+          <span>{t("wallet.yourPet")}</span>
+          <strong>{def.element.glyph} {def.name}</strong>
+          <em>{t(`pet.element.${def.element.id}`)} · {t("pet.stageShort", { s: pet.stage, l: pet.level })}</em>
         </div>
-        <input
-          inputMode="numeric"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
-          placeholder={t("wallet.amountPh", { n: WITHDRAW_MIN })}
-          style={field}
-        />
-        <input
-          value={wallet}
-          onChange={(e) => setWallet(e.target.value.trim())}
-          placeholder={t("wallet.addressPh")}
-          autoCapitalize="off"
-          autoCorrect="off"
-          spellCheck={false}
-          style={field}
-        />
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => void submit()}
-          style={{ border: "none", borderRadius: 16, padding: "13px 14px", fontWeight: 900, letterSpacing: "0.04em", background: "#7ad7ff", color: "#041018" }}
-        >
-          {busy ? "…" : t("wallet.request")}
+        <p className="libretto-line">{t("wallet.keeps", { name: def.name, crumbs: formatCrumbs(balance) })}</p>
+        <p className="libretto-gram">{formatCrumbs(balance * CRUMB_GRAM)} GRAM</p>
+        <button type="button" className="libretto-seal" data-testid="open-pocket" onClick={() => setOpen(true)}>
+          {t("wallet.seal")}
         </button>
-        {note && <div style={{ fontSize: 12, color: "#9fd4ee" }}>{note}</div>}
-      </section>
+      </article>
 
       {requests.length > 0 && (
-        <section style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
+        <section className="libretto-tickets">
           {requests.map((r) => (
-            <div key={r.localId} style={{ borderRadius: 16, padding: "12px 14px", background: "rgba(7,16,24,0.88)", border: "1px solid rgba(122,215,255,0.2)", color: "#e8f7ff" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontWeight: 800 }}>
-                <span>{r.amount} Crumbs</span>
-                <span style={{ color: r.status === "paid" ? "#8dcea0" : r.status === "rejected" ? "#e0a090" : "#7ad7ff" }}>{t(`wallet.${r.status}`)}</span>
+            <div key={r.localId} className={`libretto-ticket is-${r.status}`}>
+              <div>
+                <strong>{r.amount} Crumbs</strong>
+                <span>{t(`wallet.${r.status}`)}</span>
               </div>
-              <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.45)", wordBreak: "break-all" }}>{r.wallet}</div>
+              <em>{r.wallet}</em>
             </div>
           ))}
         </section>
       )}
+
+      {open ? (
+        <div className="pocket" role="presentation" onClick={() => setOpen(false)}>
+          <div
+            className="pocket-card"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t("wallet.pocket")}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="pocket-top">
+              <strong>{t("wallet.pocket")}</strong>
+              <button type="button" onClick={() => setOpen(false)}>{t("wallet.close")}</button>
+            </div>
+            <p>{t("wallet.min", { n: WITHDRAW_MIN })} · {formatCrumbs(balance)} Crumbs</p>
+            <input
+              inputMode="numeric"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ""))}
+              placeholder={t("wallet.amountPh", { n: WITHDRAW_MIN })}
+            />
+            <input
+              value={wallet}
+              onChange={(e) => setWallet(e.target.value.trim())}
+              placeholder={t("wallet.addressPh")}
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+            />
+            <button type="button" className="pocket-go" disabled={busy} onClick={() => void submit()}>
+              {busy ? "…" : t("wallet.request")}
+            </button>
+            {note ? <div className="pocket-note">{note}</div> : null}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
