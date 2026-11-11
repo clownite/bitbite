@@ -137,18 +137,21 @@ export function GamePage({ active }: { active: boolean }) {
     if (!active) return;
     let raf = 0;
     let last = performance.now();
+    const arena = arenaRef.current;
+    const measure = () => {
+      if (!arena) return;
+      const w = Math.round(arena.clientWidth);
+      const h = Math.round(arena.clientHeight);
+      if (w === sized.current.w && h === sized.current.h) return;
+      sized.current = { w, h };
+      setSize({ w, h });
+    };
+    measure();
+    const seen = new ResizeObserver(measure);
+    if (arena) seen.observe(arena);
     const loop = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      const box = arenaRef.current?.getBoundingClientRect();
-      if (box) {
-        const w = Math.round(box.width);
-        const h = Math.round(box.height);
-        if (w !== sized.current.w || h !== sized.current.h) {
-          sized.current = { w, h };
-          setSize({ w, h });
-        }
-      }
       const prev = runRef.current;
       if (prev.phase === "play") {
         const next = stepRun(prev, dt);
@@ -163,8 +166,11 @@ export function GamePage({ active }: { active: boolean }) {
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
-  }, [active]);
+    return () => {
+      cancelAnimationFrame(raf);
+      seen.disconnect();
+    };
+  }, [active, mode]);
 
   const left = playsLeft(plays);
   const begin = () => {
@@ -206,12 +212,10 @@ export function GamePage({ active }: { active: boolean }) {
             </button>
           </div>
           <p>{t("play.blurb", { day: nextReset() })}</p>
-          {run.phase === "idle" || mode === "duel" ? (
-            <div className="play-switch">
-              <button type="button" className={mode === "cookies" ? "is-on" : ""} onClick={() => setMode("cookies")}>{t("play.cookiesTab")}</button>
-              <button type="button" className={mode === "duel" ? "is-on" : ""} data-testid="duel-tab" onClick={() => setMode("duel")}>{t("play.duel")}</button>
-            </div>
-          ) : null}
+          <div className="play-switch">
+            <button type="button" className={mode === "cookies" ? "is-on" : ""} disabled={run.phase === "play"} onClick={() => setMode("cookies")}>{t("play.cookiesTab")}</button>
+            <button type="button" className={mode === "duel" ? "is-on" : ""} data-testid="duel-tab" disabled={run.phase === "play"} onClick={() => setMode("duel")}>{t("play.duel")}</button>
+          </div>
         </header>
 
         {mode === "duel" ? <DuelPanel pet={pet} /> : null}

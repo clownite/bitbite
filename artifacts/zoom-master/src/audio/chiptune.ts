@@ -69,6 +69,11 @@ export function resumeChiptune() {
   if (audio) void audio.resume();
 }
 
+/** Build the sound clock during a tap that already happened, so the game tap is not the first one. */
+export function primeChiptune() {
+  resumeChiptune();
+}
+
 /** A sound on the same clock as the music, so the first tap is not late. */
 export function playNotes(notes: { freq: number; at: number; dur: number; gain: number }[]) {
   const audio = ensure();

@@ -2736,7 +2736,9 @@ body.animations-paused * {
 #splash-enter {
   position: relative;
   z-index: 5;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 76px;
   height: 76px;
   margin: 0 auto;
@@ -2751,6 +2753,7 @@ body.animations-paused * {
   cursor: pointer;
 }
 #splash-cookie {
+  display: block;
   width: 64px;
   height: 64px;
   image-rendering: pixelated;
@@ -4137,6 +4140,9 @@ body, body * {
   color: #041018;
   border-color: #7ad7ff;
 }
+.play-switch button:disabled {
+  opacity: 0.45;
+}
 .duel, .duel-pick {
   display: flex;
   flex-direction: column;
@@ -4170,10 +4176,10 @@ body, body * {
 }
 .pet-floor {
   position: absolute;
-  left: 20%;
-  right: 20%;
-  bottom: 2%;
-  height: 12px;
+  left: 8%;
+  right: 8%;
+  bottom: 1%;
+  height: 16px;
   border-radius: 50%;
   background: radial-gradient(ellipse at center, rgba(168, 178, 188, 0.55), rgba(80, 90, 102, 0.18) 70%, transparent 78%);
   pointer-events: none;

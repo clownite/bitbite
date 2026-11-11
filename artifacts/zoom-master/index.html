@@ -55,11 +55,11 @@
       }
       .splash-in {
         opacity: 0;
-        animation: splash-in 0.7s ease forwards;
+        animation: splash-in 2.4s cubic-bezier(.16, 1, .3, 1) forwards;
       }
       @keyframes splash-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        0% { opacity: 0; }
+        100% { opacity: 1; }
       }
       .splash-title {
         position: relative;
@@ -154,7 +154,9 @@
       #splash-enter {
         position: relative;
         z-index: 5;
-        display: block;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         width: 76px;
         height: 76px;
         margin: 0 auto;
@@ -165,8 +167,10 @@
         cursor: pointer;
       }
       #splash-cookie {
+        display: block;
         width: 64px;
         height: 64px;
+        visibility: hidden;
         image-rendering: pixelated;
         image-rendering: crisp-edges;
         pointer-events: none;
@@ -198,10 +202,10 @@
     <div id="splash-screen" role="dialog" aria-label="Enter Zoom">
       <div class="splash-sky"></div>
       <div class="splash-copy">
-        <div class="splash-title splash-in" style="animation-delay: 0.15s">ZOO<span class="splash-m">M<canvas id="splash-gift" width="16" height="16" aria-hidden="true"></canvas></span></div>
+        <div class="splash-title splash-in" style="animation-delay: 0.35s">ZOO<span class="splash-m">M<canvas id="splash-gift" width="16" height="16" aria-hidden="true"></canvas></span></div>
         <div class="splash-sub">
-          <span class="splash-line splash-in" id="splash-line-0" style="animation-delay: 0.95s">One small life.</span>
-          <span class="splash-line splash-in" id="splash-line-1" style="animation-delay: 1.2s">A world that answers.</span>
+          <span class="splash-line splash-in" id="splash-line-0" style="animation-delay: 1.7s">One small life.</span>
+          <span class="splash-line splash-in" id="splash-line-1" style="animation-delay: 3.1s">A world that answers.</span>
         </div>
       </div>
       <!-- NOEL: la neve. Toglila dopo Natale. Lo sfondo nero resta. -->
@@ -321,7 +325,10 @@
           ctx.putImageData(img, 0, 0);
         }
         var cookie = document.getElementById("splash-cookie");
-        if (cookie) paintCookie(cookie);
+        if (cookie) {
+          paintCookie(cookie);
+          cookie.style.visibility = "visible";
+        }
         function breakCookie() {
           if (!cookie) return;
           var box = cookie.getBoundingClientRect();
@@ -365,6 +372,9 @@
             enterBtn.disabled = true;
             breakCookie();
             setTimeout(hideSplash, 420);
+            setTimeout(function () {
+              if (typeof window.__primeZoomAudio === "function") window.__primeZoomAudio();
+            }, 520);
           };
         }
         var meter = document.getElementById("splash-meter-fill");

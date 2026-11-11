@@ -19,9 +19,9 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
 
 type Frame = "lab" | "collection" | "shop" | "play";
 
-type PoseName = "rest" | "lookL" | "lookR" | "hop" | "sit" | "eat";
+type PoseName = "rest" | "lookL" | "lookR" | "hop" | "pace" | "sit" | "eat";
 
-const WANDER: PoseName[] = ["rest", "lookL", "lookR", "hop", "rest", "lookL", "lookR"];
+const WANDER: PoseName[] = ["pace", "pace", "lookL", "pace", "lookR", "rest", "hop"];
 
 function poseEase(p: number): number {
   const inn = smoothStep(Math.min(1, p / 0.2));
@@ -384,9 +384,14 @@ export function PetStage({
     mountHomeChar();
     stopWait = whenCharReady(petId, mountHomeChar);
 
+    let sizedW = 0;
+    let sizedH = 0;
     const resize = () => {
       const w = host.clientWidth || 1;
       const h = host.clientHeight || 1;
+      if (w === sizedW && h === sizedH) return;
+      sizedW = w;
+      sizedH = h;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h, false);
@@ -470,17 +475,29 @@ export function PetStage({
     let brightUntil = -1;
     const onCared = () => { brightUntil = t + 16; };
     window.addEventListener("zoom-pet-cared", onCared);
-    let poseName: PoseName = "rest";
-    let poseDur = 0;
-    let poseAmp = 0.6;
+    let poseName: PoseName = "pace";
+    let poseDur = 2.8;
+    let poseAmp = 0.7;
     let poseT0 = 0;
 
+    let paceX = 0;
+    let paceDir = 1;
     let raf = 0;
+    let onScreen = true;
+    const seeing = new IntersectionObserver((entries) => {
+      onScreen = entries.some((entry) => entry.isIntersecting);
+    });
+    seeing.observe(host);
     const clock = new Clock();
     let t = 0;
     let blinkAt = 0.7 + Math.random() * 1.1;
     let blinkStart = -1;
     const loop = () => {
+      raf = requestAnimationFrame(loop);
+      if (!onScreen || document.hidden || host.getClientRects().length === 0) {
+        clock.getDelta();
+        return;
+      }
       const dt = Math.min(clock.getDelta(), 0.05);
       t += dt;
       const { stage, level } = petRef.current;
@@ -541,16 +558,22 @@ export function PetStage({
             const bag = mood?.sick
               ? (["rest", "lookL", "lookR", "rest"] as PoseName[])
               : mood?.hungry && !bright
-                ? (["rest", "lookL", "lookR", "rest", "hop"] as PoseName[])
+                ? (["pace", "lookL", "lookR", "rest"] as PoseName[])
                 : bright
-                  ? (["hop", "lookL", "lookR", "hop", "rest"] as PoseName[])
+                  ? (["pace", "hop", "lookL", "pace", "rest"] as PoseName[])
                   : WANDER;
             if (t - poseT0 >= poseDur) {
               let next = bag[Math.floor(Math.random() * bag.length)];
-              if (next === poseName) next = bag[(bag.indexOf(next) + 1) % bag.length];
+              if (next === poseName) next = bag[(bag.indexOf(next) + 3) % bag.length];
               poseName = next;
               poseAmp = 0.4 + Math.random() * 0.6;
-              poseDur = next === "hop" ? 0.5 + Math.random() * 0.4 : next === "rest" ? 1 + Math.random() * 1.8 : 0.6 + Math.random() * 0.8;
+              poseDur = next === "hop"
+                ? 0.5 + Math.random() * 0.4
+                : next === "pace"
+                  ? 2.2 + Math.random() * 1.4
+                  : next === "rest"
+                    ? 0.8 + Math.random() * 1.1
+                    : 0.6 + Math.random() * 0.8;
               poseT0 = t;
             }
             pose = poseName;
@@ -600,8 +623,24 @@ export function PetStage({
         }
         blink.apply(closed);
       }
+      if (frame === "lab" && poseName === "pace" && t >= eatUntil && !moodRef.current?.dark) {
+        paceX += paceDir * dt * 0.85;
+        if (paceX > 2.6) {
+          paceX = 2.6;
+          paceDir = -1;
+          poseDur = 0;
+        } else if (paceX < -2.6) {
+          paceX = -2.6;
+          paceDir = 1;
+          poseDur = 0;
+        }
+        rig.position.x = paceX;
+        rig.position.y = homeLift + Math.abs(Math.sin(t * 10)) * 0.028;
+        rig.rotation.y = paceDir * 0.55;
+      } else if (frame === "lab" && t >= eatUntil && !moodRef.current?.dark && poseName !== "hop" && poseName !== "eat") {
+        rig.position.x = paceX;
+      }
       renderer.render(scene, camera);
-      raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
 
@@ -610,6 +649,7 @@ export function PetStage({
       stopWait();
       cancelAnimationFrame(raf);
       observer.disconnect();
+      seeing.disconnect();
       window.removeEventListener("zoom-pet-hello", onHello);
       window.removeEventListener("zoom-pet-eat", onEat);
       window.removeEventListener("zoom-pet-cared", onCared);

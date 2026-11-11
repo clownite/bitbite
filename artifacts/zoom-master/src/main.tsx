@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { preloadPetModel } from "./pet/petModel";
 import App from "./App";
 import "./index.css";
+import { primeChiptune } from "./audio/chiptune";
 import { hapticLight } from "./utils/haptic";
 import { BootErrorBoundary } from "./components/BootErrorBoundary";
 
@@ -37,6 +38,9 @@ function configureTelegramViewport() {
 }
 
 configureTelegramViewport();
+(window as unknown as { __primeZoomAudio?: () => void }).__primeZoomAudio = () => {
+  primeChiptune();
+};
 preloadPetModel();
 
 const SCROLL_TAGS = new Set(["HTML", "BODY"]);
