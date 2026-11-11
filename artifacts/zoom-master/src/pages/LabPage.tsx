@@ -18,6 +18,7 @@ import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
 import { eggLeft, focusLife, formatLeft, readLife } from "../pet/life";
 import { LifeEgg } from "../components/LifeEgg";
+import { CardReel } from "../components/CardReel";
 import { useT } from "../i18n/LanguageContext";
 
 function HeartShape({ tone }: { tone: "full" | "empty" }) {
@@ -243,6 +244,7 @@ export function LabPage({
           }}
         >
           <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }} data-testid="pet-room">
+            <CardReel petId={pet.active} petName={chosen.name} now={now} care={care} egg={life.form === "egg"}>
             <PetStage pet={pet} frame="lab" petId={pet.active} lifeScale={life.scale} room={{ asleep: care.asleep, dark: care.dark, sick: care.sick, calling: care.calling, hungry: care.hungry }} />
             {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : null}
             {life.form === "egg" ? (
@@ -262,6 +264,7 @@ export function LabPage({
             ) : null}
             <PetPostcard active={active && !care.dark && life.form !== "egg"} petName={chosen.name} />
             <PetRoom care={care} toast={wakeToast} waiting={life.form === "egg"} />
+            </CardReel>
           </div>
           <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>

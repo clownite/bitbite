@@ -116,6 +116,16 @@ export function formatLeft(ms: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+/** Years are life-hours. Weight starts with the body and rises when it eats. */
+export function lifeStats(id: PetId, now = Date.now()): { years: number; weight: number; feeds: number; cleans: number } {
+  const row = ensure(id);
+  const age = Math.max(0, now - row.bornAt);
+  const years = Math.floor(age / HOUR);
+  const form = formAt(age);
+  const base = form === "egg" ? 5 : form === "baby" ? 10 : form === "child" ? 18 : form === "teen" ? 28 : 40;
+  return { years, weight: base + years + row.feeds * 2, feeds: row.feeds, cleans: row.cleans };
+}
+
 /** The body for this hour. The first hour locks girl or boy. The third hour locks the road. */
 export function readLife(id: PetId, now = Date.now()): LifeView {
   const row = ensure(id);
