@@ -286,12 +286,15 @@ export function PetStage({
   frame,
   petId = "dolphin",
   side = "left",
+  lifeScale = 1,
   room,
 }: {
   pet: PetState;
   frame: Frame;
   petId?: PetId;
   side?: "left" | "right";
+  /** 0 is the egg. The body grows through the life hours. */
+  lifeScale?: number;
   room?: { asleep: boolean; dark: boolean; sick?: boolean; calling?: boolean; hungry?: boolean };
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -303,6 +306,8 @@ export function PetStage({
   flashRef.current = setFlash;
   const petRef = useRef(pet);
   petRef.current = pet;
+  const lifeRef = useRef(lifeScale);
+  lifeRef.current = lifeScale;
 
   useLayoutEffect(() => {
     const host = hostRef.current;
@@ -504,6 +509,7 @@ export function PetStage({
       t += dt;
       const { stage, level } = petRef.current;
       const fit = fitScale(level, stage);
+      const body = frame === "shop" ? 1 : lifeRef.current;
       if (frame === "shop") {
         rig.scale.setScalar(1.55);
         rig.position.set(Math.sin(t * 0.65) * 0.012, Math.sin(t * 1.05) * 0.018, 0);
@@ -512,11 +518,11 @@ export function PetStage({
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
         const small = frame === "duel" ? 0.52 : frame === "play" ? 0.32 : 0.38;
-        rig.scale.setScalar(((small + grown * 0.03) * view) / 2.6);
+        rig.scale.setScalar((((small + grown * 0.03) * view) / 2.6) * body);
         key.intensity = frame === "lab" && moodRef.current?.dark ? 0.18 : 2.4;
         ambient.intensity = frame === "lab" && moodRef.current?.dark ? 0.22 : 1.35;
       } else {
-        rig.scale.setScalar(fit);
+        rig.scale.setScalar(fit * body);
       }
       const homeLift = frame === "lab" ? -1.08 : 0;
       if (frame === "play") {

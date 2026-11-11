@@ -1,5 +1,6 @@
 import type { PetId } from "./catalog";
 import { settleFarm } from "./crumbs";
+import { focusLife } from "./life";
 
 /** One shared pet. Everyone starts on the same base form. */
 
@@ -250,6 +251,7 @@ export function setActivePet(id: PetId) {
   if (!state.owned.includes(id) || state.active === id) return;
   settleFarm();
   const core = state.byId[id] ?? { ...FRESH };
+  focusLife(id);
   state = syncActive({ ...state, active: id, ...core });
   emit();
 }
@@ -258,6 +260,7 @@ export function buyPet(id: PetId) {
   if (id === "dolphin" || state.owned.includes(id) || state.owned.length >= PET_SLOTS) return;
   settleFarm();
   const core = { ...FRESH };
+  focusLife(id);
   state = syncActive({
     ...state,
     owned: [...state.owned, id],

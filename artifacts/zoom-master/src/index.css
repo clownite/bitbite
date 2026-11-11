@@ -4379,6 +4379,89 @@ body, body * {
 .ring-moves button.is-on { color: #041018; }
 .ring-moves button.is-on small { color: rgba(4, 16, 24, 0.7); }
 .ring-moves button:disabled { opacity: 0.55; }
+.life-egg {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  z-index: 3;
+  width: 78px;
+  height: 92px;
+  margin-left: -39px;
+  pointer-events: none;
+}
+.life-egg.is-mini {
+  bottom: 28%;
+  width: 46px;
+  height: 54px;
+  margin-left: -23px;
+}
+.life-egg-shadow {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  bottom: 0;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35);
+  animation: egg-shadow 2.6s ease-in-out infinite;
+}
+.life-egg-shell {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 0;
+  bottom: 12px;
+  border-radius: 50% 50% 46% 46%;
+  background:
+    radial-gradient(circle at 34% 30%, #fff 0 7px, transparent 8px),
+    radial-gradient(circle at 68% 58%, var(--spot, #7ad7ff) 0 5px, transparent 6px),
+    linear-gradient(180deg, #fff8ee 0%, #f3d7b0 58%, #e4bc90 100%);
+  box-shadow: inset -10px -12px 0 rgba(176, 112, 64, 0.22), 0 8px 0 rgba(0, 0, 0, 0.04);
+  animation: egg-hop 2.6s ease-in-out infinite;
+}
+@keyframes egg-hop {
+  0%, 68% { transform: translateY(0) scale(1, 1); }
+  74% { transform: translateY(3px) scale(1.08, 0.9); }
+  82% { transform: translateY(-28px) scale(0.94, 1.08); }
+  90% { transform: translateY(0) scale(1.06, 0.92); }
+  96% { transform: translateY(-12px) scale(0.98, 1.04); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+@keyframes egg-shadow {
+  0%, 68%, 90%, 100% { transform: scaleX(1); opacity: 0.45; }
+  82% { transform: scaleX(0.62); opacity: 0.22; }
+  96% { transform: scaleX(0.8); opacity: 0.3; }
+}
+.life-mark {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  z-index: 3;
+  width: 22px;
+  height: 14px;
+  margin-left: -11px;
+  pointer-events: none;
+}
+.life-mark.is-girl {
+  background:
+    radial-gradient(circle at 4px 7px, #ff7aa2 0 4px, transparent 5px),
+    radial-gradient(circle at 18px 7px, #ff7aa2 0 4px, transparent 5px),
+    radial-gradient(circle at 11px 8px, #fff 0 2px, #ff4d7a 3px, transparent 4px);
+}
+.life-mark.is-boy {
+  background:
+    linear-gradient(#7ad7ff, #7ad7ff) 8px 0 / 6px 8px no-repeat,
+    linear-gradient(#7ad7ff, #7ad7ff) 4px 6px / 14px 4px no-repeat;
+}
+.life-mark.is-wild {
+  box-shadow: 8px 16px 0 #ff7a3c, 14px 20px 0 #ff7a3c;
+}
+.life-mark.is-tended {
+  box-shadow: 0 16px 0 var(--spot, #fff);
+}
+@media (prefers-reduced-motion: reduce) {
+  .life-egg-shell, .life-egg-shadow { animation: none; }
+}
 .pet-floor {
   position: absolute;
   left: 8%;

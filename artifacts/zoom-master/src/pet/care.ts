@@ -1,5 +1,7 @@
 /** The pet's room on Home. The wallet farm keeps running. Care only slows it a little. */
 
+import { noteLife } from "./life";
+
 export const BOWL_MS = 10 * 60 * 60 * 1000;
 export const MESS_MS = 4 * 60 * 60 * 1000;
 export const CARE_XP = 8;
@@ -89,8 +91,10 @@ function load(): CareState {
 let state: CareState = typeof localStorage === "undefined" ? fresh() : load();
 
 function commit(next: CareState, notify: boolean) {
+  const fellIll = next.sick && !state.sick;
   state = next;
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /**/ }
+  if (fellIll) noteLife("sick");
   if (notify) listeners.forEach((fn) => fn());
 }
 
@@ -204,6 +208,7 @@ export function feed(now = Date.now()): boolean {
   }
   const next = { ...stepped, bowl: 1 };
   commit(next, true);
+  noteLife("feed");
   return true;
 }
 
@@ -214,6 +219,7 @@ export function cleanMess(id: number, now = Date.now()): boolean {
     return false;
   }
   commit({ ...stepped, messes: stepped.messes.filter((crumb) => crumb.id !== id) }, true);
+  noteLife("clean");
   return true;
 }
 
