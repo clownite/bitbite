@@ -1,6 +1,6 @@
 /** The pet's room on Home. The wallet farm keeps running. Care only slows it a little. */
 
-import { noteLife } from "./life";
+import { focusIsEgg, noteLife } from "./life";
 
 export const BOWL_MS = 10 * 60 * 60 * 1000;
 export const MESS_MS = 4 * 60 * 60 * 1000;
@@ -201,6 +201,7 @@ export function careProductionFactor(now = Date.now()): number {
 }
 
 export function feed(now = Date.now()): boolean {
+  if (focusIsEgg(now)) return false;
   const stepped = stepCare(state, now).state;
   if (stepped.bowl > 0.92) {
     commit(stepped, visibleKey(state) !== visibleKey(stepped));

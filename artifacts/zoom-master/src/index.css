@@ -4122,6 +4122,7 @@ body, body * {
 }
 .play-switch {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 10px;
 }
@@ -4379,21 +4380,23 @@ body, body * {
 .ring-moves button.is-on { color: #041018; }
 .ring-moves button.is-on small { color: rgba(4, 16, 24, 0.7); }
 .ring-moves button:disabled { opacity: 0.55; }
+.num-arena {
+  position: relative;
+  height: 460px;
+  margin-top: 12px;
+  border-radius: 26px;
+  border: 1px solid rgba(122, 215, 255, 0.35);
+  overflow: hidden;
+}
+.num-arena.is-mad { animation: num-mad 0.45s steps(2, end); }
 .num-game { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
 .num-go {
   pointer-events: auto;
   position: absolute;
-  top: 8px;
   left: 50%;
-  transform: translateX(-50%);
-  border: none;
-  border-radius: 999px;
-  padding: 6px 10px;
-  background: #041018;
-  color: #fff6e4;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  top: 42%;
+  z-index: 7;
+  transform: translate(-50%, -50%);
 }
 .num-side { position: absolute; top: 22%; }
 .num-side.is-you { left: 8%; }
@@ -4413,10 +4416,48 @@ body, body * {
   from { transform: translateY(8px); opacity: 1; }
   to { transform: translateY(-28px); opacity: 0; }
 }
-[data-testid="pet-room"].is-mad { animation: num-mad 0.45s steps(2, end); }
 @keyframes num-mad {
   25% { transform: translateX(-6px); }
   75% { transform: translateX(6px); }
+}
+.egg-wait {
+  position: relative;
+  height: 360px;
+  margin-top: 12px;
+  border-radius: 26px;
+  overflow: hidden;
+  background: radial-gradient(ellipse 70% 40% at 50% 78%, rgba(244, 226, 188, 0.28), transparent 70%), linear-gradient(180deg, #163044 0%, #071018 72%);
+  border: 1px solid rgba(244, 226, 188, 0.35);
+}
+.egg-wait strong {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 28px;
+  z-index: 4;
+  text-align: center;
+  font-size: 28px;
+  letter-spacing: 0.08em;
+  color: #fff6e4;
+}
+.egg-wait-note {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 12px;
+  z-index: 7;
+  text-align: center;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #f3e4c8;
+  color: #3a2a1c;
+  pointer-events: none;
+}
+.egg-wait-note span {
+  display: block;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
 }
 .life-egg {
   --cell: 6px;
@@ -4441,24 +4482,10 @@ body, body * {
 .life-egg-shadow {
   bottom: 0;
   height: calc(2 * var(--cell));
-  animation: egg-shadow 2.4s steps(1, end) infinite;
 }
 .life-egg-shell {
   top: 0;
   height: calc(13 * var(--cell));
-  animation: egg-hop 2.4s steps(1, end) infinite;
-}
-@keyframes egg-hop {
-  0%, 62% { transform: translateY(0); }
-  63%, 76% { transform: translateY(-24px); }
-  77%, 86% { transform: translateY(0); }
-  87%, 94% { transform: translateY(-12px); }
-  95%, 100% { transform: translateY(0); }
-}
-@keyframes egg-shadow {
-  0%, 62%, 77%, 86%, 95%, 100% { transform: scaleX(1); opacity: 0.9; }
-  63%, 76% { transform: scaleX(0.6); opacity: 0.45; }
-  87%, 94% { transform: scaleX(0.75); opacity: 0.6; }
 }
 .life-mark {
   position: absolute;
@@ -4486,9 +4513,6 @@ body, body * {
 }
 .life-mark.is-tended {
   box-shadow: 0 16px 0 var(--spot, #fff);
-}
-@media (prefers-reduced-motion: reduce) {
-  .life-egg-shell, .life-egg-shadow { animation: none; }
 }
 .pet-floor {
   position: absolute;

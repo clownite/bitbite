@@ -97,6 +97,25 @@ export function noteLife(kind: "feed" | "clean" | "sick") {
   save();
 }
 
+/** Milliseconds left in the first hour. Zero once the egg has opened. */
+export function eggLeft(id: PetId, now = Date.now()): number {
+  const row = ensure(id);
+  return Math.max(0, HOUR - Math.max(0, now - row.bornAt));
+}
+
+/** The pet on Home is still inside the egg. */
+export function focusIsEgg(now = Date.now()): boolean {
+  return eggLeft(focus, now) > 0;
+}
+
+/** `m:ss` for the egg clock. */
+export function formatLeft(ms: number): string {
+  const total = Math.max(0, Math.ceil(ms / 1000));
+  const minutes = Math.floor(total / 60);
+  const seconds = total % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
 /** The body for this hour. The first hour locks girl or boy. The third hour locks the road. */
 export function readLife(id: PetId, now = Date.now()): LifeView {
   const row = ensure(id);

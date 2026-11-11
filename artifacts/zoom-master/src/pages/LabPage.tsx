@@ -16,9 +16,8 @@ import { playClaim } from "../audio/sfx";
 import { PetPostcard } from "../components/PetPostcard";
 import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
-import { focusLife, readLife } from "../pet/life";
+import { eggLeft, focusLife, formatLeft, readLife } from "../pet/life";
 import { LifeEgg } from "../components/LifeEgg";
-import { NumberGame } from "../components/NumberGame";
 import { useT } from "../i18n/LanguageContext";
 
 function HeartShape({ tone }: { tone: "full" | "empty" }) {
@@ -165,10 +164,11 @@ export function LabPage({
     setPet(getPet());
     setNow(Date.now());
   }), []);
+  const egg = readLife(pet.active, now).form === "egg";
   useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), 30_000);
+    const id = window.setInterval(() => setNow(Date.now()), egg ? 1000 : 30_000);
     return () => window.clearInterval(id);
-  }, []);
+  }, [egg]);
   useEffect(() => {
     const pull = () => setCare(careView());
     const unsubCare = subscribeCare(pull);
@@ -245,18 +245,23 @@ export function LabPage({
           <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }} data-testid="pet-room">
             <PetStage pet={pet} frame="lab" petId={pet.active} lifeScale={life.scale} room={{ asleep: care.asleep, dark: care.dark, sick: care.sick, calling: care.calling, hungry: care.hungry }} />
             {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : null}
+            {life.form === "egg" ? (
+              <div className="egg-wait-note" data-testid="egg-wait-home">
+                <span>{t("life.waitLeft", { time: formatLeft(eggLeft(pet.active, now)) })}</span>
+                {t("life.wait")}
+              </div>
+            ) : null}
             {life.form !== "egg" && life.sex ? <div className={`life-mark is-${life.sex}${life.road ? ` is-${life.road}` : ""}`} aria-hidden /> : null}
             {pet.stage > 1 ? <div className={pet.stage === 3 ? "grown-ring s3" : "grown-ring"} style={{ "--ink": chosen.element.color } as CSSProperties} /> : null}
             {pet.stage === 3 ? <div className="grown-star" style={{ color: chosen.element.color }}>✦</div> : null}
-            {away ? (
+            {away && life.form !== "egg" ? (
               <button type="button" className="away-note" data-testid="away-note" onClick={() => setAway(null)}>
                 <span>{t("away.title")}</span>
                 {t(`away.${away}`)}
               </button>
             ) : null}
-            <PetPostcard active={active && !care.dark} petName={chosen.name} />
-            {care.dark ? null : <NumberGame />}
-            <PetRoom care={care} toast={wakeToast} />
+            <PetPostcard active={active && !care.dark && life.form !== "egg"} petName={chosen.name} />
+            <PetRoom care={care} toast={wakeToast} waiting={life.form === "egg"} />
           </div>
           <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
@@ -284,7 +289,7 @@ export function LabPage({
                 <div style={{ marginTop: 2, fontSize: 26, fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{formatCrumbs(farm.pending)}</div>
                 <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.7)" }}>
                   {formatCrumbs(farm.cap)} {t("pet.perDay")} · {t("pet.level", { n: pet.level })}
-                  {care.factor < 0.97 ? ` · ${care.sick ? t("pet.sick") : care.hungry ? t("pet.hungry") : t("pet.messy")}` : ""}
+                  {life.form !== "egg" && care.factor < 0.97 ? ` · ${care.sick ? t("pet.sick") : care.hungry ? t("pet.hungry") : t("pet.messy")}` : ""}
                 </div>
               </div>
               <button

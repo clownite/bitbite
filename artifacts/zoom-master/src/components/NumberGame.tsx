@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { playBite, playMiss } from "../audio/sfx";
+import { PetStage } from "./PetStage";
+import type { PetState } from "../pet/petProgress";
 import { useT } from "../i18n/LanguageContext";
 
 /** The Tamagotchi number game. Your number lands on the left. Two seconds later the other one lands on the right. */
@@ -79,11 +81,12 @@ const SKULL_INK = { "1": "#f4f0ea" };
 const COOKIE_INK = { "1": "#e2a15a", "2": "#5a3018" };
 const HEART_INK = { "1": "#ff5a7a" };
 
-export function NumberGame() {
+export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color: string; lifeScale?: number }) {
   const { t } = useT();
   const [phase, setPhase] = useState<"idle" | "mine" | "win" | "lose">("idle");
   const [mine, setMine] = useState(1);
   const [theirs, setTheirs] = useState(1);
+  const [mad, setMad] = useState(false);
   const timers = useRef<number[]>([]);
 
   useEffect(() => () => {
@@ -108,11 +111,12 @@ export function NumberGame() {
       setPhase(won ? "win" : "lose");
       if (won) {
         playBite();
-        window.dispatchEvent(new Event("zoom-pet-eat"));
+        window.dispatchEvent(new CustomEvent("zoom-pet-eat", { detail: { where: "play" } }));
       } else {
         playMiss();
-        document.querySelector("[data-testid=pet-room]")?.classList.add("is-mad");
-        later(() => document.querySelector("[data-testid=pet-room]")?.classList.remove("is-mad"), 700);
+        setMad(true);
+        window.dispatchEvent(new CustomEvent("zoom-pet-mad", { detail: { where: "play" } }));
+        later(() => setMad(false), 700);
       }
       later(() => setPhase("idle"), 2400);
     }, 2000);
@@ -121,11 +125,20 @@ export function NumberGame() {
   const showTheirs = phase === "win" || phase === "lose";
 
   return (
-    <div className="num-game" data-testid="number-game">
+    <div
+      className={mad ? "num-arena is-mad" : "num-arena"}
+      data-testid="number-game"
+      style={{
+        background: `radial-gradient(ellipse 70% 28% at 50% 92%, ${color}66, transparent 70%), linear-gradient(180deg, #163044 0%, #071018 72%)`,
+        borderColor: `${color}88`,
+      }}
+    >
+      <PetStage pet={pet} frame="play" petId={pet.active} lifeScale={lifeScale} />
+      <div className="cookie-floor" />
       {phase === "idle" ? (
-        <button type="button" className="num-go" data-testid="number-start" onClick={start}>{t("life.game")}</button>
+        <button type="button" className="cookie-go num-go" data-testid="number-start" onClick={start}>{t("play.start")}</button>
       ) : (
-        <>
+        <div className="num-game">
           <div className="num-side is-you" data-testid="number-you">
             <Sprite rows={DIGIT[mine]} ink={CREAM} cell={4} />
           </div>
@@ -147,7 +160,7 @@ export function NumberGame() {
               <Sprite rows={SKULL} ink={SKULL_INK} cell={4} />
             </div>
           ) : null}
-        </>
+        </div>
       )}
     </div>
   );

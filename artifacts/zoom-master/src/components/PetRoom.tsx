@@ -63,9 +63,12 @@ function PixelLamp({ on }: { on: boolean }) {
 export function PetRoom({
   care,
   toast,
+  waiting = false,
 }: {
   care: CareView;
   toast: number;
+  /** The egg only waits. The bowl, the floor and the cure stay hidden. */
+  waiting?: boolean;
 }) {
   const { t } = useT();
   const lampOn = !care.lightOff;
@@ -83,7 +86,7 @@ export function PetRoom({
   return (
     <div className="pet-room-layer">
       <div className="pet-floor" />
-      {care.messes.map((crumb) => (
+      {waiting ? null : care.messes.map((crumb) => (
         <button
           key={crumb.id}
           type="button"
@@ -102,6 +105,7 @@ export function PetRoom({
           <PixelCookie />
         </button>
       ))}
+      {waiting ? null : (
       <button
         type="button"
         className={care.hungry ? "pet-bowl is-hungry" : "pet-bowl"}
@@ -119,6 +123,7 @@ export function PetRoom({
         <PixelBowl cookies={care.cookies} />
         <span>{care.cookies >= 3 ? t("pet.full") : t("pet.feed")}</span>
       </button>
+      )}
       {care.showLamp ? (
         <button
           type="button"
@@ -135,10 +140,10 @@ export function PetRoom({
           <PixelLamp on={lampOn} />
         </button>
       ) : null}
-      {care.calling && care.bubble ? (
+      {!waiting && care.calling && care.bubble ? (
         <div className="pet-call" data-testid="pet-call" role="status">{t(care.bubble)}</div>
       ) : null}
-      {care.sick ? (
+      {!waiting && care.sick ? (
         <button
           type="button"
           className="pet-cure"

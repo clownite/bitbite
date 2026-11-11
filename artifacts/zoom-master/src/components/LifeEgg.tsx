@@ -47,7 +47,7 @@ function paint(canvas: HTMLCanvasElement, rows: string[], spot: string) {
   });
 }
 
-/** The Tamagotchi egg: a rest, a hop, a smaller hop, then a rest. Every move lands on a pixel. */
+/** The Tamagotchi egg sits still. The first hour is only a wait. */
 export function LifeEgg({ color, mini = false }: { color: string; mini?: boolean }) {
   const shellRef = useRef<HTMLCanvasElement>(null);
   const shadowRef = useRef<HTMLCanvasElement>(null);

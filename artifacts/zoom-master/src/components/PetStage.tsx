@@ -438,6 +438,7 @@ export function PetStage({
         }
         return;
       }
+      if (lifeRef.current <= 0) return;
       if (Date.now() - lastTapAt < 700) return;
       lastTapAt = Date.now();
       const who = TRICK[petId];
@@ -476,8 +477,19 @@ export function PetStage({
     let helloAt = -1;
     const onHello = () => { helloAt = t; };
     window.addEventListener("zoom-pet-hello", onHello);
+    let madUntil = -1;
+    const onMad = (event: Event) => {
+      const where = (event as CustomEvent<{ where?: string }>).detail?.where;
+      if (where === "play" && frame !== "play") return;
+      madUntil = t + 0.7;
+    };
+    window.addEventListener("zoom-pet-mad", onMad);
     let eatUntil = -1;
-    const onEat = () => { eatUntil = t + 1.25; };
+    const onEat = (event: Event) => {
+      const where = (event as CustomEvent<{ where?: string }>).detail?.where;
+      if (where === "play" ? frame !== "play" : frame === "play") return;
+      eatUntil = t + 1.25;
+    };
     window.addEventListener("zoom-pet-eat", onEat);
     let brightUntil = -1;
     const onCared = () => { brightUntil = t + 16; };
@@ -526,9 +538,22 @@ export function PetStage({
       }
       const homeLift = frame === "lab" ? -1.08 : 0;
       if (frame === "play") {
-        rig.position.set(playPose.x, PLAY_BASE_Y + playPose.y, 0);
-        rig.rotation.set(0, playPose.face * 0.28, 0);
-        host.dataset.pose = "play";
+        if (t < eatUntil) {
+          const p = (t - (eatUntil - 1.25)) / 1.25;
+          const at = poseAt("eat", p, t, PLAY_BASE_Y, 0, 1);
+          rig.position.set(playPose.x + at.x * 0.35, at.y + playPose.y, 0);
+          rig.rotation.set(at.rx, playPose.face * 0.28 + at.ry, 0);
+          host.dataset.pose = "eat";
+        } else if (t < madUntil) {
+          const wobble = Math.sin((madUntil - t) * 42);
+          rig.position.set(playPose.x + wobble * 0.06, PLAY_BASE_Y + playPose.y, 0);
+          rig.rotation.set(0.08, playPose.face * 0.28, wobble * 0.22);
+          host.dataset.pose = "mad";
+        } else {
+          rig.position.set(playPose.x, PLAY_BASE_Y + playPose.y, 0);
+          rig.rotation.set(0, playPose.face * 0.28, 0);
+          host.dataset.pose = "play";
+        }
       } else if (frame === "duel") {
         const dir = side === "right" ? -1 : 1;
         rig.position.set(0, -0.15 + Math.sin(t * 2.1) * 0.02, 0);
@@ -664,6 +689,7 @@ export function PetStage({
       observer.disconnect();
       seeing.disconnect();
       window.removeEventListener("zoom-pet-hello", onHello);
+      window.removeEventListener("zoom-pet-mad", onMad);
       window.removeEventListener("zoom-pet-eat", onEat);
       window.removeEventListener("zoom-pet-cared", onCared);
       host.removeEventListener("pointerdown", onDown);

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { DuelPanel } from "../components/DuelPanel";
+import { LifeEgg } from "../components/LifeEgg";
+import { NumberGame } from "../components/NumberGame";
 import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
 import { ackCookieBanner, cookieBoard, nextReset, recordCookies, xpForPlace, type BoardRow } from "../pet/cookieBoard";
@@ -9,6 +11,7 @@ import {
 } from "../pet/cookieGame";
 import { playPose } from "../pet/playPose";
 import { getPet, subscribePet, type PetState } from "../pet/petProgress";
+import { eggLeft, focusLife, formatLeft, readLife } from "../pet/life";
 import { playBite, playClick, playMiss } from "../audio/sfx";
 import { hapticSoft } from "../utils/haptic";
 import { useT } from "../i18n/LanguageContext";
@@ -104,7 +107,8 @@ export function GamePage({ active }: { active: boolean }) {
   const [plays, setPlays] = useState<PlayDay>(() => cookiePlays());
   const [boardOpen, setBoardOpen] = useState(false);
   const [hint, setHint] = useState(true);
-  const [mode, setMode] = useState<"cookies" | "duel">("cookies");
+  const [mode, setMode] = useState<"cookies" | "duel" | "numbers">("cookies");
+  const [now, setNow] = useState(() => Date.now());
   const [size, setSize] = useState({ w: 0, h: 0 });
   const runRef = useRef(run);
   runRef.current = run;
@@ -114,6 +118,14 @@ export function GamePage({ active }: { active: boolean }) {
   const color = petDef(pet.active).element.color;
 
   useEffect(() => subscribePet(() => setPet(getPet())), []);
+  focusLife(pet.active);
+  const life = readLife(pet.active, now);
+  const waiting = life.form === "egg";
+  useEffect(() => {
+    if (!waiting) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [waiting]);
 
   useEffect(() => {
     const pull = () => {
@@ -204,21 +216,34 @@ export function GamePage({ active }: { active: boolean }) {
           <div className="cookie-head-row">
             <div>
               <div className="cookie-board-kicker">{t("play.kicker")}</div>
-              <h2>{t("play.title")}</h2>
-              {mode === "cookies" ? <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left, max: PLAYS_PER_DAY })}</div> : null}
+              <h2>{waiting ? t("life.egg") : mode === "numbers" ? t("play.numbers") : mode === "duel" ? t("play.duel") : t("play.title")}</h2>
+              {mode === "cookies" && !waiting ? <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left, max: PLAYS_PER_DAY })}</div> : null}
             </div>
-            <button type="button" className="cookie-board-btn" data-testid="cookie-board-open" onClick={() => setBoardOpen(true)}>
-              {t("play.board")}
-            </button>
+            {waiting ? null : (
+              <button type="button" className="cookie-board-btn" data-testid="cookie-board-open" onClick={() => setBoardOpen(true)}>
+                {t("play.board")}
+              </button>
+            )}
           </div>
-          {mode === "cookies" ? <p>{t("play.blurb", { day: nextReset() })}</p> : null}
-          <div className="play-switch">
-            <button type="button" className={mode === "cookies" ? "is-on" : ""} disabled={run.phase === "play"} onClick={() => setMode("cookies")}>{t("play.cookiesTab")}</button>
-            <button type="button" className={mode === "duel" ? "is-on" : ""} data-testid="duel-tab" disabled={run.phase === "play"} onClick={() => setMode("duel")}>{t("play.duel")}</button>
-          </div>
+          {waiting ? <p>{t("life.wait")}</p> : mode === "numbers" ? <p>{t("play.numbersHint")}</p> : mode === "cookies" ? <p>{t("play.blurb", { day: nextReset() })}</p> : null}
+          {waiting ? null : (
+            <div className="play-switch">
+              <button type="button" className={mode === "cookies" ? "is-on" : ""} disabled={run.phase === "play"} onClick={() => setMode("cookies")}>{t("play.cookiesTab")}</button>
+              <button type="button" className={mode === "numbers" ? "is-on" : ""} data-testid="numbers-tab" disabled={run.phase === "play"} onClick={() => setMode("numbers")}>{t("play.numbers")}</button>
+              <button type="button" className={mode === "duel" ? "is-on" : ""} data-testid="duel-tab" disabled={run.phase === "play"} onClick={() => setMode("duel")}>{t("play.duel")}</button>
+            </div>
+          )}
         </header>
 
-        {mode === "duel" ? <DuelPanel pet={pet} /> : null}
+        {waiting ? (
+          <div className="egg-wait" data-testid="egg-wait">
+            <LifeEgg color={color} />
+            <strong data-testid="egg-left">{t("life.waitLeft", { time: formatLeft(eggLeft(pet.active, now)) })}</strong>
+          </div>
+        ) : null}
+
+        {!waiting && mode === "duel" ? <DuelPanel pet={pet} /> : null}
+        {!waiting && mode === "numbers" ? <NumberGame pet={pet} color={color} lifeScale={life.scale} /> : null}
 
         {board.banner ? (
           <button
@@ -236,7 +261,7 @@ export function GamePage({ active }: { active: boolean }) {
           </button>
         ) : null}
 
-        {mode === "cookies" ? <div
+        {!waiting && mode === "cookies" ? <div
           ref={arenaRef}
           className={run.phase === "boom" ? "cookie-arena is-boom" : "cookie-arena"}
           data-testid="cookie-arena"
@@ -245,7 +270,7 @@ export function GamePage({ active }: { active: boolean }) {
             borderColor: `${color}88`,
           }}
         >
-          <PetStage pet={pet} frame="play" petId={pet.active} />
+          <PetStage pet={pet} frame="play" petId={pet.active} lifeScale={life.scale} />
           <div className="cookie-floor" />
           {size.w > 0 && run.drops.map((drop) => {
             const point = stagePoint(drop.x, drop.y, size.w, size.h);

@@ -30,6 +30,8 @@ import { settlePetPayments } from "./pet/payPet";
 import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { careView, subscribeCare } from "./pet/care";
+import { eggLeft } from "./pet/life";
+import { getPet } from "./pet/petProgress";
 import { subscribeCrumbs } from "./pet/crumbs";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
@@ -291,25 +293,26 @@ function AppShell() {
           {NAV.map((item) => {
             const active = tab === item.id;
             const Icon = item.icon;
+            const calling = item.id === "lab" && care.call && eggLeft(getPet().active) <= 0;
             return (
               <button
                 key={item.id}
-                className={`flex-1 flex flex-col items-center justify-center gap-1${item.id === "lab" && care.call ? " nav-call" : ""}`}
+                className={`flex-1 flex flex-col items-center justify-center gap-1${calling ? " nav-call" : ""}`}
                 onClick={() => setTab(item.id)}
                 style={{ position: "relative", color: active ? "#7ad7ff" : "rgba(186, 220, 236, 0.55)", background: "transparent", border: "none" }}
               >
                 <span style={{ position: "relative", display: "grid" }}>
                   <Icon size={22} strokeWidth={active ? 2.4 : 1.7} />
-                  {item.id === "lab" && care.call ? <span className="nav-call-dot" /> : null}
+                  {calling ? <span className="nav-call-dot" /> : null}
                 </span>
                 <div style={{
-                  fontSize: item.id === "lab" && tab !== "lab" && care.bubble ? 8 : 9,
+                  fontSize: calling && tab !== "lab" && care.bubble ? 8 : 9,
                   fontWeight: 800,
                   letterSpacing: "0.02em",
                   whiteSpace: "nowrap",
-                  color: item.id === "lab" && tab !== "lab" && care.bubble ? "#ffd0dc" : undefined,
+                  color: calling && tab !== "lab" && care.bubble ? "#ffd0dc" : undefined,
                 }}>
-                  {item.id === "lab" && tab !== "lab" && care.bubble ? t(care.bubble) : t(item.key)}
+                  {calling && tab !== "lab" && care.bubble ? t(care.bubble) : t(item.key)}
                 </div>
               </button>
             );
