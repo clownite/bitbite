@@ -22,7 +22,13 @@ type Frame = "lab" | "collection" | "shop" | "play";
 type PoseName = "rest" | "lookL" | "lookR" | "hop" | "sit" | "eat";
 
 const POSE_SCRIPT: { name: PoseName; dur: number }[] = [
-  { name: "rest", dur: 4 },
+  { name: "rest", dur: 2.15 },
+  { name: "lookL", dur: 0.95 },
+  { name: "rest", dur: 1.05 },
+  { name: "lookR", dur: 0.95 },
+  { name: "rest", dur: 1.35 },
+  { name: "hop", dur: 0.74 },
+  { name: "rest", dur: 1.55 },
 ];
 
 function poseEase(p: number): number {
@@ -57,7 +63,7 @@ function poseAt(name: PoseName, p: number, t: number, lift: number, yaw: number)
     x: 0,
     y: lift + bob * 0.35,
     rx: 0,
-    ry: yaw,
+    ry: yaw + Math.sin(t * 1.43) * 0.05,
     rz: 0,
   };
 }
@@ -532,12 +538,6 @@ export function PetStage({
             pose = "eat";
             p = (t - (eatUntil - 1.25)) / 1.25;
             host.dataset.pose = "eat";
-          } else if (mood?.asleep) {
-            pose = "rest";
-            host.dataset.pose = "sleep";
-          } else if (mood?.calling) {
-            pose = "rest";
-            host.dataset.pose = "call";
           } else {
             const current = POSE_SCRIPT[poseStep % POSE_SCRIPT.length];
             if (t - poseT0 >= current.dur) {
@@ -546,13 +546,11 @@ export function PetStage({
             }
             pose = POSE_SCRIPT[poseStep % POSE_SCRIPT.length].name;
             p = (t - poseT0) / POSE_SCRIPT[poseStep % POSE_SCRIPT.length].dur;
-            host.dataset.pose = pose;
+            host.dataset.pose = mood?.calling ? "call" : pose;
           }
-          const at = pose === "rest" && mood?.calling
+          const at = mood?.dark
             ? { x: 0, y: homeLift, rx: 0, ry: 0, rz: 0 }
-            : pose === "rest" && mood?.dark
-              ? { x: 0, y: homeLift, rx: 0, ry: 0, rz: 0 }
-              : poseAt(pose, p, t, homeLift, 0);
+            : poseAt(pose, p, t, homeLift, 0);
           rig.position.set(Math.max(-0.38, Math.min(0.38, at.x)), at.y, 0);
           rig.rotation.set(at.rx, at.ry, at.rz);
         } else {
@@ -571,25 +569,17 @@ export function PetStage({
       if (frame === "lab" && moodRef.current?.dark) {
         blink?.apply(1);
       } else if (blink) {
-        const sleepy = frame === "lab" && moodRef.current?.asleep;
-        const sick = frame === "lab" && moodRef.current?.sick && !sleepy;
-        const span = sleepy ? 0.9 : 0.28;
-        let closed = sick ? 0.9 : 0;
+        const sick = frame === "lab" && moodRef.current?.sick;
+        const span = 0.28;
+        let closed = sick ? 0.55 : 0;
         if (blinkStart < 0) {
           if (t >= blinkAt) blinkStart = t;
         } else {
           const p = (t - blinkStart) / span;
-          if (sleepy) {
-            if (p < 0.16) closed = smoothStep(p / 0.16);
-            else if (p < 0.72) closed = 1;
-            else if (p < 1) closed = 1 - smoothStep((p - 0.72) / 0.28);
-            else {
-              blinkStart = -1;
-              blinkAt = t + 1.5 + Math.random() * 2.4;
-            }
-          } else if (p < 0.36) closed = smoothStep(p / 0.36);
+          const base = sick ? 0.55 : 0;
+          if (p < 0.36) closed = base + (1 - base) * smoothStep(p / 0.36);
           else if (p < 0.52) closed = 1;
-          else if (p < 1) closed = 1 - smoothStep((p - 0.52) / 0.48);
+          else if (p < 1) closed = base + (1 - base) * (1 - smoothStep((p - 0.52) / 0.48));
           else {
             blinkStart = -1;
             blinkAt = t + 2 + Math.random() * 3;
