@@ -4143,37 +4143,242 @@ body, body * {
 .play-switch button:disabled {
   opacity: 0.45;
 }
-.duel, .duel-pick {
+.duel-wrap, .duel-pick {
   display: flex;
   flex-direction: column;
   gap: 10px;
   margin-top: 8px;
 }
-.duel-pick p, .duel-empty {
+.duel-pick p, .duel-empty, .duel-hint {
   margin: 0;
-  color: rgba(186, 220, 236, 0.7);
-  font-weight: 700;
-}
-.duel-row { display: flex; flex-direction: column; gap: 4px; }
-.duel-name {
-  display: flex;
-  justify-content: space-between;
-  color: #e8f7ff;
-  font-weight: 800;
-}
-.duel-bar {
-  height: 8px;
-  border-radius: 99px;
-  background: rgba(255, 255, 255, 0.12);
-  overflow: hidden;
-}
-.duel-bar i { display: block; height: 100%; }
-.duel-log p {
-  margin: 0;
+  color: rgba(186, 220, 236, 0.75);
   font-size: 13px;
   font-weight: 700;
+  line-height: 1.35;
+}
+.duel-select { display: flex; flex-direction: column; gap: 8px; }
+.duel-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(122, 215, 255, 0.35);
+  background: rgba(7, 20, 29, 0.9);
+  color: #e8f7ff;
+  text-align: left;
+}
+.duel-card span { font-size: 22px; }
+.duel-card strong { font-size: 16px; }
+.duel-card small { margin-left: auto; letter-spacing: 0.08em; color: rgba(186, 220, 236, 0.7); }
+.ring {
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(122, 215, 255, 0.35);
+  background: #071018;
+}
+.ring.is-shake { animation: ring-shake 0.28s linear; }
+@keyframes ring-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-7px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-3px); }
+}
+.ring-top {
+  display: flex;
+  gap: 16px;
+  padding: 10px 12px 6px;
+}
+.ring-hp { flex: 1; min-width: 0; }
+.ring-hp-name {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #e8f7ff;
+}
+.ring-hp.is-foe .ring-hp-name { justify-content: flex-end; }
+.ring-hp-track {
+  position: relative;
+  height: 12px;
+  margin-top: 4px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+.ring-hp-track b,
+.ring-hp-track i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  border-radius: 99px;
+}
+.ring-hp-track b {
+  background: rgba(255, 255, 255, 0.85);
+  transition: width 0.7s linear;
+}
+.ring-hp-track i { transition: width 0.18s ease-out; }
+.ring-hp.is-foe .ring-hp-track b,
+.ring-hp.is-foe .ring-hp-track i { left: auto; right: 0; }
+.ring-body {
+  position: relative;
+  height: 268px;
+  overflow: hidden;
+}
+.ring-fighter {
+  position: absolute;
+  bottom: 8%;
+  width: 48%;
+  height: 78%;
+}
+.ring-fighter.you { left: 0; }
+.ring-fighter.foe { right: 0; }
+.ring-fighter.is-hit { animation: ring-flinch 0.28s ease; }
+.ring-fighter.foe.is-hit { animation-name: ring-flinch-foe; }
+@keyframes ring-flinch {
+  40% { transform: translateX(-14px); }
+}
+@keyframes ring-flinch-foe {
+  40% { transform: translateX(14px); }
+}
+.ring-floor {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 10%;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(168, 178, 188, 0.55), rgba(80, 90, 102, 0.12) 72%, transparent 78%);
+  pointer-events: none;
+}
+.ring-time {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 4;
+}
+.ring-time i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: #ffffff;
+  transform-origin: left center;
+  box-shadow: 0 0 10px #ffffff;
+  animation-name: ring-time;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes ring-time { to { transform: scaleX(0); } }
+.ring-shot {
+  position: absolute;
+  top: 42%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  z-index: 3;
+}
+.ring-shot.you { animation: ring-fly-right 0.42s ease-in forwards; }
+.ring-shot.foe { animation: ring-fly-left 0.42s ease-in forwards; }
+@keyframes ring-fly-right {
+  from { left: 24%; transform: scale(0.45); opacity: 1; }
+  to { left: 68%; transform: scale(1.7); opacity: 0.2; }
+}
+@keyframes ring-fly-left {
+  from { right: 24%; transform: scale(0.45); opacity: 1; }
+  to { right: 68%; transform: scale(1.7); opacity: 0.2; }
+}
+.ring-tell, .ring-call {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  text-align: center;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  pointer-events: none;
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.85);
+}
+.ring-tell { top: 18%; font-size: 22px; animation: ring-pop 0.35s ease; }
+.ring-call {
+  top: 34%;
+  font-size: 34px;
+  color: #ffffff;
+  animation: ring-pop 0.4s ease;
+}
+.ring-call small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
   color: #d5ecf8;
 }
+.ring-call.is-counter { color: #ffe14a; }
+.ring-call.is-block { color: #7ad7ff; }
+@keyframes ring-pop {
+  from { transform: scale(1.35); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.ring-num {
+  position: absolute;
+  top: 28%;
+  z-index: 5;
+  font-size: 22px;
+  color: #ffffff;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.6);
+  animation: ring-pop 0.35s ease;
+}
+.ring-num.you { left: 18%; }
+.ring-num.foe { right: 18%; }
+.ring-over {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(180deg, rgba(4, 12, 18, 0.2), rgba(4, 12, 18, 0.72));
+  text-align: center;
+}
+.ring-over strong {
+  font-size: 42px;
+  letter-spacing: 0.18em;
+  color: #ffffff;
+}
+.ring-over span { font-weight: 800; color: #d5ecf8; }
+.ring-moves {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 8px 10px 10px;
+}
+.ring-moves button {
+  border: 1px solid rgba(122, 215, 255, 0.35);
+  border-radius: 16px;
+  padding: 10px 6px;
+  background: rgba(4, 16, 24, 0.72);
+  color: #e8f7ff;
+}
+.ring-moves button strong { display: block; font-size: 13px; }
+.ring-moves button small {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(186, 220, 236, 0.75);
+}
+.ring-moves button.is-on { color: #041018; }
+.ring-moves button.is-on small { color: rgba(4, 16, 24, 0.7); }
+.ring-moves button:disabled { opacity: 0.55; }
 .pet-floor {
   position: absolute;
   left: 8%;

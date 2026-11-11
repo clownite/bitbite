@@ -205,13 +205,13 @@ export function GamePage({ active }: { active: boolean }) {
             <div>
               <div className="cookie-board-kicker">{t("play.kicker")}</div>
               <h2>{t("play.title")}</h2>
-              <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left, max: PLAYS_PER_DAY })}</div>
+              {mode === "cookies" ? <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left, max: PLAYS_PER_DAY })}</div> : null}
             </div>
             <button type="button" className="cookie-board-btn" data-testid="cookie-board-open" onClick={() => setBoardOpen(true)}>
               {t("play.board")}
             </button>
           </div>
-          <p>{t("play.blurb", { day: nextReset() })}</p>
+          {mode === "cookies" ? <p>{t("play.blurb", { day: nextReset() })}</p> : null}
           <div className="play-switch">
             <button type="button" className={mode === "cookies" ? "is-on" : ""} disabled={run.phase === "play"} onClick={() => setMode("cookies")}>{t("play.cookiesTab")}</button>
             <button type="button" className={mode === "duel" ? "is-on" : ""} data-testid="duel-tab" disabled={run.phase === "play"} onClick={() => setMode("duel")}>{t("play.duel")}</button>

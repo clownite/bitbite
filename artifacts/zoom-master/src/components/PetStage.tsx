@@ -17,7 +17,7 @@ function fitScale(level: PetState["level"], stage: PetState["stage"]): number {
   return stageBoost * levelBoost;
 }
 
-type Frame = "lab" | "collection" | "shop" | "play";
+type Frame = "lab" | "collection" | "shop" | "play" | "duel";
 
 type PoseName = "rest" | "lookL" | "lookR" | "hop" | "pace" | "sit" | "eat";
 
@@ -285,11 +285,13 @@ export function PetStage({
   pet,
   frame,
   petId = "dolphin",
+  side = "left",
   room,
 }: {
   pet: PetState;
   frame: Frame;
   petId?: PetId;
+  side?: "left" | "right";
   room?: { asleep: boolean; dark: boolean; sick?: boolean; calling?: boolean; hungry?: boolean };
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -308,9 +310,9 @@ export function PetStage({
 
     const scene = new Scene();
     const camera = new PerspectiveCamera(32, 1, 0.1, 40);
-    if (frame === "play") {
-      camera.position.set(0, -0.15, 10);
-      camera.lookAt(0, -0.62, 0);
+    if (frame === "play" || frame === "duel") {
+      camera.position.set(0, frame === "duel" ? 0.15 : -0.15, frame === "duel" ? 7.6 : 10);
+      camera.lookAt(0, frame === "duel" ? -0.05 : -0.62, 0);
     } else {
       camera.position.set(0, frame === "lab" ? 0 : 0.55, 10);
       camera.lookAt(0, 0, 0);
@@ -423,7 +425,7 @@ export function PetStage({
     const onUp = () => {
       if (!pressed) return;
       pressed = false;
-      if (frame === "play") return;
+      if (frame === "play" || frame === "duel") return;
       if (moved > 12 || frame === "shop") {
         if (moved > 12) {
           const kill = (ev: Event) => { ev.stopPropagation(); ev.preventDefault(); };
@@ -506,10 +508,10 @@ export function PetStage({
         rig.scale.setScalar(1.55);
         rig.position.set(Math.sin(t * 0.65) * 0.012, Math.sin(t * 1.05) * 0.018, 0);
         rig.rotation.set(Math.sin(t * 0.45) * 0.01, userYaw + t * 0.28, Math.sin(t * 0.7) * 0.01);
-      } else if (frame === "lab" || frame === "play") {
+      } else if (frame === "lab" || frame === "play" || frame === "duel") {
         const view = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
         const grown = Math.min(1, Math.max(0, (fit - 0.86) / (1.12 * 1.34 - 0.86)));
-        const small = frame === "play" ? 0.32 : 0.38;
+        const small = frame === "duel" ? 0.52 : frame === "play" ? 0.32 : 0.38;
         rig.scale.setScalar(((small + grown * 0.03) * view) / 2.6);
         key.intensity = frame === "lab" && moodRef.current?.dark ? 0.18 : 2.4;
         ambient.intensity = frame === "lab" && moodRef.current?.dark ? 0.22 : 1.35;
@@ -521,6 +523,11 @@ export function PetStage({
         rig.position.set(playPose.x, PLAY_BASE_Y + playPose.y, 0);
         rig.rotation.set(0, playPose.face * 0.28, 0);
         host.dataset.pose = "play";
+      } else if (frame === "duel") {
+        const dir = side === "right" ? -1 : 1;
+        rig.position.set(0, -0.15 + Math.sin(t * 2.1) * 0.02, 0);
+        rig.rotation.set(0, dir * 0.62, 0);
+        host.dataset.pose = "duel";
       } else if (frame !== "shop") {
         if (trick) {
           const p = (t - trick.t0) / 3;
@@ -662,7 +669,7 @@ export function PetStage({
       renderer.dispose();
       if (renderer.domElement.parentNode === host) host.removeChild(renderer.domElement);
     };
-  }, [frame, petId, boot]);
+  }, [frame, petId, boot, side]);
 
   return (
     <div
@@ -672,7 +679,7 @@ export function PetStage({
         position: "absolute",
         inset: 0,
         touchAction: frame === "shop" ? "pan-y" : "none",
-        pointerEvents: frame === "play" ? "none" : "auto",
+        pointerEvents: frame === "play" || frame === "duel" ? "none" : "auto",
         background: "transparent",
       }}
       aria-label={frame === "shop" ? "Pet" : "Pet. Tap for a little XP."}

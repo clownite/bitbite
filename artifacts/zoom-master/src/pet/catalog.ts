@@ -20,7 +20,7 @@ export type PetCombat = {
 
 export type PetAbility = {
   name: string;
-  /** What it will do once battles exist. It does not run yet. */
+  /** What the power does in a duel. */
   text: string;
 };
 
