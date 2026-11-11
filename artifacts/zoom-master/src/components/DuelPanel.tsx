@@ -1,23 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { useT } from "../i18n/LanguageContext";
 import { playBite, playClick, playMiss } from "../audio/sfx";
-import { petDef, type PetId } from "../pet/catalog";
-import {
-  foeMove,
-  makeFighter,
-  readWindow,
-  resolve,
-  tellDelay,
-  type Call,
-  type Exchange,
-  type Fighter,
-  type Move,
-} from "../pet/duel";
+import { PETS, petDef, type PetId } from "../pet/catalog";
+import { foeMove, makeFighter, strike, type Call, type Fighter, type Move } from "../pet/duel";
+import { recordCookies } from "../pet/cookieBoard";
 import { addPetXp, getPet, type PetState } from "../pet/petProgress";
 import { PetStage } from "./PetStage";
 
+const WIN_POINTS = 5;
 const WIN_XP = 8;
+const YOUR_TURN = 6;
+const THEIR_TURN = 3;
 const MOVES: Move[] = ["jab", "guard", "power"];
+
+type Phase = "intro" | "you" | "fly" | "foe" | "over";
 
 function Bar({ fighter, color, align }: { fighter: Fighter; color: string; align: "left" | "right" }) {
   const ratio = fighter.max <= 0 ? 0 : fighter.hp / fighter.max;
@@ -35,28 +31,34 @@ function Bar({ fighter, color, align }: { fighter: Fighter; color: string; align
   );
 }
 
-/** Two pets, three answers, one round at a time. The startup is the tell. */
+function abilityLabel(buff: Fighter["ability"] | null, t: (key: string) => string): string | null {
+  if (!buff) return null;
+  const id = buff === "tide" ? "dolphin" : buff === "blaze" ? "finch" : buff === "overgrow" ? "lynx" : "stag";
+  return t(`pet.ability.${id}.name`);
+}
+
+/** One attack at a time. Any of the four pets can be the opponent. */
 export function DuelPanel({ pet }: { pet: PetState }) {
   const { t } = useT();
-  const foes = pet.owned.filter((id) => id !== pet.active);
   const [you, setYou] = useState<Fighter | null>(null);
   const [foe, setFoe] = useState<Fighter | null>(null);
-  const [phase, setPhase] = useState<"intro" | "read" | "fly" | "over">("intro");
+  const [phase, setPhase] = useState<Phase>("intro");
   const [yours, setYours] = useState<Move | null>(null);
-  const [theirs, setTheirs] = useState<Move>("jab");
   const [call, setCall] = useState<Call | null>(null);
-  const [told, setTold] = useState(false);
   const [dealt, setDealt] = useState({ you: 0, foe: 0 });
   const [note, setNote] = useState<string | null>(null);
-  const [round, setRound] = useState(0);
-  const [windowMs, setWindowMs] = useState(1100);
+  const [left, setLeft] = useState(YOUR_TURN);
   const [winner, setWinner] = useState<string | null>(null);
+  const [won, setWon] = useState(false);
   const timers = useRef<number[]>([]);
-  const yoursRef = useRef<Move | null>(null);
+  const clock = useRef<number | null>(null);
+  const youRef = useRef<Fighter | null>(null);
+  const foeRef = useRef<Fighter | null>(null);
+  const phaseRef = useRef<Phase>("intro");
+  const leftRef = useRef(YOUR_TURN);
   const lastRef = useRef<Move | null>(null);
+  const lock = useRef(false);
   const paid = useRef(false);
-  const foeLevel = useRef<PetState["level"]>(1);
-  const foeStage = useRef<PetState["stage"]>(1);
 
   const clearTimers = () => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -68,102 +70,162 @@ export function DuelPanel({ pet }: { pet: PetState }) {
     timers.current.push(id);
   };
 
-  useEffect(() => () => clearTimers(), []);
-
-  const openRead = (mine: Fighter, other: Fighter) => {
-    const pick = foeMove(lastRef.current, Math.random);
-    const ms = readWindow(mine.speed, other.speed);
-    yoursRef.current = null;
-    setYou(mine);
-    setFoe(other);
-    setTheirs(pick);
-    setYours(null);
-    setCall(null);
-    setTold(false);
-    setDealt({ you: 0, foe: 0 });
-    setNote(null);
-    setPhase("read");
-    setWindowMs(ms);
-    setRound((n) => n + 1);
-    later(() => setTold(true), tellDelay(mine.speed, other.speed));
-    later(() => finish(mine, other, pick), ms);
+  const stopClock = () => {
+    if (clock.current != null) window.clearInterval(clock.current);
+    clock.current = null;
   };
 
-  const finish = (mine: Fighter, other: Fighter, foePick: Move) => {
+  useEffect(() => () => {
     clearTimers();
-    const chosen = yoursRef.current;
-    lastRef.current = chosen;
-    const result: Exchange = resolve(mine, other, chosen, foePick);
-    setYou(result.you);
-    setFoe(result.foe);
-    setCall(result.call);
-    setDealt({ you: result.youDealt, foe: result.foeDealt });
-    setNote(result.buff ? t(`pet.ability.${result.buff === "tide" ? "dolphin" : result.buff === "blaze" ? "finch" : result.buff === "overgrow" ? "lynx" : "stag"}.name`) : result.tide ? t("pet.ability.dolphin.name") : null);
-    setPhase("fly");
-    if (result.youDealt > 0) playBite();
-    else if (result.foeDealt > 2) playMiss();
+    stopClock();
+  }, []);
+
+  const setPhaseSafe = (next: Phase) => {
+    phaseRef.current = next;
+    setPhase(next);
+  };
+
+  const setPair = (mine: Fighter, other: Fighter) => {
+    youRef.current = mine;
+    foeRef.current = other;
+    setYou(mine);
+    setFoe(other);
+  };
+
+  const end = (youWon: boolean, name: string) => {
+    stopClock();
+    setWinner(name);
+    setWon(youWon);
+    setPhaseSafe("over");
+    if (youWon && !paid.current) {
+      paid.current = true;
+      recordCookies(WIN_POINTS);
+      addPetXp(WIN_XP);
+    }
+  };
+
+  const theirGo = () => {
+    if (lock.current || phaseRef.current !== "foe") return;
+    const mine = youRef.current;
+    const other = foeRef.current;
+    if (!mine || !other) return;
+    lock.current = true;
+    stopClock();
+    const move = foeMove(lastRef.current, Math.random);
+    const blow = strike(other, mine, move);
+    setDealt({ you: 0, foe: blow.damage });
+    setCall(blow.call);
+    setNote(abilityLabel(blow.buff, t));
+    setPair(blow.def, blow.att);
+    setPhaseSafe("fly");
+    if (blow.damage > 0) playMiss();
     else playClick();
     later(() => {
-      if (result.you.hp <= 0 || result.foe.hp <= 0) {
-        const name = result.you.hp > 0 ? result.you.name : result.foe.name;
-        setWinner(name);
-        setPhase("over");
-        if (result.you.hp > 0 && !paid.current) {
-          paid.current = true;
-          addPetXp(WIN_XP);
-        }
+      if (blow.def.hp <= 0) {
+        end(false, blow.att.name);
         return;
       }
-      openRead(result.you, result.foe);
-    }, 760);
+      startYou(blow.def, blow.att);
+    }, 820);
+  };
+
+  const yourGo = (move: Move | null) => {
+    if (lock.current || phaseRef.current !== "you") return;
+    const mine = youRef.current;
+    const other = foeRef.current;
+    if (!mine || !other) return;
+    lock.current = true;
+    stopClock();
+    lastRef.current = move;
+    const blow = strike(mine, other, move);
+    setYours(move);
+    setDealt({ you: blow.damage, foe: 0 });
+    setCall(blow.call);
+    setNote(abilityLabel(blow.buff, t));
+    setPair(blow.att, blow.def);
+    setPhaseSafe("fly");
+    if (blow.damage > 0) playBite();
+    else playClick();
+    later(() => {
+      if (blow.def.hp <= 0) {
+        end(true, blow.att.name);
+        return;
+      }
+      startFoe(blow.att, blow.def);
+    }, 820);
+  };
+
+  const arm = (seconds: number, onZero: () => void) => {
+    stopClock();
+    leftRef.current = seconds;
+    setLeft(seconds);
+    clock.current = window.setInterval(() => {
+      leftRef.current -= 1;
+      setLeft(leftRef.current);
+      if (leftRef.current <= 0) {
+        stopClock();
+        onZero();
+      }
+    }, 1000);
+  };
+
+  const startYou = (mine: Fighter, other: Fighter) => {
+    setPair(mine, other);
+    setYours(null);
+    setCall(null);
+    setDealt({ you: 0, foe: 0 });
+    setNote(null);
+    lock.current = false;
+    setPhaseSafe("you");
+    arm(YOUR_TURN, () => yourGo(null));
+  };
+
+  const startFoe = (mine: Fighter, other: Fighter) => {
+    setPair(mine, other);
+    setCall(null);
+    setDealt({ you: 0, foe: 0 });
+    lock.current = false;
+    setPhaseSafe("foe");
+    arm(THEIR_TURN, () => theirGo());
   };
 
   const begin = (id: PetId) => {
     clearTimers();
+    stopClock();
     const mine = getPet();
-    const other = mine.byId[id];
-    foeLevel.current = other?.level ?? 1;
-    foeStage.current = other?.stage ?? 1;
     const yoursNow = makeFighter(mine.active, mine.level);
-    const foeNow = makeFighter(id, foeLevel.current);
+    const foeNow = makeFighter(id, mine.level);
     lastRef.current = null;
     paid.current = false;
+    lock.current = true;
     setWinner(null);
-    setYou(yoursNow);
-    setFoe(foeNow);
-    setPhase("intro");
-    setCall(null);
+    setWon(false);
     setYours(null);
-    yoursRef.current = null;
-    later(() => openRead(yoursNow, foeNow), 680);
+    setCall(null);
+    setPair(yoursNow, foeNow);
+    setPhaseSafe("intro");
+    later(() => startYou(yoursNow, foeNow), 640);
   };
 
   const answer = (move: Move) => {
-    if (phase !== "read" || yoursRef.current) return;
-    yoursRef.current = move;
+    if (phaseRef.current !== "you") return;
     setYours(move);
     playClick();
+    yourGo(move);
   };
-
-  if (foes.length === 0) {
-    return <p className="duel-empty">{t("play.duelNeed")}</p>;
-  }
 
   if (!you || !foe) {
     return (
       <div className="duel-pick" data-testid="duel-pick">
         <p>{t("play.duelPick")}</p>
         <div className="duel-select">
-          {foes.map((id) => {
-            const def = petDef(id);
-            return (
-              <button key={id} type="button" className="duel-card" data-testid={`duel-${id}`} onClick={() => begin(id)}>
-                <span style={{ color: def.element.color }}>{def.element.glyph}</span>
-                <strong>{def.name}</strong>
-                <small>{t(`pet.ability.${id}.name`)}</small>
-              </button>
-            );
-          })}
+          {PETS.map((def) => (
+            <button key={def.id} type="button" className="duel-card" data-testid={`duel-${def.id}`} onClick={() => begin(def.id)}>
+              <span style={{ color: def.element.color }}>{def.element.glyph}</span>
+              <strong>{def.name}</strong>
+              <small>{t(`pet.ability.${def.id}.name`)}</small>
+            </button>
+          ))}
         </div>
         <p className="duel-hint">{t("play.duelHint")}</p>
       </div>
@@ -172,13 +234,18 @@ export function DuelPanel({ pet }: { pet: PetState }) {
 
   const youColor = petDef(you.id).element.color;
   const foeColor = petDef(foe.id).element.color;
-  const foePet = { ...pet, level: foeLevel.current, stage: foeStage.current, active: foe.id };
+  const foePet = { ...pet, level: pet.level, stage: pet.stage, active: foe.id };
+  const showClock = phase === "you" || phase === "foe";
 
   return (
     <div className="duel-wrap">
       <div className={`ring ${phase === "fly" && (dealt.you > 0 || dealt.foe > 0) ? "is-shake" : ""}`} data-testid="duel">
         <div className="ring-top">
           <Bar fighter={you} color={youColor} align="left" />
+          <div className="ring-clock" data-testid="duel-time">
+            <b>{showClock ? left : "–"}</b>
+            <small>{phase === "foe" ? t("play.theirTurn") : t("play.yourTurn")}</small>
+          </div>
           <Bar fighter={foe} color={foeColor} align="right" />
         </div>
         <div
@@ -196,11 +263,7 @@ export function DuelPanel({ pet }: { pet: PetState }) {
           <div className="ring-floor" />
           {phase === "fly" && dealt.you > 0 ? <i className="ring-shot you" style={{ background: youColor, boxShadow: `0 0 18px ${youColor}` }} /> : null}
           {phase === "fly" && dealt.foe > 0 ? <i className="ring-shot foe" style={{ background: foeColor, boxShadow: `0 0 18px ${foeColor}` }} /> : null}
-          {phase === "read" ? <div className="ring-time"><i key={round} style={{ animationDuration: `${windowMs}ms` }} /></div> : null}
           {phase === "intro" ? <div className="ring-call">{t("play.fight")}</div> : null}
-          {phase === "read" && told ? (
-            <div className="ring-tell" style={{ color: foeColor }}>{t(`play.move.${foe.id}.${theirs}`)}</div>
-          ) : null}
           {phase === "fly" && call ? (
             <div className={`ring-call is-${call}`}>
               {t(`play.call.${call}`)}
@@ -212,7 +275,10 @@ export function DuelPanel({ pet }: { pet: PetState }) {
           {phase === "over" && winner ? (
             <div className="ring-over">
               <strong>{t("play.ko")}</strong>
-              <span>{t("play.duelWin", { name: winner })}{you.hp > 0 ? ` ${t("play.duelXp", { n: WIN_XP })}` : ""}</span>
+              <span>
+                {t("play.duelWin", { name: winner })}
+                {won ? ` ${t("play.duelPoints", { n: WIN_POINTS })}` : ""}
+              </span>
               <button type="button" className="cookie-go" onClick={() => { setYou(null); setFoe(null); }}>{t("play.duelAgain")}</button>
             </div>
           ) : null}
@@ -225,7 +291,7 @@ export function DuelPanel({ pet }: { pet: PetState }) {
               className={yours === move ? "is-on" : ""}
               style={yours === move ? { background: youColor, borderColor: youColor } : undefined}
               data-testid={`duel-${move}`}
-              disabled={phase !== "read" || yours != null}
+              disabled={phase !== "you"}
               onClick={() => answer(move)}
             >
               <strong>{t(`play.move.${you.id}.${move}`)}</strong>

@@ -33,20 +33,13 @@ import { careView, subscribeCare } from "./pet/care";
 import { eggLeft } from "./pet/life";
 import { getPet } from "./pet/petProgress";
 import { subscribeCrumbs } from "./pet/crumbs";
+import { PixelCookie } from "./components/PixelCookie";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 type Tab = "lab" | "farm" | "play" | "earn" | "rank" | "shop" | "wallet";
 
 function CookieNavIcon({ size = 22 }: { size?: number; strokeWidth?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 9 9" shapeRendering="crispEdges" aria-hidden>
-      <rect x="2" y="0" width="5" height="1" fill="currentColor" />
-      <rect x="1" y="1" width="7" height="1" fill="currentColor" />
-      <rect x="0" y="2" width="9" height="5" fill="currentColor" />
-      <rect x="1" y="7" width="7" height="1" fill="currentColor" />
-      <rect x="2" y="8" width="5" height="1" fill="currentColor" />
-    </svg>
-  );
+  return <PixelCookie size={size} />;
 }
 
 const NAV: { id: Tab; key: string; icon: typeof House }[] = [

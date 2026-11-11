@@ -18,6 +18,7 @@ import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
 import { eggLeft, focusLife, formatLeft, readLife } from "../pet/life";
 import { LifeEgg } from "../components/LifeEgg";
+import { LifeMarks } from "../components/LifeMarks";
 import { CardReel } from "../components/CardReel";
 import { useT } from "../i18n/LanguageContext";
 
@@ -253,7 +254,7 @@ export function LabPage({
                 {t("life.wait")}
               </div>
             ) : null}
-            {life.form !== "egg" && life.sex ? <div className={`life-mark is-${life.sex}${life.road ? ` is-${life.road}` : ""}`} aria-hidden /> : null}
+            {life.form !== "egg" && life.sex ? <LifeMarks sex={life.sex} road={life.road} /> : null}
             {pet.stage > 1 ? <div className={pet.stage === 3 ? "grown-ring s3" : "grown-ring"} style={{ "--ink": chosen.element.color } as CSSProperties} /> : null}
             {pet.stage === 3 ? <div className="grown-star" style={{ color: chosen.element.color }}>✦</div> : null}
             {away && life.form !== "egg" ? (
@@ -390,6 +391,7 @@ export function LabPage({
           data-testid="home-sheet"
           onClick={() => setSheet(null)}
         >
+          <span className="sheet-grip" />
           <strong>{t(`pet.sheet.${sheet}`)}</strong>
           <span>{sheetBody}</span>
         </button>

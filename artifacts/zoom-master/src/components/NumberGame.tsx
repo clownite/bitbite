@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { playBite, playMiss } from "../audio/sfx";
+import { recordCookies } from "../pet/cookieBoard";
 import { PetStage } from "./PetStage";
+import { PixelCookie } from "./PixelCookie";
 import type { PetState } from "../pet/petProgress";
 import { useT } from "../i18n/LanguageContext";
+
+const ROUNDS = 5;
 
 /** The Tamagotchi number game. Your number lands on the left. Two seconds later the other one lands on the right. */
 
@@ -83,11 +87,14 @@ const HEART_INK = { "1": "#ff5a7a" };
 
 export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color: string; lifeScale?: number }) {
   const { t } = useT();
-  const [phase, setPhase] = useState<"idle" | "mine" | "win" | "lose">("idle");
+  const [phase, setPhase] = useState<"idle" | "mine" | "win" | "lose" | "done">("idle");
   const [mine, setMine] = useState(1);
   const [theirs, setTheirs] = useState(1);
+  const [round, setRound] = useState(0);
+  const [wins, setWins] = useState(0);
   const [mad, setMad] = useState(false);
   const timers = useRef<number[]>([]);
+  const paid = useRef(false);
 
   useEffect(() => () => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -98,9 +105,9 @@ export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color
     timers.current.push(id);
   };
 
-  const start = () => {
-    if (phase !== "idle") return;
+  const playRound = (n: number, winsNow: number) => {
     const yours = 1 + Math.floor(Math.random() * 9);
+    setRound(n);
     setMine(yours);
     setTheirs(0);
     setPhase("mine");
@@ -108,6 +115,8 @@ export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color
       const other = 1 + Math.floor(Math.random() * 9);
       setTheirs(other);
       const won = yours > other;
+      const nextWins = winsNow + (won ? 1 : 0);
+      setWins(nextWins);
       setPhase(won ? "win" : "lose");
       if (won) {
         playBite();
@@ -118,8 +127,28 @@ export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color
         window.dispatchEvent(new CustomEvent("zoom-pet-mad", { detail: { where: "play" } }));
         later(() => setMad(false), 700);
       }
-      later(() => setPhase("idle"), 2400);
+      later(() => {
+        if (n >= ROUNDS) {
+          setPhase("done");
+          if (!paid.current) {
+            paid.current = true;
+            recordCookies(nextWins);
+          }
+          return;
+        }
+        playRound(n + 1, nextWins);
+      }, 1500);
     }, 2000);
+  };
+
+  const start = () => {
+    if (phase !== "idle" && phase !== "done") return;
+    timers.current.forEach((id) => window.clearTimeout(id));
+    timers.current = [];
+    paid.current = false;
+    setWins(0);
+    setMad(false);
+    playRound(1, 0);
   };
 
   const showTheirs = phase === "win" || phase === "lose";
@@ -136,9 +165,22 @@ export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color
       <PetStage pet={pet} frame="play" petId={pet.active} lifeScale={lifeScale} />
       <div className="cookie-floor" />
       {phase === "idle" ? (
-        <button type="button" className="cookie-go num-go" data-testid="number-start" onClick={start}>{t("play.start")}</button>
+        <button type="button" className="cookie-go num-go" data-testid="number-start" onClick={start}>
+          <PixelCookie size={18} />
+          {t("play.start")}
+        </button>
+      ) : phase === "done" ? (
+        <div className="cookie-over" data-testid="number-done">
+          <strong>{t("play.roundDone", { win: wins, max: ROUNDS })}</strong>
+          <span data-testid="number-points">{t("play.roundPoints", { n: wins })}</span>
+          <button type="button" className="cookie-go" data-testid="number-again" onClick={start}>
+            <PixelCookie size={18} />
+            {t("play.again")}
+          </button>
+        </div>
       ) : (
         <div className="num-game">
+          <div className="num-round" data-testid="number-round">{t("play.round", { n: round, max: ROUNDS })}</div>
           <div className="num-side is-you" data-testid="number-you">
             <Sprite rows={DIGIT[mine]} ink={CREAM} cell={4} />
           </div>

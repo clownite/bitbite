@@ -675,7 +675,7 @@ export function PetStage({
         rig.position.x = paceX;
         rig.position.y = homeLift + Math.abs(Math.sin(t * 10)) * 0.028;
         rig.rotation.y = paceDir * 0.55;
-      } else if (frame === "lab" && t >= eatUntil && !moodRef.current?.dark && poseName !== "hop" && poseName !== "eat") {
+      } else if (frame === "lab" && t >= eatUntil && !moodRef.current?.dark && poseName !== "eat") {
         rig.position.x = paceX;
       }
       renderer.render(scene, camera);

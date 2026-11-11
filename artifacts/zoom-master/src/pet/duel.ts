@@ -16,6 +16,8 @@ export type Fighter = {
   speed: number;
   ability: "tide" | "blaze" | "overgrow" | "surge";
   shielded: boolean;
+  /** The next hit this fighter takes is softer. Set by a guard, spent on the next attack. */
+  braced: boolean;
 };
 
 export type Exchange = {
@@ -48,6 +50,35 @@ export function makeFighter(id: PetId, level: number): Fighter {
     speed: stats.speed,
     ability: abilityOf(id),
     shielded: false,
+    braced: false,
+  };
+}
+
+/** One pet attacks. Guard deals nothing and braces the next hit. A missed turn deals nothing. */
+export function strike(
+  att: Fighter,
+  def: Fighter,
+  move: Move | null,
+): { att: Fighter; def: Fighter; damage: number; call: Call; tide: boolean; buff: Fighter["ability"] | null } {
+  const a: Fighter = { ...att };
+  const b: Fighter = { ...def };
+  if (move == null) {
+    return { att: a, def: b, damage: 0, call: "whiff", tide: false, buff: null };
+  }
+  if (move === "guard") {
+    a.braced = true;
+    return { att: a, def: b, damage: 0, call: "block", tide: false, buff: null };
+  }
+  const landed = b.braced ? "half" : "full";
+  b.braced = false;
+  const hit = soak(a, b, move, landed);
+  return {
+    att: a,
+    def: b,
+    damage: hit.damage,
+    call: move === "jab" ? "poke" : "clean",
+    tide: hit.tide,
+    buff: hit.buff,
   };
 }
 
