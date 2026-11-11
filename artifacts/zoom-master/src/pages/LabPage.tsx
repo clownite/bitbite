@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import ShoppingBag from "lucide-react/dist/esm/icons/shopping-bag.js";
 import { SettingsMenu } from "../components/SettingsMenu";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
@@ -9,6 +9,7 @@ import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PixelMark } from "../components/PixelMark";
 import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
+import { markHere, readAway, type AwayKind } from "../pet/away";
 import { careView, subscribeCare, takeCareXp, toggleLight } from "../pet/care";
 import { addPetXp } from "../pet/petProgress";
 import { playClaim } from "../audio/sfx";
@@ -134,6 +135,29 @@ export function LabPage({
   const [care, setCare] = useState(() => careView());
   const [wakeToast, setWakeToast] = useState(0);
   const [sheet, setSheet] = useState<null | "ability" | "hp" | "tap" | "stage">(null);
+  const [away, setAway] = useState<AwayKind | null>(null);
+  useEffect(() => {
+    const look = () => {
+      const seen = careView();
+      const kind = readAway(seen.messes.length, seen.bowl, seen.asleep);
+      if (kind) setAway(kind);
+    };
+    const leave = () => {
+      const now = careView();
+      markHere(now.messes.length, now.bowl);
+    };
+    look();
+    leave();
+    const onVis = () => {
+      if (document.hidden) leave();
+      else look();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      leave();
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, []);
   useEffect(() => subscribePet(() => {
     setPet(getPet());
     setNow(Date.now());
@@ -214,7 +238,15 @@ export function LabPage({
           }}
         >
           <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }} data-testid="pet-room">
-            <PetStage pet={pet} frame="lab" petId={pet.active} room={{ asleep: care.asleep, dark: care.dark, sick: care.sick, calling: care.calling }} />
+            <PetStage pet={pet} frame="lab" petId={pet.active} room={{ asleep: care.asleep, dark: care.dark, sick: care.sick, calling: care.calling, hungry: care.hungry }} />
+            {pet.stage > 1 ? <div className={pet.stage === 3 ? "grown-ring s3" : "grown-ring"} style={{ "--ink": chosen.element.color } as CSSProperties} /> : null}
+            {pet.stage === 3 ? <div className="grown-star" style={{ color: chosen.element.color }}>✦</div> : null}
+            {away ? (
+              <button type="button" className="away-note" data-testid="away-note" onClick={() => setAway(null)}>
+                <span>{t("away.title")}</span>
+                {t(`away.${away}`)}
+              </button>
+            ) : null}
             <PetPostcard active={active && !care.dark} petName={chosen.name} />
             <PetRoom care={care} toast={wakeToast} />
           </div>

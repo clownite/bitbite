@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { DuelPanel } from "../components/DuelPanel";
 import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
 import { ackCookieBanner, cookieBoard, nextReset, recordCookies, xpForPlace, type BoardRow } from "../pet/cookieBoard";
@@ -103,6 +104,7 @@ export function GamePage({ active }: { active: boolean }) {
   const [plays, setPlays] = useState<PlayDay>(() => cookiePlays());
   const [boardOpen, setBoardOpen] = useState(false);
   const [hint, setHint] = useState(true);
+  const [mode, setMode] = useState<"cookies" | "duel">("cookies");
   const [size, setSize] = useState({ w: 0, h: 0 });
   const runRef = useRef(run);
   runRef.current = run;
@@ -204,7 +206,15 @@ export function GamePage({ active }: { active: boolean }) {
             </button>
           </div>
           <p>{t("play.blurb", { day: nextReset() })}</p>
+          {run.phase === "idle" || mode === "duel" ? (
+            <div className="play-switch">
+              <button type="button" className={mode === "cookies" ? "is-on" : ""} onClick={() => setMode("cookies")}>{t("play.cookiesTab")}</button>
+              <button type="button" className={mode === "duel" ? "is-on" : ""} data-testid="duel-tab" onClick={() => setMode("duel")}>{t("play.duel")}</button>
+            </div>
+          ) : null}
         </header>
+
+        {mode === "duel" ? <DuelPanel pet={pet} /> : null}
 
         {board.banner ? (
           <button
@@ -222,7 +232,7 @@ export function GamePage({ active }: { active: boolean }) {
           </button>
         ) : null}
 
-        <div
+        {mode === "cookies" ? <div
           ref={arenaRef}
           className={run.phase === "boom" ? "cookie-arena is-boom" : "cookie-arena"}
           data-testid="cookie-arena"
@@ -280,7 +290,7 @@ export function GamePage({ active }: { active: boolean }) {
               )}
             </div>
           ) : null}
-        </div>
+        </div> : null}
       </div>
       {boardOpen ? <Board rows={board.rows} yours={board.yours} place={board.place} onClose={() => setBoardOpen(false)} /> : null}
     </div>

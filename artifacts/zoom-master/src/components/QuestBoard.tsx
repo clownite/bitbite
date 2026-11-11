@@ -74,7 +74,7 @@ export function QuestBoard({
     const active = getPet();
     const who = petDef(active.active);
     const pageUrl = `https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`;
-    const text = `${personalPetNumber(petOwnerId(), active.active)} ${who.name}\n${t("quest.shareText")}`;
+    const text = `${personalPetNumber(petOwnerId(), active.active)} ${who.name}\n${t(`quest.life${active.stage}`)}\n${t("quest.shareText")}`;
     return { text, pageUrl };
   };
   const sendChat = () => {

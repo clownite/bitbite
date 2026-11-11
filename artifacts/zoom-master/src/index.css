@@ -4068,6 +4068,106 @@ body, body * {
     radial-gradient(ellipse 70% 46% at 50% 28%, rgba(8, 16, 32, 0.15), rgba(1, 4, 10, 0.78) 72%);
   pointer-events: none;
 }
+.grown-ring {
+  position: absolute;
+  left: 24%;
+  right: 24%;
+  bottom: 5%;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--ink, #7ad7ff);
+  box-shadow: 0 0 14px var(--ink, #7ad7ff);
+  pointer-events: none;
+  z-index: 3;
+}
+.grown-ring.s3 {
+  height: 22px;
+  border-width: 3px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--ink, #7ad7ff) 40%, transparent), 0 0 18px var(--ink, #7ad7ff);
+}
+.grown-star {
+  position: absolute;
+  top: 46px;
+  right: 16px;
+  z-index: 6;
+  font-size: 18px;
+  pointer-events: none;
+  text-shadow: 0 0 8px currentColor;
+}
+.away-note {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 12px;
+  z-index: 7;
+  text-align: left;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #f3e4c8;
+  color: #3a2a1c;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+}
+.away-note span {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(58, 42, 28, 0.55);
+}
+.play-switch {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.play-switch button {
+  border-radius: 999px;
+  border: 1px solid rgba(122, 215, 255, 0.35);
+  background: transparent;
+  color: #e8f7ff;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+.play-switch button.is-on {
+  background: #7ad7ff;
+  color: #041018;
+  border-color: #7ad7ff;
+}
+.duel, .duel-pick {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.duel-pick p, .duel-empty {
+  margin: 0;
+  color: rgba(186, 220, 236, 0.7);
+  font-weight: 700;
+}
+.duel-row { display: flex; flex-direction: column; gap: 4px; }
+.duel-name {
+  display: flex;
+  justify-content: space-between;
+  color: #e8f7ff;
+  font-weight: 800;
+}
+.duel-bar {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+}
+.duel-bar i { display: block; height: 100%; }
+.duel-log p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #d5ecf8;
+}
 .pet-floor {
   position: absolute;
   left: 20%;

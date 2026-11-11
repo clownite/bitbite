@@ -93,7 +93,10 @@ export function PetRoom({
           aria-label={t("pet.messy")}
           onClick={() => {
             settleFarm();
-            if (cleanMess(crumb.id)) praise();
+            if (cleanMess(crumb.id)) {
+            window.dispatchEvent(new Event("zoom-pet-cared"));
+            praise();
+          }
           }}
         >
           <PixelCookie />
@@ -108,6 +111,7 @@ export function PetRoom({
           settleFarm();
           if (feed()) {
             window.dispatchEvent(new Event("zoom-pet-eat"));
+            window.dispatchEvent(new Event("zoom-pet-cared"));
             praise();
           }
         }}

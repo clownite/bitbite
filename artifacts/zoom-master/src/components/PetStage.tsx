@@ -21,15 +21,7 @@ type Frame = "lab" | "collection" | "shop" | "play";
 
 type PoseName = "rest" | "lookL" | "lookR" | "hop" | "sit" | "eat";
 
-const POSE_SCRIPT: { name: PoseName; dur: number }[] = [
-  { name: "rest", dur: 2.15 },
-  { name: "lookL", dur: 0.95 },
-  { name: "rest", dur: 1.05 },
-  { name: "lookR", dur: 0.95 },
-  { name: "rest", dur: 1.35 },
-  { name: "hop", dur: 0.74 },
-  { name: "rest", dur: 1.55 },
-];
+const WANDER: PoseName[] = ["rest", "lookL", "lookR", "hop", "rest", "lookL", "lookR"];
 
 function poseEase(p: number): number {
   const inn = smoothStep(Math.min(1, p / 0.2));
@@ -38,14 +30,15 @@ function poseEase(p: number): number {
 }
 
 /** One short pose, then back onto the card floor. Nothing leaves the frame. */
-function poseAt(name: PoseName, p: number, t: number, lift: number, yaw: number) {
+function poseAt(name: PoseName, p: number, t: number, lift: number, yaw: number, amp: number) {
   const e = name === "rest" ? 1 : poseEase(Math.min(1, p));
   const bob = Math.sin(t * 1.15) * 0.018;
+  const turn = 0.28 + 0.62 * amp;
   if (name === "lookL" || name === "lookR") {
-    return { x: 0, y: lift + bob * 0.6, rx: 0, ry: yaw + (name === "lookL" ? -0.68 : 0.68) * e, rz: 0 };
+    return { x: 0, y: lift + bob * 0.6, rx: 0, ry: yaw + (name === "lookL" ? -turn : turn) * e, rz: 0 };
   }
   if (name === "hop") {
-    return { x: 0, y: lift + Math.sin(Math.min(p, 1) * Math.PI) * 0.3, rx: 0, ry: yaw, rz: 0 };
+    return { x: 0, y: lift + Math.sin(Math.min(p, 1) * Math.PI) * (0.14 + 0.22 * amp), rx: 0, ry: yaw, rz: 0 };
   }
   if (name === "sit") {
     return { x: 0, y: lift - 0.08 * e, rx: 0.26 * e, ry: yaw, rz: -0.045 * e };
@@ -63,7 +56,7 @@ function poseAt(name: PoseName, p: number, t: number, lift: number, yaw: number)
     x: 0,
     y: lift + bob * 0.35,
     rx: 0,
-    ry: yaw + Math.sin(t * 1.43) * 0.05,
+    ry: yaw + Math.sin(t * (0.7 + amp)) * (0.03 + amp * 0.07),
     rz: 0,
   };
 }
@@ -297,7 +290,7 @@ export function PetStage({
   pet: PetState;
   frame: Frame;
   petId?: PetId;
-  room?: { asleep: boolean; dark: boolean; sick?: boolean; calling?: boolean };
+  room?: { asleep: boolean; dark: boolean; sick?: boolean; calling?: boolean; hungry?: boolean };
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const moodRef = useRef(room);
@@ -474,7 +467,12 @@ export function PetStage({
     let eatUntil = -1;
     const onEat = () => { eatUntil = t + 1.25; };
     window.addEventListener("zoom-pet-eat", onEat);
-    let poseStep = 0;
+    let brightUntil = -1;
+    const onCared = () => { brightUntil = t + 16; };
+    window.addEventListener("zoom-pet-cared", onCared);
+    let poseName: PoseName = "rest";
+    let poseDur = 0;
+    let poseAmp = 0.6;
     let poseT0 = 0;
 
     let raf = 0;
@@ -539,18 +537,29 @@ export function PetStage({
             p = (t - (eatUntil - 1.25)) / 1.25;
             host.dataset.pose = "eat";
           } else {
-            const current = POSE_SCRIPT[poseStep % POSE_SCRIPT.length];
-            if (t - poseT0 >= current.dur) {
-              poseStep = (poseStep + 1) % POSE_SCRIPT.length;
+            const bright = t < brightUntil;
+            const bag = mood?.sick
+              ? (["rest", "lookL", "lookR", "rest"] as PoseName[])
+              : mood?.hungry && !bright
+                ? (["rest", "lookL", "lookR", "rest", "hop"] as PoseName[])
+                : bright
+                  ? (["hop", "lookL", "lookR", "hop", "rest"] as PoseName[])
+                  : WANDER;
+            if (t - poseT0 >= poseDur) {
+              let next = bag[Math.floor(Math.random() * bag.length)];
+              if (next === poseName) next = bag[(bag.indexOf(next) + 1) % bag.length];
+              poseName = next;
+              poseAmp = 0.4 + Math.random() * 0.6;
+              poseDur = next === "hop" ? 0.5 + Math.random() * 0.4 : next === "rest" ? 1 + Math.random() * 1.8 : 0.6 + Math.random() * 0.8;
               poseT0 = t;
             }
-            pose = POSE_SCRIPT[poseStep % POSE_SCRIPT.length].name;
-            p = (t - poseT0) / POSE_SCRIPT[poseStep % POSE_SCRIPT.length].dur;
-            host.dataset.pose = mood?.calling ? "call" : pose;
+            pose = poseName;
+            p = poseDur <= 0 ? 0 : (t - poseT0) / poseDur;
+            host.dataset.pose = pose;
           }
           const at = mood?.dark
             ? { x: 0, y: homeLift, rx: 0, ry: 0, rz: 0 }
-            : poseAt(pose, p, t, homeLift, 0);
+            : poseAt(pose, p, t, homeLift, 0, poseAmp);
           rig.position.set(Math.max(-0.38, Math.min(0.38, at.x)), at.y, 0);
           rig.rotation.set(at.rx, at.ry, at.rz);
         } else {
@@ -569,20 +578,24 @@ export function PetStage({
       if (frame === "lab" && moodRef.current?.dark) {
         blink?.apply(1);
       } else if (blink) {
-        const sick = frame === "lab" && moodRef.current?.sick;
-        const span = 0.28;
-        let closed = sick ? 0.55 : 0;
+        const mood = moodRef.current;
+        const bright = t < brightUntil;
+        const sick = frame === "lab" && mood?.sick && !bright;
+        const hungry = frame === "lab" && mood?.hungry && !sick && !bright;
+        const span = sick ? 0.9 : hungry ? 0.46 : bright ? 0.18 : 0.28;
+        const base = sick ? 0.62 : hungry ? 0.36 : 0;
+        let closed = base;
         if (blinkStart < 0) {
           if (t >= blinkAt) blinkStart = t;
         } else {
           const p = (t - blinkStart) / span;
-          const base = sick ? 0.55 : 0;
           if (p < 0.36) closed = base + (1 - base) * smoothStep(p / 0.36);
           else if (p < 0.52) closed = 1;
           else if (p < 1) closed = base + (1 - base) * (1 - smoothStep((p - 0.52) / 0.48));
           else {
             blinkStart = -1;
-            blinkAt = t + 2 + Math.random() * 3;
+            const gap = sick ? 2.4 + Math.random() * 2.2 : hungry ? 1.8 + Math.random() * 1.6 : bright ? 0.7 + Math.random() * 0.8 : 1.4 + Math.random() * 1.8;
+            blinkAt = t + gap;
           }
         }
         blink.apply(closed);
@@ -599,6 +612,7 @@ export function PetStage({
       observer.disconnect();
       window.removeEventListener("zoom-pet-hello", onHello);
       window.removeEventListener("zoom-pet-eat", onEat);
+      window.removeEventListener("zoom-pet-cared", onCared);
       host.removeEventListener("pointerdown", onDown);
       host.removeEventListener("pointermove", onMove);
       host.removeEventListener("pointerup", onUp);
