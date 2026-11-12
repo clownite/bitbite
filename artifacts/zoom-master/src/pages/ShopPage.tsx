@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { formatRate, PETS, petCombat } from "../pet/catalog";
+import { familyOf } from "../pet/life";
 import { personalPetNumber, petOwnerId } from "../pet/number";
-import { PetStage } from "../components/PetStage";
+import { LifeCreature } from "../components/LifeCreature";
 import { PixelMark } from "../components/PixelMark";
 import { StatGlyph } from "../components/StatGlyph";
 import { buyPet, getPet, LEVEL5_GRAM, LEVEL10_GRAM, PET_SLOTS, subscribePet, type PetState } from "../pet/petProgress";
@@ -41,8 +42,6 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => subscribePet(() => setPet(getPet())), []);
 
-  const poster: PetState = { ...pet, level: 1, stage: 1, finished: false };
-
   return (
     <div className="h-full overflow-y-auto" style={{ padding: "12px 16px 28px" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
@@ -51,7 +50,7 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
       </div>
 
       <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 14 }}>
-        {PETS.map((item) => {
+        {PETS.map((item, index) => {
           const owned = pet.owned.includes(item.id);
           const slotsFull = pet.owned.length >= PET_SLOTS;
           const canBuy = !owned && !slotsFull;
@@ -75,15 +74,10 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
                 boxShadow: `0 16px 36px rgba(0,0,0,0.35), 0 0 28px ${item.element.color}22`,
               }}
             >
-              <div
-                style={{
-                  position: "relative",
-                  height: 228,
-                  background: `radial-gradient(ellipse 80% 70% at 50% 42%, ${item.element.color}88 0%, ${item.element.color}33 42%, transparent 72%), linear-gradient(180deg, ${item.element.color}44, transparent 70%)`,
-                }}
-              >
-                <PetStage pet={poster} frame="shop" petId={item.id} />
-                <div style={{ position: "absolute", top: 12, left: 12, zIndex: 2, pointerEvents: "none" }}>
+              <div className="shop-foil" style={{ "--ink": item.element.color } as CSSProperties}>
+                <LifeCreature family={familyOf(item.id)} form="adult" kin={0} />
+                <span className="shop-foil-shine" style={{ animationDelay: `${index * 0.45}s` }} aria-hidden />
+                <div style={{ position: "absolute", top: 12, left: 12, zIndex: 7, pointerEvents: "none" }}>
                   <PixelMark glyph={item.element.glyph} label={t(`pet.element.${item.element.id}`)} />
                 </div>
                 <div
@@ -100,7 +94,7 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
                     pointerEvents: "none",
                   }}
                 />
-                <div style={{ position: "absolute", top: 12, right: 12, fontSize: 12, fontWeight: 800, color: "#041018", background: item.element.color, borderRadius: 999, padding: "4px 8px" }}>
+                <div style={{ position: "absolute", top: 12, right: 12, zIndex: 7, fontSize: 12, fontWeight: 800, color: "#041018", background: item.element.color, borderRadius: 999, padding: "4px 8px" }}>
                   {item.price === 0 ? t("pet.free") : `${item.price} GRAM`}
                 </div>
               </div>
