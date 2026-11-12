@@ -43,6 +43,7 @@ bindKeyboard();
 (window as unknown as { __primeZoomAudio?: () => void }).__primeZoomAudio = () => {
   primeChiptune();
 };
+if ((window as unknown as { __zoomWantMusic?: boolean }).__zoomWantMusic) primeChiptune();
 preloadPetModel();
 
 const SCROLL_TAGS = new Set(["HTML", "BODY"]);

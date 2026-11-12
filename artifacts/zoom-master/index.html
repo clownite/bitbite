@@ -372,6 +372,8 @@
             enterBtn.disabled = true;
             breakCookie();
             window.__zoomCookieTapped = true;
+            window.__zoomWantMusic = true;
+            if (typeof window.__primeZoomAudio === "function") window.__primeZoomAudio();
             setTimeout(function () {
               if (typeof window.__primeZoomAudio === "function") window.__primeZoomAudio();
             }, 520);

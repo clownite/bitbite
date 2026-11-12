@@ -1,4 +1,4 @@
-/** Short square-wave taps, on the same clock as the music. */
+/** Short square-wave taps, on their own clock beside the song. */
 
 import { playNotes } from "./chiptune";
 
