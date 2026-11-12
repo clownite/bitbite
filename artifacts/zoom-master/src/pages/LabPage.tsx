@@ -23,17 +23,41 @@ import { LifeMarks } from "../components/LifeMarks";
 import { CardReel } from "../components/CardReel";
 import { useT } from "../i18n/LanguageContext";
 
+const ASK = [
+  ".111.",
+  "1...1",
+  "....1",
+  "...1.",
+  "..1..",
+  ".....",
+  "..1..",
+];
+
+function PixelAsk() {
+  return (
+    <svg width="15" height="21" viewBox="0 0 5 7" shapeRendering="crispEdges" aria-hidden>
+      {ASK.flatMap((row, y) =>
+        row.split("").map((cell, x) => cell === "1"
+          ? <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill="#ff2040" />
+          : null),
+      )}
+    </svg>
+  );
+}
+
 function EggAsk({ time, explain, label }: { time: string; explain: string; label: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="egg-ask">
+      <button type="button" className="egg-ask-mark" aria-label={label} onClick={() => setOpen((v) => !v)}>
+        <PixelAsk />
+      </button>
       {open ? (
         <div className="egg-ask-note" data-testid="egg-wait-home">
           <strong>{time}</strong>
           <p>{explain}</p>
         </div>
       ) : null}
-      <button type="button" className="egg-ask-mark" aria-label={label} onClick={() => setOpen((v) => !v)}>?</button>
     </div>
   );
 }
