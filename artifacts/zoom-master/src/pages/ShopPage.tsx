@@ -4,7 +4,6 @@ import { familyOf } from "../pet/life";
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { LifeCreature } from "../components/LifeCreature";
 import { PixelMark } from "../components/PixelMark";
-import { BitBiteMark } from "../components/BitBiteMark";
 import { StatGlyph } from "../components/StatGlyph";
 import { buyPet, getPet, LEVEL5_GRAM, LEVEL10_GRAM, PET_SLOTS, subscribePet, type PetState } from "../pet/petProgress";
 import { settlePetPayments, startPetPayment } from "../pet/payPet";
@@ -78,7 +77,6 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
               <div className="shop-foil" style={{ "--ink": item.element.color } as CSSProperties}>
                 <LifeCreature family={familyOf(item.id)} form="adult" kin={0} />
                 <span className="shop-foil-shine" style={{ animationDelay: `${index * 0.45}s` }} aria-hidden />
-                <span className="shop-brand"><span className="brand-seal"><BitBiteMark size={16} /></span></span>
                 <div className="shop-foil-mark">
                   <PixelMark glyph={item.element.glyph} label={t(`pet.element.${item.element.id}`)} />
                 </div>

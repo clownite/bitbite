@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
-import { BitBiteMark } from "../components/BitBiteMark";
 import { KinPortrait } from "../components/KinPortrait";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
 import { useT } from "../i18n/LanguageContext";
@@ -433,7 +432,6 @@ function HallCard({
       >
         <div className="hall-flip-inner">
           <div className="hall-face" aria-hidden={flip}>
-            <span className="hall-brand"><span className="brand-seal"><BitBiteMark size={18} /></span></span>
             <div className="hall-frame">
               <KinPortrait family={family} form={form} kin={kin} mark={mark} />
             </div>
@@ -444,7 +442,6 @@ function HallCard({
             </div>
           </div>
           <div className="hall-face is-back" aria-hidden={!flip}>
-            <span className="hall-brand"><span className="brand-seal"><BitBiteMark size={14} /></span></span>
             <strong className="id-name">{shown}</strong>
             <p className="id-line">{t("id.owner")} · {owner}</p>
             <p className="id-line">{sex === "girl" ? "F" : sex === "boy" ? "M" : "—"}</p>
