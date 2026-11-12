@@ -1953,6 +1953,20 @@ export interface MaintenanceStatus {
   updatedAt: number;
 }
 
+export async function preparePetCard(telegramId: string, image: string, thumb: string): Promise<string | null> {
+  try {
+    const res = await fetch(`${API_BASE}/share/card`, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: JSON.stringify(withInitData({ telegramId, image, thumb })),
+    });
+    const data = await res.json().catch(() => ({}));
+    return res.ok && typeof data?.messageId === "string" ? data.messageId : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function fetchAdminSession(): Promise<boolean> {
   try {
     const res = await fetch(`${API_BASE}/admin/whoami?t=${Date.now()}`, {

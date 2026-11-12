@@ -12,6 +12,7 @@ import dailyRouter from "./daily";
 import mysteryBoxRouter from "./mysteryBox";
 import withdrawalsRouter from "./withdrawals";
 import maintenanceRouter from "./maintenance";
+import shareCardRouter from "./shareCard";
 import { allow } from "../lib/rate-limit";
 import { ADMIN_ID } from "../lib/admin-ids";
 import farmRouter from "./farm";
@@ -316,6 +317,12 @@ const PROTECTED_ROUTES: ProtectedRoute[] = [
     bindField: "",
     forceStrict: true,
   },
+  {
+    methods: ["POST"],
+    paths: ["/share/card"],
+    bindField: "telegramId",
+    forceStrict: true,
+  },
 ];
 
 // Pre-compute lookup map for O(1) per-request match.
@@ -411,6 +418,7 @@ router.use(dailyRouter);
 router.use(mysteryBoxRouter);
 router.use(withdrawalsRouter);
 router.use(maintenanceRouter);
+router.use(shareCardRouter);
 router.use(farmRouter);
 router.use(farmSettleRouter);
 router.use(userRouter);

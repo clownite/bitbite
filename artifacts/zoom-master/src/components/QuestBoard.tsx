@@ -18,9 +18,7 @@ import {
   type QuestRow,
 } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
-import { openTelegramChat, openTelegramStory } from "../pet/shareCard";
-import { petDef } from "../pet/catalog";
-import { personalPetNumber, petOwnerId } from "../pet/number";
+import { openPetShare, openTelegramChat, warmPetShare } from "../pet/shareCard";
 
 const COMMUNITY_URL = "https://t.me/bitbitecookie";
 const CHAT_URL = "https://t.me/bitbitechats";
@@ -50,9 +48,14 @@ export function QuestBoard({
   const [rows, setRows] = useState<QuestRow[]>(() => questRows(referralCount, crumbsEarned()));
   const [pet, setPet] = useState<PetState>(getPet());
   const [group, setGroup] = useState<QuestGroup>("daily");
-  const [shareOpen, setShareOpen] = useState(false);
+  const [shareHint, setShareHint] = useState("");
   useEffect(() => subscribeQuests(() => setRows(questRows(referralCount, crumbsEarned()))), [referralCount]);
   useEffect(() => subscribePet(() => setPet(getPet())), []);
+  useEffect(() => {
+    const share = rows.find((row) => row.id === "share");
+    if (!share || share.claimed || share.ready) return;
+    warmPetShare();
+  }, [rows, pet.active, pet.level, pet.stage, pet.xp]);
 
   const openLink = (which: "community" | "chat", url: string) => {
     markTaskOpened(which);
@@ -70,24 +73,13 @@ export function QuestBoard({
     window.open(url, "_blank");
   };
 
-  const sharePayload = () => {
-    const active = getPet();
-    const who = petDef(active.active);
-    const pageUrl = `https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`;
-    const text = `${personalPetNumber(petOwnerId(), active.active)} ${who.name}\n${t(`quest.life${active.stage}`)}\n${t("quest.shareText")}`;
-    return { text, pageUrl };
-  };
-  const sendChat = () => {
-    const { text, pageUrl } = sharePayload();
-    setShareOpen(false);
-    noteShare();
-    openTelegramChat(text, pageUrl);
-  };
-  const sendStory = () => {
-    const { text, pageUrl } = sharePayload();
-    setShareOpen(false);
-    noteShare();
-    openTelegramStory(text, pageUrl);
+  const sendShare = () => {
+    setShareHint("");
+    const status = openPetShare((sent) => {
+      if (sent) noteShare();
+    });
+    if (status === "wait") setShareHint(t("quest.shareSoon"));
+    if (status === "missing") setShareHint(t("quest.shareFail"));
   };
 
   const visible = rows.filter((row) => row.group === group);
@@ -128,7 +120,7 @@ export function QuestBoard({
               </div>
             </div>
             {row.id === "share" && !row.claimed && !row.ready ? (
-              <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" data-testid="share-pet" onClick={() => setShareOpen(true)}>{t("quest.shareBtn")}</button>
+              <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" data-testid="share-pet" onClick={sendShare}>{t("quest.shareBtn")}</button>
             ) : row.claimed ? (
               <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>{t("quest.done")}</span>
             ) : (
@@ -196,14 +188,8 @@ export function QuestBoard({
           </>
         )}
       </div>
-      {shareOpen ? (
-        <div className="tg-share" data-testid="share-sheet" onClick={() => setShareOpen(false)} role="presentation">
-          <div className="tg-share-card" onClick={(event) => event.stopPropagation()}>
-            <strong>{t("quest.share")}</strong>
-            <button type="button" className="cookie-go" data-testid="share-story" onClick={sendStory}>{t("quest.shareStory")}</button>
-            <button type="button" className="cookie-go" data-testid="share-chat" onClick={sendChat}>{t("quest.shareChat")}</button>
-          </div>
-        </div>
+      {shareHint ? (
+        <div className="mt-2 text-[11px] font-bold" style={{ color: "#7ad7ff" }}>{shareHint}</div>
       ) : null}
     </section>
   );
