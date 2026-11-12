@@ -1,11 +1,12 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { PET_HOME, formatClock, playerClock } from "../pet/clock";
+import { disciplinePlays, subscribeDiscipline } from "../pet/discipline";
 import { lifeStats } from "../pet/life";
 import type { PetId } from "../pet/catalog";
 import type { CareView } from "../pet/care";
 import { useT } from "../i18n/LanguageContext";
 
-const SCREENS = ["pet", "clock", "hearts", "body", "discipline", "hungry", "happy"] as const;
+const SCREENS = ["pet", "clock", "body", "discipline", "hungry", "happy"] as const;
 
 function placeName(place: string, lang: string): string {
   if (lang === "it" && place === "Rome") return "Roma";
@@ -77,7 +78,10 @@ export function CardReel({
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState<1 | -1>(1);
   const [tick, setTick] = useState(now);
+  const [plays, setPlays] = useState(disciplinePlays);
   const screen = SCREENS[index];
+
+  useEffect(() => subscribeDiscipline(() => setPlays(disciplinePlays())), []);
 
   useEffect(() => setIndex(0), [petId]);
   useEffect(() => {
@@ -144,15 +148,7 @@ export function CardReel({
   else if (!egg && care.bowl < 0.5) happy -= 1;
   if (!egg) happy -= Math.min(2, care.messes.length);
   happy = Math.max(0, Math.min(4, happy));
-  let discipline = 0;
-  if (!egg) {
-    discipline = 1;
-    if (stats.cleans > 0) discipline += 1;
-    if (stats.feeds > 0) discipline += 1;
-    if (!care.sick && care.messes.length === 0) discipline += 1;
-    if (care.sick) discipline = Math.min(discipline, 1);
-  }
-  discipline = Math.max(0, Math.min(4, discipline));
+  const discipline = egg ? 0 : Math.max(0, Math.min(4, plays));
 
   const player = playerClock(tick);
   const home = PET_HOME[petId];
@@ -168,12 +164,6 @@ export function CardReel({
               <div className="card-kicker">{placeName(player.place, lang)}</div>
               <div className="card-time" data-testid="card-time">{player.time}</div>
               <div className="card-sub">{t("card.lives", { name: petName, place: home.place, time: homeTime })}</div>
-            </>
-          ) : null}
-          {screen === "hearts" ? (
-            <>
-              <Hearts n={fed} />
-              <div className="card-kicker">{fed === 4 ? t("card.full") : t("card.hungry")}</div>
             </>
           ) : null}
           {screen === "body" ? (
@@ -196,7 +186,7 @@ export function CardReel({
           ) : null}
           {screen === "hungry" ? (
             <>
-              <div className="card-kicker">{t("card.hungry")}</div>
+              <div className="card-kicker">{fed === 4 ? t("card.full") : t("card.hungry")}</div>
               <Hearts n={fed} />
             </>
           ) : null}

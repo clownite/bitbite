@@ -4,6 +4,7 @@ import { playBite, playClick, playMiss } from "../audio/sfx";
 import { PETS, petDef, type PetId } from "../pet/catalog";
 import { foeMove, makeFighter, strike, type Call, type Fighter, type Move } from "../pet/duel";
 import { recordCookies } from "../pet/cookieBoard";
+import { noteDisciplinePlay } from "../pet/discipline";
 import { addPetXp, getPet, type PetState } from "../pet/petProgress";
 import { PetStage } from "./PetStage";
 
@@ -97,6 +98,7 @@ export function DuelPanel({ pet }: { pet: PetState }) {
     setWinner(name);
     setWon(youWon);
     setPhaseSafe("over");
+    noteDisciplinePlay();
     if (youWon && !paid.current) {
       paid.current = true;
       recordCookies(WIN_POINTS);

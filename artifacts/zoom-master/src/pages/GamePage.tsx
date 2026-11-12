@@ -6,6 +6,7 @@ import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
 import { ackCookieBanner, cookieBoard, nextReset, recordCookies, xpForPlace, type BoardRow } from "../pet/cookieBoard";
 import { cookiePlays, noteFinishedSeries, PLAYS_PER_DAY, playsLeft, type PlayDay } from "../pet/cookiePlays";
+import { noteDisciplinePlay } from "../pet/discipline";
 import {
   freshRun, rigX, SERIES, stagePoint, startRun, stepRun, tapDrop, type Run,
 } from "../pet/cookieGame";
@@ -120,8 +121,10 @@ export function GamePage({ active }: { active: boolean }) {
   }, []);
 
   useEffect(() => {
-    if (run.phase !== "clear" || recorded.current) return;
+    if ((run.phase !== "clear" && run.phase !== "boom") || recorded.current) return;
     recorded.current = true;
+    noteDisciplinePlay();
+    if (run.phase !== "clear") return;
     if (run.score > 0) recordCookies(run.score);
     setPlays(noteFinishedSeries());
     setBoard(cookieBoard());
