@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import { KinPortrait } from "../components/KinPortrait";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
@@ -71,6 +71,9 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   const [archive, setArchive] = useState<LifeArchiveEntry[]>([]);
   const [living, setLiving] = useState<LivingCard[]>([]);
   const [favs, setFavs] = useState<string[]>([]);
+  const [screenTap, setScreenTap] = useState(false);
+  const [blips, setBlips] = useState<{ id: number; x: number; y: number }[]>([]);
+  const blipId = useRef(0);
   const linkedAddress = useTonAddress();
   const viewer = getTelegramViewer();
   const def = petDef(pet.active);
@@ -183,13 +186,30 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
             <span>BITBITE</span>
             <span className="gb-dots" aria-hidden="true"><i /><i /><i /></span>
           </div>
-          <div className="gb-screen">
+          <button
+            type="button"
+            className={screenTap ? "gb-screen is-tap" : "gb-screen"}
+            data-testid="gb-screen"
+            aria-label={t("wallet.screen")}
+            onPointerDown={(event) => {
+              const box = event.currentTarget.getBoundingClientRect();
+              const id = blipId.current + 1;
+              blipId.current = id;
+              setBlips((list) => [...list, { id, x: event.clientX - box.left, y: event.clientY - box.top }].slice(-6));
+              setScreenTap(true);
+              window.setTimeout(() => setScreenTap(false), 90);
+              window.setTimeout(() => setBlips((list) => list.filter((blip) => blip.id !== id)), 460);
+            }}
+          >
             <p className="gb-label">{t("wallet.crumbs")}</p>
             <p className="gb-amount">{formatCrumbs(balance)}</p>
             <p className="gb-sub">{formatCrumbs(balance * CRUMB_GRAM)} GRAM</p>
             <p className="gb-line">{t("wallet.keeps", { name: def.name, crumbs: formatCrumbs(balance) })}</p>
             <p className="gb-who">{def.element.glyph} {def.name} · {t("pet.stageShort", { s: pet.stage, l: pet.level })}</p>
-          </div>
+            {blips.map((blip) => (
+              <i key={blip.id} className="gb-blip" style={{ left: blip.x, top: blip.y }} aria-hidden />
+            ))}
+          </button>
           <div className="gb-pad">
             <button type="button" className="gb-a" data-testid="open-pocket" onClick={() => setOpen(true)}>
               <b>A</b>

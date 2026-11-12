@@ -5137,13 +5137,42 @@ body, body * {
 .gb-dots i:nth-child(2) { background: #c4b15a; }
 .gb-dots i:nth-child(3) { background: #3d6b3a; }
 .gb-screen {
+  all: unset;
   position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
   padding: 12px 12px 10px;
   background: #9bbc0f;
   border: 4px solid #0f380f;
   box-shadow: inset 0 0 0 4px #8bac0f;
   color: #0f380f;
   overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+}
+.gb-screen.is-tap {
+  box-shadow: inset 0 0 0 4px #8bac0f, inset 0 0 0 80px rgba(15, 56, 15, 0.16);
+}
+.gb-blip {
+  position: absolute;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  margin: -5px 0 0 -5px;
+  pointer-events: none;
+  background:
+    linear-gradient(#f4ffc8, #f4ffc8) center / 3px 11px no-repeat,
+    linear-gradient(#f4ffc8, #f4ffc8) center / 11px 3px no-repeat;
+  filter: drop-shadow(1px 0 0 #0f380f) drop-shadow(-1px 0 0 #0f380f) drop-shadow(0 1px 0 #0f380f);
+  animation: gb-blip 420ms steps(3, end) forwards;
+}
+@keyframes gb-blip {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-16px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gb-blip { animation: none; opacity: 0.8; }
 }
 .gb-screen::after {
   content: "";
