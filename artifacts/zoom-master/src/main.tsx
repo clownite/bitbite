@@ -4,6 +4,7 @@ import App from "./App";
 import "./index.css";
 import { primeChiptune } from "./audio/chiptune";
 import { hapticSoft } from "./utils/haptic";
+import { bindKeyboard } from "./utils/keyboard";
 import { BootErrorBoundary } from "./components/BootErrorBoundary";
 
 function configureTelegramViewport() {
@@ -38,6 +39,7 @@ function configureTelegramViewport() {
 }
 
 configureTelegramViewport();
+bindKeyboard();
 (window as unknown as { __primeZoomAudio?: () => void }).__primeZoomAudio = () => {
   primeChiptune();
 };
