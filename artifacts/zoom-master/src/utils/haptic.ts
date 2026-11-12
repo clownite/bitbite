@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 let lastHapticAt = 0;
+let pairUntil = 0;
 const HAPTIC_GAP_MS = 40;
+/** Two pulses, then a breath, so a new tap does not pile onto the pair. */
+const PAIR_MS = 78;
+/** The second pulse sits right against the first. */
+const PAIR_GAP_MS = 32;
 
 function tooSoon() {
   const now = performance.now();
@@ -30,21 +35,33 @@ function impact(style: "light" | "medium" | "heavy") {
   vibrateMs(style === "light" ? 8 : style === "medium" ? 16 : 26);
 }
 
-/** A short, soft tap. Telegram's soft impact when the phone has it. */
-export function hapticSoft() {
-  if (tooSoon()) return;
+function softOnce() {
   const hf = tgHaptic();
-  let used = false;
-  if (hf) {
-    try {
-      hf.impactOccurred("soft");
-      used = true;
-    } catch { /**/ }
-    if (!used) {
-      try { hf.impactOccurred("light"); used = true; } catch { /**/ }
-    }
+  if (!hf) return false;
+  try {
+    hf.impactOccurred("soft");
+    return true;
+  } catch { /**/ }
+  try {
+    hf.impactOccurred("light");
+    return true;
+  } catch { /**/ }
+  return false;
+}
+
+/** Two soft pulses, close together, like a light double tap on the fingertip. */
+export function hapticSoft() {
+  const now = performance.now();
+  if (now < pairUntil) return;
+  pairUntil = now + PAIR_MS;
+  lastHapticAt = now;
+  if (softOnce()) {
+    window.setTimeout(softOnce, PAIR_GAP_MS);
+    return;
   }
-  if (!used) vibrateMs(9);
+  try {
+    navigator.vibrate?.([8, 18, 8]);
+  } catch { /**/ }
 }
 
 export function hapticLight() {

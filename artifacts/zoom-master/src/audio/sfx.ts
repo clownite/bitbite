@@ -16,34 +16,13 @@ export function setClicksEnabled(next: boolean) {
   try { localStorage.setItem(KEY, off ? "1" : "0"); } catch { /**/ }
 }
 
-/** A tiny press, like a Game Boy button. Silent when clicks are off. */
+/** The rising Game Boy "yes": a short note, then a higher one. Silent when clicks are off. */
 export function playClick() {
   if (off) return;
-  playNotes([{ freq: 880, at: 0, dur: 0.04, gain: 0.05 }]);
-}
-
-export type ClickStyle = "tick" | "pop" | "cursor" | "ok";
-
-/** Original square-wave clicks in the Game Boy family. The preview always plays. */
-const CLICKS: Record<ClickStyle, { freq: number; at: number; dur: number; gain: number }[]> = {
-  tick: [{ freq: 1046, at: 0, dur: 0.026, gain: 0.08 }],
-  pop: [
-    { freq: 1720, at: 0, dur: 0.014, gain: 0.07 },
-    { freq: 860, at: 0.014, dur: 0.02, gain: 0.06 },
-    { freq: 430, at: 0.03, dur: 0.016, gain: 0.045 },
-  ],
-  cursor: [
-    { freq: 1318, at: 0, dur: 0.02, gain: 0.07 },
-    { freq: 988, at: 0.03, dur: 0.024, gain: 0.06 },
-  ],
-  ok: [
+  playNotes([
     { freq: 784, at: 0, dur: 0.04, gain: 0.07 },
     { freq: 1174, at: 0.046, dur: 0.07, gain: 0.06 },
-  ],
-};
-
-export function playClickStyle(style: ClickStyle) {
-  playNotes(CLICKS[style]);
+  ]);
 }
 
 /** A cookie caught in the game. Silent when clicks are off. */

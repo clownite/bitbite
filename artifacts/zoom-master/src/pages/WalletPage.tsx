@@ -15,7 +15,6 @@ import {
 } from "../pet/life";
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { getPet, subscribePet, type PetState } from "../pet/petProgress";
-import { playClickStyle, type ClickStyle } from "../audio/sfx";
 import { getTelegramViewer } from "../utils/telegram";
 import {
   CRUMB_GRAM,
@@ -211,24 +210,6 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
               <i key={blip.id} className="gb-blip" style={{ left: blip.x, top: blip.y }} aria-hidden />
             ))}
           </button>
-          <div className="gb-sounds" data-sfx-preview>
-            <p>{t("sfx.try")}</p>
-            <div>
-              {(["tick", "pop", "cursor", "ok"] as ClickStyle[]).map((style) => (
-                <button
-                  key={style}
-                  type="button"
-                  data-sfx-preview
-                  onPointerDown={(event) => {
-                    event.stopPropagation();
-                    playClickStyle(style);
-                  }}
-                >
-                  {t(`sfx.${style}`)}
-                </button>
-              ))}
-            </div>
-          </div>
           <div className="gb-pad">
             <button type="button" className="gb-a" data-testid="open-pocket" onClick={() => setOpen(true)}>
               <b>A</b>

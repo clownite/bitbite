@@ -5214,39 +5214,6 @@ body, body * {
   font-weight: 700;
   line-height: 1.35;
 }
-.gb-sounds {
-  margin-top: 10px;
-  color: #1c2414;
-  font-family: ui-monospace, monospace;
-}
-.gb-sounds p {
-  margin: 0 0 6px;
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.12em;
-}
-.gb-sounds div {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
-}
-.gb-sounds button {
-  min-height: 32px;
-  padding: 4px 2px;
-  border: 3px solid #1c2414;
-  background: #9bbc0f;
-  color: #0f380f;
-  font-family: ui-monospace, monospace;
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  box-shadow: 2px 2px 0 #1c2414;
-}
-.gb-sounds button:active {
-  transform: translate(1px, 1px);
-  box-shadow: none;
-}
 .gb-pad {
   display: flex;
   align-items: center;

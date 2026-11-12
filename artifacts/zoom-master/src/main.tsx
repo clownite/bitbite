@@ -3,7 +3,7 @@ import { preloadPetModel } from "./pet/petModel";
 import App from "./App";
 import "./index.css";
 import { primeChiptune } from "./audio/chiptune";
-import { hapticLight } from "./utils/haptic";
+import { hapticSoft } from "./utils/haptic";
 import { BootErrorBoundary } from "./components/BootErrorBoundary";
 
 function configureTelegramViewport() {
@@ -56,7 +56,7 @@ function isScrollContainer(el: Element): boolean {
 
 // Soft haptic on real taps (buttons, cards, canvas thumbs). Skip scrolls/swipes
 // and typing. Canvas is included so Farm/Market/studio taps buzz; Lab START BUILD
-// and Auto Tap opt out with data-no-global-haptic because they call hapticLight.
+// and Auto Tap opt out with data-no-global-haptic because they call their own haptic.
 const NO_HAPTIC_TAGS = new Set(["INPUT", "TEXTAREA", "SELECT"]);
 const TAP_MAX_MOVE = 22;
 const TAP_MAX_MS = 700;
@@ -98,7 +98,7 @@ document.addEventListener(
     if (shouldSkipGlobalHaptic(target)) return;
     if (!isInteractiveTap(target)) return;
     pBuzzed = true;
-    hapticLight();
+    hapticSoft();
   },
   { passive: true },
 );
@@ -126,7 +126,7 @@ document.addEventListener(
     if (Date.now() - pStartT > TAP_MAX_MS) return;
     const target = e.target as Element | null;
     if (shouldSkipGlobalHaptic(target)) return;
-    hapticLight();
+    hapticSoft();
   },
   { passive: true },
 );
