@@ -6,7 +6,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://zoomverse-api.onrender.com/api/:path*"
+      "destination": "https://zoomverse-api-u7ea.onrender.com/api/:path*"
     },
     {
       "source": "/((?!assets/).*)",

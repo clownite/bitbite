@@ -6,7 +6,7 @@ Questa copia parte dal repository pubblico [Zoom0100/ZoomVerse](https://github.c
 
 ## Avviare il frontend
 
-Il server di sviluppo inoltra `/api` all’API già online su Render (`https://zoomverse-api.onrender.com`).
+Il server di sviluppo inoltra `/api` all’API già online su Render (`https://zoomverse-api-u7ea.onrender.com`).
 
 ```bash
 corepack enable

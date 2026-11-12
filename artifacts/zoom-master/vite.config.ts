@@ -107,7 +107,7 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       "/api": {
-        target: "https://zoomverse-api.onrender.com",
+        target: "https://zoomverse-api-u7ea.onrender.com",
         changeOrigin: true,
       },
     },
