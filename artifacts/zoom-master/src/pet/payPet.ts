@@ -37,7 +37,7 @@ function openPayLink(url: string) {
 /** Opens the wallet so the GRAM goes to the treasury. The pet waits for that payment. */
 export function startPetPayment(petId: PetId, name: string, price: number) {
   const id = Math.random().toString(36).slice(2, 8);
-  const comment = `ZOOM ${name} ${id}`;
+  const comment = `BitBite ${name} ${id}`;
   const orders = read().filter((order) => order.status === "pending" && order.petId !== petId);
   orders.push({ id, petId, price, comment, status: "pending" });
   write(orders);

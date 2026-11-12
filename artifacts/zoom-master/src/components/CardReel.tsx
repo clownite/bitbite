@@ -5,6 +5,7 @@ import { lifeStats } from "../pet/life";
 import type { PetId } from "../pet/catalog";
 import type { CareView } from "../pet/care";
 import { useT } from "../i18n/LanguageContext";
+import { BitBiteMark } from "./BitBiteMark";
 
 const SCREENS = ["pet", "clock", "body", "discipline", "hungry", "happy"] as const;
 
@@ -156,6 +157,7 @@ export function CardReel({
 
   return (
     <div className="card-reel">
+      <span className="card-brand"><span className="brand-seal"><BitBiteMark size={18} /></span></span>
       {children}
       {screen !== "pet" ? (
         <div className={dir < 0 ? "card-status is-back" : "card-status"} data-testid="card-screen" data-screen={screen}>

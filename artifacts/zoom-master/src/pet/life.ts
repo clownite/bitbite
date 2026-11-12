@@ -8,6 +8,7 @@ const ARCHIVE_KEY = "biscotto-life-archive-v1";
 const FAV_KEY = "biscotto-life-favorites-v1";
 export const HOUR = 60 * 60 * 1000;
 export const DAY = 24 * HOUR;
+const NAME_MAX = 16;
 
 const ASK_WAIT = 8 * HOUR;
 const RISE_MS = 8000;
@@ -30,6 +31,8 @@ export type LifeView = {
   visit: boolean;
   spouseKin: number | null;
   child: { form: LifeForm; sex: LifeSex | null; mark: LifeMark | null } | null;
+  /** Chosen once, the first time this life begins. Empty until the player picks it. */
+  givenName: string;
 };
 
 /** A life that already passed the torch. The portrait is the adult form, before old age. */
@@ -49,6 +52,8 @@ export type LifeArchiveEntry = {
   /** Tended and never sick: they were left in a good way. */
   happy: boolean;
   passedAt: number;
+  givenName: string;
+  bornAt: number;
 };
 
 /** The pet still in the room, so the board is never only a blank wall. */
@@ -62,6 +67,9 @@ export type LivingCard = {
   form: LifeForm;
   years: number;
   road: LifeRoad | null;
+  givenName: string;
+  bornAt: number;
+  sex: LifeSex | null;
 };
 
 type Row = {
@@ -84,12 +92,13 @@ type Row = {
   heirMark: LifeMark | null;
   nextAskAt: number | null;
   ascendUntil: number | null;
+  givenName: string;
 };
 
 const MARKS: LifeMark[] = ["ears", "tail", "spots", "tint"];
 
 let focus: PetId = "dolphin";
-let rows: Partial<Record<PetId, Row>> = load();
+let rows: Partial<Record<PetId, Row>> = {};
 const listeners = new Set<() => void>();
 
 function blank(now = Date.now()): Row {
@@ -113,7 +122,17 @@ function blank(now = Date.now()): Row {
     heirMark: null,
     nextAskAt: null,
     ascendUntil: null,
+    givenName: "",
   };
+}
+
+/** A short name the player can keep. Letters, numbers, and a space. */
+export function cleanPetName(raw: string): string {
+  return raw
+    .replace(/[^\p{L}\p{N} '\u2019-]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, NAME_MAX);
 }
 
 function load(): Partial<Record<PetId, Row>> {
@@ -138,6 +157,7 @@ function load(): Partial<Record<PetId, Row>> {
         kin: Number.isInteger(row.kin) ? Math.max(0, Math.min(9, Number(row.kin))) : null,
         childBornAt: row.childBornAt ? Math.max(0, Number(row.childBornAt)) : null,
         childSex: row.childSex === "girl" || row.childSex === "boy" ? row.childSex : null,
+        givenName: cleanPetName(typeof row.givenName === "string" ? row.givenName : ""),
       };
     }
     return out;
@@ -145,6 +165,8 @@ function load(): Partial<Record<PetId, Row>> {
     return {};
   }
 }
+
+rows = load();
 
 function save() {
   try { localStorage.setItem(KEY, JSON.stringify(rows)); } catch { /**/ }
@@ -251,6 +273,7 @@ function passGeneration(petId: PetId, row: Row, now: number) {
   row.heirMark = null;
   row.nextAskAt = null;
   row.ascendUntil = null;
+  row.givenName = "";
   lock(row, now);
 }
 
@@ -373,7 +396,21 @@ export function readLife(id: PetId, now = Date.now()): LifeView {
     visit: visitDue(row, now),
     spouseKin: visitDue(row, now) ? proposedSpouse(row) : row.spouseKin,
     child,
+    givenName: row.givenName,
   };
+}
+
+/** The name is chosen once, the first time this life has none. After that it stays. */
+export function nameLife(id: PetId, raw: string, now = Date.now()): boolean {
+  const name = cleanPetName(raw);
+  if (!name) return false;
+  const row = ensure(id);
+  advance(id, row, now);
+  if (row.givenName) return false;
+  row.givenName = name;
+  save();
+  emit();
+  return true;
 }
 
 /** Yes keeps the child. No asks again eight hours later, until day 20. */
@@ -429,6 +466,8 @@ function rememberLife(petId: PetId, row: Row, passedAt: number, ascendAt: number
     sick: row.sick,
     happy: row.road === "tended" && row.sick === 0,
     passedAt,
+    givenName: row.givenName,
+    bornAt: row.bornAt,
   };
   const list = readArchive();
   if (list.some((item) => item.id === entry.id)) return;
@@ -463,6 +502,8 @@ function readArchive(): LifeArchiveEntry[] {
         sick,
         happy: road === "tended" && sick === 0,
         passedAt: Math.max(0, Number(e.passedAt) || 0),
+        givenName: cleanPetName(typeof e.givenName === "string" ? e.givenName : ""),
+        bornAt: Math.max(0, Number(e.bornAt) || 0),
       });
     }
     return out;
@@ -508,5 +549,8 @@ export function livingSnapshot(id: PetId, now = Date.now()): LivingCard {
     form: view.form,
     years: Math.floor(Math.max(0, now - row.bornAt) / DAY),
     road: view.road,
+    givenName: row.givenName,
+    bornAt: row.bornAt,
+    sex: row.sex,
   };
 }

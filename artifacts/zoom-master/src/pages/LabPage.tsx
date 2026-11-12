@@ -16,7 +16,7 @@ import { playClaim } from "../audio/sfx";
 import { PetPostcard } from "../components/PetPostcard";
 import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
-import { answerLife, eggLeft, familyOf, focusLife, formatLeft, readLife, subscribeLife } from "../pet/life";
+import { answerLife, eggLeft, familyOf, focusLife, formatLeft, nameLife, readLife, subscribeLife } from "../pet/life";
 import { kinName } from "../pet/kin";
 import { LifeEgg } from "../components/LifeEgg";
 import { LifeCreature } from "../components/LifeCreature";
@@ -159,6 +159,7 @@ export function LabPage({
   const [wakeToast, setWakeToast] = useState(0);
   const [sheet, setSheet] = useState<null | "ability" | "hp" | "tap" | "stage">(null);
   const [away, setAway] = useState<AwayKind | null>(null);
+  const [nameDraft, setNameDraft] = useState("");
   useEffect(() => {
     const look = () => {
       const seen = careView();
@@ -313,6 +314,30 @@ export function LabPage({
             <PetPostcard active={active && !care.dark && life.form !== "egg"} petName={chosen.name} />
             <PetRoom care={care} toast={wakeToast} waiting={life.form === "egg"} />
             </CardReel>
+            {life.givenName ? (
+              <div className="life-given" data-testid="life-given">{life.givenName}</div>
+            ) : (
+              <form
+                className="life-name"
+                data-testid="life-name"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (nameLife(pet.active, nameDraft)) setNameDraft("");
+                }}
+              >
+                <p>{egg ? t("life.nameTitle") : t("life.namePet")}</p>
+                <p>{t("life.nameBody")}</p>
+                <input
+                  value={nameDraft}
+                  maxLength={16}
+                  placeholder={t("life.namePh")}
+                  aria-label={t("life.namePh")}
+                  autoComplete="off"
+                  onChange={(event) => setNameDraft(event.target.value.slice(0, 16))}
+                />
+                <button type="submit" disabled={!nameDraft.trim()}>{t("life.nameSave")}</button>
+              </form>
+            )}
           </div>
           <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>

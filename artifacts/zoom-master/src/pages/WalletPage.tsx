@@ -1,16 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import { BitBiteMark } from "../components/BitBiteMark";
 import { KinPortrait } from "../components/KinPortrait";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
 import { useT } from "../i18n/LanguageContext";
 import { petDef } from "../pet/catalog";
-import { kinName } from "../pet/kin";
+import { kinName, type FamilyId } from "../pet/kin";
 import {
   favoriteIds,
   lifeArchive,
   livingSnapshot,
+  subscribeLife,
   toggleFavorite,
   type LifeArchiveEntry,
+  type LifeForm,
+  type LifeMark,
+  type LifeSex,
   type LivingCard,
 } from "../pet/life";
 import { personalPetNumber, petOwnerId } from "../pet/number";
@@ -90,6 +95,11 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   }), []);
 
   useEffect(() => subscribePet(() => setPet(getPet())), []);
+
+  useEffect(() => subscribeLife(() => {
+    setLiving([livingSnapshot(getPet().active)]);
+    setArchive(lifeArchive());
+  }), []);
 
   useEffect(() => {
     if (!visible) return;
@@ -242,49 +252,51 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
             const grown = card.form === "adult" || card.form === "elder" || card.form === "ascend";
             const on = pinned.has(card.id);
             return (
-              <article key={card.id} className={`hall-card is-live${on ? " is-pin" : ""}`} style={{ order: on ? 0 : 1 }}>
-                <button
-                  type="button"
-                  className={`hall-heart${on ? " is-on" : ""}`}
-                  aria-pressed={on}
-                  aria-label={on ? t("hall.unpin") : t("hall.pin")}
-                  onClick={() => setFavs(toggleFavorite(card.id))}
-                >
-                  <PixelHeart />
-                </button>
-                <div className="hall-frame">
-                  <KinPortrait family={card.family} form={card.form} kin={card.kin} mark={card.mark} />
-                </div>
-                <div className="hall-copy">
-                  <strong>{grown ? kinName(card.family, card.kin, lang) : petDef(card.petId).name}</strong>
-                  <span>{t("hall.now")}</span>
-                  <em>{t("hall.age", { n: card.years })} · {t("hall.gen", { n: card.generation })}</em>
-                </div>
-              </article>
+              <HallCard
+                key={card.id}
+                order={on ? 0 : 1}
+                pinned={on}
+                onPin={() => setFavs(toggleFavorite(card.id))}
+                live
+                family={card.family}
+                form={grown ? "adult" : card.form}
+                kin={card.kin}
+                mark={card.mark}
+                title={grown ? kinName(card.family, card.kin, lang) : petDef(card.petId).name}
+                line={t("hall.now")}
+                note={`${t("hall.age", { n: card.years })} · ${t("hall.gen", { n: card.generation })}`}
+                givenName={card.givenName}
+                sex={card.sex}
+                bornAt={card.bornAt}
+                passedAt={0}
+                years={card.years}
+                owner={you}
+              />
             );
           })}
           {board.map((card, index) => {
             const on = pinned.has(card.id);
             return (
-              <article key={card.id} className={`hall-card${on ? " is-pin" : ""}`} style={{ order: on ? 0 : index + 2 }}>
-                <button
-                  type="button"
-                  className={`hall-heart${on ? " is-on" : ""}`}
-                  aria-pressed={on}
-                  aria-label={on ? t("hall.unpin") : t("hall.pin")}
-                  onClick={() => setFavs(toggleFavorite(card.id))}
-                >
-                  <PixelHeart />
-                </button>
-                <div className="hall-frame">
-                  <KinPortrait family={card.family} form="adult" kin={card.kin} mark={card.mark} />
-                </div>
-                <div className="hall-copy">
-                  <strong>{kinName(card.family, card.kin, lang)}</strong>
-                  <span className={card.happy ? "is-happy" : "is-wild"}>{card.happy ? t("hall.happy") : t("hall.wild")}</span>
-                  <em>{t("hall.age", { n: card.years })} · {t("hall.gen", { n: card.generation })}</em>
-                </div>
-              </article>
+              <HallCard
+                key={card.id}
+                order={on ? 0 : index + 2}
+                pinned={on}
+                onPin={() => setFavs(toggleFavorite(card.id))}
+                family={card.family}
+                form="adult"
+                kin={card.kin}
+                mark={card.mark}
+                title={kinName(card.family, card.kin, lang)}
+                line={card.happy ? t("hall.happy") : t("hall.wild")}
+                lineClass={card.happy ? "is-happy" : "is-wild"}
+                note={`${t("hall.age", { n: card.years })} · ${t("hall.gen", { n: card.generation })}`}
+                givenName={card.givenName}
+                sex={card.sex}
+                bornAt={card.bornAt}
+                passedAt={card.passedAt}
+                years={card.years}
+                owner={you}
+              />
             );
           })}
         </div>
@@ -340,5 +352,112 @@ function PixelHeart() {
       <rect x="2" y="4" width="3" height="1" />
       <rect x="3" y="5" width="1" height="1" />
     </svg>
+  );
+}
+
+function dayStamp(ms: number, lang: string): string {
+  if (!ms) return "—";
+  const locale = lang === "fil" ? "en" : lang;
+  try {
+    return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" }).format(new Date(ms));
+  } catch {
+    return "—";
+  }
+}
+
+function HallCard({
+  order,
+  pinned,
+  onPin,
+  live = false,
+  family,
+  form,
+  kin,
+  mark,
+  title,
+  line,
+  lineClass,
+  note,
+  givenName,
+  sex,
+  bornAt,
+  passedAt,
+  years,
+  owner,
+}: {
+  order: number;
+  pinned: boolean;
+  onPin: () => void;
+  live?: boolean;
+  family: FamilyId;
+  form: LifeForm;
+  kin: number;
+  mark: LifeMark | null;
+  title: string;
+  line: string;
+  lineClass?: string;
+  note: string;
+  givenName: string;
+  sex: LifeSex | null;
+  bornAt: number;
+  passedAt: number;
+  years: number;
+  owner: string;
+}) {
+  const { t, lang } = useT();
+  const [flip, setFlip] = useState(false);
+  const girl = sex === "girl";
+  const shown = givenName || title;
+  return (
+    <article
+      className={`hall-card${live ? " is-live" : ""}${pinned ? " is-pin" : ""}${flip ? " is-flip" : ""}`}
+      style={{ order }}
+      data-testid="hall-card"
+      data-flip={flip ? "back" : "front"}
+    >
+      <button
+        type="button"
+        className={`hall-heart${pinned ? " is-on" : ""}`}
+        aria-pressed={pinned}
+        aria-label={pinned ? t("hall.unpin") : t("hall.pin")}
+        onClick={onPin}
+      >
+        <PixelHeart />
+      </button>
+      <button
+        type="button"
+        className="hall-flip"
+        aria-pressed={flip}
+        aria-label={t("id.flip")}
+        onClick={() => setFlip((on) => !on)}
+      >
+        <div className="hall-flip-inner">
+          <div className="hall-face" aria-hidden={flip}>
+            <span className="hall-brand"><span className="brand-seal"><BitBiteMark size={18} /></span></span>
+            <div className="hall-frame">
+              <KinPortrait family={family} form={form} kin={kin} mark={mark} />
+            </div>
+            <div className="hall-copy">
+              <strong>{shown}</strong>
+              <span className={lineClass}>{givenName ? title : line}</span>
+              <em>{note}</em>
+            </div>
+          </div>
+          <div className="hall-face is-back" aria-hidden={!flip}>
+            <span className="hall-brand"><span className="brand-seal"><BitBiteMark size={14} /></span></span>
+            <strong className="id-name">{shown}</strong>
+            <p className="id-line">{t("id.owner")} · {owner}</p>
+            <p className="id-line">{sex === "girl" ? "F" : sex === "boy" ? "M" : "—"}</p>
+            <p className="id-line">{t(girl ? "id.bornF" : "id.born")} · {dayStamp(bornAt, lang)}</p>
+            <p className="id-line">
+              {live ? t("id.alive") : `${t(girl ? "id.diedF" : "id.died")} · ${dayStamp(passedAt, lang)}`}
+            </p>
+            <p className="id-line">{t("hall.age", { n: years })}</p>
+            <p className="id-line">{t(girl ? "id.bornInF" : "id.bornIn")}</p>
+            <p className="id-line">{t(girl ? "id.grewF" : "id.grew")}</p>
+          </div>
+        </div>
+      </button>
+    </article>
   );
 }

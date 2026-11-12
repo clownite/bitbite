@@ -3,7 +3,7 @@ import { useT } from "../i18n/LanguageContext";
 import { hideHtmlSplash } from "./SplashScreen";
 
 interface Props {
-  /** Custom message from admin panel — shown under the ZOOM title. */
+  /** Custom message from admin panel — shown under the BitBite title. */
   message?: string;
 }
 
@@ -26,7 +26,7 @@ export function MaintenanceScreen({ message }: Props) {
     >
       <div className="zoom-splash-inner">
         <div className="zoom-splash-spinner" aria-hidden />
-        <div className="zoom-splash-title">ZOOM</div>
+        <div className="zoom-splash-title">BITBITE</div>
         <div className="zoom-splash-sub zoom-splash-sub-maint">{subtitle}</div>
       </div>
     </div>
