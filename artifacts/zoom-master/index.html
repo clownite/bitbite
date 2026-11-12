@@ -371,7 +371,7 @@
             enterBtn.dataset.broke = "1";
             enterBtn.disabled = true;
             breakCookie();
-            setTimeout(hideSplash, 420);
+            window.__zoomCookieTapped = true;
             setTimeout(function () {
               if (typeof window.__primeZoomAudio === "function") window.__primeZoomAudio();
             }, 520);

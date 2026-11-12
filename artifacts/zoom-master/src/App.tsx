@@ -69,35 +69,92 @@ function readMaintCache(): MaintSnapshot | null {
   }
 }
 
-function splashElapsedDone(): boolean {
+type EntryLock =
+  | { kind: "maintenance"; message: string }
+  | { kind: "suspended"; until: number; message: string };
+
+function cookieTapped(): boolean {
   try {
-    if ((window as unknown as { __zoomSplashFinished?: boolean }).__zoomSplashFinished) return true;
+    const w = window as unknown as { __zoomCookieTapped?: boolean; __zoomSplashFinished?: boolean };
+    if (w.__zoomCookieTapped || w.__zoomSplashFinished) return true;
   } catch { /**/ }
   return !document.getElementById("splash-screen");
 }
 
+function readEntryLock(): EntryLock | null {
+  if (isAppAdmin()) return null;
+  const maint = readMaintCache();
+  if (maint?.enabled) return { kind: "maintenance", message: maint.message };
+  try {
+    const raw = localStorage.getItem("zoom-gate-cached");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { until?: number; message?: string };
+    const until = Number(parsed.until) || 0;
+    if (until > Date.now()) return { kind: "suspended", until, message: parsed.message || "" };
+  } catch { /**/ }
+  return null;
+}
+
+function rememberEntry(status: { enabled: boolean; message: string; updatedAt?: number } | null, lock: EntryLock | null) {
+  try {
+    if (status) {
+      localStorage.setItem("zoom-maint-cached", JSON.stringify({
+        enabled: status.enabled,
+        message: status.message || "",
+        updatedAt: status.updatedAt,
+      }));
+    }
+    if (lock?.kind === "suspended") localStorage.setItem("zoom-gate-cached", JSON.stringify(lock));
+    else localStorage.removeItem("zoom-gate-cached");
+  } catch { /**/ }
+}
+
+/** The cookie stays up until we know. A locked player never gets a frame of the game. */
 function BootSplashGate() {
-  const [ready, setReady] = useState(false);
+  const [tapped, setTapped] = useState(cookieTapped);
+  const [checked, setChecked] = useState(false);
+  const [lock, setLock] = useState<EntryLock | null>(readEntryLock);
 
   useEffect(() => {
-    let released = false;
-    const release = () => {
-      if (released) return;
-      released = true;
-      setReady(true);
-      requestAnimationFrame(() => hideHtmlSplash());
+    if (tapped) return;
+    const id = window.setInterval(() => {
+      if (cookieTapped()) setTapped(true);
+    }, 40);
+    return () => window.clearInterval(id);
+  }, [tapped]);
+
+  useEffect(() => {
+    let alive = true;
+    const pull = async () => {
+      const admin = isAppAdmin();
+      const mine = getVerifiedTelegramUserId();
+      const [status, gate] = await Promise.all([
+        fetchMaintenanceStatus(),
+        !admin && mine ? fetchGateStatus(mine) : Promise.resolve(null),
+      ]);
+      if (!alive) return;
+      let next: EntryLock | null = null;
+      if (status?.enabled && !admin) next = { kind: "maintenance", message: status.message || "" };
+      else if (gate?.suspended) next = { kind: "suspended", until: gate.until, message: gate.message || "" };
+      setLock(next);
+      setChecked(true);
+      rememberEntry(status, next);
     };
-    if (splashElapsedDone()) {
-      release();
-      return;
-    }
-    const pollId = window.setInterval(() => {
-      if (splashElapsedDone()) release();
-    }, 50);
-    return () => window.clearInterval(pollId);
+    void pull();
+    const id = window.setInterval(() => { if (!document.hidden) void pull(); }, 15000);
+    return () => { alive = false; window.clearInterval(id); };
   }, []);
 
-  if (!ready) return null;
+  if (!tapped) return null;
+  if (!checked && !lock) return null;
+  if (lock?.kind === "maintenance") return <MaintenanceScreen message={lock.message} />;
+  if (lock?.kind === "suspended") return <SuspendedScreen until={lock.until} message={lock.message} />;
+  if (!checked) return null;
+  return <EnterGame />;
+}
+
+function EnterGame() {
+  useEffect(() => { hideHtmlSplash(); }, []);
   return <AppShell />;
 }
 
