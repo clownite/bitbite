@@ -241,6 +241,8 @@ const en: Pack = {
   "life.game": "Numbers",
   "life.wait": "The egg only waits. One day, then it can eat, jump, and play.",
   "life.waitLeft": "{time} left",
+  "life.eggAsk": "How the egg opens",
+  "life.evolve": "When the time ends, it hatches and starts to evolve.",
   "life.egg": "Egg",
   "life.baby": "Baby",
   "life.child": "Child",
@@ -515,6 +517,8 @@ const it: Pack = {
   "life.game": "Numeri",
   "life.wait": "L'uovo aspetta soltanto. Un giorno, poi può mangiare, saltare e giocare.",
   "life.waitLeft": "Manca {time}",
+  "life.eggAsk": "Come si schiude l'uovo",
+  "life.evolve": "Finito il tempo, si schiude e comincia a evolversi.",
   "life.egg": "Uovo",
   "life.baby": "Cucciolo",
   "life.child": "Bambino",
@@ -552,6 +556,9 @@ const it: Pack = {
 
 const es: Pack = {
   ...en,
+  "life.waitLeft": "Falta {time}",
+  "life.eggAsk": "Cómo se abre el huevo",
+  "life.evolve": "Cuando se acaba el tiempo, eclosiona y empieza a evolucionar.",
   "pet.nav.collection": "Colección",
   "pet.nav.play": "Juego",
   "play.kicker": "ESTA SEMANA",
@@ -722,6 +729,9 @@ const es: Pack = {
 
 const fil: Pack = {
   ...en,
+  "life.waitLeft": "{time} na lang",
+  "life.eggAsk": "Paano bumubukas ang itlog",
+  "life.evolve": "Kapag naubos ang oras, mapipisa ito at magsisimulang mag-evolve.",
   "pet.nav.collection": "Koleksyon",
   "pet.nav.play": "Laro",
   "play.kicker": "NGAYONG LINGGO",
@@ -860,6 +870,9 @@ const fil: Pack = {
 
 const ru: Pack = {
   ...en,
+  "life.waitLeft": "Осталось {time}",
+  "life.eggAsk": "Как открывается яйцо",
+  "life.evolve": "Когда время выйдет, оно вылупится и начнёт эволюцию.",
   "pet.nav.home": "Дом",
   "pet.nav.play": "Игра",
   "play.kicker": "ЭТА НЕДЕЛЯ",
@@ -1046,6 +1059,9 @@ const ru: Pack = {
 
 const uk: Pack = {
   ...ru,
+  "life.waitLeft": "Залишилось {time}",
+  "life.eggAsk": "Як відкривається яйце",
+  "life.evolve": "Коли час спливе, воно вилупиться і почне еволюцію.",
   "pet.nav.home": "Дім",
   "pet.nav.play": "Гра",
   "play.kicker": "ЦЕЙ ТИЖДЕНЬ",

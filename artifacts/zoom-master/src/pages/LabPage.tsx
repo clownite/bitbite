@@ -23,6 +23,21 @@ import { LifeMarks } from "../components/LifeMarks";
 import { CardReel } from "../components/CardReel";
 import { useT } from "../i18n/LanguageContext";
 
+function EggAsk({ time, explain, label }: { time: string; explain: string; label: string }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="egg-ask">
+      {open ? (
+        <div className="egg-ask-note" data-testid="egg-wait-home">
+          <strong>{time}</strong>
+          <p>{explain}</p>
+        </div>
+      ) : null}
+      <button type="button" className="egg-ask-mark" aria-label={label} onClick={() => setOpen((v) => !v)}>?</button>
+    </div>
+  );
+}
+
 function HeartShape({ tone }: { tone: "full" | "empty" }) {
   if (tone === "empty") {
     const edge = "#8ea3b8";
@@ -277,10 +292,11 @@ export function LabPage({
               </div>
             ) : null}
             {life.form === "egg" ? (
-              <div className="egg-wait-note" data-testid="egg-wait-home">
-                <span>{t("life.waitLeft", { time: formatLeft(eggLeft(pet.active, now)) })}</span>
-                {t("life.wait")}
-              </div>
+              <EggAsk
+                time={t("life.waitLeft", { time: formatLeft(eggLeft(pet.active, now)) })}
+                explain={t("life.evolve")}
+                label={t("life.eggAsk")}
+              />
             ) : null}
             {life.form !== "egg" && life.sex ? <LifeMarks sex={life.sex} road={life.road} /> : null}
             {pet.stage > 1 ? <div className={pet.stage === 3 ? "grown-ring s3" : "grown-ring"} style={{ "--ink": chosen.element.color } as CSSProperties} /> : null}

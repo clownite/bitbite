@@ -8,6 +8,26 @@ export function isAppAdmin(): boolean {
   return getVerifiedTelegramUserId() === ADMIN_TELEGRAM_ID;
 }
 
+type ConfirmLog = { id: string; days: number; note: string; at: number };
+const LOG_KEY = "zoom-admin-confirms";
+
+function readConfirms(): ConfirmLog[] {
+  try {
+    const raw = localStorage.getItem(LOG_KEY);
+    const list = raw ? JSON.parse(raw) as ConfirmLog[] : [];
+    if (!Array.isArray(list)) return [];
+    return list.filter((row) => row && /^\d{5,16}$/.test(String(row.id)) && Number(row.at) > 0).slice(0, 24);
+  } catch {
+    return [];
+  }
+}
+
+function rememberConfirm(entry: ConfirmLog): ConfirmLog[] {
+  const next = [entry, ...readConfirms()].slice(0, 24);
+  try { localStorage.setItem(LOG_KEY, JSON.stringify(next)); } catch { /**/ }
+  return next;
+}
+
 const KEY = [
   "00111000",
   "01000100",
@@ -49,6 +69,7 @@ export function AdminPixel({
   const [confirm, setConfirm] = useState(false);
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState("");
+  const [history, setHistory] = useState<ConfirmLog[]>(readConfirms);
 
   useEffect(() => {
     if (!isAppAdmin()) return;
@@ -67,7 +88,16 @@ export function AdminPixel({
     const result = await suspendPlayer(playerId, dayCount, note);
     setBusy(false);
     setConfirm(false);
+    if (result.ok) setHistory(rememberConfirm({ id: playerId, days: dayCount, note: note.trim(), at: Date.now() }));
     setHint(result.ok ? `Sospeso ${dayCount} giorni.` : (result.error || "Non riuscito"));
+  };
+
+  const copyId = async (id: string, days: number) => {
+    setPlayerId(id);
+    setDays(String(days));
+    setConfirm(false);
+    try { await navigator.clipboard.writeText(id); setHint("Copiato"); }
+    catch { setHint(id); }
   };
 
   const runRelease = async () => {
@@ -111,6 +141,8 @@ export function AdminPixel({
           top: 40,
           right: 0,
           width: 250,
+          maxHeight: "min(72dvh, 540px)",
+          overflow: "auto",
           padding: 12,
           background: "#071018",
           border: "2px solid #1a120c",
@@ -162,6 +194,24 @@ export function AdminPixel({
           <button type="button" disabled={busy} onClick={() => void runMaint(!maintenanceOn)} style={{ ...(maintenanceOn ? ghost : danger), width: "100%" }}>
             {maintenanceOn ? "Chiudi manutenzione" : "Manutenzione"}
           </button>
+          {history.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", color: "#ffd36a" }}>CONFERME</div>
+              <div style={{ maxHeight: 120, overflow: "auto", display: "flex", flexDirection: "column", gap: 4 }}>
+                {history.map((row) => (
+                  <button
+                    key={`${row.at}-${row.id}`}
+                    type="button"
+                    onClick={() => void copyId(row.id, row.days)}
+                    style={{ textAlign: "left", background: "#03070c", color: "#e8f7ff", border: "1px solid #24506a", padding: "5px 6px", fontSize: 11 }}
+                  >
+                    <span style={{ fontWeight: 800 }}>{row.id}</span>
+                    <span style={{ color: "#9ec5e8" }}> · {row.days}g · {new Date(row.at).toLocaleString("it-IT", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
           {hint ? <div style={{ fontSize: 11, color: "#9ec5e8" }}>{hint}</div> : null}
         </div>
       )}
