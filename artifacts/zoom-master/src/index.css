@@ -4725,6 +4725,13 @@ body, body * {
   pointer-events: none;
   bottom: 14%;
 }
+.shop-foil-mark {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 7;
+  pointer-events: none;
+}
 .shop-foil-shine {
   position: absolute;
   top: -30%;

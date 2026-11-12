@@ -77,7 +77,7 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
               <div className="shop-foil" style={{ "--ink": item.element.color } as CSSProperties}>
                 <LifeCreature family={familyOf(item.id)} form="adult" kin={0} />
                 <span className="shop-foil-shine" style={{ animationDelay: `${index * 0.45}s` }} aria-hidden />
-                <div style={{ position: "absolute", top: 12, left: 12, zIndex: 7, pointerEvents: "none" }}>
+                <div className="shop-foil-mark">
                   <PixelMark glyph={item.element.glyph} label={t(`pet.element.${item.element.id}`)} />
                 </div>
                 <div
