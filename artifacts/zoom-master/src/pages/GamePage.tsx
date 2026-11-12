@@ -13,7 +13,7 @@ import {
 import { playPose } from "../pet/playPose";
 import { getPet, subscribePet, type PetState } from "../pet/petProgress";
 import { eggLeft, focusLife, formatLeft, readLife } from "../pet/life";
-import { playBite, playClick, playMiss } from "../audio/sfx";
+import { playBite, playClick, playDone, playDoneHappy, playMiss, playSad } from "../audio/sfx";
 import { hapticSoft } from "../utils/haptic";
 import { PixelCookie } from "../components/PixelCookie";
 import { useT } from "../i18n/LanguageContext";
@@ -124,7 +124,12 @@ export function GamePage({ active }: { active: boolean }) {
     if ((run.phase !== "clear" && run.phase !== "boom") || recorded.current) return;
     recorded.current = true;
     noteDisciplinePlay();
-    if (run.phase !== "clear") return;
+    if (run.phase === "boom") {
+      playSad(0.4);
+      return;
+    }
+    if (run.score > 0) playDoneHappy(0.4);
+    else playDone(0.4);
     if (run.score > 0) recordCookies(run.score);
     setPlays(noteFinishedSeries());
     setBoard(cookieBoard());

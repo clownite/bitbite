@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { cleanMess, cure, feed, toggleLight, type CareView } from "../pet/care";
 import { settleFarm } from "../pet/crumbs";
-import { playClick } from "../audio/sfx";
+import { playClick, playHappy, playNo } from "../audio/sfx";
 import { useT } from "../i18n/LanguageContext";
 
 function PixelCookie() {
@@ -114,9 +114,12 @@ export function PetRoom({
         onClick={() => {
           settleFarm();
           if (feed()) {
+            playHappy();
             window.dispatchEvent(new Event("zoom-pet-eat"));
             window.dispatchEvent(new Event("zoom-pet-cared"));
             praise();
+          } else {
+            playNo();
           }
         }}
       >

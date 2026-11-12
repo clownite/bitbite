@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { playBite, playMiss } from "../audio/sfx";
+import { playBite, playDone, playHappy, playMiss, playSad } from "../audio/sfx";
 import { recordCookies } from "../pet/cookieBoard";
 import { noteDisciplinePlay } from "../pet/discipline";
 import { PetStage } from "./PetStage";
@@ -121,9 +121,11 @@ export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color
       setPhase(won ? "win" : "lose");
       if (won) {
         playBite();
+        playHappy(0.32);
         window.dispatchEvent(new CustomEvent("zoom-pet-eat", { detail: { where: "play" } }));
       } else {
         playMiss();
+        playSad(0.32);
         setMad(true);
         window.dispatchEvent(new CustomEvent("zoom-pet-mad", { detail: { where: "play" } }));
         later(() => setMad(false), 700);
@@ -131,6 +133,7 @@ export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color
       later(() => {
         if (n >= ROUNDS) {
           setPhase("done");
+          playDone(0.05);
           if (!paid.current) {
             paid.current = true;
             recordCookies(nextWins);

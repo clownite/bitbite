@@ -1,5 +1,6 @@
 /** The pet's room on Home. The wallet farm keeps running. Care only slows it a little. */
 
+import { playSad } from "../audio/sfx";
 import { focusIsEgg, noteLife } from "./life";
 
 export const BOWL_MS = 10 * 60 * 60 * 1000;
@@ -94,7 +95,10 @@ function commit(next: CareState, notify: boolean) {
   const fellIll = next.sick && !state.sick;
   state = next;
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /**/ }
-  if (fellIll) noteLife("sick");
+  if (fellIll) {
+    noteLife("sick");
+    if (!focusIsEgg()) playSad(0);
+  }
   if (notify) listeners.forEach((fn) => fn());
 }
 

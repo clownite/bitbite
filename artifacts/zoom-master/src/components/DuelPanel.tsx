@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useT } from "../i18n/LanguageContext";
-import { playBite, playClick, playMiss } from "../audio/sfx";
+import { playBite, playClick, playDone, playMiss, playSad } from "../audio/sfx";
 import { PETS, petDef, type PetId } from "../pet/catalog";
 import { foeMove, makeFighter, strike, type Call, type Fighter, type Move } from "../pet/duel";
 import { recordCookies } from "../pet/cookieBoard";
@@ -99,6 +99,8 @@ export function DuelPanel({ pet }: { pet: PetState }) {
     setWon(youWon);
     setPhaseSafe("over");
     noteDisciplinePlay();
+    if (youWon) playDone(0.12);
+    else playSad(0.12);
     if (youWon && !paid.current) {
       paid.current = true;
       recordCookies(WIN_POINTS);
