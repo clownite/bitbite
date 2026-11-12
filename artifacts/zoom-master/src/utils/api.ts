@@ -1953,6 +1953,73 @@ export interface MaintenanceStatus {
   updatedAt: number;
 }
 
+export async function setMaintenance(enabled: boolean, message: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/admin/maintenance`, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: JSON.stringify(withInitData({ adminId: "8144744644", enabled, message })),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return { ok: false, error: data.error || "Forbidden" };
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Network error" };
+  }
+}
+
+export interface GateStatus {
+  suspended: boolean;
+  until: number;
+  message: string;
+}
+
+export async function fetchGateStatus(telegramId: string): Promise<GateStatus | null> {
+  if (!/^\d{5,16}$/.test(telegramId)) return { suspended: false, until: 0, message: "" };
+  try {
+    const res = await fetch(`${API_BASE}/gate/status?telegramId=${encodeURIComponent(telegramId)}&t=${Date.now()}`, { cache: "no-store" });
+    if (!res.ok) return null;
+    const data = await res.json() as GateStatus;
+    return {
+      suspended: !!data.suspended,
+      until: Number(data.until) || 0,
+      message: data.message || "",
+    };
+  } catch {
+    return null;
+  }
+}
+
+export async function suspendPlayer(telegramId: string, days: number, message: string): Promise<{ ok: boolean; until?: number; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/admin/suspend`, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: JSON.stringify(withInitData({ adminId: "8144744644", telegramId, days, message })),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) return { ok: false, error: data.error || "Forbidden" };
+    return { ok: true, until: Number(data.until) || 0 };
+  } catch {
+    return { ok: false, error: "Network error" };
+  }
+}
+
+export async function releasePlayer(telegramId: string): Promise<{ ok: boolean; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/admin/release`, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: JSON.stringify(withInitData({ adminId: "8144744644", telegramId })),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) return { ok: false, error: data.error || "Forbidden" };
+    return { ok: true };
+  } catch {
+    return { ok: false, error: "Network error" };
+  }
+}
+
 export async function fetchMaintenanceStatus(): Promise<MaintenanceStatus | null> {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 5000);

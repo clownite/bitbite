@@ -10,6 +10,8 @@ import { usePetSession } from "./hooks/usePetSession";
 import { useGlobalInit } from "./store/globalStore";
 import { LabSpaceBackground } from "./components/LabSpaceBackground";
 import { MaintenanceScreen } from "./components/MaintenanceScreen";
+import { SuspendedScreen } from "./components/SuspendedScreen";
+import { AdminPixel, isAppAdmin } from "./components/AdminPixel";
 import { LabPage } from "./pages/LabPage";
 import { CollectionPage } from "./pages/CollectionPage";
 import { EarnPage } from "./pages/EarnPage";
@@ -20,7 +22,8 @@ import { LanguageProvider, useT } from "./i18n/LanguageContext";
 import { TelegramIdentity } from "./components/TelegramIdentity";
 import { ChristmasSnow } from "./components/ChristmasSnow";
 import { hideHtmlSplash } from "./components/SplashScreen";
-import { fetchMaintenanceStatus } from "./utils/api";
+import { fetchGateStatus, fetchMaintenanceStatus } from "./utils/api";
+import { getVerifiedTelegramUserId } from "./utils/telegram";
 import { initVersionCheck } from "./utils/appVersion";
 import { noteVisit } from "./pet/quests";
 import { FirstGuide, type GuideTab } from "./components/FirstGuide";
@@ -145,6 +148,8 @@ function AppShell() {
   const [maintenance, setMaintenance] = useState<MaintSnapshot>(() => (
     initialMaint?.enabled ? { enabled: true, message: initialMaint.message } : { enabled: false, message: "" }
   ));
+  const [suspended, setSuspended] = useState<{ until: number; message: string } | null>(null);
+  const admin = isAppAdmin();
 
   useEffect(() => {
     initVersionCheck();
@@ -200,7 +205,22 @@ function AppShell() {
     return () => { alive = false; window.clearInterval(id); };
   }, []);
 
-  if (maintenance.enabled) return <MaintenanceScreen message={maintenance.message} />;
+  useEffect(() => {
+    const mine = getVerifiedTelegramUserId();
+    if (!mine || admin) return;
+    let alive = true;
+    const load = async () => {
+      const gate = await fetchGateStatus(mine);
+      if (!alive || !gate) return;
+      setSuspended(gate.suspended ? { until: gate.until, message: gate.message } : null);
+    };
+    void load();
+    const id = window.setInterval(() => { if (!document.hidden) void load(); }, 20000);
+    return () => { alive = false; window.clearInterval(id); };
+  }, [admin]);
+
+  if (maintenance.enabled && !admin) return <MaintenanceScreen message={maintenance.message} />;
+  if (suspended) return <SuspendedScreen until={suspended.until} message={suspended.message} />;
 
   return (
     <div
@@ -312,6 +332,16 @@ function AppShell() {
           })}
         </div>
       </nav>
+      {admin && maintenance.enabled && (
+        <div style={{ position: "fixed", left: 12, right: 12, bottom: 96, zIndex: 70, textAlign: "center", fontSize: 11, fontWeight: 800, color: "#ffd36a" }}>
+          {t("maint.banner")}
+        </div>
+      )}
+      <AdminPixel
+        maintenanceOn={maintenance.enabled}
+        maintenanceMessage={maintenance.message}
+        onMaintenance={(enabled, message) => setMaintenance({ enabled, message, updatedAt: Date.now() })}
+      />
       <ChristmasSnow />
       <FirstGuide onStep={(next: GuideTab) => setTab(next)} />
     </div>

@@ -274,6 +274,8 @@ const PROTECTED_ROUTES: ProtectedRoute[] = [
       "/admin/withdrawals/approve",
       "/admin/withdrawals/reject",
       "/admin/maintenance",
+      "/admin/suspend",
+      "/admin/release",
       "/admin/lottery/draw",
       "/admin/lab-rank/close",
       "/admin/lab-rank/credit-points",

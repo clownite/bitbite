@@ -111,6 +111,9 @@ const en: Dict = {
   "maint.default": "We're upgrading the game. Back online shortly.",
   "maint.paused": "GAME PAUSED",
   "maint.banner": "MAINTENANCE MODE ACTIVE — only you can see the app",
+  "gate.title": "ACCOUNT SUSPENDED",
+  "gate.until": "You can come back on {date}.",
+  "gate.default": "This account is suspended.",
 
   // lab
   "lab.farmFull": "FARM FULL",
@@ -702,6 +705,9 @@ const it: Dict = {
   "maint.default": "Stiamo aggiornando il gioco. Torniamo presto online.",
   "maint.paused": "GIOCO IN PAUSA",
   "maint.banner": "MODALITÀ MANUTENZIONE ATTIVA — solo tu vedi l'app",
+  "gate.title": "ACCOUNT SOSPESO",
+  "gate.until": "Puoi tornare il {date}.",
+  "gate.default": "Questo account è sospeso.",
 
   "lab.farmFull": "FARM PIENA",
   "lab.farmFullHint": "Brucia o vendi un pianeta per continuare",
@@ -1283,6 +1289,9 @@ const ru: Dict = {
   "maint.default": "Мы обновляем игру. Скоро вернёмся.",
   "maint.paused": "ИГРА ПРИОСТАНОВЛЕНА",
   "maint.banner": "РЕЖИМ ОБСЛУЖИВАНИЯ — приложение видно только вам",
+  "gate.title": "АККАУНТ ЗАБЛОКИРОВАН",
+  "gate.until": "Можно вернуться {date}.",
+  "gate.default": "Этот аккаунт заблокирован.",
 
   "lab.farmFull": "ФЕРМА ПОЛНА",
   "lab.farmFullHint": "Сожгите или продайте планету, чтобы продолжить",
@@ -1827,6 +1836,9 @@ const uk: Dict = {
   "maint.default": "Ми оновлюємо гру. Скоро повернемось.",
   "maint.paused": "ГРА НА ПАУЗІ",
   "maint.banner": "РЕЖИМ ОБСЛУГОВУВАННЯ — застосунок бачите лише ви",
+  "gate.title": "АКАУНТ ЗАБЛОКОВАНО",
+  "gate.until": "Можна повернутися {date}.",
+  "gate.default": "Цей акаунт заблоковано.",
 
   "lab.farmFull": "ФЕРМА ЗАПОВНЕНА",
   "lab.farmFullHint": "Спаліть або продайте планету, щоб продовжити",

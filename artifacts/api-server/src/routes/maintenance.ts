@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request } from "express";
 import { db } from "@workspace/db";
 import { appSettingsTable } from "@workspace/db/schema";
 import { eq, sql } from "drizzle-orm";
@@ -43,6 +43,13 @@ router.get("/maintenance/status", async (_req, res) => {
     res.json({ enabled: false, message: DEFAULT_MESSAGE, updatedAt: 0 });
   }
 });
+
+const SUSPEND_PREFIX = "suspend:";
+const DEFAULT_SUSPEND = "Questo account è sospeso.";
+
+function suspendKey(telegramId: string): string {
+  return `${SUSPEND_PREFIX}${telegramId}`;
+}
 
 const SetBody = z.object({
   adminId: z.string().min(1),
@@ -95,6 +102,104 @@ router.post("/admin/maintenance", async (req, res) => {
     res.json({ ok: true, ...s });
   } catch (err) {
     console.error("[admin/maintenance] error:", err);
+    res.status(500).json({ ok: false, error: "Internal error" });
+  }
+});
+
+function assertAdmin(req: Request, adminId: string): boolean {
+  const verifiedId = (req as Request & { tgUser?: { id?: string } | null }).tgUser?.id ?? null;
+  if (verifiedId === ADMIN_ID) return true;
+  req.log?.warn(
+    { path: req.path, verifiedId, claimedAdminId: adminId, ip: req.ip },
+    "[admin] rejected: caller is not the verified admin",
+  );
+  return false;
+}
+
+router.get("/gate/status", async (req, res) => {
+  const telegramId = String(req.query["telegramId"] ?? "");
+  if (!/^\d{5,16}$/.test(telegramId) || telegramId === ADMIN_ID) {
+    res.setHeader("Cache-Control", "no-store");
+    res.json({ suspended: false, until: 0, message: "" });
+    return;
+  }
+  try {
+    const rows = await db.select().from(appSettingsTable).where(eq(appSettingsTable.key, suspendKey(telegramId)));
+    const row = rows[0];
+    const until = Number(row?.valueNum ?? 0);
+    const suspended = until > Date.now();
+    res.setHeader("Cache-Control", "no-store");
+    res.json({
+      suspended,
+      until: suspended ? until : 0,
+      message: suspended ? (row?.valueText || DEFAULT_SUSPEND) : "",
+    });
+  } catch (err) {
+    console.error("[gate/status] error:", err);
+    res.setHeader("Cache-Control", "no-store");
+    res.json({ suspended: false, until: 0, message: "" });
+  }
+});
+
+const SuspendBody = z.object({
+  adminId: z.string().min(1),
+  telegramId: z.string().regex(/^\d{5,16}$/),
+  days: z.number().int().min(1).max(365),
+  message: z.string().max(300).optional(),
+});
+
+router.post("/admin/suspend", async (req, res) => {
+  const parsed = SuspendBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ ok: false, error: "Invalid body" });
+    return;
+  }
+  if (!assertAdmin(req, parsed.data.adminId)) {
+    res.status(403).json({ ok: false, error: "Forbidden" });
+    return;
+  }
+  const { telegramId, days, message } = parsed.data;
+  if (telegramId === ADMIN_ID) {
+    res.status(400).json({ ok: false, error: "Cannot suspend admin" });
+    return;
+  }
+  const until = Date.now() + days * 24 * 60 * 60 * 1000;
+  const note = (message ?? "").trim() || DEFAULT_SUSPEND;
+  try {
+    await db
+      .insert(appSettingsTable)
+      .values({ key: suspendKey(telegramId), valueNum: until, valueText: note, updatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: appSettingsTable.key,
+        set: { valueNum: until, valueText: note, updatedAt: new Date() },
+      });
+    res.json({ ok: true, telegramId, until, days });
+  } catch (err) {
+    console.error("[admin/suspend] error:", err);
+    res.status(500).json({ ok: false, error: "Internal error" });
+  }
+});
+
+const ReleaseBody = z.object({
+  adminId: z.string().min(1),
+  telegramId: z.string().regex(/^\d{5,16}$/),
+});
+
+router.post("/admin/release", async (req, res) => {
+  const parsed = ReleaseBody.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ ok: false, error: "Invalid body" });
+    return;
+  }
+  if (!assertAdmin(req, parsed.data.adminId)) {
+    res.status(403).json({ ok: false, error: "Forbidden" });
+    return;
+  }
+  try {
+    await db.delete(appSettingsTable).where(eq(appSettingsTable.key, suspendKey(parsed.data.telegramId)));
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("[admin/release] error:", err);
     res.status(500).json({ ok: false, error: "Internal error" });
   }
 });
