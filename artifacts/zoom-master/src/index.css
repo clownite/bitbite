@@ -4509,8 +4509,8 @@ body, body * {
 .egg-ask-mark {
   display: grid;
   place-items: center;
-  width: 18px;
-  height: 24px;
+  width: 28px;
+  height: 36px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -4529,9 +4529,9 @@ body, body * {
 }
 .egg-ask-note {
   position: absolute;
-  left: 22px;
-  top: -8px;
-  width: min(200px, 58vw);
+  left: 0;
+  bottom: calc(100% + 6px);
+  width: min(210px, 62vw);
   text-align: left;
   padding: 8px 10px;
   border-radius: 12px;

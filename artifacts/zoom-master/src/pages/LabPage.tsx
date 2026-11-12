@@ -24,21 +24,26 @@ import { CardReel } from "../components/CardReel";
 import { useT } from "../i18n/LanguageContext";
 
 const ASK = [
-  ".111.",
-  "1...1",
-  "....1",
-  "...1.",
-  "..1..",
-  ".....",
-  "..1..",
+  ".oooooo.",
+  "o.rrrr.o",
+  "or....ro",
+  "or...rro",
+  "o....rro",
+  "o...rr.o",
+  "o..rr..o",
+  "o......o",
+  "o..rr..o",
+  "o..rr..o",
+  ".oooooo.",
 ];
 
 function PixelAsk() {
+  const ink: Record<string, string> = { o: "#1a120c", r: "#ff2040" };
   return (
-    <svg width="15" height="21" viewBox="0 0 5 7" shapeRendering="crispEdges" aria-hidden>
+    <svg width="24" height="33" viewBox="0 0 8 11" shapeRendering="crispEdges" aria-hidden>
       {ASK.flatMap((row, y) =>
-        row.split("").map((cell, x) => cell === "1"
-          ? <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill="#ff2040" />
+        row.split("").map((cell, x) => ink[cell]
+          ? <rect key={`${x}-${y}`} x={x} y={y} width="1" height="1" fill={ink[cell]} />
           : null),
       )}
     </svg>
