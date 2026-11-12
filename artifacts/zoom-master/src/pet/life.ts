@@ -4,6 +4,8 @@ import type { FamilyId } from "./kin";
 /** One real day is one year on the card. Old age, if nobody is married, is day 20. */
 
 const KEY = "biscotto-life-v2";
+const ARCHIVE_KEY = "biscotto-life-archive-v1";
+const FAV_KEY = "biscotto-life-favorites-v1";
 export const HOUR = 60 * 60 * 1000;
 export const DAY = 24 * HOUR;
 
@@ -28,6 +30,38 @@ export type LifeView = {
   visit: boolean;
   spouseKin: number | null;
   child: { form: LifeForm; sex: LifeSex | null; mark: LifeMark | null } | null;
+};
+
+/** A life that already passed the torch. The portrait is the adult form, before old age. */
+export type LifeArchiveEntry = {
+  id: string;
+  petId: PetId;
+  family: FamilyId;
+  generation: number;
+  kin: number;
+  mark: LifeMark | null;
+  sex: LifeSex | null;
+  road: LifeRoad | null;
+  years: number;
+  feeds: number;
+  cleans: number;
+  sick: number;
+  /** Tended and never sick: they were left in a good way. */
+  happy: boolean;
+  passedAt: number;
+};
+
+/** The pet still in the room, so the board is never only a blank wall. */
+export type LivingCard = {
+  id: string;
+  petId: PetId;
+  family: FamilyId;
+  generation: number;
+  kin: number;
+  mark: LifeMark | null;
+  form: LifeForm;
+  years: number;
+  road: LifeRoad | null;
 };
 
 type Row = {
@@ -184,8 +218,10 @@ function lock(row: Row, now: number) {
   }
 }
 
-function passGeneration(row: Row, now: number) {
+function passGeneration(petId: PetId, row: Row, now: number) {
   const ascendAt = elderMoment(row) + 3 * DAY;
+  lock(row, ascendAt);
+  rememberLife(petId, row, Math.min(now, ascendAt), ascendAt);
   const heir = row.childBornAt != null;
   if (heir && row.childBornAt) {
     row.bornAt = row.childBornAt;
@@ -218,7 +254,7 @@ function passGeneration(row: Row, now: number) {
   lock(row, now);
 }
 
-function advance(row: Row, now: number): boolean {
+function advance(petId: PetId, row: Row, now: number): boolean {
   const before = `${row.sex}|${row.road}|${row.kin}|${row.childSex}|${row.bornAt}|${row.generation}|${row.ascendUntil}`;
   lock(row, now);
   for (let guard = 0; guard < 40; guard += 1) {
@@ -229,7 +265,7 @@ function advance(row: Row, now: number): boolean {
       if (!row.ascendUntil) row.ascendUntil = now + RISE_MS;
       if (now < row.ascendUntil) break;
     }
-    passGeneration(row, now);
+    passGeneration(petId, row, now);
   }
   const after = `${row.sex}|${row.road}|${row.kin}|${row.childSex}|${row.bornAt}|${row.generation}|${row.ascendUntil}`;
   return before !== after;
@@ -276,7 +312,7 @@ export function noteLife(kind: "feed" | "clean" | "sick") {
 /** Milliseconds left in the egg day. Zero once it has opened. */
 export function eggLeft(id: PetId, now = Date.now()): number {
   const row = ensure(id);
-  if (advance(row, now)) save();
+  if (advance(id, row, now)) save();
   return Math.max(0, DAY - Math.max(0, now - row.bornAt));
 }
 
@@ -300,7 +336,7 @@ export function formatLeft(ms: number): string {
 /** Years are life-days. Weight starts with the body and rises when it eats. */
 export function lifeStats(id: PetId, now = Date.now()): { years: number; weight: number; feeds: number; cleans: number } {
   const row = ensure(id);
-  if (advance(row, now)) save();
+  if (advance(id, row, now)) save();
   const age = Math.max(0, now - row.bornAt);
   const form = parentForm(row, now);
   const base = form === "egg" ? 5 : form === "baby" ? 10 : form === "child" ? 18 : form === "teen" ? 28 : form === "elder" ? 48 : 40;
@@ -317,7 +353,7 @@ export function familyOf(id: PetId): FamilyId {
 /** The body for this day. Sex locks on day 2, the road on day 4, the animal on day 11. */
 export function readLife(id: PetId, now = Date.now()): LifeView {
   const row = ensure(id);
-  if (advance(row, now)) save();
+  if (advance(id, row, now)) save();
   const form = parentForm(row, now);
   const child = row.childBornAt
     ? {
@@ -343,7 +379,7 @@ export function readLife(id: PetId, now = Date.now()): LifeView {
 /** Yes keeps the child. No asks again eight hours later, until day 20. */
 export function answerLife(id: PetId, yes: boolean, now = Date.now()) {
   const row = ensure(id);
-  advance(row, now);
+  advance(id, row, now);
   if (!visitDue(row, now)) {
     save();
     return;
@@ -363,4 +399,114 @@ export function answerLife(id: PetId, yes: boolean, now = Date.now()) {
   }
   save();
   emit();
+}
+
+const PETS: PetId[] = ["dolphin", "finch", "lynx", "stag"];
+const MARKS_OK: LifeMark[] = ["ears", "tail", "spots", "tint"];
+
+function isPet(id: unknown): id is PetId {
+  return PETS.includes(id as PetId);
+}
+
+function isMark(mark: unknown): mark is LifeMark {
+  return MARKS_OK.includes(mark as LifeMark);
+}
+
+function rememberLife(petId: PetId, row: Row, passedAt: number, ascendAt: number) {
+  const years = Math.max(1, Math.floor((ascendAt - row.bornAt) / DAY));
+  const entry: LifeArchiveEntry = {
+    id: `${petId}-${row.generation}-${row.bornAt}`,
+    petId,
+    family: familyOf(petId),
+    generation: row.generation,
+    kin: row.kin ?? 0,
+    mark: row.mark,
+    sex: row.sex,
+    road: row.road,
+    years,
+    feeds: row.feeds,
+    cleans: row.cleans,
+    sick: row.sick,
+    happy: row.road === "tended" && row.sick === 0,
+    passedAt,
+  };
+  const list = readArchive();
+  if (list.some((item) => item.id === entry.id)) return;
+  try {
+    localStorage.setItem(ARCHIVE_KEY, JSON.stringify([entry, ...list].slice(0, 48)));
+  } catch { /**/ }
+}
+
+function readArchive(): LifeArchiveEntry[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || "[]") as unknown;
+    if (!Array.isArray(raw)) return [];
+    const out: LifeArchiveEntry[] = [];
+    for (const item of raw) {
+      if (!item || typeof item !== "object") continue;
+      const e = item as Partial<LifeArchiveEntry>;
+      if (typeof e.id !== "string" || !isPet(e.petId)) continue;
+      const sick = Math.max(0, Math.floor(Number(e.sick) || 0));
+      const road = e.road === "tended" || e.road === "wild" ? e.road : null;
+      out.push({
+        id: e.id,
+        petId: e.petId,
+        family: familyOf(e.petId),
+        generation: Math.max(1, Math.floor(Number(e.generation) || 1)),
+        kin: Math.max(0, Math.min(9, Math.floor(Number(e.kin) || 0))),
+        mark: isMark(e.mark) ? e.mark : null,
+        sex: e.sex === "girl" || e.sex === "boy" ? e.sex : null,
+        road,
+        years: Math.max(0, Math.floor(Number(e.years) || 0)),
+        feeds: Math.max(0, Math.floor(Number(e.feeds) || 0)),
+        cleans: Math.max(0, Math.floor(Number(e.cleans) || 0)),
+        sick,
+        happy: road === "tended" && sick === 0,
+        passedAt: Math.max(0, Number(e.passedAt) || 0),
+      });
+    }
+    return out;
+  } catch {
+    return [];
+  }
+}
+
+/** Finished lives, newest first. Opening a life view is what writes the next one. */
+export function lifeArchive(): LifeArchiveEntry[] {
+  return readArchive();
+}
+
+export function favoriteIds(): string[] {
+  try {
+    const raw = JSON.parse(localStorage.getItem(FAV_KEY) || "[]") as unknown;
+    if (!Array.isArray(raw)) return [];
+    return raw.filter((id): id is string => typeof id === "string").slice(0, 24);
+  } catch {
+    return [];
+  }
+}
+
+/** Pin or unpin a board card. Favorites stay at the top of the hall. */
+export function toggleFavorite(id: string): string[] {
+  const cur = favoriteIds();
+  const next = cur.includes(id) ? cur.filter((item) => item !== id) : [id, ...cur];
+  try { localStorage.setItem(FAV_KEY, JSON.stringify(next.slice(0, 24))); } catch { /**/ }
+  return next;
+}
+
+/** The life still going, after the clock has caught up. */
+export function livingSnapshot(id: PetId, now = Date.now()): LivingCard {
+  const view = readLife(id, now);
+  const row = ensure(id);
+  return {
+    id: `live-${id}-${row.generation}-${row.bornAt}`,
+    petId: id,
+    family: familyOf(id),
+    generation: view.generation,
+    kin: view.kin,
+    mark: view.mark,
+    form: view.form,
+    years: Math.floor(Math.max(0, now - row.bornAt) / DAY),
+    road: view.road,
+  };
 }
