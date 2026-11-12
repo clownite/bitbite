@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { PetStage } from "../components/PetStage";
 import { LifeEgg } from "../components/LifeEgg";
-import { readLife } from "../pet/life";
+import { LifeCreature } from "../components/LifeCreature";
+import { familyOf, readLife } from "../pet/life";
 import { PixelMark } from "../components/PixelMark";
 import { PetFarmPanel } from "../components/PetFarmButton";
 import { dailyFarm, formatRate, petDef, type PetId } from "../pet/catalog";
@@ -107,8 +107,9 @@ export function CollectionPage({
                 boxShadow: `0 0 18px ${color}66`,
               }}
             >
-              <PetStage pet={pet} frame="collection" petId={id} lifeScale={life.scale} />
-              {life.form === "egg" ? <LifeEgg color={color} mini /> : null}
+              {life.form === "egg" ? <LifeEgg color={color} mini /> : (
+                <LifeCreature family={familyOf(id)} form={life.form} kin={life.kin} mark={life.mark} mini />
+              )}
               <div style={{ position: "absolute", top: 8, right: 8, zIndex: 2, pointerEvents: "none" }}>
                 <PixelMark glyph={petDef(id).element.glyph} label={t(`pet.element.${petDef(id).element.id}`)} />
               </div>

@@ -4639,6 +4639,126 @@ body, body * {
 .life-egg-shell {
   top: 0;
   height: calc(13 * var(--cell));
+  animation: tama-bob 0.64s steps(1, end) infinite;
+}
+.life-pet {
+  --cell: 9px;
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  z-index: 4;
+  height: calc(20 * var(--cell));
+  pointer-events: auto;
+}
+.life-pet.is-mini {
+  --cell: 4px;
+  bottom: 22%;
+  pointer-events: none;
+}
+.life-pet.is-asking { bottom: 34%; }
+.life-pet-shadow,
+.life-pet-body {
+  position: absolute;
+  left: 0;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.life-pet-shadow {
+  bottom: 0;
+  width: calc(12 * var(--cell));
+  height: calc(2 * var(--cell));
+  left: 50%;
+  margin-left: calc(12 * var(--cell) / -2);
+}
+.life-pet-body {
+  bottom: calc(2 * var(--cell));
+  height: auto;
+  animation: tama-bob 0.64s steps(1, end) infinite;
+}
+.life-pet.is-asleep .life-pet-body,
+.life-pet.is-asleep .life-egg-shell {
+  animation: none;
+}
+.life-pet.is-elder .life-pet-body {
+  filter: grayscale(0.72);
+}
+.life-pet.is-rise .life-pet-body {
+  animation: tama-rise 1.6s steps(4, end) infinite;
+}
+.life-pet-flash {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+.life-heir {
+  position: absolute;
+  left: 64%;
+  bottom: 12%;
+  z-index: 4;
+  width: 84px;
+  height: 96px;
+  pointer-events: none;
+}
+.life-heir .life-egg,
+.life-heir .life-pet {
+  bottom: 0;
+}
+.life-ask {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 8%;
+  z-index: 12;
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(4, 12, 18, 0.92);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  color: #fff6e4;
+  text-align: center;
+}
+.life-ask p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+.life-ask div {
+  display: flex;
+  gap: 8px;
+}
+.life-ask button {
+  flex: 1;
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 8px;
+  font-weight: 800;
+  background: #ffe14a;
+  color: #1a120c;
+}
+.life-ask button.is-no {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff6e4;
+}
+@keyframes tama-bob {
+  0%, 62% { transform: translateY(0); }
+  63%, 100% { transform: translateY(calc(var(--cell) * -1)); }
+}
+@keyframes tama-rise {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(calc(var(--cell) * -8)); opacity: 0.2; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .life-egg-shell,
+  .life-pet-body { animation: none; }
 }
 .life-marks {
   position: absolute;

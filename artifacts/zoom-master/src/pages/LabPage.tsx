@@ -3,7 +3,6 @@ import ShoppingBag from "lucide-react/dist/esm/icons/shopping-bag.js";
 import { SettingsMenu } from "../components/SettingsMenu";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { useCrumbsBalance, useFarm } from "../components/PetFarmButton";
-import { PetStage } from "../components/PetStage";
 import { petCombat, petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PixelMark } from "../components/PixelMark";
@@ -16,8 +15,10 @@ import { playClaim } from "../audio/sfx";
 import { PetPostcard } from "../components/PetPostcard";
 import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
-import { eggLeft, focusLife, formatLeft, readLife } from "../pet/life";
+import { answerLife, eggLeft, familyOf, focusLife, formatLeft, readLife, subscribeLife } from "../pet/life";
+import { kinName } from "../pet/kin";
 import { LifeEgg } from "../components/LifeEgg";
+import { LifeCreature } from "../components/LifeCreature";
 import { LifeMarks } from "../components/LifeMarks";
 import { CardReel } from "../components/CardReel";
 import { useT } from "../i18n/LanguageContext";
@@ -132,7 +133,7 @@ export function LabPage({
   telegramId?: string | null;
 }) {
   const ownerId = petOwnerId(telegramId);
-  const { t } = useT();
+  const { t, lang } = useT();
   const crumbs = useCrumbsBalance();
   const [pet, setPet] = useState<PetState>(getPet());
   const [now, setNow] = useState(() => Date.now());
@@ -166,11 +167,15 @@ export function LabPage({
     setPet(getPet());
     setNow(Date.now());
   }), []);
-  const egg = readLife(pet.active, now).form === "egg";
+  focusLife(pet.active);
+  const life = readLife(pet.active, now);
+  const egg = life.form === "egg";
+  const rising = life.form === "ascend";
+  useEffect(() => subscribeLife(() => setNow(Date.now())), []);
   useEffect(() => {
-    const id = window.setInterval(() => setNow(Date.now()), egg ? 1000 : 30_000);
+    const id = window.setInterval(() => setNow(Date.now()), egg || rising ? 250 : 30_000);
     return () => window.clearInterval(id);
-  }, [egg]);
+  }, [egg, rising]);
   useEffect(() => {
     const pull = () => setCare(careView());
     const unsubCare = subscribeCare(pull);
@@ -191,8 +196,6 @@ export function LabPage({
   }, [care.wakeXp]);
   const taps = petTapStatus(now);
   const farm = useFarm();
-  focusLife(pet.active);
-  const life = readLife(pet.active, now);
   const chosen = petDef(pet.active);
   const elementName = t(`pet.element.${chosen.element.id}`);
   const abilityName = t(`pet.ability.${pet.active}.name`);
@@ -246,8 +249,33 @@ export function LabPage({
         >
           <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }} data-testid="pet-room">
             <CardReel petId={pet.active} petName={chosen.name} now={now} care={care} egg={life.form === "egg"}>
-            <PetStage pet={pet} frame="lab" petId={pet.active} lifeScale={life.scale} room={{ asleep: care.asleep, dark: care.dark, sick: care.sick, calling: care.calling, hungry: care.hungry }} />
-            {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : null}
+            {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : (
+              <LifeCreature
+                family={familyOf(pet.active)}
+                form={life.form}
+                kin={life.kin}
+                mark={life.mark}
+                asleep={care.asleep || care.dark}
+                asking={life.visit}
+                onTap
+              />
+            )}
+            {life.child ? (
+              <div className="life-heir" data-testid="life-heir">
+                {life.child.form === "egg" ? <LifeEgg color={chosen.element.color} mini /> : (
+                  <LifeCreature family={familyOf(pet.active)} form={life.child.form} kin={0} mark={life.child.mark} mini />
+                )}
+              </div>
+            ) : null}
+            {life.visit && life.spouseKin != null ? (
+              <div className="life-ask" data-testid="life-ask">
+                <p>{t("life.ask", { name: kinName(familyOf(pet.active), life.spouseKin, lang) })}</p>
+                <div>
+                  <button type="button" onClick={() => { answerLife(pet.active, true); setNow(Date.now()); }}>{t("life.yes")}</button>
+                  <button type="button" className="is-no" onClick={() => { answerLife(pet.active, false); setNow(Date.now()); }}>{t("life.no")}</button>
+                </div>
+              </div>
+            ) : null}
             {life.form === "egg" ? (
               <div className="egg-wait-note" data-testid="egg-wait-home">
                 <span>{t("life.waitLeft", { time: formatLeft(eggLeft(pet.active, now)) })}</span>
@@ -270,7 +298,7 @@ export function LabPage({
           <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
               <div style={{ textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
-                {personalPetNumber(ownerId, pet.active)} {chosen.name} · {t(`life.${life.form}`)} · {t("pet.stageLine", { s: pet.stage, l: pet.level })}
+                {personalPetNumber(ownerId, pet.active)} {chosen.name} · {(life.form === "adult" || life.form === "elder" || life.form === "ascend") ? kinName(familyOf(pet.active), life.kin, lang) : t(`life.${life.form}`)} · {t("life.generation", { n: life.generation })} · {t("pet.stageLine", { s: pet.stage, l: pet.level })}
                 <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)}</span>
               </div>
               <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#041018", background: chosen.element.color, borderRadius: 999, padding: "3px 7px" }}>
