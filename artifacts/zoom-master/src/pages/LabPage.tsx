@@ -24,18 +24,18 @@ import { CardReel } from "../components/CardReel";
 import { useT } from "../i18n/LanguageContext";
 
 function EggAsk({ time, explain, label }: { time: string; explain: string; label: string }) {
-  const [open, setOpen] = useState(false);
+  const [small, setSmall] = useState(false);
   return (
     <button
       type="button"
-      className="egg-hint"
-      aria-expanded={open}
+      className={small ? "egg-hint is-small" : "egg-hint"}
+      aria-expanded={!small}
       aria-label={label}
       data-testid="egg-wait-home"
-      onClick={() => setOpen((v) => !v)}
+      onClick={() => setSmall((v) => !v)}
     >
       <strong>{time}</strong>
-      {open ? <span>{explain}</span> : null}
+      <span>{explain}</span>
     </button>
   );
 }

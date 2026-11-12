@@ -4500,34 +4500,35 @@ body, body * {
   letter-spacing: 0.08em;
 }
 .egg-hint {
+  all: unset;
   position: absolute;
   left: 50%;
-  bottom: calc(14% + 98px);
+  bottom: calc(14% + 102px);
   transform: translateX(-50%);
   z-index: 7;
-  max-width: min(200px, 68vw);
-  margin: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
+  max-width: min(210px, 70vw);
   color: #f4fbff;
   text-align: center;
   cursor: pointer;
-  text-shadow: 0 1px 0 #071018, 0 0 6px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 0 #071018;
 }
-.egg-hint strong {
-  display: block;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-}
+.egg-hint strong,
 .egg-hint span {
   display: block;
-  margin-top: 2px;
-  font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.25;
-  color: rgba(244, 251, 255, 0.78);
+}
+.egg-hint strong { font-size: 12px; }
+.egg-hint span {
+  margin-top: 1px;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(244, 251, 255, 0.82);
+}
+.egg-hint.is-small {
+  transform: translateX(-50%) scale(0.62);
+  transform-origin: center bottom;
+  opacity: 0.72;
 }
 .card-reel { position: absolute; inset: 0; pointer-events: none; }
 .card-status,
