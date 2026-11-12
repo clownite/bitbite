@@ -4499,56 +4499,35 @@ body, body * {
   font-weight: 900;
   letter-spacing: 0.08em;
 }
-.egg-ask {
+.egg-hint {
   position: absolute;
-  left: calc(50% - 68px);
-  bottom: calc(14% + 78px);
+  left: 50%;
+  bottom: calc(14% + 98px);
+  transform: translateX(-50%);
   z-index: 7;
-  pointer-events: auto;
-}
-.egg-ask-mark {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 36px;
+  max-width: min(200px, 68vw);
+  margin: 0;
   padding: 0;
   border: 0;
   background: transparent;
-  animation: egg-ask-shake 5.5s steps(1, end) infinite;
+  color: #f4fbff;
+  text-align: center;
+  cursor: pointer;
+  text-shadow: 0 1px 0 #071018, 0 0 6px rgba(0, 0, 0, 0.8);
 }
-@keyframes egg-ask-shake {
-  0%, 86%, 100% { transform: translate(0, 0); }
-  88% { transform: translate(-2px, 0); }
-  90% { transform: translate(2px, 0); }
-  92% { transform: translate(-2px, 1px); }
-  94% { transform: translate(2px, -1px); }
-  96% { transform: translate(0, 0); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .egg-ask-mark { animation: none; }
-}
-.egg-ask-note {
-  position: absolute;
-  left: 0;
-  bottom: calc(100% + 6px);
-  width: min(210px, 62vw);
-  text-align: left;
-  padding: 8px 10px;
-  border-radius: 12px;
-  background: rgba(7, 16, 24, 0.92);
-  color: #f3e4c8;
-  border: 1px solid rgba(255, 32, 64, 0.45);
-}
-.egg-ask-note strong {
+.egg-hint strong {
   display: block;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.03em;
-}
-.egg-ask-note p {
-  margin: 4px 0 0;
   font-size: 11px;
-  line-height: 1.35;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.egg-hint span {
+  display: block;
+  margin-top: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: rgba(244, 251, 255, 0.78);
 }
 .card-reel { position: absolute; inset: 0; pointer-events: none; }
 .card-status,
