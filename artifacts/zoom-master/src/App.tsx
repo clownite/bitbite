@@ -243,7 +243,7 @@ function AppShell() {
       const hit = el?.closest?.("button, a, canvas, [role='button']");
       if (!hit) return;
       hapticSoft();
-      if (hit.closest(".claim-3d")) return;
+      if (hit.closest(".claim-3d") || hit.closest("[data-sfx-preview]")) return;
       playClick();
     };
     window.addEventListener("pointerdown", down);
