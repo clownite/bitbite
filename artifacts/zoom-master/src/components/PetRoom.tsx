@@ -3,22 +3,7 @@ import { cleanMess, cure, feed, toggleLight, type CareView } from "../pet/care";
 import { settleFarm } from "../pet/crumbs";
 import { playClick, playHappy, playNo } from "../audio/sfx";
 import { useT } from "../i18n/LanguageContext";
-
-function PixelCookie() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 9 9" shapeRendering="crispEdges" aria-hidden>
-      <rect x="2" y="0" width="5" height="1" fill="#f2c48a" />
-      <rect x="1" y="1" width="7" height="1" fill="#f0b56a" />
-      <rect x="0" y="2" width="9" height="5" fill="#e8a85c" />
-      <rect x="1" y="7" width="7" height="1" fill="#d4924a" />
-      <rect x="2" y="8" width="5" height="1" fill="#c4843e" />
-      <rect x="2" y="3" width="1" height="1" fill="#5a3018" />
-      <rect x="5" y="2" width="1" height="1" fill="#5a3018" />
-      <rect x="6" y="5" width="1" height="1" fill="#5a3018" />
-      <rect x="3" y="5" width="1" height="1" fill="#5a3018" />
-    </svg>
-  );
-}
+import { PixelCookie } from "./PixelCookie";
 
 function PixelBowl({ cookies }: { cookies: number }) {
   const spots = [

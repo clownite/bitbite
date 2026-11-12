@@ -31,7 +31,7 @@ export function FirstGuide({ onStep }: { onStep: (tab: GuideTab) => void }) {
     onStep(STEPS[next].tab);
   };
   return (
-    <div className="zoom-guide" role="dialog" aria-label="Zoom guide">
+    <div className="zoom-guide" role="dialog" aria-label="BitBite guide">
       <div className="zoom-guide-card">
         <div className="zoom-guide-kicker">{t(`guide.${page.id}.k`)} · {step + 1}/{STEPS.length}</div>
         <div className="zoom-guide-title">{t(`guide.${page.id}.t`)}</div>

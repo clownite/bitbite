@@ -1,10 +1,10 @@
-import { PixelMark } from "./PixelMark";
+import { PixelCookie } from "./PixelCookie";
 
-/** The crumb mark, the cookie drawn as pixels like the element glyphs. */
+/** The crumb mark. Same cookie as the ones that fall in Play. */
 export function ZoomCubeIcon({ size = 18 }: { size?: number }) {
   return (
     <span className="cookie-still">
-      <PixelMark glyph="🍪" label="Crumbs" size={size} />
+      <PixelCookie size={size} />
     </span>
   );
 }

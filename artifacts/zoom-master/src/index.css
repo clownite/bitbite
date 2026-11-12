@@ -4382,6 +4382,22 @@ body, body * {
   color: #ffffff;
 }
 .ring-over span { font-weight: 800; color: #d5ecf8; }
+.ring-recap {
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.ring-over-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.ring-over .cookie-go.is-quiet {
+  background: transparent;
+  color: #d5ecf8;
+  border: 2px solid rgba(255, 255, 255, 0.45);
+}
 .ring-moves {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -5109,6 +5125,23 @@ body, body * {
   align-items: flex-end;
   justify-content: space-between;
   gap: 12px;
+}
+.play-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.play-balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
 }
 .cookie-head h2 {
   margin: 0;

@@ -16,6 +16,9 @@ import { eggLeft, focusLife, formatLeft, readLife } from "../pet/life";
 import { playBite, playClick, playDone, playDoneHappy, playMiss, playSad } from "../audio/sfx";
 import { hapticSoft } from "../utils/haptic";
 import { PixelCookie } from "../components/PixelCookie";
+import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
+import { useCrumbsBalance } from "../components/PetFarmButton";
+import { formatCrumbs } from "../pet/crumbs";
 import { useT } from "../i18n/LanguageContext";
 
 function PixelBomb() {
@@ -99,6 +102,7 @@ export function GamePage({ active }: { active: boolean }) {
   const sized = useRef({ w: 0, h: 0 });
   const recorded = useRef(false);
   const color = petDef(pet.active).element.color;
+  const crumbs = useCrumbsBalance();
 
   useEffect(() => subscribePet(() => setPet(getPet())), []);
   focusLife(pet.active);
@@ -209,11 +213,17 @@ export function GamePage({ active }: { active: boolean }) {
               <h2>{waiting ? t("life.egg") : mode === "numbers" ? t("play.numbers") : mode === "duel" ? t("play.duel") : t("play.title")}</h2>
               {mode === "cookies" && !waiting ? <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left, max: PLAYS_PER_DAY })}</div> : null}
             </div>
-            {waiting ? null : (
-              <button type="button" className="cookie-board-btn" data-testid="cookie-board-open" onClick={() => setBoardOpen(true)}>
-                {t("play.board")}
-              </button>
-            )}
+            <div className="play-side">
+              <div className="play-balance" data-testid="play-balance">
+                <ZoomCubeIcon size={16} />
+                <span>{formatCrumbs(crumbs)}</span>
+              </div>
+              {waiting ? null : (
+                <button type="button" className="cookie-board-btn" data-testid="cookie-board-open" onClick={() => setBoardOpen(true)}>
+                  {t("play.board")}
+                </button>
+              )}
+            </div>
           </div>
           {waiting ? <p>{t("life.wait")}</p> : mode === "numbers" ? <p>{t("play.numbersHint")}</p> : mode === "cookies" ? <p>{t("play.blurb", { day: nextReset() })}</p> : null}
           {waiting ? null : (

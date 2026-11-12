@@ -33,14 +33,6 @@ const SKULL = [
   ".11..11.",
 ];
 
-const COOKIE = [
-  ".1111.",
-  "112211",
-  "121121",
-  "112211",
-  ".1111.",
-];
-
 const HEART = [
   "11.11",
   "11111",
@@ -83,7 +75,6 @@ function Sprite({ rows, ink, cell }: { rows: string[]; ink: Record<string, strin
 
 const CREAM = { "1": "#fff6e4" };
 const SKULL_INK = { "1": "#f4f0ea" };
-const COOKIE_INK = { "1": "#e2a15a", "2": "#5a3018" };
 const HEART_INK = { "1": "#ff5a7a" };
 
 export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color: string; lifeScale?: number }) {
@@ -196,8 +187,8 @@ export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color
           ) : null}
           {phase === "win" ? (
             <>
-              <i className="num-cookie a" data-testid="number-eat"><Sprite rows={COOKIE} ink={COOKIE_INK} cell={3} /></i>
-              <i className="num-cookie b"><Sprite rows={COOKIE} ink={COOKIE_INK} cell={3} /></i>
+              <i className="num-cookie a" data-testid="number-eat"><PixelCookie size={18} /></i>
+              <i className="num-cookie b"><PixelCookie size={18} /></i>
               <i className="num-heart a"><Sprite rows={HEART} ink={HEART_INK} cell={3} /></i>
               <i className="num-heart b"><Sprite rows={HEART} ink={HEART_INK} cell={3} /></i>
             </>

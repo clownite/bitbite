@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import ShoppingBag from "lucide-react/dist/esm/icons/shopping-bag.js";
 import { SettingsMenu } from "../components/SettingsMenu";
+import { cookieSvg } from "../components/PixelCookie";
 import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
 import { useCrumbsBalance, useFarm } from "../components/PetFarmButton";
 import { petCombat, petDef } from "../pet/catalog";
@@ -357,7 +358,7 @@ export function LabPage({
                   for (let i = 0; i < 6; i++) {
                     const crumb = document.createElement("span");
                     crumb.className = "crumb-fly";
-                    crumb.textContent = "🍪";
+                    crumb.innerHTML = cookieSvg(18);
                     crumb.style.left = `${from.left + from.width / 2}px`;
                     crumb.style.top = `${from.top + from.height / 2}px`;
                     document.body.appendChild(crumb);

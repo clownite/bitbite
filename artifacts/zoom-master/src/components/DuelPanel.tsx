@@ -51,6 +51,7 @@ export function DuelPanel({ pet }: { pet: PetState }) {
   const [left, setLeft] = useState(YOUR_TURN);
   const [winner, setWinner] = useState<string | null>(null);
   const [won, setWon] = useState(false);
+  const [recap, setRecap] = useState({ you: 0, youMax: 1, foe: 0, foeMax: 1, youName: "", foeName: "" });
   const timers = useRef<number[]>([]);
   const clock = useRef<number | null>(null);
   const youRef = useRef<Fighter | null>(null);
@@ -95,6 +96,16 @@ export function DuelPanel({ pet }: { pet: PetState }) {
 
   const end = (youWon: boolean, name: string) => {
     stopClock();
+    const mine = youRef.current;
+    const other = foeRef.current;
+    setRecap({
+      you: mine?.hp ?? 0,
+      youMax: mine?.max ?? 1,
+      foe: other?.hp ?? 0,
+      foeMax: other?.max ?? 1,
+      youName: mine?.name ?? "",
+      foeName: other?.name ?? "",
+    });
     setWinner(name);
     setWon(youWon);
     setPhaseSafe("over");
@@ -277,13 +288,24 @@ export function DuelPanel({ pet }: { pet: PetState }) {
           {phase === "fly" && dealt.foe > 0 ? <b className="ring-num you">{dealt.foe}</b> : null}
           {phase === "fly" && dealt.you > 0 ? <b className="ring-num foe">{dealt.you}</b> : null}
           {phase === "over" && winner ? (
-            <div className="ring-over">
-              <strong>{t("play.ko")}</strong>
-              <span>
-                {t("play.duelWin", { name: winner })}
-                {won ? ` ${t("play.duelPoints", { n: WIN_POINTS })}` : ""}
+            <div className="ring-over" data-testid="duel-over">
+              <strong>{won ? t("play.duelYou") : t("play.duelThem")}</strong>
+              <span>{t("play.duelWin", { name: winner })}</span>
+              <span className="ring-recap">
+                {t("play.duelHp", {
+                  youName: recap.youName,
+                  you: recap.you,
+                  youMax: recap.youMax,
+                  foeName: recap.foeName,
+                  foe: recap.foe,
+                  foeMax: recap.foeMax,
+                })}
               </span>
-              <button type="button" className="cookie-go" onClick={() => { setYou(null); setFoe(null); }}>{t("play.duelAgain")}</button>
+              <span>{won ? `${t("play.duelPoints", { n: WIN_POINTS })} · ${t("play.duelXp", { n: WIN_XP })}` : t("play.duelNone")}</span>
+              <div className="ring-over-actions">
+                <button type="button" className="cookie-go" data-testid="duel-again" onClick={() => begin(foe.id)}>{t("play.duelAgain")}</button>
+                <button type="button" className="cookie-go is-quiet" data-testid="duel-other" onClick={() => { setYou(null); setFoe(null); }}>{t("play.duelOther")}</button>
+              </div>
             </div>
           ) : null}
         </div>

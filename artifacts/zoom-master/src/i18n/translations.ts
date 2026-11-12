@@ -424,7 +424,7 @@ const en: Dict = {
   "rank.seasonCompleted": "Roadmap Completed",
   "rank.seasonOf": "Season {n} of {tot}",
   "rank.exchangeAct": "Exchange activates when Season 1 concludes",
-  "rank.zoomSeason": "Zoom Season",
+  "rank.zoomSeason": "BitBite Season",
   "rank.exchange": "Exchange",
   "rank.totalPool": "Total Pool",
   "rank.totalRevenue": "Total revenue from {n} confirmed payments",
@@ -460,7 +460,7 @@ const en: Dict = {
   "rank.step2": "SUN generates 1,000 $ZOOM/hr — maximum yield",
   "rank.step3": "Hold $ZOOM until Season 1 ends (3 months)",
   "rank.step4": "Exchange $ZOOM for GRAM from the final pool",
-  "rank.step5": "Top Zoom Season holders earn bonus rewards",
+  "rank.step5": "Top BitBite Season holders earn bonus rewards",
   "planetCanvas.primordial": "Primordial dust",
   "planetCanvas.forgingMass": "Forging mass",
   "planetCanvas.forming": "FORMING",
@@ -474,7 +474,7 @@ const en: Dict = {
   "splash.subtitle": "Enter the game",
   "lab.forgeComplete": "FORGE COMPLETE",
   "lab.tonAppVoteAria": "Vote on TON App",
-  "lab.tonAppBadgeAlt": "Zoom Bot rank on TON App",
+  "lab.tonAppBadgeAlt": "BitBite Bot rank on TON App",
   "lab.rarityWheelNext": "Rarity wheel incoming…",
   "lab.tapsNeeded": "{n} taps needed",
 
@@ -611,7 +611,7 @@ const en: Dict = {
   "guide.marketTitle": "Sell it on Market",
   "guide.marketBody": "Other players buy models here. List yours from the card, or open Market from the bar below.",
   "guide.zmcTitle": "Discover ZMC",
-  "guide.zmcBody": "ZMC is the official currency of the Zoom ecosystem. Swap TON for ZMC on STON.fi, then use it in Shop, Market, and VIP.",
+  "guide.zmcBody": "ZMC is the official currency of the BitBite ecosystem. Swap TON for ZMC on STON.fi, then use it in Shop, Market, and VIP.",
   "guide.zmcStonfi": "GET ZMC ON STON.FI",
 };
 
@@ -1013,7 +1013,7 @@ const it: Dict = {
   "rank.seasonCompleted": "Roadmap Completata",
   "rank.seasonOf": "Stagione {n} di {tot}",
   "rank.exchangeAct": "Lo scambio si attiva alla fine della Stagione 1",
-  "rank.zoomSeason": "Stagione Zoom",
+  "rank.zoomSeason": "Stagione BitBite",
   "rank.exchange": "Scambio",
   "rank.totalPool": "Cassa Totale",
   "rank.totalRevenue": "Ricavi totali da {n} pagamenti confermati",
@@ -1049,7 +1049,7 @@ const it: Dict = {
   "rank.step2": "SUN genera 1.000 $ZOOM/ora — resa massima",
   "rank.step3": "Tieni gli $ZOOM fino alla fine della Stagione 1 (3 mesi)",
   "rank.step4": "Scambia $ZOOM in GRAM dalla cassa finale",
-  "rank.step5": "I migliori della Stagione Zoom ricevono bonus extra",
+  "rank.step5": "I migliori della Stagione BitBite ricevono bonus extra",
   "planetCanvas.primordial": "Polvere primordiale",
   "planetCanvas.forgingMass": "Forgiatura della massa",
   "planetCanvas.forming": "FORMAZIONE",
@@ -1063,7 +1063,7 @@ const it: Dict = {
   "splash.subtitle": "Entra in gioco",
   "lab.forgeComplete": "FORGIA COMPLETA",
   "lab.tonAppVoteAria": "Vota su TON App",
-  "lab.tonAppBadgeAlt": "Posizione Zoom Bot su TON App",
+  "lab.tonAppBadgeAlt": "Posizione BitBite Bot su TON App",
   "lab.rarityWheelNext": "Ruota rarità in arrivo…",
   "lab.tapsNeeded": "{n} tap necessari",
 
@@ -1195,7 +1195,7 @@ const it: Dict = {
   "guide.marketTitle": "Vendilo sul Market",
   "guide.marketBody": "Qui gli altri giocatori comprano i modelli. Mettilo in vendita dalla card, o apri Market dalla barra sotto.",
   "guide.zmcTitle": "Scopri ZMC",
-  "guide.zmcBody": "ZMC è la valuta ufficiale dell'ecosistema Zoom. Scambiala e ottienila su STON.fi, poi usala in Shop, Market e VIP.",
+  "guide.zmcBody": "ZMC è la valuta ufficiale dell'ecosistema BitBite. Scambiala e ottienila su STON.fi, poi usala in Shop, Market e VIP.",
   "guide.zmcStonfi": "OTTIENI ZMC SU STON.FI",
 };
 
@@ -1573,7 +1573,7 @@ const ru: Dict = {
   "rank.seasonCompleted": "Дорожная карта завершена",
   "rank.seasonOf": "Сезон {n} из {tot}",
   "rank.exchangeAct": "Обмен откроется по окончании Сезона 1",
-  "rank.zoomSeason": "Сезон Zoom",
+  "rank.zoomSeason": "Сезон BitBite",
   "rank.exchange": "Обмен",
   "rank.totalPool": "Общий пул",
   "rank.totalRevenue": "Доход с {n} подтверждённых платежей",
@@ -1609,7 +1609,7 @@ const ru: Dict = {
   "rank.step2": "SUN генерирует 1 000 $ZOOM/час — максимум",
   "rank.step3": "Держите $ZOOM до конца Сезона 1 (3 месяца)",
   "rank.step4": "Обміняйте $ZOOM на GRAM з фінального пулу",
-  "rank.step5": "Топ Zoom Season получают бонусные награды",
+  "rank.step5": "Топ BitBite Season получают бонусные награды",
   "planetCanvas.primordial": "Первичная пыль",
   "planetCanvas.forgingMass": "Формирование массы",
   "planetCanvas.forming": "ФОРМИРОВАНИЕ",
@@ -1623,7 +1623,7 @@ const ru: Dict = {
   "splash.subtitle": "Войти в игру",
   "lab.forgeComplete": "КОВКА ЗАВЕРШЕНА",
   "lab.tonAppVoteAria": "Голосовать на TON App",
-  "lab.tonAppBadgeAlt": "Позиция Zoom Bot на TON App",
+  "lab.tonAppBadgeAlt": "Позиция BitBite Bot на TON App",
   "lab.rarityWheelNext": "Колесо редкости…",
   "lab.tapsNeeded": "Нужно {n} нажатий",
 
@@ -1742,7 +1742,7 @@ const ru: Dict = {
   "farm.fuseDone2": "EVO II готов",
   "farm.fuseFailed": "FUSE не удался",
   "guide.zmcTitle": "Открой ZMC",
-  "guide.zmcBody": "ZMC — официальная валюта экосистемы Zoom. Обменяй TON на ZMC на STON.fi и используй её в Shop, Market и VIP.",
+  "guide.zmcBody": "ZMC — официальная валюта экосистемы BitBite. Обменяй TON на ZMC на STON.fi и используй её в Shop, Market и VIP.",
   "guide.zmcStonfi": "КУПИТЬ ZMC НА STON.FI",
 };
 
@@ -2120,7 +2120,7 @@ const uk: Dict = {
   "rank.seasonCompleted": "Дорожня карта завершена",
   "rank.seasonOf": "Сезон {n} з {tot}",
   "rank.exchangeAct": "Обмін відкриється після Сезону 1",
-  "rank.zoomSeason": "Сезон Zoom",
+  "rank.zoomSeason": "Сезон BitBite",
   "rank.exchange": "Обмін",
   "rank.totalPool": "Загальний пул",
   "rank.totalRevenue": "Дохід з {n} підтверджених платежів",
@@ -2156,7 +2156,7 @@ const uk: Dict = {
   "rank.step2": "SUN генерує 1 000 $ZOOM/год — максимум",
   "rank.step3": "Тримайте $ZOOM до кінця Сезону 1 (3 місяці)",
   "rank.step4": "Обмінюйте $ZOOM на TON з фінального пулу",
-  "rank.step5": "Топ Zoom Season отримують бонусні нагороди",
+  "rank.step5": "Топ BitBite Season отримують бонусні нагороди",
   "planetCanvas.primordial": "Первинний пил",
   "planetCanvas.forgingMass": "Формування маси",
   "planetCanvas.forming": "ФОРМУВАННЯ",
@@ -2170,7 +2170,7 @@ const uk: Dict = {
   "splash.subtitle": "Увійти в гру",
   "lab.forgeComplete": "КУВАННЯ ЗАВЕРШЕНО",
   "lab.tonAppVoteAria": "Голосувати на TON App",
-  "lab.tonAppBadgeAlt": "Позиція Zoom Bot на TON App",
+  "lab.tonAppBadgeAlt": "Позиція BitBite Bot на TON App",
   "lab.rarityWheelNext": "Колесо рідкості…",
   "lab.tapsNeeded": "Потрібно {n} натискань",
 
@@ -2290,7 +2290,7 @@ const uk: Dict = {
   "farm.fuseDone2": "EVO II готовий",
   "farm.fuseFailed": "FUSE не вдався",
   "guide.zmcTitle": "Відкрий ZMC",
-  "guide.zmcBody": "ZMC — офіційна валюта екосистеми Zoom. Обміняй TON на ZMC на STON.fi і використовуй її в Shop, Market і VIP.",
+  "guide.zmcBody": "ZMC — офіційна валюта екосистеми BitBite. Обміняй TON на ZMC на STON.fi і використовуй її в Shop, Market і VIP.",
   "guide.zmcStonfi": "КУПИТИ ZMC НА STON.FI",
 };
 
