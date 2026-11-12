@@ -66,8 +66,8 @@ router.post("/admin/maintenance", async (req, res) => {
   // cryptographically verified Telegram identity (`req.tgUser`), which an
   // attacker cannot forge without the bot token used for the initData HMAC.
   // Require BOTH: the verified user must exist AND be the admin. This holds
-  // even in soft TG_AUTH_MODE, where the central middleware only logs and lets
-  // requests through. Without this, the endpoint was trivially exploitable.
+  // even if a route is missing from the protected list. Without this, the
+  // endpoint was trivially exploitable.
   if (!req.tgUser || req.tgUser.id !== ADMIN_ID) {
     req.log?.warn(
       {
@@ -115,6 +115,11 @@ function assertAdmin(req: Request, adminId: string): boolean {
   );
   return false;
 }
+
+router.get("/admin/whoami", (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  res.json({ ok: req.tgUser?.id === ADMIN_ID });
+});
 
 router.get("/gate/status", async (req, res) => {
   const telegramId = String(req.query["telegramId"] ?? "");

@@ -12,6 +12,8 @@ import dailyRouter from "./daily";
 import mysteryBoxRouter from "./mysteryBox";
 import withdrawalsRouter from "./withdrawals";
 import maintenanceRouter from "./maintenance";
+import { allow } from "../lib/rate-limit";
+import { ADMIN_ID } from "../lib/admin-ids";
 import farmRouter from "./farm";
 import farmSettleRouter from "./farm-settle";
 import userRouter from "./user";
@@ -362,6 +364,40 @@ router.use((req: Request, res: Response, next: NextFunction) => {
   if (!conf.methods.has(req.method as Method)) return next();
   return requireTelegramAuth({ bindField: conf.bindField, forceStrict: conf.forceStrict })(req, res, next);
 });
+
+const ADMIN_SESSION_SEC = 6 * 60 * 60;
+
+router.use((req: Request, res: Response, next: NextFunction) => {
+  const canonical = canonicalizePath(req.path);
+  if (canonical.startsWith("/withdrawals") && req.method === "POST") {
+    if (!allow(`wd:${req.ip ?? "unknown"}`, 6, 10 * 60 * 1000)) {
+      res.status(429).json({ ok: false, error: "SLOW_DOWN" });
+      return;
+    }
+  }
+  if (!canonical.startsWith("/admin")) return next();
+  if (!allow(`admin:${req.ip ?? "unknown"}`, 12, 60 * 1000)) {
+    res.status(429).json({ error: "SLOW_DOWN" });
+    return;
+  }
+  return requireTelegramAuth({ forceStrict: true })(req, res, () => {
+    const age = req.tgUser ? Math.floor(Date.now() / 1000) - req.tgUser.authDate : Number.POSITIVE_INFINITY;
+    if (req.tgUser?.id !== ADMIN_ID || age > ADMIN_SESSION_SEC) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
+    next();
+  });
+});
+
+{
+  const methods = ["POST"] as const;
+  protectedMap.set("/withdrawals/crumbs", {
+    methods: new Set(methods),
+    bindField: "telegramId",
+    forceStrict: true,
+  });
+}
 
 router.use(healthRouter);
 router.use(referralRouter);

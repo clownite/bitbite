@@ -1,5 +1,5 @@
-import { useState, type CSSProperties } from "react";
-import { releasePlayer, setMaintenance, suspendPlayer } from "../utils/api";
+import { useEffect, useState, type CSSProperties } from "react";
+import { fetchAdminSession, releasePlayer, setMaintenance, suspendPlayer } from "../utils/api";
 import { getVerifiedTelegramUserId } from "../utils/telegram";
 
 export const ADMIN_TELEGRAM_ID = "8144744644";
@@ -41,6 +41,7 @@ export function AdminPixel({
   onMaintenance: (enabled: boolean, message: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [allowed, setAllowed] = useState(false);
   const [playerId, setPlayerId] = useState("");
   const [days, setDays] = useState("3");
   const [note, setNote] = useState("");
@@ -49,7 +50,14 @@ export function AdminPixel({
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState("");
 
-  if (!isAppAdmin()) return null;
+  useEffect(() => {
+    if (!isAppAdmin()) return;
+    let alive = true;
+    void fetchAdminSession().then((ok) => { if (alive) setAllowed(ok); });
+    return () => { alive = false; };
+  }, []);
+
+  if (!isAppAdmin() || !allowed) return null;
 
   const idOk = /^\d{5,16}$/.test(playerId) && playerId !== ADMIN_TELEGRAM_ID;
   const dayCount = Math.max(1, Math.min(365, Math.floor(Number(days) || 0)));

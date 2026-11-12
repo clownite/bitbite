@@ -1,6 +1,7 @@
 import type { PetId } from "./catalog";
 import { settleFarm } from "./crumbs";
 import { focusLife } from "./life";
+import { humanJustTouched } from "./human";
 
 /** One shared pet. Everyone starts on the same base form. */
 
@@ -504,6 +505,7 @@ export function claimOnceTask(which: "community" | "chat" | "invite", invites = 
 
 /** One of the four hearts. A click during the 3s pause, or with every heart still charging, does not add XP. */
 export function tapPet(now = Date.now()): TapResult {
+  if (!humanJustTouched(now)) return { xp: 0, count: liveCharges(now).length, max: PET_TAP_MAX, reason: "wait" };
   const day = todayKey(now);
   const count = state.tapDay === day ? state.tapCount : 0;
   const charges = liveCharges(now);

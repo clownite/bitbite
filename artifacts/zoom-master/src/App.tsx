@@ -35,6 +35,7 @@ import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { careView, subscribeCare } from "./pet/care";
 import { eggLeft } from "./pet/life";
 import { getPet } from "./pet/petProgress";
+import { noteHumanGesture } from "./pet/human";
 import { subscribeCrumbs } from "./pet/crumbs";
 import { PixelCookie } from "./components/PixelCookie";
 
@@ -179,6 +180,7 @@ function AppShell() {
 
   useEffect(() => {
     const down = (e: PointerEvent) => {
+      noteHumanGesture(e.isTrusted);
       resumeChiptune();
       const el = e.target as HTMLElement | null;
       const hit = el?.closest?.("button, a, canvas, [role='button']");

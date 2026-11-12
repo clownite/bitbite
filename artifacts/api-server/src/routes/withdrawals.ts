@@ -5,6 +5,7 @@ import { eq, and, desc, sql, ne, gt } from "drizzle-orm";
 import { z } from "zod";
 import { sendWithdrawalChannelMessage, notifyAdminWithdrawalRequest, sendBotMessage } from "../lib/notify";
 import { recordHistoryAsync } from "../lib/history";
+import { verifyInitData } from "../lib/telegram-auth";
 
 const router = Router();
 
@@ -235,6 +236,11 @@ router.post("/withdrawals/crumbs", async (req, res) => {
 });
 
 router.get("/withdrawals/me/:telegramId", async (req, res) => {
+  const verified = verifyInitData(req.header("x-telegram-init-data"));
+  if (!verified.ok || verified.user?.id !== req.params.telegramId) {
+    res.status(403).json({ withdrawals: [] });
+    return;
+  }
   try {
     const rows = await db
       .select()

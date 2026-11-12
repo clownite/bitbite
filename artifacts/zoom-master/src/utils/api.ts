@@ -1303,7 +1303,7 @@ export async function requestCrumbsWithdrawal(params: { telegramId: string; amou
     const res = await fetch(`${API_BASE}/withdrawals/crumbs`, {
       method: "POST",
       headers: apiHeaders(),
-      body: JSON.stringify(params),
+      body: JSON.stringify(withInitData(params)),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) return { ok: false, error: data?.error || "Request failed" };
@@ -1330,7 +1330,7 @@ export async function requestTonWithdrawal(params: { telegramId: string; amountT
 
 export async function fetchMyWithdrawals(telegramId: string): Promise<TonWithdrawal[]> {
   try {
-    const res = await fetch(`${API_BASE}/withdrawals/me/${encodeURIComponent(telegramId)}?t=${Date.now()}`, { cache: "no-store" });
+    const res = await fetch(`${API_BASE}/withdrawals/me/${encodeURIComponent(telegramId)}?t=${Date.now()}`, { cache: "no-store", headers: apiHeaders() });
     if (!res.ok) return [];
     const data = await res.json();
     return Array.isArray(data?.withdrawals) ? data.withdrawals : [];
@@ -1951,6 +1951,20 @@ export interface MaintenanceStatus {
   enabled: boolean;
   message: string;
   updatedAt: number;
+}
+
+export async function fetchAdminSession(): Promise<boolean> {
+  try {
+    const res = await fetch(`${API_BASE}/admin/whoami?t=${Date.now()}`, {
+      cache: "no-store",
+      headers: apiHeaders(),
+    });
+    if (!res.ok) return false;
+    const data = await res.json().catch(() => ({}));
+    return data?.ok === true;
+  } catch {
+    return false;
+  }
 }
 
 export async function setMaintenance(enabled: boolean, message: string): Promise<{ ok: boolean; error?: string }> {
