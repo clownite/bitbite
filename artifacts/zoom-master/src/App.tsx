@@ -290,7 +290,8 @@ function AppShell() {
         <SettingsMenu muted={muted} setMuted={setMuted} headerButton />
       </div>
 
-      <main className="gb-lcd flex-1 overflow-hidden relative z-10" style={{ minHeight: 0 }}>
+      <main className="gb-lcd flex flex-col flex-1 overflow-hidden relative z-10" style={{ minHeight: 0 }}>
+        <div className="relative flex-1 min-h-0">
         {ALL_TABS.map((id) => {
           const active = tab === id;
           if (!active && id !== "lab") return null;
@@ -333,8 +334,37 @@ function AppShell() {
             </div>
           );
         })}
+        </div>
+        {tab === "farm" && (
+          <nav className="gb-nav is-in-screen flex-shrink-0 relative z-20">
+            <div className="flex h-full">
+              {NAV.map((item) => {
+                const active = tab === item.id;
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.id}
+                    className={`gb-nav-btn flex-1 flex flex-col items-center justify-center gap-1${active ? " is-on" : ""}`}
+                    onClick={() => setTab(item.id)}
+                  >
+                    <span className="gb-nav-ico"><Icon size={18} strokeWidth={2.4} /></span>
+                    <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>{t(item.key)}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+        )}
       </main>
 
+      {tab === "farm" ? (
+        <div className="gb-pad flex-shrink-0" aria-hidden="true">
+          <div className="gb-dpad"><i /><i /><b /></div>
+          <div className="gb-pills"><i /><i /></div>
+          <div className="gb-face"><i className="gb-b" /><i className="gb-a" /></div>
+          <div className="gb-speaker"><i /><i /><i /></div>
+        </div>
+      ) : (
       <nav className="gb-nav flex-shrink-0 relative z-20">
         <div className="flex h-full">
           {NAV.map((item) => {
@@ -365,6 +395,7 @@ function AppShell() {
           })}
         </div>
       </nav>
+      )}
       {admin && maintenance.enabled && (
         <div style={{ position: "fixed", left: 12, right: 12, bottom: 96, zIndex: 70, textAlign: "center", fontSize: 11, fontWeight: 800, color: "#ffd36a" }}>
           {t("maint.banner")}

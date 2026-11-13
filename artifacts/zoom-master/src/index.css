@@ -6411,7 +6411,9 @@ body, body * {
 }
 .gb-home-top span:last-child { letter-spacing: 0.02em; text-transform: none; }
 .gb-app.tab-lab,
-.gb-app.tab-lab * {
+.gb-app.tab-lab *,
+.gb-app.tab-farm,
+.gb-app.tab-farm * {
   font-family: "Pixelify Sans", ui-monospace, monospace !important;
 }
 .gb-app.tab-lab {
@@ -6427,7 +6429,172 @@ body, body * {
   background-position: top, bottom, left, right;
   background-repeat: no-repeat;
 }
-.gb-app.tab-lab .christmas-snow { display: none; }
+.gb-app.tab-lab .christmas-snow,
+.gb-app.tab-farm .christmas-snow { display: none; }
+.gb-app.tab-farm {
+  -webkit-font-smoothing: none;
+  background-color: #8d976c;
+  background-image:
+    linear-gradient(#e7edd6, #c9d2ac),
+    linear-gradient(#6a724c, #3e462c),
+    linear-gradient(#d5dcc0, #8d976c),
+    linear-gradient(#5c6442, #3e462c);
+  background-size: 100% 14px, 100% 16px, 8px 100%, 8px 100%;
+  background-position: top, bottom, left, right;
+  background-repeat: no-repeat;
+}
+.gb-app.tab-farm .gb-bezel { display: none; }
+.gb-app.tab-farm .gb-lcd {
+  margin: 16px 14px 4px;
+  border-radius: 6px;
+  border: 5px solid #10260e;
+  background: #9bbc0f;
+  box-shadow:
+    inset 0 10px 14px rgba(8, 24, 0, 0.35),
+    0 0 0 4px #6d754c,
+    0 2px 0 #d7dec4;
+}
+.gb-collection {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 10px 4px;
+  color: #0f380f;
+  overflow: hidden;
+}
+.gb-collection-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 2px 4px 8px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.gb-collection-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr auto;
+  gap: 8px;
+}
+.gb-app.tab-farm .gb-slot {
+  height: auto;
+  min-height: 0;
+  border: 2px solid #16300c;
+  border-radius: 4px;
+  background: #6f8f16;
+  box-shadow: inset 0 3px 0 rgba(10, 30, 0, 0.16), 0 2px 0 #3d5a10;
+}
+.gb-plus {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 54%;
+  height: 58px;
+  border: 2px solid #16300c;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #2f6a18 0%, #1c4a10 100%);
+  color: #b6e24a;
+  box-shadow: inset 0 2px 0 rgba(180, 220, 80, 0.28), 0 3px 0 #0e2808;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+}
+.gb-app.tab-farm .collection-extra { display: none !important; }
+.gb-nav.is-in-screen {
+  height: 58px;
+  margin: 6px 6px 6px;
+  padding: 0;
+  background: transparent;
+  border-top: 3px solid #10260e;
+}
+.gb-nav.is-in-screen .gb-nav-btn { color: #0f380f; }
+.gb-nav.is-in-screen .gb-nav-btn.is-on {
+  margin: 3px 2px;
+  border-radius: 4px;
+  background: #d7e36c;
+  color: #0f380f;
+  box-shadow: inset 0 1px 0 #f4f8c8, 0 2px 0 #5a7012;
+}
+.gb-nav.is-in-screen .gb-nav-btn.is-on .gb-nav-ico {
+  width: auto;
+  height: auto;
+  background: transparent;
+  color: #0f380f;
+  box-shadow: none;
+}
+.gb-pad {
+  position: relative;
+  height: 168px;
+}
+.gb-dpad { position: absolute; left: 26px; top: 16px; width: 96px; height: 96px; }
+.gb-dpad i,
+.gb-dpad b {
+  position: absolute;
+  background: linear-gradient(160deg, #5a5a5a, #1c1c1c 55%, #111);
+  box-shadow: inset 2px 2px 0 #7a7a7a, inset -2px -3px 0 #0a0a0a, 0 4px 0 #111;
+  border-radius: 6px;
+}
+.gb-dpad i:first-child { left: 34px; top: 0; width: 28px; height: 96px; }
+.gb-dpad i:nth-child(2) { left: 0; top: 34px; width: 96px; height: 28px; }
+.gb-dpad b {
+  left: 34px;
+  top: 34px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #3a3a3a, #141414);
+}
+.gb-pills {
+  position: absolute;
+  left: 50%;
+  bottom: 36px;
+  display: flex;
+  gap: 16px;
+  transform: translateX(-50%);
+}
+.gb-pills i {
+  width: 32px;
+  height: 12px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #3a3a3a, #161616);
+  box-shadow: inset 1px 1px 0 #666, 0 2px 0 #111;
+  transform: rotate(-28deg);
+}
+.gb-face { position: absolute; right: 18px; top: 10px; width: 130px; height: 108px; }
+.gb-a, .gb-b { position: absolute; border-radius: 50%; display: block; }
+.gb-a {
+  right: 0;
+  top: 0;
+  width: 62px;
+  height: 62px;
+  background: radial-gradient(circle at 34% 30%, #5ec46a, #1f7a32 58%, #0d4a18);
+  box-shadow: inset 2px 2px 0 #b6f0a8, inset -4px -5px 0 #083010, 0 5px 0 #06240c;
+}
+.gb-b {
+  left: 6px;
+  bottom: 0;
+  width: 48px;
+  height: 48px;
+  background: radial-gradient(circle at 34% 30%, #e07078, #9a2834 58%, #5c121c);
+  box-shadow: inset 2px 2px 0 #ffc0c0, inset -3px -4px 0 #3a0c12, 0 4px 0 #3a1014;
+}
+.gb-speaker {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  display: flex;
+  gap: 4px;
+  transform: rotate(32deg);
+}
+.gb-speaker i {
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  background: #3e4630;
+  box-shadow: inset 1px 0 0 #8a9274, 1px 1px 0 #1c2014;
+}
 .gb-app.tab-lab .gb-lcd {
   margin: 4px 16px 8px;
   border-radius: 6px;

@@ -59,13 +59,13 @@ export function CollectionPage({
     : t("pet.hours", { n: (one * 24).toFixed(1) });
 
   return (
-    <div className="h-full overflow-y-auto" style={{ padding: "12px 12px 20px", color: "#0f380f" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: "0.12em", color: "#0f380f" }}>{t("pet.nav.collection").toUpperCase()}</div>
-        <div style={{ fontSize: 14, fontWeight: 900, color: "#0f380f" }}>{pet.owned.length}/{PET_SLOTS}</div>
+    <div className="gb-collection">
+      <div className="gb-collection-head">
+        <div>{t("pet.nav.collection").toUpperCase()}</div>
+        <div>{pet.owned.length}/{PET_SLOTS}</div>
       </div>
 
-      <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      <div className="gb-collection-grid">
         {Array.from({ length: PET_SLOTS }, (_, index) => {
           const id = pet.owned[index] as PetId | undefined;
           const selected = id != null && id === pet.active;
@@ -76,15 +76,10 @@ export function CollectionPage({
                 type="button"
                 aria-label={t("pet.openShop")}
                 onClick={onOpenShop}
+                className="gb-plus"
                 style={{
-                  ...cardShell,
                   display: "grid",
                   placeItems: "center",
-                  gridColumn: "1 / -1",
-                  height: 72,
-                  border: "3px solid #0f380f",
-                  background: "#0f380f",
-                  color: "#9bbc0f",
                   cursor: "pointer",
                 }}
               >
@@ -104,9 +99,9 @@ export function CollectionPage({
               }}
               style={{
                 ...cardShell,
-                border: "3px solid #0f380f",
-                background: "#8bac0f",
-                boxShadow: "none",
+                border: "2px solid #16300c",
+                background: "#5f7e12",
+                boxShadow: "inset 0 3px 0 rgba(10, 30, 0, 0.18), 0 2px 0 #3d5a10",
               }}
             >
               {life.form === "egg" ? <LifeEgg color={color} mini /> : (
@@ -122,7 +117,7 @@ export function CollectionPage({
         })}
       </div>
 
-      <section style={{ marginTop: 16, display: ready ? "block" : "none" }}>
+      <section className="collection-extra" style={{ marginTop: 16, display: ready ? "block" : "none" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#306230" }}>{personalPetNumber(ownerId, pet.active)}</div>
