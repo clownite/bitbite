@@ -375,7 +375,12 @@ export function LabPage({
                   }
                 }}
               >
-                <b className="gb-a-mark">A</b>
+                <b className="gb-a-mark" aria-hidden="true">
+                  <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
+                    <circle cx="13" cy="13" r="11" fill="#e6ebd0" stroke="#2f3d1c" strokeWidth="1.7" />
+                    <path fill="#1a2410" d="M13 6.2 7.2 20h2.6l1.1-3h4.2l1.1 3H18.8L13 6.2zm0 5.2 1.35 3.6h-2.7L13 11.4z" />
+                  </svg>
+                </b>
                 {t("pet.claim")}
               </button>
             <div className="gb-stats">

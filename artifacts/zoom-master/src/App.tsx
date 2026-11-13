@@ -281,7 +281,6 @@ function AppShell() {
       className={`gb-app tab-${tab} flex flex-col overflow-hidden relative${tab === "wallet" ? " is-profile" : ""}`}
       style={{
         height: "100dvh",
-        background: "#8b9568",
         paddingTop: "env(safe-area-inset-top, 0px)",
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
