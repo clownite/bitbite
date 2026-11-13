@@ -6664,12 +6664,18 @@ body, body * {
 }
 .gb-app.tab-lab .gb-home-pet {
   position: relative;
-  flex: 0 0 132px;
+  flex: 1 1 auto;
   min-height: 0;
   margin: 0;
 }
-.gb-app.tab-lab .life-pet { --cell: 14px; }
-.gb-app.tab-lab .life-pet-body { bottom: 2px; }
+.gb-app.tab-lab .life-pet {
+  --cell: 14px;
+  top: 54%;
+  bottom: auto;
+  height: calc(14 * var(--cell));
+  transform: translateY(-50%);
+}
+.gb-app.tab-lab .life-pet-body { bottom: 0; }
 .gb-app.tab-lab .gb-home-body { padding: 0 10px 4px; }
 .gb-home-line {
   margin: 2px 4px 6px;
@@ -6916,5 +6922,29 @@ body { background: #0c1008; }
 .gb-nav.is-in-screen .gb-nav-btn.is-on,
 .gb-nav-btn.is-on .gb-nav-ico {
   border-radius: 2px;
+}
+.gb-app .gb-nav.is-in-screen,
+.gb-app.tab-lab .gb-nav.is-in-screen,
+.gb-app.tab-farm .gb-nav.is-in-screen,
+.gb-app.tab-play .gb-nav.is-in-screen,
+.gb-app.tab-earn .gb-nav.is-in-screen,
+.gb-app.tab-rank .gb-nav.is-in-screen,
+.gb-app.tab-wallet .gb-nav.is-in-screen {
+  height: 58px;
+  margin: 4px 6px 6px;
+  padding: 0;
+  background: transparent;
+  border-top: 3px solid #10260e;
+}
+.gb-app .gb-nav.is-in-screen .gb-nav-btn,
+.gb-app.tab-lab .gb-nav.is-in-screen .gb-nav-btn { color: #0f380f; }
+.gb-app .gb-nav.is-in-screen .gb-nav-btn.is-on .gb-nav-ico,
+.gb-app.tab-lab .gb-nav.is-in-screen .gb-nav-btn.is-on .gb-nav-ico {
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  color: #0f380f;
+  box-shadow: none;
 }
 

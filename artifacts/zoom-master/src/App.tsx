@@ -335,67 +335,44 @@ function AppShell() {
           );
         })}
         </div>
-        {tab === "farm" && (
-          <nav className="gb-nav is-in-screen flex-shrink-0 relative z-20">
-            <div className="flex h-full">
-              {NAV.map((item) => {
-                const active = tab === item.id;
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.id}
-                    className={`gb-nav-btn flex-1 flex flex-col items-center justify-center gap-1${active ? " is-on" : ""}`}
-                    onClick={() => setTab(item.id)}
-                  >
-                    <span className="gb-nav-ico"><Icon size={18} strokeWidth={2.4} /></span>
-                    <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.02em", whiteSpace: "nowrap" }}>{t(item.key)}</div>
-                  </button>
-                );
-              })}
-            </div>
-          </nav>
-        )}
+        <nav className="gb-nav is-in-screen flex-shrink-0 relative z-20">
+          <div className="flex h-full">
+            {NAV.map((item) => {
+              const active = tab === item.id;
+              const Icon = item.icon;
+              const calling = item.id === "lab" && care.call && eggLeft(getPet().active) <= 0;
+              return (
+                <button
+                  key={item.id}
+                  className={`gb-nav-btn flex-1 flex flex-col items-center justify-center gap-1${active ? " is-on" : ""}${calling ? " nav-call" : ""}`}
+                  onClick={() => setTab(item.id)}
+                >
+                  <span className="gb-nav-ico">
+                    <Icon size={18} strokeWidth={2.4} />
+                    {calling ? <span className="nav-call-dot" /> : null}
+                  </span>
+                  <div style={{
+                    fontSize: calling && tab !== "lab" && care.bubble ? 8 : 9,
+                    fontWeight: 800,
+                    letterSpacing: "0.02em",
+                    whiteSpace: "nowrap",
+                    color: calling && tab !== "lab" && care.bubble ? "#1c3a0c" : undefined,
+                  }}>
+                    {calling && tab !== "lab" && care.bubble ? t(care.bubble) : t(item.key)}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
       </main>
 
-      {tab === "farm" ? (
-        <div className="gb-console flex-shrink-0" aria-hidden="true">
-          <div className="gb-dpad"><i /><i /><b /></div>
-          <div className="gb-pills"><i /><i /></div>
-          <div className="gb-face"><i className="gb-console-b" /><i className="gb-console-a" /></div>
-          <div className="gb-speaker"><i /><i /><i /></div>
-        </div>
-      ) : (
-      <nav className="gb-nav flex-shrink-0 relative z-20">
-        <div className="flex h-full">
-          {NAV.map((item) => {
-            const active = tab === item.id;
-            const Icon = item.icon;
-            const calling = item.id === "lab" && care.call && eggLeft(getPet().active) <= 0;
-            return (
-              <button
-                key={item.id}
-                className={`gb-nav-btn flex-1 flex flex-col items-center justify-center gap-1${active ? " is-on" : ""}${calling ? " nav-call" : ""}`}
-                onClick={() => setTab(item.id)}
-              >
-                <span className="gb-nav-ico">
-                  <Icon size={20} strokeWidth={active ? 2.6 : 1.8} />
-                  {calling ? <span className="nav-call-dot" /> : null}
-                </span>
-                <div style={{
-                  fontSize: calling && tab !== "lab" && care.bubble ? 8 : 9,
-                  fontWeight: 800,
-                  letterSpacing: "0.02em",
-                  whiteSpace: "nowrap",
-                  color: calling && tab !== "lab" && care.bubble ? "#ffd0dc" : undefined,
-                }}>
-                  {calling && tab !== "lab" && care.bubble ? t(care.bubble) : t(item.key)}
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-      )}
+      <div className="gb-console flex-shrink-0" aria-hidden="true">
+        <div className="gb-dpad"><i /><i /><b /></div>
+        <div className="gb-pills"><i /><i /></div>
+        <div className="gb-face"><i className="gb-console-b" /><i className="gb-console-a" /></div>
+        <div className="gb-speaker"><i /><i /><i /></div>
+      </div>
       {admin && maintenance.enabled && (
         <div style={{ position: "fixed", left: 12, right: 12, bottom: 96, zIndex: 70, textAlign: "center", fontSize: 11, fontWeight: 800, color: "#ffd36a" }}>
           {t("maint.banner")}
