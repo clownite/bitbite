@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { LifeEgg } from "../components/LifeEgg";
 import { NumberGame } from "../components/NumberGame";
-import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
 import { ackCookieBanner, cookieBoard, nextReset, recordCookies, xpForPlace, type BoardRow } from "../pet/cookieBoard";
 import { awardGameXp } from "../pet/gameXp";
 import { cookiePlays, noteFinishedSeries, PLAYS_PER_DAY, playsLeft, type PlayDay } from "../pet/cookiePlays";
 import { noteDisciplinePlay } from "../pet/discipline";
 import {
-  freshRun, rigX, SERIES, stagePoint, startRun, stepRun, tapDrop, type Run,
+  freshRun, SERIES, stagePoint, startRun, stepRun, tapDrop, type Run,
 } from "../pet/cookieGame";
-import { playPose } from "../pet/playPose";
 import { getPet, subscribePet, type PetState } from "../pet/petProgress";
 import { eggLeft, familyOf, focusLife, formatLeft, readLife } from "../pet/life";
 import { LifeCreature } from "../components/LifeCreature";
@@ -169,10 +167,6 @@ export function GamePage({ active }: { active: boolean }) {
         if (next.bombedThisTick > 0) playMiss();
         setRun(next);
       }
-      const sway = Math.sin(now / 700) * 0.12;
-      playPose.x = rigX(0.5);
-      playPose.y = Math.sin(now / 520) * 0.012;
-      playPose.face = sway;
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -273,11 +267,7 @@ export function GamePage({ active }: { active: boolean }) {
             borderColor: "#0f380f",
           }}
         >
-          {run.phase === "idle" ? (
-            <LifeCreature family={familyOf(pet.active)} form={life.form} kin={life.kin} mark={life.mark} />
-          ) : (
-            <PetStage pet={pet} frame="play" petId={pet.active} lifeScale={life.scale} />
-          )}
+          <LifeCreature family={familyOf(pet.active)} form={life.form} kin={life.kin} mark={life.mark} />
           <div className="cookie-floor" />
           {size.w > 0 && run.drops.map((drop) => {
             const point = stagePoint(drop.x, drop.y, size.w, size.h);

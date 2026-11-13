@@ -1,5 +1,4 @@
 import { createRoot } from "react-dom/client";
-import { preloadPetModel } from "./pet/petModel";
 import App from "./App";
 import "./index.css";
 import { primeChiptune } from "./audio/chiptune";
@@ -52,7 +51,6 @@ bindKeyboard();
   primeChiptune();
 };
 if ((window as unknown as { __zoomWantMusic?: boolean }).__zoomWantMusic) primeChiptune();
-preloadPetModel();
 
 const SCROLL_TAGS = new Set(["HTML", "BODY"]);
 const SCROLL_CLASSES = ["overflow-y-auto", "overflow-auto", "overflow-x-auto"];

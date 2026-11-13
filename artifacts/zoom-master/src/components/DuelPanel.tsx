@@ -6,7 +6,8 @@ import { foeMove, makeFighter, strike, type Call, type Fighter, type Move } from
 import { recordCookies } from "../pet/cookieBoard";
 import { noteDisciplinePlay } from "../pet/discipline";
 import { addPetXp, getPet, type PetState } from "../pet/petProgress";
-import { PetStage } from "./PetStage";
+import { familyOf, readLife } from "../pet/life";
+import { LifeCreature } from "./LifeCreature";
 
 const WIN_POINTS = 5;
 const WIN_XP = 8;
@@ -249,7 +250,6 @@ export function DuelPanel({ pet }: { pet: PetState }) {
 
   const youColor = petDef(you.id).element.color;
   const foeColor = petDef(foe.id).element.color;
-  const foePet = { ...pet, level: pet.level, stage: pet.stage, active: foe.id };
   const showClock = phase === "you" || phase === "foe";
 
   return (
@@ -270,10 +270,10 @@ export function DuelPanel({ pet }: { pet: PetState }) {
           }}
         >
           <div className={`ring-fighter you ${phase === "fly" && dealt.foe > 0 ? "is-hit" : ""}`}>
-            <PetStage pet={pet} frame="duel" petId={you.id} side="left" />
+            <LifeCreature family={familyOf(you.id)} form={readLife(you.id).form === "egg" ? "baby" : readLife(you.id).form} kin={readLife(you.id).kin} mark={readLife(you.id).mark} />
           </div>
           <div className={`ring-fighter foe ${phase === "fly" && dealt.you > 0 ? "is-hit" : ""}`}>
-            <PetStage pet={foePet} frame="duel" petId={foe.id} side="right" />
+            <LifeCreature family={familyOf(foe.id)} form="adult" kin={0} />
           </div>
           <div className="ring-floor" />
           {phase === "fly" && dealt.you > 0 ? <i className="ring-shot you" style={{ background: youColor, boxShadow: `0 0 18px ${youColor}` }} /> : null}
