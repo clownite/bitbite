@@ -1,33 +1,23 @@
 import { memo, useEffect, useState } from "react";
 import { LANGS, useT } from "../i18n/LanguageContext";
 import { clicksEnabled, setClicksEnabled } from "../audio/sfx";
-
-const CYAN = "#9EC5E8";
-const CYAN_BORDER = "rgba(158,197,232,0.35)";
-const CYAN_GLOW = "rgba(158,197,232,0.15)";
+import { runTap } from "../utils/tap";
 
 interface SettingsMenuProps {
   muted: boolean;
   setMuted: (next: boolean | ((prev: boolean) => boolean)) => void;
-  /** 40px header pill — matches shop button size in App header. */
+  /** The three lights in the bezel. */
   headerButton?: boolean;
   /** Bumps when Select should open the menu. */
   openToken?: number;
 }
 
-/**
- * Single gear-icon entry point for app preferences. Replaces the previous
- * standalone language flag + volume button in the header. Opens a small
- * modal containing:
- *   - Language picker (flags shown for the languages exposed in `LANGS`)
- *   - Audio toggle (mute / unmute)
- */
+/** Language, music and sounds, drawn as a Game Boy screen. */
 export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, headerButton = false, openToken = 0 }: SettingsMenuProps) {
   const { lang, setLang, t } = useT();
   const [open, setOpen] = useState(false);
   const [clicks, setClicks] = useState(clicksEnabled);
 
-  // ESC closes the modal — small QoL on desktop / web preview.
   useEffect(() => {
     if (!openToken) return;
     setOpen(true);
@@ -48,21 +38,10 @@ export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, header
         type="button"
         aria-label={t("common.settings")}
         data-testid="settings-button"
-        onClick={() => setOpen(true)}
-        className={headerButton ? "flex items-center justify-center active:scale-95 flex-shrink-0" : "glass-neon rounded-full flex items-center justify-center"}
-        style={headerButton ? {
-          width: "auto",
-          height: "auto",
-          borderRadius: 0,
-          background: "transparent",
-          border: "none",
-          boxShadow: "none",
-          color: "#1c2414",
-          cursor: "pointer",
-          padding: 0,
-          transition: "transform 0.12s",
-          WebkitTapHighlightColor: "transparent",
-        } : {
+        onPointerDown={(event) => runTap(event, () => setOpen(true))}
+        onTouchStart={(event) => runTap(event, () => setOpen(true))}
+        className={headerButton ? "gb-settings-open" : "glass-neon rounded-full flex items-center justify-center"}
+        style={headerButton ? undefined : {
           width: 32,
           height: 32,
           padding: 0,
@@ -72,241 +51,82 @@ export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, header
           WebkitTapHighlightColor: "transparent",
         }}
       >
-        {headerButton ? <span className="gb-dots" aria-hidden="true"><i /><i /><i /></span> : null}
-        <svg
-          width={16}
-          height={16}
-          style={headerButton ? { display: "none" } : undefined}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
+        {headerButton ? <span className="gb-dots" aria-hidden="true"><i /><i /><i /></span> : (
+          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        )}
       </button>
 
       {open && (
         <div
-          onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 1000,
-            background: "rgba(0,0,0,0.6)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 24,
+          className="gb-settings"
+          onPointerDown={(event) => {
+            if (event.target === event.currentTarget) setOpen(false);
           }}
         >
-          <div
-            data-testid="settings-modal"
-            style={{
-              background: "linear-gradient(180deg, rgba(14,18,36,0.98), rgba(8,10,22,0.98))",
-              border: `1px solid ${CYAN_BORDER}`,
-              borderRadius: 16,
-              padding: 18,
-              width: "100%",
-              maxWidth: 300,
-              display: "flex",
-              flexDirection: "column",
-              gap: 14,
-              boxShadow: `0 0 30px ${CYAN_GLOW}`,
-            }}
-          >
-            {/* Title */}
-            <div
-              style={{
-                fontSize: 11,
-                color: "rgba(255,255,255,0.5)",
-                letterSpacing: "0.18em",
-                textAlign: "center",
-                fontWeight: 700,
-              }}
-            >
-              {t("common.settings").toUpperCase()}
-            </div>
+          <div className="gb-settings-card" data-testid="settings-modal">
+            <h2>{t("common.settings")}</h2>
 
-            {/* Language section */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div
-                style={{
-                  fontSize: 10,
-                  color: "rgba(255,255,255,0.45)",
-                  letterSpacing: "0.14em",
-                  fontWeight: 700,
-                  paddingLeft: 2,
-                }}
-              >
-                {t("common.language").toUpperCase()}
-              </div>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 8,
-                }}
-              >
-                {LANGS.map((l) => {
-                  const active = l.code === lang;
-                  return (
-                    <button
-                      key={l.code}
-                      type="button"
-                      onClick={() => setLang(l.code)}
-                      data-testid={`settings-lang-${l.code}`}
-                      style={{
-                        minWidth: 0,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "flex-start",
-                        gap: 8,
-                        padding: "10px 12px",
-                        borderRadius: 12,
-                        border: active ? `1.5px solid ${CYAN}` : "1px solid rgba(255,255,255,0.08)",
-                        background: active ? "rgba(158,197,232,0.10)" : "rgba(255,255,255,0.03)",
-                        color: "#fff",
-                        fontSize: 13,
-                        fontWeight: 700,
-                        letterSpacing: "0.04em",
-                        cursor: "pointer",
-                        WebkitTapHighlightColor: "transparent",
-                        transition: "background 120ms",
-                      }}
-                    >
-                      <span style={{ fontSize: 20, flex: "0 0 auto" }}>{l.flag}</span>
-                      <span
-                        style={{
-                          minWidth: 0,
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {l.label}
-                      </span>
-                    </button>
-                  );
-                })}
+            <div className="gb-settings-block">
+              <div className="gb-settings-kicker">{t("common.language")}</div>
+              <div className="gb-settings-langs">
+                {LANGS.map((item) => (
+                  <button
+                    key={item.code}
+                    type="button"
+                    className={item.code === lang ? "is-on" : ""}
+                    data-testid={`settings-lang-${item.code}`}
+                    onPointerDown={(event) => runTap(event, () => setLang(item.code))}
+                    onTouchStart={(event) => runTap(event, () => setLang(item.code))}
+                  >
+                    <span>{item.flag}</span>
+                    <span>{item.label}</span>
+                  </button>
+                ))}
               </div>
             </div>
 
-            {/* Audio section */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              <div
-                style={{
-                  fontSize: 10,
-                  color: "rgba(255,255,255,0.45)",
-                  letterSpacing: "0.14em",
-                  fontWeight: 700,
-                  paddingLeft: 2,
-                }}
-              >
-                {t("common.audio").toUpperCase()} · {t("pet.music")}
-              </div>
+            <div className="gb-settings-block">
+              <div className="gb-settings-kicker">{t("common.audio")}</div>
               <button
                 type="button"
-                onClick={() => setMuted((m) => !m)}
+                className="gb-settings-row"
                 data-testid="settings-audio-toggle"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "12px 14px",
-                  borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.03)",
-                  color: "#fff",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  letterSpacing: "0.04em",
-                  cursor: "pointer",
-                  WebkitTapHighlightColor: "transparent",
-                }}
+                onPointerDown={(event) => runTap(event, () => setMuted((value) => !value))}
+                onTouchStart={(event) => runTap(event, () => setMuted((value) => !value))}
               >
-                <span style={{ fontSize: 20, lineHeight: 1 }}>{muted ? "🔇" : "🔊"}</span>
-                <span style={{ flex: 1, textAlign: "left" }}>
-                  {muted ? t("common.muted") : t("common.unmuted")}
-                </span>
-                {/* iOS-style switch */}
-                <span
-                  aria-hidden
-                  style={{
-                    position: "relative",
-                    width: 38,
-                    height: 22,
-                    borderRadius: 999,
-                    background: muted ? "rgba(255,255,255,0.10)" : CYAN,
-                    transition: "background 160ms",
-                    boxShadow: muted ? "none" : "0 0 12px rgba(158,197,232,0.55)",
-                  }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      top: 2,
-                      left: muted ? 2 : 18,
-                      width: 18,
-                      height: 18,
-                      borderRadius: "50%",
-                      background: "#fff",
-                      transition: "left 160ms",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.4)",
-                    }}
-                  />
-                </span>
+                <span>{t("common.audio")}</span>
+                <b className={muted ? "" : "is-on"}>{muted ? "OFF" : "ON"}</b>
               </button>
               <button
                 type="button"
-                onClick={() => {
+                className="gb-settings-row"
+                data-testid="settings-sfx-toggle"
+                onPointerDown={(event) => runTap(event, () => {
                   const next = !clicks;
                   setClicksEnabled(next);
                   setClicks(next);
-                }}
-                data-testid="settings-sfx-toggle"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "12px 14px",
-                  borderRadius: 12,
-                  border: "1px solid rgba(255,255,255,0.10)",
-                  background: "rgba(255,255,255,0.03)",
-                  color: "#fff",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  letterSpacing: "0.04em",
-                  cursor: "pointer",
-                }}
+                })}
+                onTouchStart={(event) => runTap(event, () => {
+                  const next = !clicks;
+                  setClicksEnabled(next);
+                  setClicks(next);
+                })}
               >
-                <span style={{ flex: 1, textAlign: "left" }}>{t("pet.sfx")}</span>
-                <span style={{ color: clicks ? "#9EC5E8" : "rgba(255,255,255,0.45)" }}>{clicks ? "ON" : "OFF"}</span>
+                <span>{t("pet.sfx")}</span>
+                <b className={clicks ? "is-on" : ""}>{clicks ? "ON" : "OFF"}</b>
               </button>
             </div>
 
-            {/* Close */}
             <button
               type="button"
-              onClick={() => setOpen(false)}
-              style={{
-                marginTop: 4,
-                padding: "10px 14px",
-                borderRadius: 10,
-                border: "1px solid rgba(255,255,255,0.10)",
-                background: "rgba(255,255,255,0.04)",
-                color: "rgba(255,255,255,0.85)",
-                fontSize: 12,
-                fontWeight: 700,
-                letterSpacing: "0.06em",
-                cursor: "pointer",
-                WebkitTapHighlightColor: "transparent",
-              }}
+              className="gb-settings-close"
+              onPointerDown={(event) => runTap(event, () => setOpen(false))}
+              onTouchStart={(event) => runTap(event, () => setOpen(false))}
             >
-              {t("common.close").toUpperCase()}
+              {t("common.close")}
             </button>
           </div>
         </div>
