@@ -120,8 +120,8 @@ export function farmStatus(now = Date.now()) {
 }
 
 /** Move whatever the pet is holding into the wallet and start filling again. */
-export function claimFarm(now = Date.now()): number {
-  if (!humanJustTouched(now)) return 0;
+export function claimFarm(now = Date.now(), fromButton = false): number {
+  if (!fromButton && !humanJustTouched(now)) return 0;
   settleFarm(now);
   if (state.pending <= 1e-10) return 0;
   const n = state.pending;

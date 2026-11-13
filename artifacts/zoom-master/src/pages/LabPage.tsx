@@ -238,7 +238,7 @@ export function LabPage({
   }, [active]);
   const runClaim = () => {
     if (care.dark) return;
-    const got = claimFarm();
+    const got = claimFarm(Date.now(), true);
     if (got <= 0) return;
     playClaim();
   };
@@ -337,9 +337,10 @@ export function LabPage({
                 type="button"
                 className={farm.pending >= 0.0001 ? "claim-3d" : "claim-3d is-empty"}
                 style={{ ["--claim" as string]: chosen.element.color }}
-                disabled={farm.pending < 0.0001 || care.dark}
-                onClick={(event) => {
-                  noteHumanGesture(event.isTrusted);
+                disabled={farm.pending <= 0 || care.dark}
+                onPointerDown={(event) => {
+                  if (event.button !== 0) return;
+                  noteHumanGesture(true);
                   runClaim();
                 }}
               >
@@ -359,7 +360,11 @@ export function LabPage({
                   className="gb-stat"
                   data-testid={`stat-${stat.id}`}
                   aria-expanded={sheet === stat.id}
-                  onClick={() => setSheet((open) => (open === stat.id ? null : stat.id))}
+                  onPointerDown={(event) => {
+                    if (event.button !== 0) return;
+                    event.stopPropagation();
+                    setSheet((open) => (open === stat.id ? null : stat.id));
+                  }}
                 >
                   <div style={{ fontSize: 15, fontWeight: 900, color: "#0f380f" }}>
                     {stat.id === "ability" ? abilityName : stat.id === "hp" ? `HP ${stat.value}` : stat.id === "tap" ? stat.label : `${stat.label} ${stat.value}`}

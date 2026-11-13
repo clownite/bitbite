@@ -6424,14 +6424,20 @@ body, body * {
 .gb-app.tab-lab *,
 .gb-app.tab-farm,
 .gb-app.tab-farm *,
+.gb-app.tab-play,
+.gb-app.tab-play *,
 .gb-app.tab-earn,
 .gb-app.tab-earn *,
+.gb-app.tab-rank,
+.gb-app.tab-rank *,
+.gb-app.tab-shop,
+.gb-app.tab-shop *,
 .gb-app.tab-wallet,
 .gb-app.tab-wallet * {
-  font-family: "Pixelify Sans", ui-monospace, monospace !important;
+  font-family: "Fredoka", "Nunito", sans-serif !important;
 }
 .gb-app.tab-wallet .profile-page { color: #1c2414; background: transparent; }
-.gb-app.tab-wallet .profile-kicker { color: #1c2414; font-size: 12px; letter-spacing: 0.16em; }
+.gb-app.tab-wallet .profile-kicker { color: #1c2414; font-size: 12px; letter-spacing: 0; }
 .gb-app.tab-wallet .profile-head h2 { color: #1c2414; font-size: 34px; letter-spacing: 0; }
 .gb-app.tab-wallet .profile-tag {
   background: #d6e36a;
@@ -6932,7 +6938,8 @@ body { background: #0c1008; }
 }
 .gb-app,
 .gb-app * {
-  font-family: "Pixelify Sans", ui-monospace, monospace !important;
+  font-family: "Fredoka", "Nunito", sans-serif !important;
+  font-weight: 700;
 }
 .gb-app .gb-bezel,
 .gb-app.tab-lab .gb-bezel,
@@ -6959,15 +6966,24 @@ body { background: #0c1008; }
 }
 .gb-app .gb-lcd::after { pointer-events: none !important; }
 .gb-app .home-sheet {
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  bottom: 8px;
-  z-index: 30;
-  max-height: 42%;
+  position: fixed;
+  left: 28px;
+  right: 28px;
+  top: 22%;
+  bottom: auto;
+  z-index: 80;
+  max-height: none;
+  transform: none;
+  animation: none;
 }
+.gb-app.tab-lab .gb-home-body { position: relative; z-index: 12; }
 .gb-app .claim-3d,
-.gb-app .gb-stat { position: relative; z-index: 5; pointer-events: auto; }
+.gb-app .gb-stat {
+  position: relative;
+  z-index: 13;
+  pointer-events: auto;
+  touch-action: manipulation;
+}
 .gb-app .life-name {
   display: grid !important;
   position: absolute;
@@ -7006,18 +7022,20 @@ body { background: #0c1008; }
   bottom: auto;
 }
 .gb-app .pet-note.is-open { display: block !important; }
+.gb-app .gb-farm,
+.gb-app .gb-farm div,
 .gb-app .gb-amount,
 .gb-app .gb-label,
 .gb-app .gb-sub,
 .gb-app .gb-line,
 .gb-app .gb-who,
-.gb-app .profile-tag,
-.gb-app .profile-kicker,
-.gb-app .profile-head h2 {
-  font-family: "Pixelify Sans", ui-monospace, monospace !important;
-  letter-spacing: 0;
+.gb-app .profile-tag {
+  font-family: "Fredoka", "Nunito", sans-serif !important;
+  font-weight: 700 !important;
+  letter-spacing: 0 !important;
+  font-variant-numeric: tabular-nums;
 }
-.gb-app .gb-amount { font-size: 34px; font-weight: 700; }
+.gb-app .gb-amount { font-size: 36px; }
 .gb-dir {
   position: absolute;
   z-index: 3;

@@ -396,7 +396,7 @@ function AppShell() {
         </div>
         <div className="gb-face">
           <button type="button" className={`gb-console-b${held === "b" ? " is-down" : ""}`} aria-label="B" onClick={() => press("b", () => playNo(0))} />
-          <button type="button" className={`gb-console-a${held === "a" ? " is-down" : ""}`} aria-label="A" onClick={(event) => press("a", () => { if (tab !== "lab") return; noteHumanGesture(event.isTrusted); window.dispatchEvent(new Event("zoom-home-claim")); })} />
+          <button type="button" className={`gb-console-a${held === "a" ? " is-down" : ""}`} aria-label="A" onPointerDown={(event) => { if (event.button !== 0) return; press("a", () => { if (tab !== "lab") return; noteHumanGesture(true); window.dispatchEvent(new Event("zoom-home-claim")); }); }} />
         </div>
         <div className="gb-speaker"><i /><i /><i /></div>
       </div>
