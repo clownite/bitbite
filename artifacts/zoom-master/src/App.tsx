@@ -8,7 +8,6 @@ import { GamePage } from "./pages/GamePage";
 import { settleCookieWeek } from "./pet/cookieBoard";
 import { usePetSession } from "./hooks/usePetSession";
 import { useGlobalInit } from "./store/globalStore";
-import { LabSpaceBackground } from "./components/LabSpaceBackground";
 import { MaintenanceScreen } from "./components/MaintenanceScreen";
 import { SuspendedScreen } from "./components/SuspendedScreen";
 import { AdminPixel, isAppAdmin } from "./components/AdminPixel";
@@ -56,7 +55,6 @@ const NAV: { id: Tab; key: string; icon: typeof House }[] = [
 ];
 
 const ALL_TABS: Tab[] = ["lab", "farm", "play", "earn", "rank", "shop", "wallet"];
-const LAB_SPACE_TABS: Tab[] = ["farm", "play", "earn", "rank", "wallet", "shop"];
 
 function readMaintCache(): MaintSnapshot | null {
   try {
@@ -283,21 +281,20 @@ function AppShell() {
 
   return (
     <div
-      className="flex flex-col overflow-hidden relative"
+      className="gb-app flex flex-col overflow-hidden relative"
       style={{
         height: "100dvh",
-        background: "#000000",
-        paddingTop: tab === "lab" ? 0 : "env(safe-area-inset-top, 0px)",
-        paddingBottom: tab === "lab" ? 0 : "env(safe-area-inset-bottom, 0px)",
+        background: "#8b9568",
+        paddingTop: "env(safe-area-inset-top, 0px)",
+        paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
-      {LAB_SPACE_TABS.includes(tab) && <LabSpaceBackground />}
-      <div style={{ position: "absolute", zIndex: 40, left: 14, top: "calc(env(safe-area-inset-top, 0px) + 10px)" }}>
+      <div className="gb-bezel">
         <TelegramIdentity />
+        <span className="gb-dots" aria-hidden="true"><i /><i /><i /></span>
       </div>
-      {tab !== "lab" && <div style={{ height: 46, flexShrink: 0 }} />}
 
-      <main className="flex-1 overflow-hidden relative z-10" style={{ minHeight: 0 }}>
+      <main className="gb-lcd flex-1 overflow-hidden relative z-10" style={{ minHeight: 0 }}>
         {ALL_TABS.map((id) => {
           const active = tab === id;
           if (!active && id !== "lab") return null;
@@ -342,26 +339,8 @@ function AppShell() {
         })}
       </main>
 
-      <nav
-        className="flex-shrink-0 relative z-20"
-        style={tab === "lab" ? {
-          position: "fixed",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 30,
-          height: "calc(84px + env(safe-area-inset-bottom, 0px))",
-          padding: "8px 12px",
-          paddingBottom: "calc(8px + env(safe-area-inset-bottom, 0px))",
-          background: "transparent",
-          pointerEvents: "none",
-        } : {
-          height: 84,
-          padding: "8px 12px 10px",
-          background: "transparent",
-        }}
-      >
-        <div className="flex h-full" style={{ pointerEvents: "auto" }}>
+      <nav className="gb-nav flex-shrink-0 relative z-20">
+        <div className="flex h-full">
           {NAV.map((item) => {
             const active = tab === item.id;
             const Icon = item.icon;
@@ -369,12 +348,11 @@ function AppShell() {
             return (
               <button
                 key={item.id}
-                className={`flex-1 flex flex-col items-center justify-center gap-1${calling ? " nav-call" : ""}`}
+                className={`gb-nav-btn flex-1 flex flex-col items-center justify-center gap-1${active ? " is-on" : ""}${calling ? " nav-call" : ""}`}
                 onClick={() => setTab(item.id)}
-                style={{ position: "relative", color: active ? "#7ad7ff" : "rgba(186, 220, 236, 0.55)", background: "transparent", border: "none" }}
               >
-                <span style={{ position: "relative", display: "grid" }}>
-                  <Icon size={22} strokeWidth={active ? 2.4 : 1.7} />
+                <span className="gb-nav-ico">
+                  <Icon size={20} strokeWidth={active ? 2.6 : 1.8} />
                   {calling ? <span className="nav-call-dot" /> : null}
                 </span>
                 <div style={{

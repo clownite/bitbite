@@ -33,7 +33,7 @@ export function TelegramIdentity() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, maxWidth: 180, pointerEvents: "none" }}>
       <TelegramAvatar photoUrl={user.photoUrl} name={user.name} seed={user.id || user.name} size={34} />
-      <div style={{ fontSize: 13, fontWeight: 800, color: "#e8f7ff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+      <div style={{ fontSize: 13, fontWeight: 800, color: "#1c2414", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
         {user.name}
       </div>
     </div>

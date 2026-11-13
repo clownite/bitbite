@@ -95,10 +95,10 @@ export function QuestBoard({
               type="button"
               onClick={() => setGroup(item.id)}
               style={{
-                borderRadius: 14,
-                border: on ? "1px solid #7ad7ff" : "1px solid rgba(122,215,255,0.18)",
-                background: on ? "#7ad7ff" : "rgba(0,0,0,0.35)",
-                color: on ? "#041018" : "#e8f7ff",
+                borderRadius: 2,
+                border: "3px solid #0f380f",
+                background: on ? "#0f380f" : "#8bac0f",
+                color: on ? "#c6e35a" : "#0f380f",
                 fontWeight: 800,
                 fontSize: 12,
                 letterSpacing: "0.04em",
@@ -115,14 +115,14 @@ export function QuestBoard({
           <div key={row.id} className="earn-row">
             <div className="min-w-0">
               <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t(`quest.${row.id}`)}</div>
-              <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>
+              <div className="text-[11px]" style={{ color: "#306230" }}>
                 {t(`quest.${row.id}d`)} · {questLine(row, t)} · +{row.xp} XP
               </div>
             </div>
             {row.id === "share" && !row.claimed && !row.ready ? (
               <button type="button" className="earn-cta earn-cta--ghost !w-auto px-3" data-testid="share-pet" onClick={sendShare}>{t("quest.shareBtn")}</button>
             ) : row.claimed ? (
-              <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>{t("quest.done")}</span>
+              <span className="text-xs font-black" style={{ color: "#0f380f" }}>{t("quest.done")}</span>
             ) : (
               <button
                 type="button"
@@ -143,10 +143,10 @@ export function QuestBoard({
             <div className="earn-row">
               <div className="min-w-0">
                 <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.community")}</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>{t("quest.communityd", { n: TASK_ONCE_XP })}</div>
+                <div className="text-[11px]" style={{ color: "#306230" }}>{t("quest.communityd", { n: TASK_ONCE_XP })}</div>
               </div>
               {pet.claimedCommunity ? (
-                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>{t("quest.done")}</span>
+                <span className="text-xs font-black" style={{ color: "#0f380f" }}>{t("quest.done")}</span>
               ) : pet.openedCommunity ? (
                 <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("community"); if (n > 0) onReward(`+${n} XP`); }}>{t("quest.claim")}</button>
               ) : (
@@ -156,10 +156,10 @@ export function QuestBoard({
             <div className="earn-row">
               <div className="min-w-0">
                 <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.chat")}</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>{t("quest.chatd", { n: TASK_ONCE_XP })}</div>
+                <div className="text-[11px]" style={{ color: "#306230" }}>{t("quest.chatd", { n: TASK_ONCE_XP })}</div>
               </div>
               {pet.claimedChat ? (
-                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>{t("quest.done")}</span>
+                <span className="text-xs font-black" style={{ color: "#0f380f" }}>{t("quest.done")}</span>
               ) : pet.openedChat ? (
                 <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("chat"); if (n > 0) onReward(`+${n} XP`); }}>{t("quest.claim")}</button>
               ) : (
@@ -169,10 +169,10 @@ export function QuestBoard({
             <div className="earn-row">
               <div className="min-w-0">
                 <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.friend")}</div>
-                <div className="text-[11px]" style={{ color: "rgba(186,220,236,0.55)" }}>{t("quest.friendd", { n: TASK_INVITE_ONCE_XP })}</div>
+                <div className="text-[11px]" style={{ color: "#306230" }}>{t("quest.friendd", { n: TASK_INVITE_ONCE_XP })}</div>
               </div>
               {pet.claimedInviteTask ? (
-                <span className="text-xs font-black" style={{ color: "#7ad7ff" }}>{t("quest.done")}</span>
+                <span className="text-xs font-black" style={{ color: "#0f380f" }}>{t("quest.done")}</span>
               ) : referralCount > 0 ? (
                 <button type="button" className="earn-cta earn-cta--primary !w-auto px-3" onClick={() => { const n = claimOnceTask("invite", referralCount); if (n > 0) onReward(`+${n} XP`); }}>{t("quest.claim")}</button>
               ) : (
@@ -189,7 +189,7 @@ export function QuestBoard({
         )}
       </div>
       {shareHint ? (
-        <div className="mt-2 text-[11px] font-bold" style={{ color: "#7ad7ff" }}>{shareHint}</div>
+        <div className="mt-2 text-[11px] font-bold" style={{ color: "#0f380f" }}>{shareHint}</div>
       ) : null}
     </section>
   );

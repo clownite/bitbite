@@ -266,8 +266,8 @@ export function GamePage({ active }: { active: boolean }) {
           className={run.phase === "boom" ? "cookie-arena is-boom" : "cookie-arena"}
           data-testid="cookie-arena"
           style={{
-            background: `radial-gradient(ellipse 70% 28% at 50% 92%, ${color}66, transparent 70%), linear-gradient(180deg, #163044 0%, #071018 72%)`,
-            borderColor: `${color}88`,
+            background: "#9bbc0f",
+            borderColor: "#0f380f",
           }}
         >
           <PetStage pet={pet} frame="play" petId={pet.active} lifeScale={life.scale} />

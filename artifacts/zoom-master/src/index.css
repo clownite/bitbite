@@ -6144,3 +6144,171 @@ body, body * {
   font-size: 11px;
 }
 
+/* The whole app sits in the same Game Boy shell as the profile screen. */
+.gb-app {
+  background: #8b9568;
+  color: #0f380f;
+  font-family: ui-monospace, "Courier New", monospace;
+}
+.gb-bezel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px 8px;
+  color: #1c2414;
+}
+.gb-dots { display: flex; gap: 5px; }
+.gb-dots i {
+  width: 10px;
+  height: 10px;
+  background: #9a3b3b;
+}
+.gb-dots i:nth-child(2) { background: #c4b15a; }
+.gb-dots i:nth-child(3) { background: #3d6b3a; }
+.gb-lcd {
+  margin: 0 10px;
+  background: #9bbc0f;
+  border: 4px solid #0f380f;
+  box-shadow: inset 0 0 0 4px #8bac0f;
+}
+.gb-lcd::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(15, 56, 15, 0.06) 2px 3px);
+}
+.gb-nav {
+  height: 74px;
+  padding: 6px 8px 8px;
+  background: #8b9568;
+}
+.gb-nav-btn {
+  position: relative;
+  color: #1c2414;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+.gb-nav-ico {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 30px;
+}
+.gb-nav-btn.is-on .gb-nav-ico {
+  background: #0f380f;
+  color: #c6e35a;
+  border-radius: 6px;
+}
+.gb-nav-btn.is-on { color: #0f380f; font-weight: 900; }
+.gb-app .claim-3d {
+  border: 3px solid #0f380f;
+  border-radius: 2px;
+  color: #0f380f;
+  background: #d7d3c4;
+  box-shadow: 3px 3px 0 #0f380f;
+}
+.gb-app .claim-3d:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #0f380f;
+}
+.gb-app .claim-3d.is-empty,
+.gb-app .claim-3d:disabled {
+  color: #306230;
+  background: #8bac0f;
+  box-shadow: none;
+}
+.gb-app .home-sheet {
+  border-radius: 2px;
+  border: 3px solid #0f380f;
+  background: #c6e35a;
+  color: #0f380f;
+  box-shadow: 4px 4px 0 #0f380f;
+}
+.gb-app .home-sheet strong,
+.gb-app .home-sheet span { color: #0f380f; }
+.gb-app .home-sheet .sheet-grip { background: #0f380f; }
+.gb-app .earn-page {
+  --earn-ink: #0f380f;
+  --earn-muted: #306230;
+  --earn-cyan: #0f380f;
+  --earn-cyan-dim: #8bac0f;
+  --earn-gold: #0f380f;
+  --earn-ok: #1c2414;
+  --earn-panel: #8bac0f;
+  --earn-line: #0f380f;
+  background: transparent;
+  color: #0f380f;
+}
+.gb-app .earn-hero,
+.gb-app .earn-panel,
+.gb-app .earn-cta {
+  border-radius: 2px;
+}
+.gb-app .cookie-page,
+.gb-app .cookie-head h2,
+.gb-app .cookie-head p,
+.gb-app .cookie-plays,
+.gb-app .cookie-count { color: #0f380f; }
+.gb-app .play-balance,
+.gb-app .cookie-board-btn,
+.gb-app .cookie-go {
+  border-radius: 2px;
+  border: 3px solid #0f380f;
+  background: #8bac0f;
+  color: #0f380f;
+  box-shadow: 3px 3px 0 #0f380f;
+}
+.gb-app .play-switch button {
+  border-radius: 2px;
+  border: 3px solid #0f380f;
+  background: #8bac0f;
+  color: #0f380f;
+}
+.gb-app .play-switch button.is-on {
+  background: #0f380f;
+  color: #c6e35a;
+  border-color: #0f380f;
+}
+.gb-app .cookie-arena {
+  border-width: 3px;
+  border-radius: 2px;
+}
+.gb-app .cookie-floor { background: #0f380f; }
+.gb-app .profile-kicker,
+.gb-app .profile-head h2,
+.gb-app .hall-head h3,
+.gb-app .hall-head p,
+.gb-app .id-name { color: #0f380f; }
+.gb-app .hall-face,
+.gb-app .hall-card.is-live .hall-face {
+  background: #8bac0f;
+  color: #0f380f;
+}
+.gb-app .profile-tag {
+  background: #9bbc0f;
+  box-shadow: 3px 3px 0 #0f380f;
+}
+.gb-app .earn-cta--primary,
+.gb-app .earn-cta--ghost {
+  background: #d7d3c4;
+  color: #0f380f;
+  border: 3px solid #0f380f;
+  border-radius: 2px;
+  box-shadow: 3px 3px 0 #0f380f;
+}
+.gb-app .earn-cta:disabled {
+  background: #8bac0f;
+  color: #306230;
+  border-color: #306230;
+  box-shadow: none;
+}
+.gb-app .cookie-board-kicker { color: #306230; }
+.gb-app .pet-card-trace { display: none; }
+.gb-app .hall-empty { color: #306230; }
+

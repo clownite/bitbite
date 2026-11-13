@@ -36,11 +36,11 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
   const order = [2, 1, 3];
 
   return (
-    <div className="flex flex-col h-full overflow-hidden" style={{ background: "transparent" }}>
+    <div className="flex flex-col h-full overflow-hidden" style={{ background: "transparent", color: "#0f380f" }}>
       <div className="px-5 pt-4 pb-2 flex-shrink-0">
-        <div className="text-[11px] font-black tracking-[0.2em]" style={{ color: "#7ad7ff" }}>{t("rank.week")}</div>
-        <h2 className="font-black text-2xl tracking-tight" style={{ color: "#e8f7ff" }}>{t("rank.title")}</h2>
-        <p className="text-[12px] mt-1" style={{ color: "rgba(186,220,236,0.62)" }}>
+        <div className="text-[11px] font-black tracking-[0.2em]" style={{ color: "#306230" }}>{t("rank.week")}</div>
+        <h2 className="font-black text-2xl tracking-tight" style={{ color: "#0f380f" }}>{t("rank.title")}</h2>
+        <p className="text-[12px] mt-1" style={{ color: "#306230" }}>
           {t("rank.blurb", { day: nextReset() })}
         </p>
       </div>
@@ -56,17 +56,18 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
                 className="rounded-2xl px-2 py-3 text-center"
                 style={{
                   minHeight: tall ? 132 : 108,
-                  background: tall
-                    ? "linear-gradient(180deg, rgba(122,215,255,0.28), rgba(122,215,255,0.08))"
-                    : "rgba(122,215,255,0.08)",
-                  border: "1px solid rgba(122,215,255,0.45)",
-                  boxShadow: tall ? "0 0 24px rgba(122,215,255,0.28)" : "none",
+                  background: "#0f380f",
+                  border: "3px solid #0f380f",
+                  boxShadow: "none",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-end",
                 }}
               >
-                <div className="font-black" style={{ color: "#7ad7ff", fontSize: tall ? 22 : 16 }}>#{place}</div>
-                <div className="font-black text-[12px] mt-1 truncate" style={{ color: "#e8f7ff" }}>{entry.name.split(" ")[0]}</div>
-                <div className="font-black tabular-nums mt-1" style={{ color: "#e8f7ff" }}>{formatGram(entry.amount)}</div>
-                <div className="text-[10px] font-bold tracking-wide" style={{ color: "rgba(122,215,255,0.7)" }}>GRAM</div>
+                <div className="font-black" style={{ color: "#9bbc0f", fontSize: tall ? 22 : 16 }}>#{place}</div>
+                <div className="font-black text-[12px] mt-1 truncate" style={{ color: "#9bbc0f" }}>{entry.name.split(" ")[0]}</div>
+                <div className="font-black tabular-nums mt-1" style={{ color: "#c6e35a" }}>{formatGram(entry.amount)}</div>
+                <div className="text-[10px] font-bold tracking-wide" style={{ color: "#8bac0f" }}>GRAM</div>
               </div>
             );
           })}
@@ -81,32 +82,33 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
                 key={entry.telegramId}
                 className="rounded-xl flex items-center gap-3 px-3 py-2.5"
                 style={{
-                  background: isUser ? "rgba(122,215,255,0.16)" : "rgba(7,22,34,0.55)",
-                  border: isUser ? "1px solid rgba(122,215,255,0.7)" : "1px solid rgba(122,215,255,0.14)",
+                  background: isUser ? "#c4d65a" : "transparent",
+                  borderBottom: "2px solid #0f380f",
+                  borderRadius: 0,
                 }}
               >
-                <div className="font-black text-sm w-7 text-center flex-shrink-0" style={{ color: "#7ad7ff" }}>
+                <div className="font-black text-sm w-7 text-center flex-shrink-0" style={{ color: "#0f380f" }}>
                   {rank}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="font-black text-sm truncate" style={{ color: "#e8f7ff" }}>
+                  <div className="font-black text-sm truncate" style={{ color: "#0f380f" }}>
                     {entry.name}
-                    {isUser && <span className="text-xs font-bold ml-1" style={{ color: "#7ad7ff" }}>{t("rank.you")}</span>}
+                    {isUser && <span className="text-xs font-bold ml-1" style={{ color: "#306230" }}>{t("rank.you")}</span>}
                   </div>
                 </div>
-                <div className="text-sm font-black tabular-nums" style={{ color: "#7ad7ff" }}>{formatGram(entry.amount)} GRAM</div>
+                <div className="text-sm font-black tabular-nums" style={{ color: "#0f380f" }}>{formatGram(entry.amount)} GRAM</div>
               </div>
             );
           })}
         </div>
 
-        <section className="rounded-2xl p-3 mt-3" style={{ background: "rgba(122,215,255,0.08)", border: "1px solid rgba(122,215,255,0.2)" }}>
-          <div className="text-[11px] font-black tracking-[0.16em]" style={{ color: "#7ad7ff" }}>{t("rank.prizes")}</div>
+        <section className="p-3 mt-3" style={{ background: "#8bac0f", border: "3px solid #0f380f" }}>
+          <div className="text-[11px] font-black tracking-[0.16em]" style={{ color: "#0f380f" }}>{t("rank.prizes")}</div>
           <div className="grid grid-cols-4 gap-1.5 mt-2">
             {UPCOMING_PRIZES.map((prize) => (
-              <div key={prize.place} className="rounded-xl px-2 py-2 text-center" style={{ background: "rgba(4,16,24,0.45)" }}>
-                <div className="text-[10px] font-black" style={{ color: "rgba(186,220,236,0.55)" }}>#{prize.place}</div>
-                <div className="text-[11px] font-black mt-0.5" style={{ color: "#e8f7ff" }}>{prize.prize}</div>
+              <div key={prize.place} className="px-2 py-2 text-center" style={{ background: "#9bbc0f", border: "2px solid #0f380f" }}>
+                <div className="text-[10px] font-black" style={{ color: "#306230" }}>#{prize.place}</div>
+                <div className="text-[11px] font-black mt-0.5" style={{ color: "#0f380f" }}>{prize.prize}</div>
               </div>
             ))}
           </div>

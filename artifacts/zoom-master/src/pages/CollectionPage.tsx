@@ -27,9 +27,9 @@ import { useT } from "../i18n/LanguageContext";
 const cardShell = {
   position: "relative" as const,
   height: 168,
-  borderRadius: 18,
+  borderRadius: 2,
   overflow: "hidden",
-  background: "#071018",
+  background: "#8bac0f",
 };
 
 export function CollectionPage({
@@ -60,10 +60,10 @@ export function CollectionPage({
     : t("pet.hours", { n: (one * 24).toFixed(1) });
 
   return (
-    <div className="h-full overflow-y-auto" style={{ padding: "8px 16px 28px" }}>
+    <div className="h-full overflow-y-auto" style={{ padding: "12px 12px 20px", color: "#0f380f" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.16em", color: "#7ad7ff" }}>{t("pet.nav.collection").toUpperCase()}</div>
-        <div style={{ fontSize: 12, fontWeight: 700, color: "rgba(186,220,236,0.55)" }}>{pet.owned.length}/{PET_SLOTS} · 5 max</div>
+        <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: "0.12em", color: "#0f380f" }}>{t("pet.nav.collection").toUpperCase()}</div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: "#306230" }}>{pet.owned.length}/{PET_SLOTS} · 5 max</div>
       </div>
 
       <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -81,9 +81,9 @@ export function CollectionPage({
                   ...cardShell,
                   display: "grid",
                   placeItems: "center",
-                  border: "1px solid rgba(122,215,255,0.18)",
-                  background: "rgba(255,255,255,0.02)",
-                  color: "#7ad7ff",
+                  border: "3px solid #0f380f",
+                  background: "#8bac0f",
+                  color: "#0f380f",
                   cursor: "pointer",
                 }}
               >
@@ -102,9 +102,9 @@ export function CollectionPage({
               }}
               style={{
                 ...cardShell,
-                border: `1px solid ${color}`,
-                background: `radial-gradient(ellipse 80% 70% at 50% 40%, ${color}55, #071018 72%)`,
-                boxShadow: `0 0 18px ${color}66`,
+                border: "3px solid #0f380f",
+                background: "#8bac0f",
+                boxShadow: "none",
               }}
             >
               {life.form === "egg" ? <LifeEgg color={color} mini /> : (
@@ -113,15 +113,15 @@ export function CollectionPage({
               <div style={{ position: "absolute", top: 8, right: 8, zIndex: 2, pointerEvents: "none" }}>
                 <PixelMark glyph={petDef(id).element.glyph} label={t(`pet.element.${petDef(id).element.id}`)} />
               </div>
-              <div style={{ position: "absolute", left: 10, top: 10, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#e8f7ff", pointerEvents: "none" }}>
+              <div style={{ position: "absolute", left: 10, top: 10, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#0f380f", pointerEvents: "none" }}>
                 {selected ? t("pet.onHome") : `${index + 1}/${PET_SLOTS}`}
               </div>
               <div style={{ position: "absolute", left: 10, right: 10, bottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", pointerEvents: "none" }}>
                 <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: petDef(id).element.color }}>{personalPetNumber(ownerId, id)}</span>
-                  <span style={{ display: "block", fontSize: 13, fontWeight: 800, color: "#e8f7ff" }}>{petDef(id).name}</span>
+                  <span style={{ display: "block", fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: "#306230" }}>{personalPetNumber(ownerId, id)}</span>
+                  <span style={{ display: "block", fontSize: 13, fontWeight: 800, color: "#0f380f" }}>{petDef(id).name}</span>
                 </span>
-                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.06em", color: "#041018", background: color, borderRadius: 999, padding: "2px 6px" }}>{t(`pet.element.${petDef(id).element.id}`)}</span>
+                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.06em", color: "#9bbc0f", background: "#0f380f", borderRadius: 2, padding: "2px 6px" }}>{t(`pet.element.${petDef(id).element.id}`)}</span>
               </div>
             </div>
           );
@@ -131,17 +131,17 @@ export function CollectionPage({
       <section style={{ marginTop: 16 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <div>
-            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: active.element.color }}>{personalPetNumber(ownerId, pet.active)}</div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#e8f7ff" }}>{active.name}</div>
+            <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#306230" }}>{personalPetNumber(ownerId, pet.active)}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "#0f380f" }}>{active.name}</div>
           </div>
-          <div style={{ fontSize: 12, fontWeight: 700, color: "#7ad7ff" }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: "#0f380f" }}>
             {t("pet.stageShort", { s: pet.stage, l: pet.level })}
           </div>
         </div>
-        <div style={{ marginTop: 8, height: 6, borderRadius: 999, background: "rgba(255,255,255,0.08)", overflow: "hidden" }}>
-          <div style={{ width: `${pet.finished ? 100 : Math.min(100, (pet.xp / goal) * 100)}%`, height: "100%", background: "#7ad7ff" }} />
+        <div style={{ marginTop: 8, height: 8, borderRadius: 0, background: "#8bac0f", border: "2px solid #0f380f", overflow: "hidden" }}>
+          <div style={{ width: `${pet.finished ? 100 : Math.min(100, (pet.xp / goal) * 100)}%`, height: "100%", background: "#0f380f" }} />
         </div>
-        <div style={{ marginTop: 6, fontSize: 11, color: "rgba(186,220,236,0.6)" }}>
+        <div style={{ marginTop: 6, fontSize: 11, color: "#306230" }}>
           {pet.finished ? t("pet.finished") : xpLabel(pet)}
           {" · "}
           {formatRate(rate)} {t("pet.perDay")} · {t("pet.forCrumb", { time: crumbTime })}
@@ -163,18 +163,19 @@ export function CollectionPage({
             style={{
               marginTop: 12,
               width: "100%",
-              border: "none",
-              borderRadius: 14,
+              border: "3px solid #0f380f",
+              borderRadius: 2,
               padding: "12px 14px",
               fontWeight: 800,
-              background: canPay ? "#7ad7ff" : "rgba(255,255,255,0.06)",
-              color: canPay ? "#041018" : "rgba(186,220,236,0.35)",
+              background: canPay ? "#d7d3c4" : "#8bac0f",
+              color: "#0f380f",
+              boxShadow: "3px 3px 0 #0f380f",
             }}
           >
             {t("pet.payLevel", { n: pet.level < 5 ? LEVEL5_GRAM : LEVEL10_GRAM, lv: pet.level < 5 ? 5 : 10 })}
           </button>
         )}
-        <div style={{ marginTop: 10, fontSize: 11, color: "rgba(186,220,236,0.55)" }}>
+        <div style={{ marginTop: 10, fontSize: 11, color: "#306230" }}>
           {t("pet.keep")}
         </div>
       </section>

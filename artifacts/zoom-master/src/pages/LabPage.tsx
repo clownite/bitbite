@@ -248,9 +248,9 @@ export function LabPage({
       <div
         className="absolute left-0 right-0 z-20"
         style={{
-          top: "max(108px, calc(env(safe-area-inset-top, 0px) + 102px))",
-          bottom: "calc(84px + env(safe-area-inset-bottom, 0px) + 10px)",
-          padding: "0 14px",
+          top: 58,
+          bottom: 8,
+          padding: "0 8px",
         }}
       >
         <div
@@ -261,9 +261,10 @@ export function LabPage({
             position: "relative",
             borderRadius: 26,
             overflow: "hidden",
-            background: `radial-gradient(ellipse 92% 58% at 50% 28%, ${chosen.element.color}cc 0%, ${chosen.element.color}55 40%, transparent 72%), linear-gradient(180deg, ${chosen.element.color}55 0%, #071018 58%, #05080e 100%)`,
-            border: "1px solid rgba(122, 215, 255, 0.22)",
-            boxShadow: `0 0 0 1px rgba(0,0,0,0.6), 0 0 32px ${chosen.element.color}55, 0 16px 40px rgba(0,0,0,0.35)`,
+            background: "transparent",
+            border: "none",
+            boxShadow: "none",
+            color: "#0f380f",
           }}
         >
           <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }} data-testid="pet-room">
@@ -341,11 +342,11 @@ export function LabPage({
           </div>
           <div style={{ padding: "0 12px 12px" }}>
             <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
-              <div style={{ textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.14em", color: "#7ad7ff" }}>
+              <div style={{ textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#0f380f" }}>
                 {personalPetNumber(ownerId, pet.active)} {chosen.name} · {(life.form === "adult" || life.form === "elder" || life.form === "ascend") ? kinName(familyOf(pet.active), life.kin, lang) : t(`life.${life.form}`)} · {t("life.generation", { n: life.generation })} · {t("pet.stageLine", { s: pet.stage, l: pet.level })}
-                <span style={{ color: "rgba(186,220,236,0.7)", fontWeight: 700 }}> · {xpLabel(pet)}</span>
+                <span style={{ color: "#306230", fontWeight: 700 }}> · {xpLabel(pet)}</span>
               </div>
-              <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#041018", background: chosen.element.color, borderRadius: 999, padding: "3px 7px" }}>
+              <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#9bbc0f", background: "#0f380f", borderRadius: 2, padding: "3px 7px" }}>
                 {elementName}
               </span>
             </div>
@@ -355,15 +356,15 @@ export function LabPage({
                 alignItems: "center",
                 gap: 10,
                 padding: "12px 12px 12px 14px",
-                borderRadius: 18,
-                background: "rgba(0, 0, 0, 0.45)",
-                border: "1px solid rgba(122, 215, 255, 0.35)",
+                borderRadius: 2,
+                background: "#8bac0f",
+                border: "3px solid #0f380f",
               }}
             >
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", color: "rgba(186,220,236,0.7)" }}>{t("pet.farm")}</div>
-                <div style={{ marginTop: 2, fontSize: 26, fontWeight: 900, color: "#ffffff", lineHeight: 1 }}>{formatCrumbs(farm.pending)}</div>
-                <div style={{ marginTop: 4, fontSize: 11, color: "rgba(186,220,236,0.7)" }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", color: "#0f380f" }}>{t("pet.farm")}</div>
+                <div style={{ marginTop: 2, fontSize: 26, fontWeight: 900, color: "#0f380f", lineHeight: 1 }}>{formatCrumbs(farm.pending)}</div>
+                <div style={{ marginTop: 4, fontSize: 11, color: "#306230" }}>
                   {formatCrumbs(farm.cap)} {t("pet.perDay")} · {t("pet.level", { n: pet.level })}
                   {life.form !== "egg" && care.factor < 0.97 ? ` · ${care.sick ? t("pet.sick") : care.hungry ? t("pet.hungry") : t("pet.messy")}` : ""}
                 </div>
@@ -408,7 +409,7 @@ export function LabPage({
                   data-testid={`stat-${stat.id}`}
                   aria-expanded={sheet === stat.id}
                   onClick={() => setSheet((open) => (open === stat.id ? null : stat.id))}
-                  style={{ borderRadius: 14, padding: "8px 4px 7px", textAlign: "center", background: sheet === stat.id ? "rgba(122, 215, 255, 0.16)" : "rgba(0, 0, 0, 0.35)", border: "1px solid rgba(255,255,255,0.08)", color: "inherit", font: "inherit", cursor: "pointer" }}
+                  style={{ borderRadius: 2, padding: "8px 4px 7px", textAlign: "center", background: sheet === stat.id ? "#c4d65a" : "#8bac0f", border: "3px solid #0f380f", color: "#0f380f", font: "inherit", cursor: "pointer" }}
                 >
                   {stat.value === "mark" ? (
                     <PixelMark glyph={chosen.element.glyph} label={elementName} center />
@@ -421,9 +422,9 @@ export function LabPage({
                       ))}
                     </div>
                   ) : (
-                    <div style={{ fontSize: 14, fontWeight: 900, color: "#ffffff" }}>{stat.value}</div>
+                    <div style={{ fontSize: 14, fontWeight: 900, color: "#0f380f" }}>{stat.value}</div>
                   )}
-                  <div style={{ marginTop: 2, fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: "rgba(186,220,236,0.55)" }}>{stat.label}</div>
+                  <div style={{ marginTop: 2, fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: "#306230" }}>{stat.label}</div>
                 </button>
               ))}
             </div>
@@ -472,7 +473,7 @@ export function LabPage({
       <div className="absolute inset-0 pointer-events-none">
         <div
           className="absolute left-0 right-0 z-30 flex items-center justify-center gap-2 px-3 pointer-events-none"
-          style={{ top: "max(56px, calc(env(safe-area-inset-top, 0px) + 50px))" }}
+          style={{ top: 8 }}
         >
           <div className="pointer-events-auto flex-shrink-0">
             <SettingsMenu muted={muted} setMuted={setMuted ?? (() => {})} headerButton />
@@ -480,15 +481,14 @@ export function LabPage({
           <div
             className="px-4 py-2 rounded-full pointer-events-auto flex-shrink-0 flex items-center gap-2"
             style={{
-              background: "rgba(0, 0, 0, 0.62)",
-              border: "1px solid rgba(255, 255, 255, 0.14)",
-              backdropFilter: "blur(10px)",
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.35)",
+              background: "#8bac0f",
+              border: "3px solid #0f380f",
+              boxShadow: "3px 3px 0 #0f380f",
             }}
           >
             <span
               className="font-black text-base tracking-wide whitespace-nowrap inline-flex items-center gap-1.5"
-              style={{ color: "#ffffff", letterSpacing: "0.06em" }}
+              style={{ color: "#0f380f", letterSpacing: "0.06em" }}
             >
               <span data-crumb-wallet><ZoomCubeIcon size={18} /></span>
               {formatCrumbs(crumbs)}
@@ -503,9 +503,10 @@ export function LabPage({
               width: 42,
               height: 42,
               borderRadius: 999,
-              background: "rgba(0, 0, 0, 0.62)",
-              border: "1px solid rgba(255, 255, 255, 0.14)",
-              color: "#ffffff",
+              background: "#8bac0f",
+              border: "3px solid #0f380f",
+              color: "#0f380f",
+              boxShadow: "3px 3px 0 #0f380f",
             }}
           >
             <ShoppingBag size={18} />
