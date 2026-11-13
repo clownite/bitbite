@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import House from "lucide-react/dist/esm/icons/house.js";
 import LayoutGrid from "lucide-react/dist/esm/icons/layout-grid.js";
+import Play from "lucide-react/dist/esm/icons/play.js";
 import Gem from "lucide-react/dist/esm/icons/gem.js";
 import Medal from "lucide-react/dist/esm/icons/medal.js";
 import UserRound from "lucide-react/dist/esm/icons/user-round.js";
@@ -36,20 +37,15 @@ import { eggLeft } from "./pet/life";
 import { getPet } from "./pet/petProgress";
 import { noteHumanGesture } from "./pet/human";
 import { subscribeCrumbs } from "./pet/crumbs";
-import { PixelCookie } from "./components/PixelCookie";
 import { SettingsMenu } from "./components/SettingsMenu";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 type Tab = "lab" | "farm" | "play" | "earn" | "rank" | "shop" | "wallet";
 
-function CookieNavIcon({ size = 22 }: { size?: number; strokeWidth?: number }) {
-  return <PixelCookie size={size} />;
-}
-
 const NAV: { id: Tab; key: string; icon: typeof House }[] = [
   { id: "lab", key: "pet.nav.home", icon: House },
   { id: "farm", key: "pet.nav.collection", icon: LayoutGrid },
-  { id: "play", key: "pet.nav.play", icon: CookieNavIcon },
+  { id: "play", key: "pet.nav.play", icon: Play },
   { id: "earn", key: "pet.nav.earn", icon: Gem },
   { id: "rank", key: "pet.nav.top", icon: Medal },
   { id: "wallet", key: "pet.nav.profile", icon: UserRound },

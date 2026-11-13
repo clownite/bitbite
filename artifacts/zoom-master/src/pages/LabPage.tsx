@@ -339,8 +339,8 @@ export function LabPage({
             )}
           </div>
           <div style={{ padding: "0 12px 12px" }}>
-            <div style={{ marginBottom: 8, textAlign: "center", fontSize: 13, fontWeight: 800, letterSpacing: "0.04em", color: "#0f380f" }}>
-              {chosen.name} · {t(`life.${life.form === "egg" ? "egg" : life.form}`)} · {t("life.generation", { n: life.generation })} · {t("pet.stage")} {pet.stage}/3
+            <div className="gb-home-line">
+              {chosen.name} · {t(`life.${life.form === "egg" ? "egg" : life.form}`)} · {t("life.generation", { n: life.generation })} · {t("pet.stage").toUpperCase()} {pet.stage}/3
             </div>
             <div className="gb-farm">
               <div>{t("pet.farm")} {formatCrumbs(farm.pending)}</div>
@@ -378,15 +378,15 @@ export function LabPage({
                 <b className="gb-a-mark">A</b>
                 {t("pet.claim")}
               </button>
-            <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            <div className="gb-stats">
               {stats.map((stat) => (
                 <button
                   key={stat.id}
                   type="button"
+                  className="gb-stat"
                   data-testid={`stat-${stat.id}`}
                   aria-expanded={sheet === stat.id}
                   onClick={() => setSheet((open) => (open === stat.id ? null : stat.id))}
-                  style={{ borderRadius: 2, padding: "8px 4px 7px", textAlign: "center", background: sheet === stat.id ? "#c4d65a" : "#8bac0f", border: "3px solid #0f380f", color: "#0f380f", font: "inherit", cursor: "pointer" }}
                 >
                   <div style={{ fontSize: 15, fontWeight: 900, color: "#0f380f" }}>
                     {stat.id === "ability" ? abilityName : stat.id === "hp" ? `HP ${stat.value}` : stat.id === "tap" ? stat.label : `${stat.label} ${stat.value}`}

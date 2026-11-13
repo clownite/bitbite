@@ -6408,8 +6408,128 @@ body, body * {
   letter-spacing: 0.16em;
   color: #1c2414;
 }
-.gb-home-top span:last-child { letter-spacing: 0.04em; }
-.gb-farm { background: #6a8a1c; }
+.gb-home-top span:last-child { letter-spacing: 0.02em; text-transform: none; }
+.gb-app.tab-lab {
+  font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+}
+.gb-app.tab-lab .christmas-snow { display: none; }
+.gb-app.tab-lab .gb-lcd {
+  margin: 4px 16px 8px;
+  border-radius: 8px;
+  border: 3px solid #12300c;
+  box-shadow: none;
+  background: #9bbc0f;
+}
+.gb-app.tab-lab .gb-lcd::after {
+  border-radius: 5px;
+  background: repeating-linear-gradient(180deg, transparent 0 3px, rgba(20, 60, 8, 0.16) 3px 4px);
+}
+.gb-app.tab-lab .gb-home-top {
+  padding: 14px 16px 0;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+  font-weight: 800;
+}
+.gb-app.tab-lab .life-pet { --cell: 11px; }
+.gb-app.tab-lab .life-pet-body { bottom: 6px; }
+.gb-home-line {
+  margin: 0 12px 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: #0f380f;
+}
+.gb-app.tab-lab .gb-farm {
+  max-width: none;
+  width: calc(100% - 28px);
+  margin: 0 auto;
+  padding: 12px 10px 10px;
+  background: #5e7f26;
+  border: 2px solid #1a3a0c;
+  border-radius: 6px;
+  box-shadow: none;
+}
+.gb-app.tab-lab .gb-farm div:first-child {
+  font-size: 20px;
+  letter-spacing: 0.06em;
+  font-weight: 900;
+}
+.gb-app.tab-lab .gb-farm div:last-child {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.gb-app.tab-lab .claim-3d {
+  width: min(230px, 58%);
+  margin: 12px auto 0;
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 2px solid #3a4a22;
+  background: #a7b174;
+  color: #0f380f;
+  box-shadow: none;
+  letter-spacing: 0.16em;
+  font-size: 16px;
+}
+.gb-app.tab-lab .claim-3d.is-empty,
+.gb-app.tab-lab .claim-3d:disabled {
+  background: #a7b174;
+  color: #0f380f;
+  border-color: #3a4a22;
+}
+.gb-app.tab-lab .gb-a-mark {
+  width: 22px;
+  height: 22px;
+  background: #5c6a35;
+  color: #e8f0c4;
+  font-size: 12px;
+  font-weight: 900;
+}
+.gb-stats {
+  margin: 12px 8px 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.gb-stat {
+  border-radius: 10px;
+  padding: 11px 6px;
+  text-align: center;
+  background: #7ea31c;
+  border: 2px solid #1c3a0c;
+  color: #0f380f;
+  font: inherit;
+  font-weight: 800;
+  font-size: 16px;
+  cursor: pointer;
+}
+.gb-app.tab-lab .life-name,
+.gb-app.tab-lab .away-note,
+.gb-app.tab-lab .pet-call,
+.gb-app.tab-lab .home-night,
+.gb-app.tab-lab .egg-hint,
+.gb-app.tab-lab .life-ask,
+.gb-app.tab-lab .life-pet-flash { display: none !important; }
+.gb-app.tab-lab .life-pet-shadow {
+  width: 52px !important;
+  height: 10px !important;
+  margin-left: -26px !important;
+  bottom: 2px;
+  border-radius: 50%;
+  opacity: 0.7;
+}
+.gb-app.tab-lab .gb-nav-btn.is-on .gb-nav-ico {
+  width: 42px;
+  height: 36px;
+  border-radius: 8px;
+  background: #0c2e0c;
+  color: #c6e84a;
+}
+.gb-app.tab-lab .gb-nav {
+  height: 78px;
+  padding: 4px 6px 10px;
+}
 .gb-a-mark.is-red { background: #9a3b3b; color: #f6efe4; }
 .gb-app .pet-call,
 .gb-app .grown-ring,
