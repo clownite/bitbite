@@ -5,7 +5,7 @@ import { personalPetNumber, petOwnerId } from "../pet/number";
 import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
 import { dismissAway, markHere, readAway, type AwayKind } from "../pet/away";
-import { careView, subscribeCare, takeCareXp, toggleLight } from "../pet/care";
+import { careView, subscribeCare, takeCareXp } from "../pet/care";
 import { addPetXp } from "../pet/petProgress";
 import { playClaim } from "../audio/sfx";
 import { noteHumanGesture } from "../pet/human";
@@ -288,7 +288,7 @@ export function LabPage({
             <span>BITBITE</span>
             <span>{life.givenName || chosen.name}</span>
           </div>
-          <div className={fed ? "gb-home-pet is-fed" : "gb-home-pet"} data-testid="pet-room">
+          <div className={`gb-home-pet${fed ? " is-fed" : ""}${care.dark ? " is-dark" : ""}`} data-testid="pet-room">
             <CardReel petId={pet.active} petName={chosen.name} now={now} care={care} egg={life.form === "egg"}>
             {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : (
               <LifeCreature
@@ -296,7 +296,6 @@ export function LabPage({
                 form={life.form}
                 kin={life.kin}
                 mark={life.mark}
-                asleep={care.asleep || care.dark}
                 asking={life.visit}
                 onTap
               />
@@ -333,9 +332,16 @@ export function LabPage({
                 {t(`away.${away}`)}
               </button>
             ) : null}
-            <PetPostcard active={active && !care.dark && life.form !== "egg"} petName={chosen.name} />
+            <PetPostcard active={active && life.form !== "egg"} soon={care.asleep} petName={chosen.name} />
             <PetRoom care={care} toast={wakeToast} waiting={life.form === "egg"} />
             </CardReel>
+            {care.dark ? (
+              <div className="pet-zzz" data-testid="home-night" aria-hidden>
+                <span>Z</span>
+                <span>Z</span>
+                <span>Z</span>
+              </div>
+            ) : null}
           </div>
           <div className="gb-home-body">
             <div className="gb-home-line">
@@ -384,30 +390,6 @@ export function LabPage({
               ))}
             </div>
           </div>
-          {care.dark ? (
-            <div className="home-night" data-testid="home-night">
-              <div className="pet-zzz" aria-hidden>
-                <span>Z</span>
-                <span>Z</span>
-                <span>Z</span>
-              </div>
-              <button
-                type="button"
-                className="pet-lamp"
-                data-testid="pet-lamp"
-                aria-label={t("pet.lightOn")}
-                onClick={() => toggleLight()}
-              >
-                <svg width="28" height="28" viewBox="0 0 9 9" shapeRendering="crispEdges" aria-hidden>
-                  <rect x="3" y="0" width="3" height="1" fill="#8aa0b4" />
-                  <rect x="2" y="1" width="5" height="1" fill="#8aa0b4" />
-                  <rect x="2" y="2" width="5" height="3" fill="#243140" />
-                  <rect x="4" y="5" width="1" height="2" fill="#c9d6e2" />
-                  <rect x="2" y="7" width="5" height="1" fill="#9eb0c2" />
-                </svg>
-              </button>
-            </div>
-          ) : null}
           <PetCardTrace color={chosen.element.color} />
         </div>
       </div>

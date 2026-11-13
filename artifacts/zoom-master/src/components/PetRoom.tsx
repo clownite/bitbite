@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { cleanMess, cure, feed, toggleLight, type CareView } from "../pet/care";
 import { settleFarm } from "../pet/crumbs";
 import { playClick, playHappy } from "../audio/sfx";
+import { runTap } from "../utils/tap";
 import { useT } from "../i18n/LanguageContext";
 import { PixelCookie } from "./PixelCookie";
 
@@ -69,7 +70,31 @@ export function PetRoom({
     const hide = window.setTimeout(() => setThanks(0), 1100);
     return () => window.clearTimeout(hide);
   }, [thanks]);
-  if (care.dark) return null;
+  if (care.dark) {
+    return (
+      <div className="pet-room-layer">
+        <button
+          type="button"
+          className="pet-lamp"
+          data-testid="pet-lamp"
+          aria-label={t("pet.lightOn")}
+          aria-pressed
+          onPointerDown={(event) => runTap(event, () => {
+            settleFarm();
+            toggleLight();
+            playClick();
+          })}
+          onTouchStart={(event) => runTap(event, () => {
+            settleFarm();
+            toggleLight();
+            playClick();
+          })}
+        >
+          <PixelLamp on={false} />
+        </button>
+      </div>
+    );
+  }
   return (
     <div className="pet-room-layer">
       <div className="pet-floor" />
@@ -136,11 +161,16 @@ export function PetRoom({
           data-testid="pet-lamp"
           aria-label={lampOn ? t("pet.lightOff") : t("pet.lightOn")}
           aria-pressed={!lampOn}
-          onClick={() => {
+          onPointerDown={(event) => runTap(event, () => {
             settleFarm();
             toggleLight();
             playClick();
-          }}
+          })}
+          onTouchStart={(event) => runTap(event, () => {
+            settleFarm();
+            toggleLight();
+            playClick();
+          })}
         >
           <PixelLamp on={lampOn} />
         </button>

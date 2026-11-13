@@ -3,6 +3,7 @@ import { useT } from "../i18n/LanguageContext";
 import { postcardAt, postcardLine } from "../pet/postcards";
 import { grantXp } from "../pet/petProgress";
 import { hapticSoft } from "../utils/haptic";
+import { runTap } from "../utils/tap";
 
 /** First letter after a short while on Home, then a quiet gap, and only a few a day. */
 const FIRST_MS = 18_000;
@@ -43,7 +44,7 @@ type Phase = "closed" | "writing" | "away";
  * A pixel postcard from the pet.
  * It shakes until you open it, writes one letter at a time, and stays until you tap it away.
  */
-export function PetPostcard({ active, petName }: { active: boolean; petName: string }) {
+export function PetPostcard({ active, petName, soon = false }: { active: boolean; petName: string; soon?: boolean }) {
   const { lang, t } = useT();
   const [phase, setPhase] = useState<Phase | null>(null);
   const [lineId, setLineId] = useState<number | null>(null);
@@ -57,6 +58,10 @@ export function PetPostcard({ active, petName }: { active: boolean; petName: str
     const plan = () => {
       const saved = load();
       if (saved.count >= DAY_CAP) return;
+      if (soon && saved.count === 0 && (!saved.nextAt || saved.nextAt - Date.now() > 2000)) {
+        saved.nextAt = Date.now() + 1200;
+        save(saved);
+      }
       if (!saved.nextAt) {
         saved.nextAt = Date.now() + FIRST_MS;
         save(saved);
@@ -83,7 +88,7 @@ export function PetPostcard({ active, petName }: { active: boolean; petName: str
     };
     plan();
     return () => window.clearTimeout(timer);
-  }, [active, lang, petName]);
+  }, [active, lang, petName, soon]);
 
   useEffect(() => {
     if (phase !== "writing") return;
@@ -121,7 +126,8 @@ export function PetPostcard({ active, petName }: { active: boolean; petName: str
       <button
         type="button"
         className={phase === "closed" ? "pet-note is-shake" : phase === "away" ? "pet-note is-open is-away" : "pet-note is-open"}
-        onClick={onNote}
+        onPointerDown={(event) => runTap(event, onNote)}
+        onTouchStart={(event) => runTap(event, onNote)}
         aria-label={t("pet.letter")}
       >
         <span className="pet-note-stamp" />

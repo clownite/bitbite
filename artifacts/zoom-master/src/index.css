@@ -7397,3 +7397,209 @@ body { background: #0c1008; }
   text-transform: uppercase;
 }
 
+/* Home pet hops like the collection sprites. The walk is gone. */
+.gb-app.tab-lab .life-pet:not(.is-asleep),
+.gb-app.tab-lab .life-pet.is-asleep {
+  animation: none;
+}
+.gb-app.tab-lab .life-pet .life-pet-body {
+  animation: tama-bob 0.48s steps(2, end) infinite !important;
+}
+.gb-app.tab-lab .gb-home-pet.is-fed .life-pet {
+  animation: gb-pet-happy 0.4s ease-in-out 3;
+}
+
+/* The four daily taps: hearts, plus fireworks, confetti, or a clover. */
+.tap-party {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  z-index: 8;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.tap-party .pet-hearts { top: 0; }
+.tap-clover {
+  position: absolute;
+  left: -14px;
+  top: 0;
+  font-size: 28px;
+  font-style: normal;
+  animation: tap-pop 1.15s ease forwards;
+}
+.tap-fire,
+.tap-confetti {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.tap-fire i,
+.tap-confetti i {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.tap-fire i {
+  width: 7px;
+  height: 7px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: #ffe14a;
+  box-shadow: 0 0 0 2px #0f380f;
+  animation: tap-burst 0.9s ease-out forwards;
+}
+.tap-fire i:nth-child(1) { --x: -28px; --y: -36px; background: #ff5a6a; }
+.tap-fire i:nth-child(2) { --x: 26px; --y: -30px; animation-delay: 0.04s; }
+.tap-fire i:nth-child(3) { --x: -8px; --y: -48px; background: #fff6e4; animation-delay: 0.08s; }
+.tap-fire i:nth-child(4) { --x: 34px; --y: -8px; background: #ffb020; animation-delay: 0.02s; }
+.tap-fire i:nth-child(5) { --x: -36px; --y: -6px; background: #9bbc0f; animation-delay: 0.1s; }
+.tap-confetti i {
+  width: 6px;
+  height: 8px;
+  margin-left: -3px;
+  background: #ffe14a;
+  animation: tap-fall 1.05s ease-in forwards;
+}
+.tap-confetti i:nth-child(1) { --x: -30px; background: #ff5a6a; }
+.tap-confetti i:nth-child(2) { --x: -16px; background: #fff6e4; animation-delay: 0.05s; }
+.tap-confetti i:nth-child(3) { --x: -4px; background: #0f380f; animation-delay: 0.1s; }
+.tap-confetti i:nth-child(4) { --x: 10px; background: #9bbc0f; }
+.tap-confetti i:nth-child(5) { --x: 22px; background: #ffb020; animation-delay: 0.08s; }
+.tap-confetti i:nth-child(6) { --x: 32px; background: #ff5a6a; animation-delay: 0.12s; }
+.tap-confetti i:nth-child(7) { --x: -24px; background: #c6e35a; animation-delay: 0.04s; }
+@keyframes tap-pop {
+  0% { transform: translateY(8px) scale(0.4); opacity: 0; }
+  20% { transform: translateY(0) scale(1.15); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateY(-28px) scale(1); opacity: 0; }
+}
+@keyframes tap-burst {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 1; }
+  100% { transform: translate(var(--x), var(--y)) scale(1); opacity: 0; }
+}
+@keyframes tap-fall {
+  0% { transform: translate(var(--x), -8px) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--x), 46px) rotate(80deg); opacity: 0; }
+}
+
+/* Clock, weight and the other cards stay inside the green screen. */
+.gb-app .card-reel,
+.gb-app .gb-home-pet,
+.gb-app .card-status {
+  overflow: hidden !important;
+}
+.gb-app .card-status {
+  animation: none !important;
+  box-sizing: border-box;
+  padding: 16px 22px 28px;
+}
+.gb-app .card-time {
+  font-size: 40px;
+  max-width: 100%;
+}
+.gb-app .card-pair {
+  gap: 14px;
+  max-width: 100%;
+}
+.gb-app .card-pair strong { font-size: 34px; }
+.gb-app .card-sub,
+.gb-app .card-kicker {
+  max-width: 100%;
+}
+
+/* Night lamp and the pet's letter, only over the pet. */
+.gb-app.tab-lab .gb-home-pet.is-dark {
+  background: #10180e;
+}
+.gb-app.tab-lab .gb-home-pet .pet-zzz {
+  display: flex;
+  z-index: 7;
+  pointer-events: none;
+}
+.gb-app.tab-lab .pet-lamp {
+  display: grid !important;
+  top: 6px;
+  right: 6px;
+  z-index: 12;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: #c6e35a;
+  border: 2px solid #0f380f;
+  box-shadow: 2px 2px 0 #0f380f;
+}
+.gb-app.tab-lab .pet-lamp.is-on {
+  background: #ffe14a;
+  box-shadow: 0 0 0 2px #0f380f, 0 0 10px rgba(255, 225, 74, 0.85);
+}
+.gb-app .pet-note {
+  z-index: 13;
+  top: auto !important;
+  right: auto !important;
+  left: 8px;
+  bottom: 8px !important;
+  width: 40px;
+  height: 30px;
+}
+.gb-app .pet-note.is-open {
+  right: 8px !important;
+  width: min(180px, 78%);
+  height: auto;
+}
+
+/* More of the screen belongs to the pet. The keys underneath are smaller. */
+.gb-app .gb-console {
+  height: 118px !important;
+}
+.gb-app .gb-dpad {
+  left: 16px;
+  top: 4px;
+  width: 78px;
+  height: 78px;
+}
+.gb-app .gb-dpad i:first-child { left: 28px; top: 0; width: 22px; height: 78px; }
+.gb-app .gb-dpad i:nth-child(2) { left: 0; top: 28px; width: 78px; height: 22px; }
+.gb-app .gb-dpad b { left: 28px; top: 28px; width: 22px; height: 22px; }
+.gb-app .gb-dir.is-up { left: 20px; top: 0; width: 38px; height: 30px; }
+.gb-app .gb-dir.is-down { left: 20px; bottom: 0; width: 38px; height: 30px; }
+.gb-app .gb-dir.is-left { left: 0; top: 22px; width: 30px; height: 34px; }
+.gb-app .gb-dir.is-right { right: 0; top: 22px; width: 30px; height: 34px; }
+.gb-app .gb-pills { bottom: 8px; gap: 12px; }
+.gb-app .gb-pills button { width: 28px; height: 10px; }
+.gb-app .gb-face { right: 12px; top: 2px; width: 112px; height: 92px; }
+.gb-app .gb-console-a { width: 50px; height: 50px; }
+.gb-app .gb-console-b { width: 38px; height: 38px; }
+.gb-app .gb-speaker { bottom: 8px; right: 10px; }
+.gb-app .gb-nav.is-in-screen,
+.gb-app.tab-lab .gb-nav.is-in-screen {
+  height: 46px !important;
+  margin: 2px 4px 2px !important;
+}
+.gb-app.tab-lab .gb-home-pet { min-height: 0; flex: 1.45 1 auto; }
+.gb-app.tab-lab .gb-home-body { padding: 0 8px 2px; }
+.gb-home-line { margin: 2px 4px 2px; font-size: 13px; }
+.gb-app.tab-lab .gb-farm { padding: 6px 8px 5px; }
+.gb-app.tab-lab .gb-farm div:first-child { font-size: 17px; }
+.gb-app.tab-lab .claim-3d { margin: 4px auto 0; padding: 4px 12px; width: min(210px, 58%); }
+.gb-app.tab-lab .gb-stats { margin: 4px 0 0; gap: 4px; }
+.gb-app.tab-lab .gb-stat { padding: 6px 4px; font-size: 14px; }
+
+/* Collection can be pulled down a little. */
+.gb-collection {
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  padding-bottom: 36px;
+}
+.gb-collection-grid {
+  flex: none;
+  grid-template-rows: auto auto auto;
+}
+.gb-app.tab-farm .gb-slot {
+  height: 168px;
+  min-height: 168px;
+}
+

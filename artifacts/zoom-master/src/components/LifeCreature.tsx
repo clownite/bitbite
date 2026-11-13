@@ -5,6 +5,9 @@ import type { LifeForm, LifeMark } from "../pet/life";
 import { notePetTap } from "../pet/quests";
 import { tapPet } from "../pet/petProgress";
 import { translate, type Lang } from "../i18n/translations";
+import { noteHumanGesture } from "../pet/human";
+import { playHappy } from "../audio/sfx";
+import { runTap } from "../utils/tap";
 
 type Sprite = { rows: string[]; ink: Record<string, string> };
 type FamilyArt = { baby: Sprite; child: Sprite; teen: Sprite; adults: Sprite[] };
@@ -97,7 +100,10 @@ export function LifeCreature({
 }) {
   const bodyRef = useRef<HTMLCanvasElement>(null);
   const shadowRef = useRef<HTMLCanvasElement>(null);
+  const drag = useRef(0);
   const [flash, setFlash] = useState<string | null>(null);
+  const [party, setParty] = useState(0);
+  const [partyKind, setPartyKind] = useState<"fire" | "confetti" | "clover">("clover");
   const rising = form === "ascend";
   const pack = FAMILIES[family];
   const grown = form === "adult" || form === "elder" || form === "ascend";
@@ -125,15 +131,24 @@ export function LifeCreature({
   }, [rows, sprite, mark]);
 
   const tap = () => {
-    if (!onTap || asleep) return;
+    if (!onTap) return;
+    noteHumanGesture(true);
     const result = tapPet();
     if (result.reason === "ok") {
       notePetTap();
+      const kinds = ["fire", "confetti", "clover"] as const;
+      setPartyKind(kinds[Math.floor(Math.random() * kinds.length)]);
+      setParty((n) => n + 1);
+      playHappy();
       setFlash(ui("pet.xpFlash", { xp: result.xp, n: result.count, max: result.max }));
     } else if (result.reason === "wait") setFlash(ui("pet.wait"));
     else if (result.reason === "gate") setFlash(ui("pet.payGram"));
     else setFlash(ui("pet.tapFull", { max: result.max }));
     window.setTimeout(() => setFlash(null), 1200);
+  };
+  const press = (event: { button?: number; preventDefault?: () => void }) => {
+    if (!onTap || drag.current > 16) return;
+    runTap(event, tap);
   };
 
   const width = Math.max(rows[0]?.length ?? 12, 12);
@@ -142,11 +157,22 @@ export function LifeCreature({
       className={`life-pet${mini ? " is-mini" : ""}${asleep ? " is-asleep" : ""}${rising ? " is-rise" : ""}${form === "elder" ? " is-elder" : ""}${asking ? " is-asking" : ""}`}
       style={{ width: `calc(${width} * var(--cell))`, marginLeft: `calc(${width} * var(--cell) / -2)` }}
       data-testid={mini ? "life-pet-mini" : "life-pet"}
-      onClick={onTap ? tap : undefined}
+      onPointerDown={onTap ? () => { drag.current = 0; } : undefined}
+      onPointerMove={onTap ? (event) => { drag.current += Math.abs(event.movementX) + Math.abs(event.movementY); } : undefined}
+      onPointerUp={onTap ? press : undefined}
+      onTouchEnd={onTap ? press : undefined}
     >
       <canvas ref={shadowRef} className="life-pet-shadow" />
       <canvas ref={bodyRef} className="life-pet-body" style={{ width: `calc(${width} * var(--cell))` }} />
       {flash ? <span className="life-pet-flash">{flash}</span> : null}
+      {party > 0 ? (
+        <span className="tap-party" key={party} aria-hidden>
+          <span className="pet-hearts"><i /><i /><i /></span>
+          {partyKind === "clover" ? <b className="tap-clover">🍀</b> : null}
+          {partyKind === "fire" ? <span className="tap-fire"><i /><i /><i /><i /><i /></span> : null}
+          {partyKind === "confetti" ? <span className="tap-confetti"><i /><i /><i /><i /><i /><i /><i /></span> : null}
+        </span>
+      ) : null}
     </div>
   );
 }
