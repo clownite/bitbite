@@ -43,10 +43,10 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
   useEffect(() => subscribePet(() => setPet(getPet())), []);
 
   return (
-    <div className="h-full overflow-y-auto" style={{ padding: "12px 16px 28px" }}>
+    <div className="gb-shop h-full overflow-y-auto" style={{ padding: "12px 16px 28px", color: "#0f380f" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-        <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: "0.18em", color: "#7ad7ff" }}>{t("pet.shop")}</div>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#e8f7ff" }}>{gram.toFixed(2)} GRAM</div>
+        <div style={{ fontSize: 16, fontWeight: 700, letterSpacing: "0.08em", color: "#0f380f" }}>{t("pet.shop")}</div>
+        <div style={{ fontSize: 16, fontWeight: 700, color: "#0f380f", fontVariantNumeric: "tabular-nums" }}>{gram.toFixed(2)} GRAM</div>
       </div>
 
       <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 14 }}>
@@ -66,12 +66,14 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
           return (
             <article
               key={item.id}
+              className="gb-shop-card"
               style={{
-                borderRadius: 22,
+                borderRadius: 4,
                 overflow: "hidden",
-                background: "linear-gradient(180deg, rgba(8,20,32,0.94), rgba(4,8,14,0.96))",
-                border: "1px solid rgba(122,215,255,0.28)",
-                boxShadow: `0 16px 36px rgba(0,0,0,0.35), 0 0 28px ${item.element.color}22`,
+                background: "#c6e35a",
+                border: "3px solid #0f380f",
+                boxShadow: "3px 3px 0 #0f380f",
+                color: "#0f380f",
               }}
             >
               <div className="shop-foil" style={{ "--ink": item.element.color } as CSSProperties}>
@@ -94,42 +96,42 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
                     pointerEvents: "none",
                   }}
                 />
-                <div style={{ position: "absolute", top: 12, right: 12, zIndex: 7, fontSize: 12, fontWeight: 800, color: "#041018", background: item.element.color, borderRadius: 999, padding: "4px 8px" }}>
+                <div style={{ position: "absolute", top: 12, right: 12, zIndex: 7, fontSize: 13, fontWeight: 700, color: "#c6e35a", background: "#0f380f", borderRadius: 4, padding: "4px 8px" }}>
                   {item.price === 0 ? t("pet.free") : `${item.price} GRAM`}
                 </div>
               </div>
               <div style={{ padding: "12px 14px 14px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 10 }}>
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: item.element.color }}>{personalPetNumber(ownerId, item.id)}</div>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: "#e8f7ff", lineHeight: 1.1 }}>{item.name}</div>
-                    <div style={{ marginTop: 4, fontSize: 12, fontWeight: 800, color: item.element.color }}>{t(`pet.ability.${item.id}.name`)}</div>
-                    <div style={{ marginTop: 2, fontSize: 11, lineHeight: 1.35, color: "rgba(186,220,236,0.72)" }}>{t(`pet.ability.${item.id}.text`)}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", color: "#1c3a0c" }}>{personalPetNumber(ownerId, item.id)}</div>
+                    <div style={{ fontSize: 22, fontWeight: 700, color: "#0f380f", lineHeight: 1.1 }}>{item.name}</div>
+                    <div style={{ marginTop: 4, fontSize: 14, fontWeight: 700, color: "#0f380f" }}>{t(`pet.ability.${item.id}.name`)}</div>
+                    <div style={{ marginTop: 2, fontSize: 13, lineHeight: 1.35, fontWeight: 700, color: "#1c3a0c" }}>{t(`pet.ability.${item.id}.text`)}</div>
                   </div>
                   <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: item.element.color }}>{t(`pet.element.${item.element.id}`)}</div>
-                    <div style={{ marginTop: 2, fontSize: 12, fontWeight: 800, color: "#e8f7ff" }}>{formatRate(item.rates[1])} {t("pet.perDay")}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", color: "#0f380f" }}>{t(`pet.element.${item.element.id}`)}</div>
+                    <div style={{ marginTop: 2, fontSize: 14, fontWeight: 700, color: "#0f380f", fontVariantNumeric: "tabular-nums" }}>{formatRate(item.rates[1])} {t("pet.perDay")}</div>
                   </div>
                 </div>
                 <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 4 }}>
                   {statLine.map(([id, label, value]) => (
-                    <div key={id} style={{ textAlign: "center", borderRadius: 10, padding: "6px 0 5px", background: "rgba(122,215,255,0.06)" }}>
+                    <div key={id} style={{ textAlign: "center", borderRadius: 4, padding: "6px 0 5px", background: "#8bac0f", border: "2px solid #0f380f" }}>
                       <StatGlyph id={id} />
-                      <div style={{ fontSize: 8, letterSpacing: "0.04em", color: "rgba(186,220,236,0.5)" }}>{label}</div>
-                      <div style={{ marginTop: 2, fontSize: 13, fontWeight: 800, color: "#e8f7ff" }}>{value}</div>
+                      <div style={{ fontSize: 10, letterSpacing: "0.02em", color: "#0f380f", fontWeight: 700 }}>{label}</div>
+                      <div style={{ marginTop: 2, fontSize: 15, fontWeight: 700, color: "#0f380f", fontVariantNumeric: "tabular-nums" }}>{value}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ marginTop: 10, borderRadius: 14, padding: "6px 10px", background: "rgba(4,16,24,0.72)", border: `1px solid ${item.element.color}55`, boxShadow: `0 0 16px ${item.element.color}22` }}>
+                <div style={{ marginTop: 10, borderRadius: 4, padding: "6px 10px", background: "#8bac0f", border: "2px solid #0f380f" }}>
                   {([
                     { lv: 1, rate: item.rates[1], gram: 0, spent: item.price },
                     { lv: 5, rate: item.rates[5], gram: LEVEL5_GRAM, spent: item.price + LEVEL5_GRAM },
                     { lv: 10, rate: item.rates[10], gram: LEVEL10_GRAM, spent: item.price + LEVEL5_GRAM + LEVEL10_GRAM },
                   ] as const).map((row) => (
                     <div key={row.lv} style={{ display: "grid", gridTemplateColumns: "46px 1fr auto", gap: 8, alignItems: "baseline", padding: "3px 0" }}>
-                      <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: item.element.color }}>{t("pet.lv", { n: row.lv })}</span>
-                      <span style={{ fontSize: 12, fontWeight: 800, color: "#e8f7ff" }}>{formatRate(row.rate)} {t("pet.perDay")}</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "rgba(186,220,236,0.72)", textAlign: "right" }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.04em", color: "#0f380f" }}>{t("pet.lv", { n: row.lv })}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "#0f380f", fontVariantNumeric: "tabular-nums" }}>{formatRate(row.rate)} {t("pet.perDay")}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "#1c3a0c", textAlign: "right" }}>
                         {row.gram > 0 ? `${row.gram} GRAM · ` : ""}
                         {row.spent > 0 ? t("pet.roiDays", { n: Math.max(1, Math.round(row.spent / row.rate)) }) : t("pet.free")}
                       </span>
@@ -138,9 +140,9 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
                 </div>
                 <div style={{ marginTop: 12 }}>
                   {owned ? (
-                    <div style={{ textAlign: "center", fontSize: 12, fontWeight: 800, letterSpacing: "0.08em", color: "#7ad7ff" }}>{t("pet.owned")}</div>
+                    <div style={{ textAlign: "center", fontSize: 14, fontWeight: 700, letterSpacing: "0.06em", color: "#0f380f" }}>{t("pet.owned")}</div>
                   ) : slotsFull ? (
-                    <div style={{ textAlign: "center", fontSize: 12, fontWeight: 700, color: "rgba(186,220,236,0.45)" }}>{t("pet.slots")}</div>
+                    <div style={{ textAlign: "center", fontSize: 13, fontWeight: 700, color: "#1c3a0c" }}>{t("pet.slots")}</div>
                   ) : (
                     <button
                       type="button"
@@ -161,13 +163,13 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
                       }}
                       style={{
                         width: "100%",
-                        border: "none",
-                        borderRadius: 14,
+                        border: "3px solid #0f380f",
+                        borderRadius: 4,
                         padding: "12px 14px",
-                        fontWeight: 800,
-                        letterSpacing: "0.06em",
-                        background: canBuy ? item.element.color : `${item.element.color}2e`,
-                        color: canBuy ? "#041018" : item.element.color,
+                        fontWeight: 700,
+                        letterSpacing: "0.04em",
+                        background: canBuy ? "#0f380f" : "#8bac0f",
+                        color: canBuy ? "#c6e35a" : "#1c3a0c",
                       }}
                     >
                       {t("pet.buy", { n: item.price })}
@@ -180,7 +182,7 @@ export function ShopPage({ gram, onPay, telegramId }: ShopPageProps) {
         })}
       </div>
       {note && (
-        <div style={{ marginTop: 12, fontSize: 12, color: "#7ad7ff" }}>{note}</div>
+        <div style={{ marginTop: 12, fontSize: 14, fontWeight: 700, color: "#0f380f" }}>{note}</div>
       )}
     </div>
   );

@@ -155,6 +155,8 @@ export function LabPage({
   const [sheet, setSheet] = useState<null | "ability" | "hp" | "tap" | "stage">(null);
   const [away, setAway] = useState<AwayKind | null>(null);
   const [nameDraft, setNameDraft] = useState("");
+  const [fed, setFed] = useState(false);
+  const fedTimer = useRef(0);
   useEffect(() => {
     const look = () => {
       const seen = careView();
@@ -230,6 +232,15 @@ export function LabPage({
           ? t("pet.sheet.stageBody", { s: pet.stage, l: pet.level })
           : "";
   useEffect(() => {
+    const onEat = () => {
+      setFed(true);
+      window.clearTimeout(fedTimer.current);
+      fedTimer.current = window.setTimeout(() => setFed(false), 1200);
+    };
+    window.addEventListener("zoom-pet-eat", onEat);
+    return () => window.removeEventListener("zoom-pet-eat", onEat);
+  }, []);
+  useEffect(() => {
     if (!active) return;
     const id = window.setInterval(() => {
       if (!document.hidden) noteHomeActive(1000);
@@ -276,7 +287,7 @@ export function LabPage({
             <span>BITBITE</span>
             <span>{life.givenName || chosen.name}</span>
           </div>
-          <div className="gb-home-pet" data-testid="pet-room">
+          <div className={fed ? "gb-home-pet is-fed" : "gb-home-pet"} data-testid="pet-room">
             <CardReel petId={pet.active} petName={chosen.name} now={now} care={care} egg={life.form === "egg"}>
             {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : (
               <LifeCreature

@@ -27,8 +27,8 @@ import { getVerifiedTelegramUserId } from "./utils/telegram";
 import { initVersionCheck } from "./utils/appVersion";
 import { noteVisit } from "./pet/quests";
 import { FirstGuide, type GuideTab } from "./components/FirstGuide";
-import { hapticSoft } from "./utils/haptic";
-import { playClick, playNo } from "./audio/sfx";
+import { hapticCalm, hapticSoft } from "./utils/haptic";
+import { playClick } from "./audio/sfx";
 import { settlePetPayments } from "./pet/payPet";
 import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
@@ -239,8 +239,12 @@ function AppShell() {
       const el = e.target as HTMLElement | null;
       const hit = el?.closest?.("button, a, canvas, [role='button']");
       if (!hit) return;
+      if (hit.closest(".gb-console")) {
+        hapticCalm();
+        return;
+      }
       hapticSoft();
-      if (hit.closest(".claim-3d")) return;
+      if (hit.closest(".claim-3d, .pet-bowl")) return;
       playClick();
     };
     window.addEventListener("pointerdown", down);
@@ -285,7 +289,6 @@ function AppShell() {
     const at = ids.indexOf(tab as typeof ids[number]);
     const from = at < 0 ? 0 : at;
     setTab(ids[(from + dir + ids.length) % ids.length]);
-    playClick();
   };
 
   if (maintenance.enabled && !admin) return <MaintenanceScreen message={maintenance.message} />;
@@ -395,7 +398,7 @@ function AppShell() {
           <button type="button" className={held === "start" ? "is-down" : ""} aria-label="Start" onClick={() => press("start", () => setTab("shop"))} />
         </div>
         <div className="gb-face">
-          <button type="button" className={`gb-console-b${held === "b" ? " is-down" : ""}`} aria-label="B" onClick={() => press("b", () => playNo(0))} />
+          <button type="button" className={`gb-console-b${held === "b" ? " is-down" : ""}`} aria-label="B" onClick={() => press("b", () => { /**/ })} />
           <button type="button" className={`gb-console-a${held === "a" ? " is-down" : ""}`} aria-label="A" onPointerDown={(event) => { if (event.button !== 0) return; press("a", () => { if (tab !== "lab") return; noteHumanGesture(true); window.dispatchEvent(new Event("zoom-home-claim")); }); }} />
         </div>
         <div className="gb-speaker"><i /><i /><i /></div>

@@ -49,6 +49,28 @@ function softOnce() {
   return false;
 }
 
+/** One soft pulse. The Game Boy keys use this instead of a click. */
+export function hapticCalm() {
+  const now = performance.now();
+  if (now < pairUntil) return;
+  pairUntil = now + 240;
+  lastHapticAt = now;
+  const hf = tgHaptic();
+  if (hf) {
+    try {
+      hf.impactOccurred("soft");
+      return;
+    } catch { /**/ }
+    try {
+      hf.impactOccurred("light");
+      return;
+    } catch { /**/ }
+  }
+  try {
+    navigator.vibrate?.(22);
+  } catch { /**/ }
+}
+
 /** Two soft pulses, close together, like a light double tap on the fingertip. */
 export function hapticSoft() {
   const now = performance.now();
