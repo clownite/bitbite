@@ -6657,14 +6657,14 @@ body, body * {
 .gb-app.tab-wallet .gb-nav { background: #8d976c; }
 .gb-app.tab-wallet .gb-nav-btn { color: #1c2414; }
 .gb-app.tab-lab .gb-home-top {
-  padding: 4px 10px 0;
+  padding: 2px 8px 0;
   font-size: 16px;
   letter-spacing: 0.04em;
   font-weight: 700;
 }
 .gb-app.tab-lab .gb-home-pet {
   position: relative;
-  flex: 0 0 200px;
+  flex: 0 0 132px;
   min-height: 0;
   margin: 0;
 }
@@ -6781,9 +6781,9 @@ body, body * {
   box-shadow: inset 0 1px 0 #3d7a28, 0 3px 0 #061806;
 }
 .gb-app.tab-lab .gb-nav {
-  height: 78px;
-  padding: 4px 6px 14px;
-  background: transparent;
+  height: 54px;
+  padding: 0 2px 2px;
+  background: #8d976c;
 }
 .gb-a-mark.is-red { background: #9a3b3b; color: #f6efe4; }
 .gb-app .pet-call,
@@ -6878,9 +6878,10 @@ body { background: #0c1008; }
   background-image: none;
   border: 5px solid #0c1008;
   border-radius: 0;
-  box-shadow: inset 0 0 0 4px #d5dcc0;
+  box-shadow: inset 0 0 0 2px #d5dcc0;
 }
-.gb-bezel { padding: 12px 16px 8px; }
+.gb-bezel { padding: 2px 12px 0; min-height: 0; }
+.gb-dots i { width: 8px; height: 8px; }
 .gb-app .gb-lcd,
 .gb-app.tab-lab .gb-lcd,
 .gb-app.tab-farm .gb-lcd,
@@ -6888,7 +6889,7 @@ body { background: #0c1008; }
 .gb-app.tab-earn .gb-lcd,
 .gb-app.tab-rank .gb-lcd,
 .gb-app.tab-wallet .gb-lcd {
-  margin: 4px 8px 6px;
+  margin: 2px 8px 2px;
   border: 4px solid #0c160c;
   border-radius: 0;
   box-shadow: none;
@@ -6896,8 +6897,8 @@ body { background: #0c1008; }
 .gb-app .gb-lcd::after { border-radius: 0; }
 .gb-app .gb-nav,
 .gb-app.tab-wallet .gb-nav {
-  height: 70px;
-  padding: 2px 4px 6px;
+  height: 54px;
+  padding: 0 2px 2px;
   background: #8d976c;
 }
 .gb-app .claim-3d,
