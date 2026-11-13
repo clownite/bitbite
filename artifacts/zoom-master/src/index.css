@@ -6657,15 +6657,22 @@ body, body * {
 .gb-app.tab-wallet .gb-nav { background: #8d976c; }
 .gb-app.tab-wallet .gb-nav-btn { color: #1c2414; }
 .gb-app.tab-lab .gb-home-top {
-  padding: 14px 16px 0;
+  padding: 4px 10px 0;
   font-size: 16px;
   letter-spacing: 0.04em;
   font-weight: 700;
 }
-.gb-app.tab-lab .life-pet { --cell: 11px; }
-.gb-app.tab-lab .life-pet-body { bottom: 6px; }
+.gb-app.tab-lab .gb-home-pet {
+  position: relative;
+  flex: 0 0 200px;
+  min-height: 0;
+  margin: 0;
+}
+.gb-app.tab-lab .life-pet { --cell: 14px; }
+.gb-app.tab-lab .life-pet-body { bottom: 2px; }
+.gb-app.tab-lab .gb-home-body { padding: 0 10px 4px; }
 .gb-home-line {
-  margin: 0 12px 10px;
+  margin: 2px 4px 6px;
   text-align: center;
   font-size: 14px;
   font-weight: 800;
@@ -6674,9 +6681,9 @@ body, body * {
 }
 .gb-app.tab-lab .gb-farm {
   max-width: none;
-  width: calc(100% - 28px);
+  width: 100%;
   margin: 0 auto;
-  padding: 12px 10px 10px;
+  padding: 12px 8px 10px;
   background: #5e7f26;
   border: 2px solid #1a3a0c;
   border-radius: 6px;
@@ -6693,9 +6700,9 @@ body, body * {
   letter-spacing: 0.04em;
 }
 .gb-app.tab-lab .claim-3d {
-  width: min(230px, 58%);
-  margin: 12px auto 0;
-  padding: 8px 16px;
+  width: min(230px, 62%);
+  margin: 8px auto 0;
+  padding: 6px 14px;
   border-radius: 10px;
   border: 2px solid #3a4a22;
   background: linear-gradient(180deg, #d5dcb0 0%, #b7c28a 42%, #9aa86e 100%);
@@ -6728,14 +6735,14 @@ body, body * {
 }
 .gb-app.tab-lab .gb-a-mark svg { display: block; }
 .gb-stats {
-  margin: 12px 8px 10px;
+  margin: 8px 0 2px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
 }
 .gb-stat {
   border-radius: 10px;
-  padding: 11px 6px;
+  padding: 12px 6px;
   text-align: center;
   background: linear-gradient(180deg, #a8c83a 0%, #86aa22 48%, #6f9218 100%);
   border: 2px solid #1c3a0c;
@@ -6869,7 +6876,7 @@ body { background: #0c1008; }
 .gb-app.tab-wallet {
   background-color: #8d976c;
   background-image: none;
-  border: 10px solid #0c1008;
+  border: 5px solid #0c1008;
   border-radius: 0;
   box-shadow: inset 0 0 0 4px #d5dcc0;
 }
@@ -6881,16 +6888,16 @@ body { background: #0c1008; }
 .gb-app.tab-earn .gb-lcd,
 .gb-app.tab-rank .gb-lcd,
 .gb-app.tab-wallet .gb-lcd {
-  margin: 2px 8px 10px;
-  border: 8px solid #0c160c;
+  margin: 4px 8px 6px;
+  border: 4px solid #0c160c;
   border-radius: 0;
   box-shadow: none;
 }
 .gb-app .gb-lcd::after { border-radius: 0; }
 .gb-app .gb-nav,
 .gb-app.tab-wallet .gb-nav {
-  height: 84px;
-  padding: 2px 4px 14px;
+  height: 70px;
+  padding: 2px 4px 6px;
   background: #8d976c;
 }
 .gb-app .claim-3d,

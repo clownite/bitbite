@@ -242,9 +242,9 @@ export function LabPage({
       <div
         className="absolute left-0 right-0 z-20"
         style={{
-          top: 8,
-          bottom: 8,
-          padding: "0 8px",
+          top: 0,
+          bottom: 0,
+          padding: 0,
         }}
       >
         <div
@@ -265,7 +265,7 @@ export function LabPage({
             <span>BITBITE</span>
             <span>{life.givenName || chosen.name}</span>
           </div>
-          <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "0 8px" }} data-testid="pet-room">
+          <div className="gb-home-pet" data-testid="pet-room">
             <CardReel petId={pet.active} petName={chosen.name} now={now} care={care} egg={life.form === "egg"}>
             {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : (
               <LifeCreature
@@ -338,7 +338,7 @@ export function LabPage({
               </form>
             )}
           </div>
-          <div style={{ padding: "0 12px 12px" }}>
+          <div className="gb-home-body">
             <div className="gb-home-line">
               {chosen.name} · {t(`life.${life.form === "egg" ? "egg" : life.form}`)} · {t("life.generation", { n: life.generation })} · {t("pet.stage").toUpperCase()} {pet.stage}/3
             </div>
