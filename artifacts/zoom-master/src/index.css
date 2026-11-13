@@ -5120,6 +5120,151 @@ body, body * {
   line-height: 1.35;
   font-weight: 700;
 }
+.tama {
+  height: 100%;
+  padding: 8px;
+  border-radius: 48px 48px 36px 36px;
+  background:
+    radial-gradient(ellipse 90% 28% at 50% 0%, rgba(255, 255, 255, 0.38), transparent 46%),
+    linear-gradient(180deg, #9a58e0 0%, #6d32c4 42%, #4e208f 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 14px 28px rgba(36, 8, 72, 0.38);
+}
+.tama-face {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 6px 8px 10px;
+  border-radius: 38px 38px 28px 28px;
+  background:
+    linear-gradient(180deg, #f6c3d6 0 46px, #f6d7ae 46px, #f3d29a 100%);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.4);
+}
+.tama-icons {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  min-height: 44px;
+  margin: 0 4px;
+}
+.tama-status span,
+.tama-icons button {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+.tama-status span { opacity: 0.34; }
+.tama-status span.is-hot { opacity: 1; }
+.tama-icons button.is-on {
+  border-color: #2a2118;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 0 0 2px #fff;
+}
+.tama-lcd {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin: 2px 6px 4px;
+  overflow: hidden;
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, transparent 68%, rgba(16, 78, 28, 0.45) 68%, #1a6428 100%),
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.06) 0 1px, transparent 1px 4px),
+    #3c9a46;
+  box-shadow:
+    0 0 0 3px #141414,
+    0 0 0 6px #d7dbe2,
+    inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+.tama .card-reel-nav,
+.tama .card-reel-dots { display: none; }
+.tama .life-egg { --cell: 8px; bottom: 16%; }
+.tama .life-pet { --cell: 11px; }
+.tama .life-given {
+  color: #143018;
+  text-shadow: none;
+}
+.tama .life-name {
+  top: 8px;
+  bottom: auto;
+  left: 8px;
+  right: 8px;
+  gap: 6px;
+  padding: 8px;
+}
+.tama .life-name p + p { display: none; }
+.tama .life-name input,
+.tama .life-name button { padding: 7px 10px; }
+.tama .pet-bowl,
+.tama .pet-cure { display: none; }
+.tama .pet-call {
+  top: auto;
+  bottom: 8px;
+  left: 8px;
+}
+.tama-readout {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  z-index: 9;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(255, 246, 228, 0.92);
+  color: #102816;
+  text-align: right;
+  pointer-events: none;
+}
+.tama-readout strong {
+  display: block;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+}
+.tama-readout span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+.tama-caption {
+  min-height: 16px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #5c3b22;
+}
+.tama-keys {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 22px;
+  padding: 6px 0 2px;
+}
+.tama-key {
+  width: 54px;
+  height: 54px;
+  border: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #f4ecff, #cbb6ea 42%, #8d74c4);
+  box-shadow: 0 4px 0 #5a3d96, inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  color: #4a2d86;
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.tama-key.is-center { width: 62px; height: 62px; }
+.tama-key:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #5a3d96, inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
 .pet-call {
   position: absolute;
   left: 10px;
