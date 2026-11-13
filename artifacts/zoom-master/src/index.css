@@ -6665,20 +6665,21 @@ body, body * {
 .gb-app.tab-lab .gb-home-pet {
   position: relative;
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 120px;
   margin: 0;
+  overflow: hidden;
 }
 .gb-app.tab-lab .life-pet {
-  --cell: 14px;
-  top: 54%;
-  bottom: auto;
-  height: calc(14 * var(--cell));
-  transform: translateY(-50%);
+  --cell: 13px;
+  top: auto;
+  bottom: 6px;
+  height: calc(12 * var(--cell));
+  transform: none;
 }
 .gb-app.tab-lab .life-pet-body { bottom: 0; }
 .gb-app.tab-lab .gb-home-body { padding: 0 10px 4px; }
 .gb-home-line {
-  margin: 2px 4px 6px;
+  margin: 6px 4px 6px;
   text-align: center;
   font-size: 14px;
   font-weight: 800;
