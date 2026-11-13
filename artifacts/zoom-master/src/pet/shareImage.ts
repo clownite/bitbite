@@ -53,6 +53,27 @@ export type ShareShot = {
   child: { form: LifeForm; mark: LifeMark | null } | null;
 };
 
+function outline(rows: string[]): string[] {
+  const h = rows.length;
+  const w = rows[0]?.length ?? 0;
+  const g = rows.map((row) => [...row]);
+  const o = g.map((row) => [...row]);
+  for (let y = 0; y < h; y += 1) {
+    for (let x = 0; x < w; x += 1) {
+      if (g[y][x] !== ".") continue;
+      for (const [dy, dx] of [[0, 1], [0, -1], [1, 0], [-1, 0]] as const) {
+        const ny = y + dy;
+        const nx = x + dx;
+        if (ny >= 0 && ny < h && nx >= 0 && nx < w && g[ny][nx] !== ".") {
+          o[y][x] = "o";
+          break;
+        }
+      }
+    }
+  }
+  return o.map((row) => row.join(""));
+}
+
 function wings(rows: string[]): string[] {
   return rows.map((row, i) => {
     const mid = i > 1 && i < rows.length - 2;
@@ -65,11 +86,11 @@ function bodySprite(family: FamilyId, form: LifeForm, kin: number): { rows: stri
   if (form === "adult" || form === "elder" || form === "ascend") {
     const sprite = pack.adults[Math.min(9, Math.max(0, kin))];
     const rows = form === "ascend" ? wings(sprite.rows) : sprite.rows;
-    return { rows, ink: { ...sprite.ink, o: "#1a120c", w: "#f4fbff" } };
+    return { rows: outline(rows), ink: { ...sprite.ink, o: "#1a120c", w: "#f4fbff" } };
   }
   if (form !== "baby" && form !== "child" && form !== "teen") return null;
   const sprite = pack[form];
-  return { rows: sprite.rows, ink: { ...sprite.ink, o: "#1a120c" } };
+  return { rows: outline(sprite.rows), ink: { ...sprite.ink, o: "#1a120c" } };
 }
 
 function stampMark(rows: string[], ink: Record<string, string>, mark: LifeMark | null) {
