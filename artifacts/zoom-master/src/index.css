@@ -6875,6 +6875,42 @@ body, body * {
   cursor: pointer;
 }
 .gb-app .gb-quest-xp:disabled { opacity: 1; cursor: default; }
+.gb-quest-meta {
+  margin-top: 1px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1c3a0c;
+}
+.gb-check {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2px solid #0f380f;
+  border-radius: 5px;
+  background: #d7e36c;
+  color: #c6e35a;
+  box-shadow: 0 2px 0 #14300a;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.gb-check.is-wait {
+  background: #9bbc0f;
+  color: transparent;
+  box-shadow: none;
+}
+.gb-check.is-ready {
+  background: #0f380f;
+  color: #c6e35a;
+}
+.gb-check.is-done {
+  background: #0f380f;
+  color: #9bbc0f;
+  box-shadow: none;
+  cursor: default;
+}
 .gb-app.is-profile .hall {
   margin-top: 16px;
   padding: 12px 12px 14px;

@@ -19,9 +19,55 @@ import {
 } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
 import { openPetShare, openTelegramChat, warmPetShare } from "../pet/shareCard";
+import { runTap } from "../utils/tap";
 
 const COMMUNITY_URL = "https://t.me/bitbitecookie";
 const CHAT_URL = "https://t.me/bitbitechats";
+
+function Mark({ on }: { on: boolean }) {
+  if (!on) return null;
+  return (
+    <svg width="14" height="14" viewBox="0 0 12 12" aria-hidden>
+      <path d="M2.2 6.2 4.7 8.7 9.8 3.3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function TaskCheck({
+  state,
+  label,
+  onPress,
+  testId,
+}: {
+  state: "wait" | "ready" | "done";
+  label: string;
+  onPress?: () => void;
+  testId?: string;
+}) {
+  const className = `gb-check is-${state}`;
+  const icon = <Mark on={state !== "wait"} />;
+  if (!onPress || state === "done") {
+    return <span className={className} aria-label={label} data-testid={testId}>{icon}</span>;
+  }
+  return (
+    <button
+      type="button"
+      className={className}
+      aria-label={label}
+      data-testid={testId}
+      onPointerDown={(event) => runTap(event, onPress)}
+      onTouchStart={(event) => runTap(event, onPress)}
+    >
+      {icon}
+    </button>
+  );
+}
+
+function leftOf(row: QuestRow): string {
+  if (row.id === "home15") return `${Math.min(15, Math.floor(row.progress / 60000))}/15`;
+  if (row.goal > 1) return `${Math.min(row.progress, row.goal)}/${row.goal}`;
+  return "";
+}
 
 const GROUPS: { id: QuestGroup }[] = [
   { id: "daily" },
@@ -105,61 +151,62 @@ export function QuestBoard({
         })}
       </div>
       <div className="mt-3 flex flex-col gap-2">
-        {visible.map((row) => (
-          <div key={row.id} className="earn-row gb-quest">
-            <div className="min-w-0">
-              <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t(`quest.${row.id}`)}</div>
+        {visible.map((row) => {
+          const state = row.claimed ? "done" : row.ready ? "ready" : "wait";
+          const missing = leftOf(row);
+          const claim = () => {
+            const gained = claimQuest(row.id, referralCount, crumbsEarned());
+            if (gained > 0) onReward(`+${gained} XP`);
+          };
+          return (
+            <div key={row.id} className="earn-row gb-quest">
+              <div className="min-w-0">
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t(`quest.${row.id}`)}</div>
+                <div className="gb-quest-meta">+{row.xp} XP{missing && !row.claimed ? ` · ${missing}` : ""}</div>
+              </div>
+              <TaskCheck
+                state={state}
+                label={row.claimed ? t("quest.done") : row.ready ? t("quest.done") : missing || t(`quest.${row.id}`)}
+                testId={row.id === "share" ? "share-pet" : undefined}
+                onPress={row.id === "share" && state === "wait" ? sendShare : state === "ready" ? claim : undefined}
+              />
             </div>
-            {row.id === "share" && !row.claimed && !row.ready ? (
-              <button type="button" className="gb-quest-xp" data-testid="share-pet" onClick={sendShare}>+{row.xp} XP</button>
-            ) : row.claimed ? (
-              <span className="gb-quest-xp">{t("quest.done")}</span>
-            ) : (
-              <button
-                type="button"
-                className="gb-quest-xp"
-                disabled={!row.ready}
-                onClick={() => {
-                  const gained = claimQuest(row.id, referralCount, crumbsEarned());
-                  if (gained > 0) onReward(`+${gained} XP`);
-                }}
-              >
-                +{row.xp} XP
-              </button>
-            )}
-          </div>
-        ))}
+          );
+        })}
         {(
           <>
             <div className="earn-row gb-quest">
-              <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.community")}</div>
-              {pet.claimedCommunity ? (
-                <span className="gb-quest-xp">{t("quest.done")}</span>
-              ) : (
-                <button type="button" className="gb-quest-xp" onClick={() => pet.openedCommunity ? (claimOnceTask("community") > 0 && onReward(`+${TASK_ONCE_XP} XP`)) : openLink("community", COMMUNITY_URL)}>+{TASK_ONCE_XP} XP</button>
-              )}
+              <div className="min-w-0">
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.community")}</div>
+                <div className="gb-quest-meta">+{TASK_ONCE_XP} XP</div>
+              </div>
+              <TaskCheck
+                state={pet.claimedCommunity ? "done" : pet.openedCommunity ? "ready" : "wait"}
+                label={t("quest.community")}
+                onPress={pet.claimedCommunity ? undefined : () => (pet.openedCommunity ? (claimOnceTask("community") > 0 && onReward(`+${TASK_ONCE_XP} XP`)) : openLink("community", COMMUNITY_URL))}
+              />
             </div>
             <div className="earn-row gb-quest">
-              <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.chat")}</div>
-              {pet.claimedChat ? (
-                <span className="gb-quest-xp">{t("quest.done")}</span>
-              ) : (
-                <button type="button" className="gb-quest-xp" onClick={() => pet.openedChat ? (claimOnceTask("chat") > 0 && onReward(`+${TASK_ONCE_XP} XP`)) : openLink("chat", CHAT_URL)}>+{TASK_ONCE_XP} XP</button>
-              )}
+              <div className="min-w-0">
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.chat")}</div>
+                <div className="gb-quest-meta">+{TASK_ONCE_XP} XP</div>
+              </div>
+              <TaskCheck
+                state={pet.claimedChat ? "done" : pet.openedChat ? "ready" : "wait"}
+                label={t("quest.chat")}
+                onPress={pet.claimedChat ? undefined : () => (pet.openedChat ? (claimOnceTask("chat") > 0 && onReward(`+${TASK_ONCE_XP} XP`)) : openLink("chat", CHAT_URL))}
+              />
             </div>
             <div className="earn-row gb-quest">
-              <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.friend")}</div>
-              {pet.claimedInviteTask ? (
-                <span className="gb-quest-xp">{t("quest.done")}</span>
-              ) : (
-                <button
-                  type="button"
-                  className="gb-quest-xp"
-                  onClick={() => referralCount > 0 ? (claimOnceTask("invite", referralCount) > 0 && onReward(`+${TASK_INVITE_ONCE_XP} XP`)) : openTelegramChat(t("quest.shareText"), `https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`)}
-                >
-                  +{TASK_INVITE_ONCE_XP} XP
-                </button>
-              )}
+              <div className="min-w-0">
+                <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t("quest.friend")}</div>
+                <div className="gb-quest-meta">+{TASK_INVITE_ONCE_XP} XP</div>
+              </div>
+              <TaskCheck
+                state={pet.claimedInviteTask ? "done" : referralCount > 0 ? "ready" : "wait"}
+                label={t("quest.friend")}
+                onPress={pet.claimedInviteTask ? undefined : () => (referralCount > 0 ? (claimOnceTask("invite", referralCount) > 0 && onReward(`+${TASK_INVITE_ONCE_XP} XP`)) : openTelegramChat(t("quest.shareText"), `https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`))}
+              />
             </div>
           </>
         )}
