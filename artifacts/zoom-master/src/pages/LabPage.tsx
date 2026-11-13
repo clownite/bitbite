@@ -9,6 +9,7 @@ import { careView, subscribeCare, takeCareXp, toggleLight } from "../pet/care";
 import { addPetXp } from "../pet/petProgress";
 import { playClaim } from "../audio/sfx";
 import { noteHumanGesture } from "../pet/human";
+import { runTap } from "../utils/tap";
 import { PetPostcard } from "../components/PetPostcard";
 import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
@@ -248,7 +249,7 @@ export function LabPage({
     return () => window.clearInterval(id);
   }, [active]);
   const runClaim = () => {
-    if (care.dark) return;
+    noteHumanGesture(true);
     const got = claimFarm(Date.now(), true);
     if (got <= 0) return;
     playClaim();
@@ -348,12 +349,8 @@ export function LabPage({
                 type="button"
                 className={farm.pending >= 0.0001 ? "claim-3d" : "claim-3d is-empty"}
                 style={{ ["--claim" as string]: chosen.element.color }}
-                disabled={farm.pending <= 0 || care.dark}
-                onPointerDown={(event) => {
-                  if (event.button !== 0) return;
-                  noteHumanGesture(true);
-                  runClaim();
-                }}
+                onPointerDown={(event) => runTap(event, runClaim)}
+                onTouchStart={(event) => runTap(event, runClaim)}
               >
                 <b className="gb-a-mark" aria-hidden="true">
                   <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true">
@@ -372,9 +369,12 @@ export function LabPage({
                   data-testid={`stat-${stat.id}`}
                   aria-expanded={sheet === stat.id}
                   onPointerDown={(event) => {
-                    if (event.button !== 0) return;
                     event.stopPropagation();
-                    setSheet((open) => (open === stat.id ? null : stat.id));
+                    runTap(event, () => setSheet((open) => (open === stat.id ? null : stat.id)));
+                  }}
+                  onTouchStart={(event) => {
+                    event.stopPropagation();
+                    runTap(event, () => setSheet((open) => (open === stat.id ? null : stat.id)));
                   }}
                 >
                   <div style={{ fontSize: 15, fontWeight: 900, color: "#0f380f" }}>
@@ -435,7 +435,7 @@ export function LabPage({
         </form>
       ) : null}
 
-      {sheet && !care.dark ? (
+      {sheet ? (
         <button
           type="button"
           className="home-sheet"

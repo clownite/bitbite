@@ -28,6 +28,7 @@ import { initVersionCheck } from "./utils/appVersion";
 import { noteVisit } from "./pet/quests";
 import { FirstGuide, type GuideTab } from "./components/FirstGuide";
 import { hapticCalm, hapticSoft } from "./utils/haptic";
+import { runTap } from "./utils/tap";
 import { playClick } from "./audio/sfx";
 import { settlePetPayments } from "./pet/payPet";
 import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
@@ -363,7 +364,8 @@ function AppShell() {
                 <button
                   key={item.id}
                   className={`gb-nav-btn flex-1 flex flex-col items-center justify-center gap-1${active ? " is-on" : ""}${calling ? " nav-call" : ""}`}
-                  onClick={() => setTab(item.id)}
+                  onPointerDown={(event) => runTap(event, () => setTab(item.id))}
+                  onTouchStart={(event) => runTap(event, () => setTab(item.id))}
                 >
                   <span className="gb-nav-ico">
                     <Icon size={18} strokeWidth={2.4} />
@@ -388,18 +390,18 @@ function AppShell() {
       <div className="gb-console flex-shrink-0">
         <div className={`gb-dpad${held === "up" ? " is-up" : ""}${held === "down" ? " is-down" : ""}${held === "left" ? " is-left" : ""}${held === "right" ? " is-right" : ""}`}>
           <i /><i /><b />
-          <button type="button" className="gb-dir is-up" aria-label="Up" onClick={() => press("up", () => stepTab(-1))} />
-          <button type="button" className="gb-dir is-down" aria-label="Down" onClick={() => press("down", () => stepTab(1))} />
-          <button type="button" className="gb-dir is-left" aria-label="Left" onClick={() => press("left", () => stepTab(-1))} />
-          <button type="button" className="gb-dir is-right" aria-label="Right" onClick={() => press("right", () => stepTab(1))} />
+          <button type="button" className="gb-dir is-up" aria-label="Up" onPointerDown={(event) => runTap(event, () => press("up", () => stepTab(-1)))} onTouchStart={(event) => runTap(event, () => press("up", () => stepTab(-1)))} />
+          <button type="button" className="gb-dir is-down" aria-label="Down" onPointerDown={(event) => runTap(event, () => press("down", () => stepTab(1)))} onTouchStart={(event) => runTap(event, () => press("down", () => stepTab(1)))} />
+          <button type="button" className="gb-dir is-left" aria-label="Left" onPointerDown={(event) => runTap(event, () => press("left", () => stepTab(-1)))} onTouchStart={(event) => runTap(event, () => press("left", () => stepTab(-1)))} />
+          <button type="button" className="gb-dir is-right" aria-label="Right" onPointerDown={(event) => runTap(event, () => press("right", () => stepTab(1)))} onTouchStart={(event) => runTap(event, () => press("right", () => stepTab(1)))} />
         </div>
         <div className="gb-pills">
-          <button type="button" className={held === "select" ? "is-down" : ""} aria-label="Select" onClick={() => press("select", () => setGear((n) => n + 1))} />
-          <button type="button" className={held === "start" ? "is-down" : ""} aria-label="Start" onClick={() => press("start", () => setTab("shop"))} />
+          <button type="button" className={held === "select" ? "is-down" : ""} aria-label="Select" onPointerDown={(event) => runTap(event, () => press("select", () => setGear((n) => n + 1)))} onTouchStart={(event) => runTap(event, () => press("select", () => setGear((n) => n + 1)))} />
+          <button type="button" className={held === "start" ? "is-down" : ""} aria-label="Start" onPointerDown={(event) => runTap(event, () => press("start", () => setTab("shop")))} onTouchStart={(event) => runTap(event, () => press("start", () => setTab("shop")))} />
         </div>
         <div className="gb-face">
-          <button type="button" className={`gb-console-b${held === "b" ? " is-down" : ""}`} aria-label="B" onClick={() => press("b", () => { /**/ })} />
-          <button type="button" className={`gb-console-a${held === "a" ? " is-down" : ""}`} aria-label="A" onPointerDown={(event) => { if (event.button !== 0) return; press("a", () => { if (tab !== "lab") return; noteHumanGesture(true); window.dispatchEvent(new Event("zoom-home-claim")); }); }} />
+          <button type="button" className={`gb-console-b${held === "b" ? " is-down" : ""}`} aria-label="B" onPointerDown={(event) => runTap(event, () => press("b", () => { /**/ }))} onTouchStart={(event) => runTap(event, () => press("b", () => { /**/ }))} />
+          <button type="button" className={`gb-console-a${held === "a" ? " is-down" : ""}`} aria-label="A" onPointerDown={(event) => runTap(event, () => press("a", () => { if (tab !== "lab") return; noteHumanGesture(true); window.dispatchEvent(new Event("zoom-home-claim")); }))} onTouchStart={(event) => runTap(event, () => press("a", () => { if (tab !== "lab") return; noteHumanGesture(true); window.dispatchEvent(new Event("zoom-home-claim")); }))} />
         </div>
         <div className="gb-speaker"><i /><i /><i /></div>
       </div>

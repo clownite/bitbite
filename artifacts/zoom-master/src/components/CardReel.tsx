@@ -5,6 +5,7 @@ import { lifeStats } from "../pet/life";
 import type { PetId } from "../pet/catalog";
 import type { CareView } from "../pet/care";
 import { useT } from "../i18n/LanguageContext";
+import { runTap } from "../utils/tap";
 
 const SCREENS = ["pet", "clock", "body", "discipline", "hungry", "happy"] as const;
 
@@ -21,7 +22,7 @@ export function bowlHearts(bowl: number): number {
 }
 
 function MeterHeart({ on }: { on: boolean }) {
-  const edge = "#8ea3b8";
+  const edge = "#306230";
   if (!on) {
     return (
       <svg width="28" height="26" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
@@ -39,13 +40,13 @@ function MeterHeart({ on }: { on: boolean }) {
   }
   return (
     <svg width="28" height="26" viewBox="0 0 8 7" shapeRendering="crispEdges" aria-hidden>
-      <rect x="1" y="0" width="2" height="1" fill="#ff3355" />
-      <rect x="5" y="0" width="2" height="1" fill="#ff3355" />
-      <rect x="0" y="1" width="8" height="2" fill="#ff2040" />
-      <rect x="1" y="3" width="6" height="1" fill="#ff2040" />
-      <rect x="2" y="4" width="4" height="1" fill="#e01838" />
-      <rect x="3" y="5" width="2" height="1" fill="#e01838" />
-      <rect x="1" y="1" width="1" height="1" fill="#ff8aa0" />
+      <rect x="1" y="0" width="2" height="1" fill="#0f380f" />
+      <rect x="5" y="0" width="2" height="1" fill="#0f380f" />
+      <rect x="0" y="1" width="8" height="2" fill="#0f380f" />
+      <rect x="1" y="3" width="6" height="1" fill="#0f380f" />
+      <rect x="2" y="4" width="4" height="1" fill="#14300a" />
+      <rect x="3" y="5" width="2" height="1" fill="#14300a" />
+      <rect x="1" y="1" width="1" height="1" fill="#9bbc0f" />
     </svg>
   );
 }
@@ -198,8 +199,8 @@ export function CardReel({
           ) : null}
         </div>
       ) : null}
-      <button type="button" className="card-reel-nav is-prev" aria-label={t("card.prev")} onClick={() => go(-1)} />
-      <button type="button" className="card-reel-nav is-next" data-testid="card-next" aria-label={t("card.next")} onClick={() => go(1)} />
+      <button type="button" className="card-reel-nav is-prev" aria-label={t("card.prev")} onPointerDown={(event) => runTap(event, () => go(-1))} onTouchStart={(event) => runTap(event, () => go(-1))} />
+      <button type="button" className="card-reel-nav is-next" data-testid="card-next" aria-label={t("card.next")} onPointerDown={(event) => runTap(event, () => go(1))} onTouchStart={(event) => runTap(event, () => go(1))} />
       <div className="card-reel-dots" aria-hidden>
         {SCREENS.map((id, i) => <i key={id} className={i === index ? "is-on" : ""} />)}
       </div>
