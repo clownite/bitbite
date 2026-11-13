@@ -6152,10 +6152,15 @@ body, body * {
 
 /* The whole app sits in the same Game Boy shell as the profile screen. */
 .gb-app {
-  background: #8b9568;
+  background: #8d976c;
   color: #0f380f;
   font-family: ui-monospace, "Courier New", monospace;
   min-height: var(--tg-viewport-stable-height, 100dvh);
+  border: 4px solid #141a0c;
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 3px #d7dec4,
+    inset 0 0 0 6px #5a6240;
 }
 .gb-bezel {
   display: flex;
@@ -6462,39 +6467,22 @@ body, body * {
   -webkit-font-smoothing: none;
   font-smooth: never;
   background-color: #8d976c;
-  background-image:
-    linear-gradient(#e7edd6, #c9d2ac),
-    linear-gradient(#6a724c, #3e462c),
-    linear-gradient(#d5dcc0, #8d976c),
-    linear-gradient(#5c6442, #3e462c);
-  background-size: 100% 14px, 100% 16px, 8px 100%, 8px 100%;
-  background-position: top, bottom, left, right;
-  background-repeat: no-repeat;
+  background-image: none;
 }
 .gb-app.tab-lab .christmas-snow,
 .gb-app.tab-farm .christmas-snow { display: none; }
 .gb-app.tab-farm {
   -webkit-font-smoothing: none;
   background-color: #8d976c;
-  background-image:
-    linear-gradient(#e7edd6, #c9d2ac),
-    linear-gradient(#6a724c, #3e462c),
-    linear-gradient(#d5dcc0, #8d976c),
-    linear-gradient(#5c6442, #3e462c);
-  background-size: 100% 14px, 100% 16px, 8px 100%, 8px 100%;
-  background-position: top, bottom, left, right;
-  background-repeat: no-repeat;
+  background-image: none;
 }
 .gb-app.tab-farm .gb-bezel { display: none; }
 .gb-app.tab-farm .gb-lcd {
-  margin: 16px 14px 4px;
-  border-radius: 6px;
-  border: 5px solid #10260e;
+  margin: 10px 12px 6px;
+  border-radius: 0;
+  border: 4px solid #10260e;
   background: #9bbc0f;
-  box-shadow:
-    inset 0 10px 14px rgba(8, 24, 0, 0.35),
-    0 0 0 4px #6d754c,
-    0 2px 0 #d7dec4;
+  box-shadow: none;
 }
 .gb-collection {
   height: 100%;
@@ -6637,20 +6625,37 @@ body, body * {
   background: #3e4630;
   box-shadow: inset 1px 0 0 #8a9274, 1px 1px 0 #1c2014;
 }
-.gb-app.tab-lab .gb-lcd {
-  margin: 4px 16px 8px;
-  border-radius: 6px;
-  border: 5px solid #10260e;
+.gb-app .gb-lcd,
+.gb-app.tab-lab .gb-lcd,
+.gb-app.tab-play .gb-lcd,
+.gb-app.tab-earn .gb-lcd,
+.gb-app.tab-rank .gb-lcd,
+.gb-app.tab-wallet .gb-lcd {
+  margin: 6px 12px 8px;
+  border-radius: 0;
+  border: 4px solid #10260e;
   background: #9bbc0f;
-  box-shadow:
-    inset 0 10px 14px rgba(8, 24, 0, 0.35),
-    0 0 0 4px #6d754c,
-    0 2px 0 #d7dec4;
+  box-shadow: none;
 }
-.gb-app.tab-lab .gb-lcd::after {
-  border-radius: 5px;
+.gb-app.tab-lab .gb-lcd::after,
+.gb-app .gb-lcd::after {
+  border-radius: 0;
   background: repeating-linear-gradient(180deg, transparent 0 3px, rgba(20, 60, 8, 0.16) 3px 4px);
 }
+.gb-app .gb-nav { background: #8d976c; border-radius: 0; }
+.gb-app .claim-3d,
+.gb-app.tab-lab .claim-3d,
+.gb-stat,
+.gb-app.tab-lab .gb-farm,
+.gb-app.tab-farm .gb-slot,
+.gb-plus,
+.gb-nav-btn.is-on .gb-nav-ico,
+.gb-app.tab-wallet .gb-nav-btn.is-on .gb-nav-ico {
+  border-radius: 2px;
+}
+.gb-app.tab-wallet .hall { margin-left: 0; margin-right: 0; }
+.gb-app.tab-wallet .gb-nav { background: #8d976c; }
+.gb-app.tab-wallet .gb-nav-btn { color: #1c2414; }
 .gb-app.tab-lab .gb-home-top {
   padding: 14px 16px 0;
   font-size: 16px;
@@ -6851,4 +6856,53 @@ body, body * {
 }
 .gb-app .earn-section-kicker { display: none; }
 .gb-app .earn-panel { background: #8bac0f; border: 3px solid #0f380f; padding: 12px; }
+
+/* One closed rectangle on every page, square on all four sides. */
+body { background: #8d976c; }
+.gb-app,
+.gb-app.tab-lab,
+.gb-app.tab-farm,
+.gb-app.tab-play,
+.gb-app.tab-earn,
+.gb-app.tab-rank,
+.gb-app.tab-wallet {
+  background-color: #8d976c;
+  background-image: none;
+  border: 4px solid #141a0c;
+  border-radius: 0;
+  box-shadow:
+    inset 0 0 0 3px #d7dec4,
+    inset 0 0 0 6px #5a6240;
+}
+.gb-app .gb-lcd,
+.gb-app.tab-lab .gb-lcd,
+.gb-app.tab-farm .gb-lcd,
+.gb-app.tab-play .gb-lcd,
+.gb-app.tab-earn .gb-lcd,
+.gb-app.tab-rank .gb-lcd,
+.gb-app.tab-wallet .gb-lcd {
+  margin: 6px 12px 8px;
+  border: 4px solid #10260e;
+  border-radius: 0;
+  box-shadow: none;
+}
+.gb-app .gb-lcd::after { border-radius: 0; }
+.gb-app .gb-nav,
+.gb-app.tab-wallet .gb-nav { background: #8d976c; }
+.gb-app .claim-3d,
+.gb-app.tab-lab .claim-3d,
+.gb-stat,
+.gb-farm,
+.gb-app.tab-lab .gb-farm,
+.gb-slot,
+.gb-plus,
+.invite-card,
+.redeem-vault,
+.invite-share,
+.redeem-go,
+.redeem-input,
+.gb-nav.is-in-screen .gb-nav-btn.is-on,
+.gb-nav-btn.is-on .gb-nav-ico {
+  border-radius: 2px;
+}
 
