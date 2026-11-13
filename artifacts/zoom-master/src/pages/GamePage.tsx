@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { DuelPanel } from "../components/DuelPanel";
 import { LifeEgg } from "../components/LifeEgg";
 import { NumberGame } from "../components/NumberGame";
 import { PetStage } from "../components/PetStage";
@@ -94,7 +93,7 @@ export function GamePage({ active }: { active: boolean }) {
   const [plays, setPlays] = useState<PlayDay>(() => cookiePlays());
   const [boardOpen, setBoardOpen] = useState(false);
   const [hint, setHint] = useState(true);
-  const [mode, setMode] = useState<"cookies" | "duel" | "numbers">("cookies");
+  const [mode, setMode] = useState<"cookies" | "numbers">("cookies");
   const [now, setNow] = useState(() => Date.now());
   const [size, setSize] = useState({ w: 0, h: 0 });
   const runRef = useRef(run);
@@ -211,7 +210,7 @@ export function GamePage({ active }: { active: boolean }) {
           <div className="cookie-head-row">
             <div>
               <div className="cookie-board-kicker">{t("play.kicker")}</div>
-              <h2>{waiting ? t("life.egg") : mode === "numbers" ? t("play.numbers") : mode === "duel" ? t("play.duel") : t("play.title")}</h2>
+              <h2>{waiting ? t("life.egg") : mode === "numbers" ? t("play.numbers") : t("play.title")}</h2>
               {mode === "cookies" && !waiting ? <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left, max: PLAYS_PER_DAY })}</div> : null}
             </div>
             <div className="cookie-top-score" data-testid="cookie-score">{mode === "cookies" && !waiting ? run.score : ""}</div>
@@ -232,7 +231,6 @@ export function GamePage({ active }: { active: boolean }) {
             <div className="play-switch">
               <button type="button" className={mode === "cookies" ? "is-on" : ""} disabled={run.phase === "play"} onClick={() => setMode("cookies")}>{t("play.cookiesTab")}</button>
               <button type="button" className={mode === "numbers" ? "is-on" : ""} data-testid="numbers-tab" disabled={run.phase === "play"} onClick={() => setMode("numbers")}>{t("play.numbers")}</button>
-              <button type="button" className={mode === "duel" ? "is-on" : ""} data-testid="duel-tab" disabled={run.phase === "play"} onClick={() => setMode("duel")}>{t("play.duel")}</button>
             </div>
           )}
         </header>
@@ -244,7 +242,6 @@ export function GamePage({ active }: { active: boolean }) {
           </div>
         ) : null}
 
-        {!waiting && mode === "duel" ? <DuelPanel pet={pet} /> : null}
         {!waiting && mode === "numbers" ? <NumberGame pet={pet} color={color} lifeScale={life.scale} /> : null}
 
         {board.banner ? (

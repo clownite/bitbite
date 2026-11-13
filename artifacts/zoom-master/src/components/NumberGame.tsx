@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { playBite, playDone, playHappy, playMiss, playSad } from "../audio/sfx";
 import { recordCookies } from "../pet/cookieBoard";
 import { noteDisciplinePlay } from "../pet/discipline";
-import { PetStage } from "./PetStage";
+import { LifeCreature } from "./LifeCreature";
 import { PixelCookie } from "./PixelCookie";
+import { familyOf, readLife } from "../pet/life";
 import type { PetState } from "../pet/petProgress";
 import { useT } from "../i18n/LanguageContext";
 
@@ -73,11 +74,11 @@ function Sprite({ rows, ink, cell }: { rows: string[]; ink: Record<string, strin
   );
 }
 
-const CREAM = { "1": "#fff6e4" };
-const SKULL_INK = { "1": "#f4f0ea" };
+const CREAM = { "1": "#0f380f" };
+const SKULL_INK = { "1": "#0f380f" };
 const HEART_INK = { "1": "#ff5a7a" };
 
-export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color: string; lifeScale?: number }) {
+export function NumberGame({ pet }: { pet: PetState; color: string; lifeScale?: number }) {
   const { t } = useT();
   const [phase, setPhase] = useState<"idle" | "mine" | "win" | "lose" | "done">("idle");
   const [mine, setMine] = useState(1);
@@ -148,17 +149,18 @@ export function NumberGame({ pet, color, lifeScale = 1 }: { pet: PetState; color
   };
 
   const showTheirs = phase === "win" || phase === "lose";
+  const life = readLife(pet.active);
 
   return (
     <div
       className={mad ? "num-arena is-mad" : "num-arena"}
       data-testid="number-game"
       style={{
-        background: `radial-gradient(ellipse 70% 28% at 50% 92%, ${color}66, transparent 70%), linear-gradient(180deg, #163044 0%, #071018 72%)`,
-        borderColor: `${color}88`,
+        background: "#9bbc0f",
+        borderColor: "#0f380f",
       }}
     >
-      <PetStage pet={pet} frame="play" petId={pet.active} lifeScale={lifeScale} />
+      <LifeCreature family={familyOf(pet.active)} form={life.form} kin={life.kin} mark={life.mark} />
       <div className="cookie-floor" />
       {phase === "idle" ? (
         <button type="button" className="cookie-go num-go" data-testid="number-start" onClick={start}>

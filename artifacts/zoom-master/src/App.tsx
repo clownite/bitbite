@@ -358,10 +358,10 @@ function AppShell() {
       </main>
 
       {tab === "farm" ? (
-        <div className="gb-pad flex-shrink-0" aria-hidden="true">
+        <div className="gb-console flex-shrink-0" aria-hidden="true">
           <div className="gb-dpad"><i /><i /><b /></div>
           <div className="gb-pills"><i /><i /></div>
-          <div className="gb-face"><i className="gb-b" /><i className="gb-a" /></div>
+          <div className="gb-face"><i className="gb-console-b" /><i className="gb-console-a" /></div>
           <div className="gb-speaker"><i /><i /><i /></div>
         </div>
       ) : (
