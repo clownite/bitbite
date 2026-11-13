@@ -1,13 +1,9 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import ShoppingBag from "lucide-react/dist/esm/icons/shopping-bag.js";
-import { SettingsMenu } from "../components/SettingsMenu";
 import { cookieSvg } from "../components/PixelCookie";
-import { ZoomCubeIcon } from "../components/ZoomCubeIcon";
-import { useCrumbsBalance, useFarm } from "../components/PetFarmButton";
+import { useFarm } from "../components/PetFarmButton";
 import { petCombat, petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
-import { PixelMark } from "../components/PixelMark";
-import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
 import { dismissAway, markHere, readAway, type AwayKind } from "../pet/away";
 import { careView, subscribeCare, takeCareXp, toggleLight } from "../pet/care";
@@ -152,7 +148,6 @@ export function LabPage({
 }) {
   const ownerId = petOwnerId(telegramId);
   const { t, lang } = useT();
-  const crumbs = useCrumbsBalance();
   const [pet, setPet] = useState<PetState>(getPet());
   const [now, setNow] = useState(() => Date.now());
   const [care, setCare] = useState(() => careView());
@@ -216,7 +211,6 @@ export function LabPage({
   const taps = petTapStatus(now);
   const farm = useFarm();
   const chosen = petDef(pet.active);
-  const elementName = t(`pet.element.${chosen.element.id}`);
   const abilityName = t(`pet.ability.${pet.active}.name`);
   const abilityText = t(`pet.ability.${pet.active}.text`);
   const hp = petCombat(chosen, pet.level).hp;
@@ -248,7 +242,7 @@ export function LabPage({
       <div
         className="absolute left-0 right-0 z-20"
         style={{
-          top: 58,
+          top: 8,
           bottom: 8,
           padding: "0 8px",
         }}
@@ -267,7 +261,11 @@ export function LabPage({
             color: "#0f380f",
           }}
         >
-          <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "12px 8px 0" }} data-testid="pet-room">
+          <div className="gb-home-top">
+            <span>BITBITE</span>
+            <span>{life.givenName || chosen.name}</span>
+          </div>
+          <div style={{ flex: 1, minHeight: 0, position: "relative", margin: "0 8px" }} data-testid="pet-room">
             <CardReel petId={pet.active} petName={chosen.name} now={now} care={care} egg={life.form === "egg"}>
             {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : (
               <LifeCreature
@@ -341,35 +339,14 @@ export function LabPage({
             )}
           </div>
           <div style={{ padding: "0 12px 12px" }}>
-            <div style={{ marginBottom: 8, display: "flex", justifyContent: "center", alignItems: "center", gap: 8 }}>
-              <div style={{ textAlign: "center", fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#0f380f" }}>
-                {personalPetNumber(ownerId, pet.active)} {chosen.name} · {(life.form === "adult" || life.form === "elder" || life.form === "ascend") ? kinName(familyOf(pet.active), life.kin, lang) : t(`life.${life.form}`)} · {t("life.generation", { n: life.generation })} · {t("pet.stageLine", { s: pet.stage, l: pet.level })}
-                <span style={{ color: "#306230", fontWeight: 700 }}> · {xpLabel(pet)}</span>
-              </div>
-              <span style={{ flexShrink: 0, fontSize: 10, fontWeight: 800, letterSpacing: "0.08em", color: "#9bbc0f", background: "#0f380f", borderRadius: 2, padding: "3px 7px" }}>
-                {elementName}
-              </span>
+            <div style={{ marginBottom: 8, textAlign: "center", fontSize: 13, fontWeight: 800, letterSpacing: "0.04em", color: "#0f380f" }}>
+              {chosen.name} · {t(`life.${life.form === "egg" ? "egg" : life.form}`)} · {t("life.generation", { n: life.generation })} · {t("pet.stage")} {pet.stage}/3
             </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "12px 12px 12px 14px",
-                borderRadius: 2,
-                background: "#8bac0f",
-                border: "3px solid #0f380f",
-              }}
-            >
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.16em", color: "#0f380f" }}>{t("pet.farm")}</div>
-                <div style={{ marginTop: 2, fontSize: 26, fontWeight: 900, color: "#0f380f", lineHeight: 1 }}>{formatCrumbs(farm.pending)}</div>
-                <div style={{ marginTop: 4, fontSize: 11, color: "#306230" }}>
-                  {formatCrumbs(farm.cap)} {t("pet.perDay")} · {t("pet.level", { n: pet.level })}
-                  {life.form !== "egg" && care.factor < 0.97 ? ` · ${care.sick ? t("pet.sick") : care.hungry ? t("pet.hungry") : t("pet.messy")}` : ""}
-                </div>
-              </div>
-              <button
+            <div className="gb-farm">
+              <div>{t("pet.farm")} {formatCrumbs(farm.pending)}</div>
+              <div>{formatCrumbs(farm.cap)} / day</div>
+            </div>
+            <button
                 type="button"
                 className={farm.pending >= 0.0001 ? "claim-3d" : "claim-3d is-empty"}
                 style={{ ["--claim" as string]: chosen.element.color }}
@@ -398,10 +375,10 @@ export function LabPage({
                   }
                 }}
               >
+                <b className="gb-a-mark">A</b>
                 {t("pet.claim")}
               </button>
-            </div>
-            <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6 }}>
+            <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
               {stats.map((stat) => (
                 <button
                   key={stat.id}
@@ -411,20 +388,9 @@ export function LabPage({
                   onClick={() => setSheet((open) => (open === stat.id ? null : stat.id))}
                   style={{ borderRadius: 2, padding: "8px 4px 7px", textAlign: "center", background: sheet === stat.id ? "#c4d65a" : "#8bac0f", border: "3px solid #0f380f", color: "#0f380f", font: "inherit", cursor: "pointer" }}
                 >
-                  {stat.value === "mark" ? (
-                    <PixelMark glyph={chosen.element.glyph} label={elementName} center />
-                  ) : stat.value === "hearts" ? (
-                    <div style={{ display: "flex", justifyContent: "center", gap: 2, height: 16, alignItems: "center" }} aria-label={`${taps.max - taps.count} of ${taps.max}`}>
-                      {taps.hearts.map((heart, index) => (
-                        heart.startedAt == null
-                          ? <HeartShape key={`ready-${index}`} tone="full" />
-                          : <ChargingHeart key={`${heart.startedAt}-${index}`} startedAt={heart.startedAt} />
-                      ))}
-                    </div>
-                  ) : (
-                    <div style={{ fontSize: 14, fontWeight: 900, color: "#0f380f" }}>{stat.value}</div>
-                  )}
-                  <div style={{ marginTop: 2, fontSize: 9, fontWeight: 800, letterSpacing: "0.08em", color: "#306230" }}>{stat.label}</div>
+                  <div style={{ fontSize: 15, fontWeight: 900, color: "#0f380f" }}>
+                    {stat.id === "ability" ? abilityName : stat.id === "hp" ? `HP ${stat.value}` : stat.id === "tap" ? stat.label : `${stat.label} ${stat.value}`}
+                  </div>
                 </button>
               ))}
             </div>
@@ -470,49 +436,7 @@ export function LabPage({
         </button>
       ) : null}
 
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          className="absolute left-0 right-0 z-30 flex items-center justify-center gap-2 px-3 pointer-events-none"
-          style={{ top: 8 }}
-        >
-          <div className="pointer-events-auto flex-shrink-0">
-            <SettingsMenu muted={muted} setMuted={setMuted ?? (() => {})} headerButton />
-          </div>
-          <div
-            className="px-4 py-2 rounded-full pointer-events-auto flex-shrink-0 flex items-center gap-2"
-            style={{
-              background: "#8bac0f",
-              border: "3px solid #0f380f",
-              boxShadow: "3px 3px 0 #0f380f",
-            }}
-          >
-            <span
-              className="font-black text-base tracking-wide whitespace-nowrap inline-flex items-center gap-1.5"
-              style={{ color: "#0f380f", letterSpacing: "0.06em" }}
-            >
-              <span data-crumb-wallet><ZoomCubeIcon size={18} /></span>
-              {formatCrumbs(crumbs)}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={onOpenShop}
-            aria-label={t("header.openShop")}
-            className="flex items-center justify-center active:scale-95 flex-shrink-0 pointer-events-auto"
-            style={{
-              width: 42,
-              height: 42,
-              borderRadius: 999,
-              background: "#8bac0f",
-              border: "3px solid #0f380f",
-              color: "#0f380f",
-              boxShadow: "3px 3px 0 #0f380f",
-            }}
-          >
-            <ShoppingBag size={18} />
-          </button>
-        </div>
-      </div>
+      <span data-crumb-wallet hidden />
     </div>
   );
 }

@@ -299,7 +299,7 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
             );
           })}
         </div>
-        {board.length === 0 ? <p className="hall-empty">{t("hall.empty")}</p> : null}
+        {board.length === 0 && living.length === 0 ? <p className="hall-empty">{t("hall.empty")}</p> : null}
       </section>
 
       {open ? (

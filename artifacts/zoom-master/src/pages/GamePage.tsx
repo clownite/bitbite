@@ -12,7 +12,8 @@ import {
 } from "../pet/cookieGame";
 import { playPose } from "../pet/playPose";
 import { getPet, subscribePet, type PetState } from "../pet/petProgress";
-import { eggLeft, focusLife, formatLeft, readLife } from "../pet/life";
+import { eggLeft, familyOf, focusLife, formatLeft, readLife } from "../pet/life";
+import { LifeCreature } from "../components/LifeCreature";
 import { playBite, playClick, playDone, playDoneHappy, playMiss, playSad } from "../audio/sfx";
 import { hapticSoft } from "../utils/haptic";
 import { PixelCookie } from "../components/PixelCookie";
@@ -213,6 +214,7 @@ export function GamePage({ active }: { active: boolean }) {
               <h2>{waiting ? t("life.egg") : mode === "numbers" ? t("play.numbers") : mode === "duel" ? t("play.duel") : t("play.title")}</h2>
               {mode === "cookies" && !waiting ? <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left, max: PLAYS_PER_DAY })}</div> : null}
             </div>
+            <div className="cookie-top-score" data-testid="cookie-score">{mode === "cookies" && !waiting ? run.score : ""}</div>
             <div className="play-side">
               <div className="play-balance" data-testid="play-balance">
                 <ZoomCubeIcon size={16} />
@@ -270,7 +272,11 @@ export function GamePage({ active }: { active: boolean }) {
             borderColor: "#0f380f",
           }}
         >
-          <PetStage pet={pet} frame="play" petId={pet.active} lifeScale={life.scale} />
+          {run.phase === "idle" ? (
+            <LifeCreature family={familyOf(pet.active)} form={life.form} kin={life.kin} mark={life.mark} />
+          ) : (
+            <PetStage pet={pet} frame="play" petId={pet.active} lifeScale={life.scale} />
+          )}
           <div className="cookie-floor" />
           {size.w > 0 && run.drops.map((drop) => {
             const point = stagePoint(drop.x, drop.y, size.w, size.h);
@@ -294,9 +300,9 @@ export function GamePage({ active }: { active: boolean }) {
           })}
           <div className="cookie-hud">
             <div className="cookie-lives">{run.phase === "play" ? `${run.spawned}/${SERIES}` : ""}</div>
-            <div className="cookie-score" data-testid="cookie-score">{run.score}</div>
+            <div className="cookie-score">{run.score}</div>
           </div>
-          {run.phase === "play" && hint ? <div className="cookie-hint">{t("play.hint")}</div> : null}
+          {run.phase === "idle" || (run.phase === "play" && hint) ? <div className="cookie-hint">{t("play.hint")}</div> : null}
           {run.phase === "idle" && left > 0 ? (
             <button type="button" className="cookie-go" data-testid="cookie-start" onClick={begin}>
               <PixelCookie size={18} />

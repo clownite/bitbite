@@ -352,7 +352,7 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
   return (
     <div className="flex flex-col h-full overflow-y-auto earn-page" style={{ display: visible ? undefined : "none" }} aria-hidden={!visible}>
       <div className="px-4 pt-3 pb-1 flex-shrink-0">
-        <h2 className="font-black text-xl tracking-tight" style={{ color: "var(--earn-ink)" }}>{t("earn.title")}</h2>
+        <h2 className="font-black tracking-tight" style={{ color: "var(--earn-ink)", fontSize: 40, textAlign: "center", letterSpacing: "0.08em", textTransform: "uppercase" }}>{t("earn.title")}</h2>
       </div>
 
       <div className="px-4 pb-5 flex flex-col gap-2">
@@ -361,9 +361,9 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
           <div className="flex items-end justify-between mb-3">
             <div>
               <div className="earn-section-kicker" style={{ color: "var(--earn-cyan)" }}>{t("earn.dailyKicker")}</div>
-              <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)" }}>{t("earn.dailyStreak")}</div>
+              <div className="font-black text-[17px] tracking-wide mt-0.5" style={{ color: "var(--earn-ink)", textTransform: "uppercase" }}>{t("earn.dailyStreak")}</div>
             </div>
-            <div className="earn-reward-chip earn-reward-chip--gold" aria-label={`+${upcomingReward} XP`}>
+            <div className="earn-reward-chip earn-reward-chip--gold" aria-label={`+${upcomingReward} XP`} hidden>
               +{upcomingReward} XP
             </div>
           </div>
@@ -390,18 +390,18 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
                   className={`earn-day p-1.5 flex flex-col items-center justify-center border ${isNext ? "earn-day--next" : ""}`}
                   style={{
                     aspectRatio: "1 / 1.12",
-                    borderColor: isClaimed ? "rgba(122,215,255,0.55)" : isNext ? "rgba(232,247,255,0.7)" : "rgba(122,215,255,0.12)",
-                    background: isClaimed ? "rgba(122,215,255,0.16)" : isNext ? "rgba(122,215,255,0.08)" : "rgba(0,0,0,0.35)",
+                    borderColor: "#0f380f",
+                    background: isNext ? "#c6e35a" : "#8bac0f",
                   }}
                   data-testid={`day-${dayNum}`}
                 >
-                    <div className="text-[8px] font-bold" style={{ color: isClaimed ? "#7ad7ff" : isNext ? "#e8f7ff" : "rgba(186,220,236,0.4)" }}>
+                    <div className="text-[8px] font-bold" style={{ color: "#0f380f" }}>
                     D{dayNum}
                   </div>
                   <div
                     className="text-[11px] font-black mt-0.5 tabular-nums"
                     style={{
-                      color: isClaimed ? "#e8f7ff" : isNext ? "#fff" : "rgba(186,220,236,0.55)",
+                      color: "#0f380f",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -417,11 +417,12 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
           </div>
 
           <button
-            className={`earn-cta ${canClaim && !claiming ? "earn-cta--primary" : ""}`}
+            className={`earn-cta gb-claim ${canClaim && !claiming ? "earn-cta--primary" : ""}`}
             onClick={handleClaimStreak}
             disabled={!canClaim || claiming}
             data-testid="button-claim-daily"
           >
+            <b className="gb-a-mark is-red">A</b>
             {claiming
               ? t("earn.claiming")
               : canClaim

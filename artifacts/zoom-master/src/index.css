@@ -6285,11 +6285,91 @@ body, body * {
 .gb-app .hall-head h3,
 .gb-app .hall-head p,
 .gb-app .id-name { color: #0f380f; }
-.gb-app .hall-face,
-.gb-app .hall-card.is-live .hall-face {
-  background: #8bac0f;
-  color: #0f380f;
+.gb-app.is-profile .gb-lcd {
+  background: #8b9568;
+  border-color: #1c2414;
+  box-shadow: inset 0 0 0 4px #c5cba8;
 }
+.gb-app.is-profile .profile-kicker,
+.gb-app.is-profile .profile-head h2 { color: #1c2414; }
+.gb-app.is-profile .hall-head h3 { color: #f4fbff; }
+.gb-app.is-profile .hall-head p { color: #9bbc0f; }
+.gb-app.is-profile .id-name { color: #f4fbff; }
+.gb-home-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px 0;
+  color: #0f380f;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  font-size: 13px;
+}
+.gb-farm {
+  margin: 0 auto;
+  max-width: 280px;
+  padding: 10px 12px;
+  text-align: center;
+  background: #8bac0f;
+  border: 3px solid #0f380f;
+  color: #0f380f;
+  font-weight: 900;
+}
+.gb-farm div:first-child { font-size: 18px; letter-spacing: 0.08em; }
+.gb-farm div:last-child { margin-top: 2px; font-size: 13px; }
+.gb-app .claim-3d {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: min(220px, 70%);
+  margin: 10px auto 0;
+}
+.gb-a-mark {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #8b9568;
+  color: #1c2414;
+  font-size: 13px;
+}
+.gb-app .card-reel-nav,
+.gb-app .pet-bowl,
+.gb-app .pet-mess,
+.gb-app .pet-floor,
+.gb-app .life-marks,
+.gb-app .life-given { display: none !important; }
+.gb-app .cookie-head p,
+.gb-app .cookie-board-kicker,
+.gb-app .play-side { display: none; }
+.gb-app .cookie-arena {
+  border: none;
+  background: transparent !important;
+  box-shadow: none;
+}
+.gb-app .cookie-floor {
+  height: 2px;
+  background: repeating-linear-gradient(90deg, #0f380f 0 10px, transparent 10px 16px);
+  border: none;
+  border-radius: 0;
+}
+.gb-app .cookie-head h2 {
+  font-size: 32px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.gb-app.tab-rank h2 {
+  font-size: 32px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.gb-slot .life-pet.is-mini {
+  --cell: 5px;
+  bottom: 34%;
+}
+.gb-app .cookie-arena .life-pet-shadow { opacity: 0; }
 .gb-app .profile-tag {
   background: #9bbc0f;
   box-shadow: 3px 3px 0 #0f380f;
@@ -6311,4 +6391,102 @@ body, body * {
 .gb-app .cookie-board-kicker { color: #306230; }
 .gb-app .pet-card-trace { display: none; }
 .gb-app .hall-empty { color: #306230; }
+.gb-app.tab-lab .gb-bezel,
+.gb-app.tab-play .gb-bezel,
+.gb-app.tab-farm .gb-bezel,
+.gb-app.tab-rank .gb-bezel { justify-content: flex-end; }
+.gb-app.tab-lab .gb-bezel > div:first-child,
+.gb-app.tab-play .gb-bezel > div:first-child,
+.gb-app.tab-farm .gb-bezel > div:first-child,
+.gb-app.tab-rank .gb-bezel > div:first-child { display: none !important; }
+.gb-app.tab-wallet .gb-bezel { display: none; }
+.gb-app.tab-earn .gb-bezel > div:first-child > * { display: none !important; }
+.gb-app.tab-earn .gb-bezel > div:first-child::before {
+  content: "BITBITE";
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  color: #1c2414;
+}
+.gb-home-top span:last-child { letter-spacing: 0.04em; }
+.gb-farm { background: #6a8a1c; }
+.gb-a-mark.is-red { background: #9a3b3b; color: #f6efe4; }
+.gb-app .pet-call,
+.gb-app .grown-ring,
+.gb-app .grown-star,
+.gb-app .pet-postcard,
+.gb-app .life-heir,
+.gb-app .card-reel-dots,
+.gb-app .gb-quest-tabs,
+.gb-app .rank-prizes,
+.gb-app .earn-panel > p { display: none !important; }
+.gb-app .cookie-page,
+.gb-app .cookie-scroll { height: 100%; }
+.gb-app .cookie-scroll {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding-bottom: 8px;
+}
+.gb-app .cookie-top-score {
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+  color: #0f380f;
+}
+.gb-app .cookie-hud { display: none; }
+.gb-app .cookie-arena {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+}
+.gb-app .cookie-arena .life-pet { bottom: 28%; }
+.gb-app .cookie-hint {
+  top: auto;
+  bottom: 18px;
+  color: #0f380f;
+  letter-spacing: 0;
+  font-size: 13px;
+}
+.gb-app .cookie-arena > .cookie-go {
+  border-radius: 999px;
+  background: #6d8c22;
+  color: #0f380f;
+  border: 3px solid #0f380f;
+  box-shadow: none;
+}
+.gb-app .gb-claim {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.gb-app .gb-quest {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 2px;
+  background: transparent;
+  border: none;
+}
+.gb-app .gb-quest-xp {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  color: #0f380f;
+  font: inherit;
+  font-weight: 900;
+  padding: 0;
+  cursor: pointer;
+}
+.gb-app .gb-quest-xp:disabled { opacity: 1; cursor: default; }
+.gb-app.is-profile .hall {
+  margin-top: 16px;
+  padding: 12px 12px 14px;
+  background: #1b2830;
+  border: 3px solid #0f380f;
+}
+.gb-app .earn-section-kicker { display: none; }
+.gb-app .earn-panel { background: #8bac0f; border: 3px solid #0f380f; padding: 12px; }
 

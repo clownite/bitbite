@@ -37,6 +37,7 @@ import { getPet } from "./pet/petProgress";
 import { noteHumanGesture } from "./pet/human";
 import { subscribeCrumbs } from "./pet/crumbs";
 import { PixelCookie } from "./components/PixelCookie";
+import { SettingsMenu } from "./components/SettingsMenu";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
 type Tab = "lab" | "farm" | "play" | "earn" | "rank" | "shop" | "wallet";
@@ -281,7 +282,7 @@ function AppShell() {
 
   return (
     <div
-      className="gb-app flex flex-col overflow-hidden relative"
+      className={`gb-app tab-${tab} flex flex-col overflow-hidden relative${tab === "wallet" ? " is-profile" : ""}`}
       style={{
         height: "100dvh",
         background: "#8b9568",
@@ -291,7 +292,7 @@ function AppShell() {
     >
       <div className="gb-bezel">
         <TelegramIdentity />
-        <span className="gb-dots" aria-hidden="true"><i /><i /><i /></span>
+        <SettingsMenu muted={muted} setMuted={setMuted} headerButton />
       </div>
 
       <main className="gb-lcd flex-1 overflow-hidden relative z-10" style={{ minHeight: 0 }}>

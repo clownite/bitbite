@@ -44,13 +44,13 @@ export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, header
         onClick={() => setOpen(true)}
         className={headerButton ? "flex items-center justify-center active:scale-95 flex-shrink-0" : "glass-neon rounded-full flex items-center justify-center"}
         style={headerButton ? {
-          width: 40,
-          height: 40,
-          borderRadius: 2,
-          background: "#8bac0f",
-          border: "3px solid #0f380f",
-          boxShadow: "3px 3px 0 #0f380f",
-          color: "#0f380f",
+          width: "auto",
+          height: "auto",
+          borderRadius: 0,
+          background: "transparent",
+          border: "none",
+          boxShadow: "none",
+          color: "#1c2414",
           cursor: "pointer",
           padding: 0,
           transition: "transform 0.12s",
@@ -65,21 +65,17 @@ export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, header
           WebkitTapHighlightColor: "transparent",
         }}
       >
-        {/* Inline gear glyph — kept as SVG so it renders identically across
-            platforms (Telegram WebView on iOS/Android sometimes substitutes
-            emoji glyphs). */}
+        {headerButton ? <span className="gb-dots" aria-hidden="true"><i /><i /><i /></span> : null}
         <svg
-          width={headerButton ? 20 : 16}
-          height={headerButton ? 20 : 16}
+          width={16}
+          height={16}
+          style={headerButton ? { display: "none" } : undefined}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          style={{
-            filter: "drop-shadow(0 0 4px rgba(158,197,232,0.45))",
-          }}
         >
           <circle cx="12" cy="12" r="3" />
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />

@@ -37,7 +37,7 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
 
   return (
     <div className="flex flex-col h-full overflow-hidden" style={{ background: "transparent", color: "#0f380f" }}>
-      <div className="px-5 pt-4 pb-2 flex-shrink-0">
+      <div className="px-5 pt-4 pb-2 flex-shrink-0" style={{ textAlign: "center" }}>
         <div className="text-[11px] font-black tracking-[0.2em]" style={{ color: "#306230" }}>{t("rank.week")}</div>
         <h2 className="font-black text-2xl tracking-tight" style={{ color: "#0f380f" }}>{t("rank.title")}</h2>
         <p className="text-[12px] mt-1" style={{ color: "#306230" }}>
@@ -53,29 +53,21 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
             return (
               <div
                 key={entry.telegramId}
-                className="rounded-2xl px-2 py-3 text-center"
-                style={{
-                  minHeight: tall ? 132 : 108,
-                  background: "#0f380f",
-                  border: "3px solid #0f380f",
-                  boxShadow: "none",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                }}
+                className="px-2 text-center"
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", minHeight: 150 }}
               >
-                <div className="font-black" style={{ color: "#9bbc0f", fontSize: tall ? 22 : 16 }}>#{place}</div>
-                <div className="font-black text-[12px] mt-1 truncate" style={{ color: "#9bbc0f" }}>{entry.name.split(" ")[0]}</div>
-                <div className="font-black tabular-nums mt-1" style={{ color: "#c6e35a" }}>{formatGram(entry.amount)}</div>
-                <div className="text-[10px] font-bold tracking-wide" style={{ color: "#8bac0f" }}>GRAM</div>
+                <div className="font-black text-[13px] truncate" style={{ color: "#0f380f" }}>{entry.name.split(" ")[0]}</div>
+                <div className="font-black tabular-nums" style={{ color: "#0f380f", fontSize: tall ? 22 : 16 }}>{formatGram(entry.amount)}</div>
+                <div className="text-[10px] font-bold tracking-wide" style={{ color: "#306230" }}>GRAM</div>
+                <div style={{ width: "78%", height: tall ? 78 : 52, marginTop: 6, background: "#0f380f" }} />
               </div>
             );
           })}
         </div>
 
         <div className="flex flex-col gap-1.5">
-          {rows.map((entry, index) => {
-            const rank = index + 1;
+          {rows.slice(3).map((entry, index) => {
+            const rank = index + 4;
             const isUser = !!youId && entry.telegramId === youId;
             return (
               <div
@@ -102,7 +94,7 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
           })}
         </div>
 
-        <section className="p-3 mt-3" style={{ background: "#8bac0f", border: "3px solid #0f380f" }}>
+        <section className="rank-prizes p-3 mt-3" style={{ background: "#8bac0f", border: "3px solid #0f380f" }}>
           <div className="text-[11px] font-black tracking-[0.16em]" style={{ color: "#0f380f" }}>{t("rank.prizes")}</div>
           <div className="grid grid-cols-4 gap-1.5 mt-2">
             {UPCOMING_PRIZES.map((prize) => (

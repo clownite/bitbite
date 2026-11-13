@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { LifeEgg } from "../components/LifeEgg";
 import { LifeCreature } from "../components/LifeCreature";
 import { familyOf, readLife } from "../pet/life";
-import { PixelMark } from "../components/PixelMark";
 import { PetFarmPanel } from "../components/PetFarmButton";
 import { dailyFarm, formatRate, petDef, type PetId } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
@@ -63,7 +62,7 @@ export function CollectionPage({
     <div className="h-full overflow-y-auto" style={{ padding: "12px 12px 20px", color: "#0f380f" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
         <div style={{ fontSize: 18, fontWeight: 900, letterSpacing: "0.12em", color: "#0f380f" }}>{t("pet.nav.collection").toUpperCase()}</div>
-        <div style={{ fontSize: 12, fontWeight: 800, color: "#306230" }}>{pet.owned.length}/{PET_SLOTS} · 5 max</div>
+        <div style={{ fontSize: 14, fontWeight: 900, color: "#0f380f" }}>{pet.owned.length}/{PET_SLOTS}</div>
       </div>
 
       <div style={{ marginTop: 14, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -81,9 +80,11 @@ export function CollectionPage({
                   ...cardShell,
                   display: "grid",
                   placeItems: "center",
+                  gridColumn: "1 / -1",
+                  height: 72,
                   border: "3px solid #0f380f",
-                  background: "#8bac0f",
-                  color: "#0f380f",
+                  background: "#0f380f",
+                  color: "#9bbc0f",
                   cursor: "pointer",
                 }}
               >
@@ -96,6 +97,7 @@ export function CollectionPage({
           return (
             <div
               key={id}
+              className="gb-slot"
               onClick={() => {
                 setActivePet(id);
                 noteFavorite();
@@ -110,25 +112,17 @@ export function CollectionPage({
               {life.form === "egg" ? <LifeEgg color={color} mini /> : (
                 <LifeCreature family={familyOf(id)} form={life.form} kin={life.kin} mark={life.mark} mini />
               )}
-              <div style={{ position: "absolute", top: 8, right: 8, zIndex: 2, pointerEvents: "none" }}>
-                <PixelMark glyph={petDef(id).element.glyph} label={t(`pet.element.${petDef(id).element.id}`)} />
-              </div>
-              <div style={{ position: "absolute", left: 10, top: 10, fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#0f380f", pointerEvents: "none" }}>
-                {selected ? t("pet.onHome") : `${index + 1}/${PET_SLOTS}`}
-              </div>
-              <div style={{ position: "absolute", left: 10, right: 10, bottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", pointerEvents: "none" }}>
-                <span style={{ minWidth: 0 }}>
-                  <span style={{ display: "block", fontSize: 10, fontWeight: 800, letterSpacing: "0.06em", color: "#306230" }}>{personalPetNumber(ownerId, id)}</span>
-                  <span style={{ display: "block", fontSize: 13, fontWeight: 800, color: "#0f380f" }}>{petDef(id).name}</span>
-                </span>
-                <span style={{ fontSize: 9, fontWeight: 800, letterSpacing: "0.06em", color: "#9bbc0f", background: "#0f380f", borderRadius: 2, padding: "2px 6px" }}>{t(`pet.element.${petDef(id).element.id}`)}</span>
+              <div style={{ position: "absolute", left: 8, right: 8, bottom: 8, textAlign: "center", pointerEvents: "none", color: "#0f380f" }}>
+                <div style={{ fontSize: 14, fontWeight: 900 }}>{petDef(id).name}</div>
+                <div style={{ fontSize: 11, fontWeight: 800 }}>{t(`pet.element.${petDef(id).element.id}`)}</div>
+                {selected ? <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: "0.06em" }}>{t("pet.onHome")}</div> : null}
               </div>
             </div>
           );
         })}
       </div>
 
-      <section style={{ marginTop: 16 }}>
+      <section style={{ marginTop: 16, display: ready ? "block" : "none" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <div>
             <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: "0.08em", color: "#306230" }}>{personalPetNumber(ownerId, pet.active)}</div>
