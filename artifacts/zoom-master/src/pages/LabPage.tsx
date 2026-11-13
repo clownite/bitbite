@@ -242,6 +242,15 @@ export function LabPage({
     return () => window.removeEventListener("zoom-pet-eat", onEat);
   }, []);
   useEffect(() => {
+    if (!active || care.dark) return;
+    const nodes = document.querySelectorAll<HTMLElement>(".gb-home-pet .life-pet-body");
+    nodes.forEach((el) => {
+      el.style.setProperty("animation", "none", "important");
+      void el.offsetWidth;
+      el.style.removeProperty("animation");
+    });
+  }, [active, care.dark]);
+  useEffect(() => {
     if (!active) return;
     const id = window.setInterval(() => {
       if (!document.hidden) noteHomeActive(1000);

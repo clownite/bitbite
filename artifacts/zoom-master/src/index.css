@@ -7402,7 +7402,7 @@ body { background: #0c1008; }
 .gb-app.tab-lab .life-pet.is-asleep {
   animation: none;
 }
-.gb-app.tab-lab .life-pet .life-pet-body {
+.gb-home-pet .life-pet-body {
   animation: tama-bob 0.48s steps(2, end) infinite !important;
 }
 .gb-app.tab-lab .gb-home-pet.is-fed .life-pet {
@@ -7509,13 +7509,51 @@ body { background: #0c1008; }
 }
 
 /* Night lamp and the pet's letter, only over the pet. */
-.gb-app.tab-lab .gb-home-pet.is-dark {
+.gb-home-pet.is-dark {
   background: #10180e;
 }
-.gb-app.tab-lab .gb-home-pet .pet-zzz {
-  display: flex;
+.gb-home-pet.is-dark .life-pet,
+.gb-home-pet.is-dark .life-egg,
+.gb-home-pet.is-dark .life-heir,
+.gb-home-pet.is-dark .life-marks,
+.gb-home-pet.is-dark .grown-ring,
+.gb-home-pet.is-dark .grown-star,
+.gb-home-pet.is-dark .tap-party {
+  display: none !important;
+}
+.gb-home-pet.is-dark .pet-zzz {
+  display: block;
   z-index: 7;
+  top: 8%;
+  bottom: 12%;
+  left: 50%;
+  width: 72px;
+  height: auto;
+  margin: 0;
+  transform: translateX(-50%);
   pointer-events: none;
+}
+.gb-home-pet.is-dark .pet-zzz span {
+  position: absolute;
+  left: 8px;
+  bottom: 0;
+  font-size: 28px;
+  animation: gb-zzz-rise 7.2s linear infinite !important;
+}
+.gb-home-pet.is-dark .pet-zzz span:nth-child(2) {
+  left: 28px;
+  font-size: 22px;
+  animation-delay: 2.1s !important;
+}
+.gb-home-pet.is-dark .pet-zzz span:nth-child(3) {
+  left: 46px;
+  font-size: 16px;
+  animation-delay: 4.2s !important;
+}
+@keyframes gb-zzz-rise {
+  0% { bottom: 0; opacity: 0; }
+  18% { opacity: 1; }
+  100% { bottom: 100%; opacity: 0; }
 }
 .gb-app.tab-lab .pet-lamp {
   display: grid !important;
