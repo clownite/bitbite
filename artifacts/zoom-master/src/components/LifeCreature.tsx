@@ -11,27 +11,6 @@ type FamilyArt = { baby: Sprite; child: Sprite; teen: Sprite; adults: Sprite[] }
 
 const FAMILIES = art as Record<FamilyId, FamilyArt>;
 
-function outline(rows: string[]): string[] {
-  const h = rows.length;
-  const w = rows[0]?.length ?? 0;
-  const g = rows.map((row) => [...row]);
-  const o = g.map((row) => [...row]);
-  for (let y = 0; y < h; y += 1) {
-    for (let x = 0; x < w; x += 1) {
-      if (g[y][x] !== ".") continue;
-      for (const [dy, dx] of [[0, 1], [0, -1], [1, 0], [-1, 0]] as const) {
-        const ny = y + dy;
-        const nx = x + dx;
-        if (ny >= 0 && ny < h && nx >= 0 && nx < w && g[ny][nx] !== ".") {
-          o[y][x] = "o";
-          break;
-        }
-      }
-    }
-  }
-  return o.map((row) => row.join(""));
-}
-
 function wings(rows: string[]): string[] {
   return rows.map((row, i) => {
     const mid = i > 1 && i < rows.length - 2;
@@ -40,7 +19,7 @@ function wings(rows: string[]): string[] {
 }
 
 function paint(canvas: HTMLCanvasElement, rows: string[], ink: Record<string, string>, mark: LifeMark | null) {
-  const framed = outline(rows);
+  const framed = rows;
   const width = framed[0].length;
   const height = framed.length;
   canvas.width = width;

@@ -232,7 +232,42 @@ export function LabPage({
               <span className={care.hungry ? "is-hot" : ""}><TamaMark kind="cookie" /></span>
               <span className={egg ? "is-hot" : ""}><TamaMark kind="clock" /></span>
             </div>
+            {life.givenName ? null : (
+              <form
+                className="life-name"
+                data-testid="life-name"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (nameLife(pet.active, nameDraft)) setNameDraft("");
+                }}
+              >
+                <p>{egg ? t("life.nameTitle") : t("life.namePet")}</p>
+                <input
+                  value={nameDraft}
+                  maxLength={16}
+                  placeholder={t("life.namePh")}
+                  aria-label={t("life.namePh")}
+                  autoComplete="off"
+                  onChange={(event) => setNameDraft(event.target.value.slice(0, 16))}
+                />
+                <button type="submit" disabled={!nameDraft.trim()}>{t("life.nameSave")}</button>
+              </form>
+            )}
           <div className="tama-lcd" data-testid="pet-room">
+            <div className="tama-sun" aria-hidden>
+              <svg width="28" height="28" viewBox="0 0 9 9" shapeRendering="crispEdges">
+                <rect x="4" y="0" width="1" height="2" fill="#ffe14a" />
+                <rect x="4" y="7" width="1" height="2" fill="#ffe14a" />
+                <rect x="0" y="4" width="2" height="1" fill="#ffe14a" />
+                <rect x="7" y="4" width="2" height="1" fill="#ffe14a" />
+                <rect x="1" y="1" width="1" height="1" fill="#ffe14a" />
+                <rect x="7" y="1" width="1" height="1" fill="#ffe14a" />
+                <rect x="1" y="7" width="1" height="1" fill="#ffe14a" />
+                <rect x="7" y="7" width="1" height="1" fill="#ffe14a" />
+                <rect x="3" y="3" width="3" height="3" fill="#ffe56a" />
+                <rect x="4" y="3" width="1" height="1" fill="#fff6c2" />
+              </svg>
+            </div>
             <CardReel petId={pet.active} petName={chosen.name} now={now} care={care} egg={life.form === "egg"}>
             {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : (
               <LifeCreature
@@ -282,28 +317,7 @@ export function LabPage({
             </CardReel>
             {life.givenName ? (
               <div className="life-given" data-testid="life-given">{life.givenName}</div>
-            ) : (
-              <form
-                className="life-name"
-                data-testid="life-name"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  if (nameLife(pet.active, nameDraft)) setNameDraft("");
-                }}
-              >
-                <p>{egg ? t("life.nameTitle") : t("life.namePet")}</p>
-                <p>{t("life.nameBody")}</p>
-                <input
-                  value={nameDraft}
-                  maxLength={16}
-                  placeholder={t("life.namePh")}
-                  aria-label={t("life.namePh")}
-                  autoComplete="off"
-                  onChange={(event) => setNameDraft(event.target.value.slice(0, 16))}
-                />
-                <button type="submit" disabled={!nameDraft.trim()}>{t("life.nameSave")}</button>
-              </form>
-            )}
+            ) : null}
             {chosenPick === "claim" ? (
               <div className="tama-readout" data-testid="tama-crumbs">
                 <strong>{formatCrumbs(farm.pending)}</strong>

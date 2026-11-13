@@ -104,7 +104,7 @@ export function KinPortrait({
     const sprite = grown
       ? pack.adults[Math.min(9, Math.max(0, kin))]
       : pack[form === "baby" || form === "child" || form === "teen" ? form : "baby"];
-    paint(canvas, outline(sprite.rows), sprite.ink, mark);
+    paint(canvas, sprite.rows, sprite.ink, mark);
   }, [family, form, kin, mark]);
 
   return <canvas ref={ref} className="kin-portrait" />;
