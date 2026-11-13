@@ -273,7 +273,6 @@ function passGeneration(petId: PetId, row: Row, now: number) {
   row.heirMark = null;
   row.nextAskAt = null;
   row.ascendUntil = null;
-  row.givenName = "";
   lock(row, now);
 }
 

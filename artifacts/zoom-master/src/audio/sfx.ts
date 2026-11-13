@@ -26,12 +26,25 @@ export function playClick() {
 }
 
 /** A cookie caught in the game. Silent when clicks are off. */
-export function playBite() {
-  if (off) return;
-  playNotes([
+const BITE_SET: Note[][] = [
+  [
     { freq: 660, at: 0, dur: 0.05, gain: 0.05 },
     { freq: 880, at: 0.05, dur: 0.09, gain: 0.05 },
-  ]);
+  ],
+  [
+    { freq: 523, at: 0, dur: 0.04, gain: 0.05 },
+    { freq: 784, at: 0.045, dur: 0.08, gain: 0.048 },
+  ],
+  [
+    { freq: 740, at: 0, dur: 0.04, gain: 0.05 },
+    { freq: 988, at: 0.04, dur: 0.05, gain: 0.046 },
+    { freq: 1174, at: 0.1, dur: 0.08, gain: 0.04 },
+  ],
+];
+
+export function playBite() {
+  if (off) return;
+  playNotes(pick(BITE_SET));
 }
 
 /** A cookie that hit the floor. Silent when clicks are off. */
@@ -42,25 +55,75 @@ export function playMiss() {
 
 type Note = { freq: number; at: number; dur: number; gain: number };
 
-/** Three fast rising notes. The pet is glad. */
-const HAPPY: Note[] = [
-  { freq: 523, at: 0, dur: 0.07, gain: 0.05 },
-  { freq: 659, at: 0.08, dur: 0.07, gain: 0.05 },
-  { freq: 784, at: 0.16, dur: 0.12, gain: 0.045 },
+/** Short phrases. Each call picks a different one, the way a Tamagotchi does. */
+const HAPPY_SET: Note[][] = [
+  [
+    { freq: 523, at: 0, dur: 0.07, gain: 0.05 },
+    { freq: 659, at: 0.08, dur: 0.07, gain: 0.05 },
+    { freq: 784, at: 0.16, dur: 0.12, gain: 0.045 },
+  ],
+  [
+    { freq: 659, at: 0, dur: 0.06, gain: 0.05 },
+    { freq: 784, at: 0.07, dur: 0.06, gain: 0.05 },
+    { freq: 1046, at: 0.14, dur: 0.08, gain: 0.045 },
+    { freq: 784, at: 0.24, dur: 0.1, gain: 0.04 },
+  ],
+  [
+    { freq: 392, at: 0, dur: 0.05, gain: 0.045 },
+    { freq: 523, at: 0.06, dur: 0.05, gain: 0.048 },
+    { freq: 659, at: 0.12, dur: 0.06, gain: 0.05 },
+    { freq: 784, at: 0.2, dur: 0.12, gain: 0.045 },
+  ],
+  [
+    { freq: 784, at: 0, dur: 0.05, gain: 0.045 },
+    { freq: 988, at: 0.06, dur: 0.06, gain: 0.045 },
+    { freq: 1174, at: 0.14, dur: 0.14, gain: 0.04 },
+  ],
 ];
 
-/** Two low notes, close together. The pet does not want it. */
-const NO: Note[] = [
-  { freq: 392, at: 0, dur: 0.06, gain: 0.05 },
-  { freq: 262, at: 0.07, dur: 0.12, gain: 0.048 },
+const NO_SET: Note[][] = [
+  [
+    { freq: 392, at: 0, dur: 0.06, gain: 0.05 },
+    { freq: 262, at: 0.07, dur: 0.12, gain: 0.048 },
+  ],
+  [
+    { freq: 220, at: 0, dur: 0.07, gain: 0.05 },
+    { freq: 196, at: 0.08, dur: 0.14, gain: 0.046 },
+  ],
+  [
+    { freq: 330, at: 0, dur: 0.05, gain: 0.05 },
+    { freq: 247, at: 0.06, dur: 0.06, gain: 0.046 },
+    { freq: 196, at: 0.14, dur: 0.12, gain: 0.044 },
+  ],
 ];
 
-/** Three slower notes, falling. The pet is sad. */
-const SAD: Note[] = [
-  { freq: 440, at: 0, dur: 0.12, gain: 0.045 },
-  { freq: 349, at: 0.18, dur: 0.14, gain: 0.042 },
-  { freq: 262, at: 0.36, dur: 0.2, gain: 0.04 },
+const SAD_SET: Note[][] = [
+  [
+    { freq: 440, at: 0, dur: 0.12, gain: 0.045 },
+    { freq: 349, at: 0.18, dur: 0.14, gain: 0.042 },
+    { freq: 262, at: 0.36, dur: 0.2, gain: 0.04 },
+  ],
+  [
+    { freq: 349, at: 0, dur: 0.14, gain: 0.044 },
+    { freq: 330, at: 0.18, dur: 0.14, gain: 0.04 },
+    { freq: 262, at: 0.36, dur: 0.22, gain: 0.038 },
+  ],
+  [
+    { freq: 494, at: 0, dur: 0.1, gain: 0.044 },
+    { freq: 440, at: 0.14, dur: 0.12, gain: 0.042 },
+    { freq: 349, at: 0.3, dur: 0.14, gain: 0.04 },
+    { freq: 294, at: 0.48, dur: 0.2, gain: 0.036 },
+  ],
+  [
+    { freq: 311, at: 0, dur: 0.16, gain: 0.042 },
+    { freq: 277, at: 0.2, dur: 0.16, gain: 0.04 },
+    { freq: 233, at: 0.4, dur: 0.24, gain: 0.036 },
+  ],
 ];
+
+function pick(list: Note[][]): Note[] {
+  return list[Math.floor(Math.random() * list.length)];
+}
 
 /** Four notes. Something is finished. */
 const DONE: Note[] = [
@@ -83,17 +146,17 @@ function voice(notes: Note[]) {
 
 /** Glad. Starts after the button click, so the two sounds stay apart. */
 export function playHappy(wait = 0.28) {
-  voice(later(HAPPY, wait));
+  voice(later(pick(HAPPY_SET), wait));
 }
 
 /** Full, or unwilling. Starts after the button click. */
 export function playNo(wait = 0.28) {
-  voice(later(NO, wait));
+  voice(later(pick(NO_SET), wait));
 }
 
 /** Lost, hurt, or ill. */
 export function playSad(wait = 0.28) {
-  voice(later(SAD, wait));
+  voice(later(pick(SAD_SET), wait));
 }
 
 /** A finished game. */
@@ -103,7 +166,7 @@ export function playDone(wait = 0.4) {
 
 /** A finished game that went well: the closing phrase, then the glad one. */
 export function playDoneHappy(wait = 0.4) {
-  voice([...later(DONE, wait), ...later(HAPPY, wait + 0.52)]);
+  voice([...later(DONE, wait), ...later(pick(HAPPY_SET), wait + 0.52)]);
 }
 
 /** Coins landing. This stays on even when clicks are off. */

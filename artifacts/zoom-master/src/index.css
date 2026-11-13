@@ -6347,7 +6347,6 @@ body, body * {
   color: #1c2414;
   font-size: 13px;
 }
-.gb-app .card-reel-nav,
 .gb-app .pet-bowl,
 .gb-app .pet-mess,
 .gb-app .pet-floor,
@@ -6584,16 +6583,24 @@ body, body * {
   gap: 16px;
   transform: translateX(-50%);
 }
-.gb-pills i {
+.gb-pills button {
   width: 32px;
   height: 12px;
+  padding: 0;
+  border: 0;
   border-radius: 8px;
   background: linear-gradient(180deg, #3a3a3a, #161616);
   box-shadow: inset 1px 1px 0 #666, 0 2px 0 #111;
   transform: rotate(-28deg);
+  cursor: pointer;
+}
+.gb-pills button.is-down {
+  transform: rotate(-28deg) translateY(2px);
+  box-shadow: inset 1px 1px 0 #444;
 }
 .gb-face { position: absolute; right: 18px; top: 10px; width: 130px; height: 108px; }
-.gb-console-a, .gb-console-b { position: absolute; border-radius: 50%; display: block; }
+.gb-console-a, .gb-console-b { position: absolute; border-radius: 50%; display: block; border: 0; padding: 0; cursor: pointer; }
+.gb-console-a.is-down, .gb-console-b.is-down { transform: translateY(4px); }
 .gb-console-a {
   right: 0;
   top: 0;
@@ -6763,7 +6770,6 @@ body, body * {
 .gb-app.tab-lab .gb-farm {
   box-shadow: inset 0 3px 0 rgba(10, 30, 0, 0.18), 0 2px 0 #3d5a14;
 }
-.gb-app.tab-lab .life-name,
 .gb-app.tab-lab .away-note,
 .gb-app.tab-lab .pet-call,
 .gb-app.tab-lab .pet-lamp,
@@ -6924,6 +6930,110 @@ body { background: #0c1008; }
 .gb-nav-btn.is-on .gb-nav-ico {
   border-radius: 2px;
 }
+.gb-app,
+.gb-app * {
+  font-family: "Pixelify Sans", ui-monospace, monospace !important;
+}
+.gb-app .gb-bezel,
+.gb-app.tab-lab .gb-bezel,
+.gb-app.tab-farm .gb-bezel,
+.gb-app.tab-play .gb-bezel,
+.gb-app.tab-earn .gb-bezel,
+.gb-app.tab-rank .gb-bezel,
+.gb-app.tab-wallet .gb-bezel,
+.gb-app.tab-shop .gb-bezel {
+  display: flex !important;
+  height: 22px;
+  min-height: 22px;
+  max-height: 22px;
+  padding: 2px 12px 0;
+  justify-content: flex-end;
+  align-items: center;
+  overflow: hidden;
+}
+.gb-app .gb-bezel > div:first-child,
+.gb-app.tab-earn .gb-bezel > div:first-child,
+.gb-app.tab-earn .gb-bezel > div:first-child::before {
+  display: none !important;
+  content: none !important;
+}
+.gb-app .gb-lcd::after { pointer-events: none !important; }
+.gb-app .home-sheet {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 8px;
+  z-index: 30;
+  max-height: 42%;
+}
+.gb-app .claim-3d,
+.gb-app .gb-stat { position: relative; z-index: 5; pointer-events: auto; }
+.gb-app .life-name {
+  display: grid !important;
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 42%;
+  bottom: auto;
+  z-index: 24;
+  transform: translateY(-50%);
+  gap: 10px;
+  padding: 14px;
+  background: #d7e36c;
+  border: 3px solid #0f380f;
+  border-radius: 6px;
+  box-shadow: 4px 4px 0 #0f380f;
+  color: #0f380f;
+}
+.gb-app .life-name p { margin: 0; font-size: 15px; font-weight: 700; letter-spacing: 0; }
+.gb-app .life-name input,
+.gb-app .life-name button {
+  min-height: 44px;
+  font-size: 16px;
+  border-radius: 4px;
+}
+.gb-app .life-name button {
+  border: 2px solid #0f380f;
+  background: #9bbc0f;
+  color: #0f380f;
+  font-weight: 700;
+}
+.gb-app .pet-note {
+  display: grid !important;
+  z-index: 14;
+  top: 6px;
+  right: 8px;
+  bottom: auto;
+}
+.gb-app .pet-note.is-open { display: block !important; }
+.gb-app .gb-amount,
+.gb-app .gb-label,
+.gb-app .gb-sub,
+.gb-app .gb-line,
+.gb-app .gb-who,
+.gb-app .profile-tag,
+.gb-app .profile-kicker,
+.gb-app .profile-head h2 {
+  font-family: "Pixelify Sans", ui-monospace, monospace !important;
+  letter-spacing: 0;
+}
+.gb-app .gb-amount { font-size: 34px; font-weight: 700; }
+.gb-dir {
+  position: absolute;
+  z-index: 3;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.gb-dir.is-up { left: 26px; top: 0; width: 44px; height: 40px; }
+.gb-dir.is-down { left: 26px; bottom: 0; width: 44px; height: 40px; }
+.gb-dir.is-left { left: 0; top: 28px; width: 40px; height: 40px; }
+.gb-dir.is-right { right: 0; top: 28px; width: 40px; height: 40px; }
+.gb-dpad.is-up i:first-child { transform: translateY(-3px); }
+.gb-dpad.is-down i:first-child { transform: translateY(3px); }
+.gb-dpad.is-left i:nth-child(2) { transform: translateX(-3px); }
+.gb-dpad.is-right i:nth-child(2) { transform: translateX(3px); }
 .gb-app .gb-nav.is-in-screen,
 .gb-app.tab-lab .gb-nav.is-in-screen,
 .gb-app.tab-farm .gb-nav.is-in-screen,

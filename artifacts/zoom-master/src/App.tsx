@@ -28,7 +28,7 @@ import { initVersionCheck } from "./utils/appVersion";
 import { noteVisit } from "./pet/quests";
 import { FirstGuide, type GuideTab } from "./components/FirstGuide";
 import { hapticSoft } from "./utils/haptic";
-import { playClick } from "./audio/sfx";
+import { playClick, playNo } from "./audio/sfx";
 import { settlePetPayments } from "./pet/payPet";
 import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
@@ -181,6 +181,8 @@ export default function App() {
 function AppShell() {
   const { t } = useT();
   const [tab, setTab] = useState<Tab>("lab");
+  const [gear, setGear] = useState(0);
+  const [held, setHeld] = useState<string | null>(null);
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("zoom-bgm-muted") === "1"; } catch { return false; }
   });
@@ -273,6 +275,19 @@ function AppShell() {
     return () => { alive = false; window.clearInterval(id); };
   }, [admin]);
 
+  const press = (id: string, fn: () => void) => {
+    setHeld(id);
+    window.setTimeout(() => setHeld((cur) => (cur === id ? null : cur)), 160);
+    fn();
+  };
+  const stepTab = (dir: number) => {
+    const ids = NAV.map((item) => item.id);
+    const at = ids.indexOf(tab as typeof ids[number]);
+    const from = at < 0 ? 0 : at;
+    setTab(ids[(from + dir + ids.length) % ids.length]);
+    playClick();
+  };
+
   if (maintenance.enabled && !admin) return <MaintenanceScreen message={maintenance.message} />;
   if (suspended) return <SuspendedScreen until={suspended.until} message={suspended.message} />;
 
@@ -287,7 +302,7 @@ function AppShell() {
     >
       <div className="gb-bezel">
         <TelegramIdentity />
-        <SettingsMenu muted={muted} setMuted={setMuted} headerButton />
+        <SettingsMenu muted={muted} setMuted={setMuted} headerButton openToken={gear} />
       </div>
 
       <main className="gb-lcd flex flex-col flex-1 overflow-hidden relative z-10" style={{ minHeight: 0 }}>
@@ -367,10 +382,22 @@ function AppShell() {
         </nav>
       </main>
 
-      <div className="gb-console flex-shrink-0" aria-hidden="true">
-        <div className="gb-dpad"><i /><i /><b /></div>
-        <div className="gb-pills"><i /><i /></div>
-        <div className="gb-face"><i className="gb-console-b" /><i className="gb-console-a" /></div>
+      <div className="gb-console flex-shrink-0">
+        <div className={`gb-dpad${held === "up" ? " is-up" : ""}${held === "down" ? " is-down" : ""}${held === "left" ? " is-left" : ""}${held === "right" ? " is-right" : ""}`}>
+          <i /><i /><b />
+          <button type="button" className="gb-dir is-up" aria-label="Up" onClick={() => press("up", () => stepTab(-1))} />
+          <button type="button" className="gb-dir is-down" aria-label="Down" onClick={() => press("down", () => stepTab(1))} />
+          <button type="button" className="gb-dir is-left" aria-label="Left" onClick={() => press("left", () => stepTab(-1))} />
+          <button type="button" className="gb-dir is-right" aria-label="Right" onClick={() => press("right", () => stepTab(1))} />
+        </div>
+        <div className="gb-pills">
+          <button type="button" className={held === "select" ? "is-down" : ""} aria-label="Select" onClick={() => press("select", () => setGear((n) => n + 1))} />
+          <button type="button" className={held === "start" ? "is-down" : ""} aria-label="Start" onClick={() => press("start", () => setTab("shop"))} />
+        </div>
+        <div className="gb-face">
+          <button type="button" className={`gb-console-b${held === "b" ? " is-down" : ""}`} aria-label="B" onClick={() => press("b", () => playNo(0))} />
+          <button type="button" className={`gb-console-a${held === "a" ? " is-down" : ""}`} aria-label="A" onClick={(event) => press("a", () => { if (tab !== "lab") return; noteHumanGesture(event.isTrusted); window.dispatchEvent(new Event("zoom-home-claim")); })} />
+        </div>
         <div className="gb-speaker"><i /><i /><i /></div>
       </div>
       {admin && maintenance.enabled && (

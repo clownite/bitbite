@@ -4,6 +4,7 @@ import { NumberGame } from "../components/NumberGame";
 import { PetStage } from "../components/PetStage";
 import { petDef } from "../pet/catalog";
 import { ackCookieBanner, cookieBoard, nextReset, recordCookies, xpForPlace, type BoardRow } from "../pet/cookieBoard";
+import { awardGameXp } from "../pet/gameXp";
 import { cookiePlays, noteFinishedSeries, PLAYS_PER_DAY, playsLeft, type PlayDay } from "../pet/cookiePlays";
 import { noteDisciplinePlay } from "../pet/discipline";
 import {
@@ -134,7 +135,10 @@ export function GamePage({ active }: { active: boolean }) {
     }
     if (run.score > 0) playDoneHappy(0.4);
     else playDone(0.4);
-    if (run.score > 0) recordCookies(run.score);
+    if (run.score > 0) {
+      recordCookies(run.score);
+      awardGameXp(run.score * 2);
+    }
     setPlays(noteFinishedSeries());
     setBoard(cookieBoard());
   }, [run.phase, run.score]);

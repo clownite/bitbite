@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { cookieSvg } from "../components/PixelCookie";
 import { useFarm } from "../components/PetFarmButton";
 import { petCombat, petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
@@ -9,6 +8,7 @@ import { dismissAway, markHere, readAway, type AwayKind } from "../pet/away";
 import { careView, subscribeCare, takeCareXp, toggleLight } from "../pet/care";
 import { addPetXp } from "../pet/petProgress";
 import { playClaim } from "../audio/sfx";
+import { noteHumanGesture } from "../pet/human";
 import { PetPostcard } from "../components/PetPostcard";
 import { PetRoom } from "../components/PetRoom";
 import { noteHomeActive } from "../pet/quests";
@@ -236,6 +236,17 @@ export function LabPage({
     }, 1000);
     return () => window.clearInterval(id);
   }, [active]);
+  const runClaim = () => {
+    if (care.dark) return;
+    const got = claimFarm();
+    if (got <= 0) return;
+    playClaim();
+  };
+  useEffect(() => {
+    const onClaim = () => runClaim();
+    window.addEventListener("zoom-home-claim", onClaim);
+    return () => window.removeEventListener("zoom-home-claim", onClaim);
+  });
 
   return (
     <div className="relative h-full overflow-hidden">
@@ -313,30 +324,6 @@ export function LabPage({
             <PetPostcard active={active && !care.dark && life.form !== "egg"} petName={chosen.name} />
             <PetRoom care={care} toast={wakeToast} waiting={life.form === "egg"} />
             </CardReel>
-            {life.givenName ? (
-              <div className="life-given" data-testid="life-given">{life.givenName}</div>
-            ) : (
-              <form
-                className="life-name"
-                data-testid="life-name"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  if (nameLife(pet.active, nameDraft)) setNameDraft("");
-                }}
-              >
-                <p>{egg ? t("life.nameTitle") : t("life.namePet")}</p>
-                <p>{t("life.nameBody")}</p>
-                <input
-                  value={nameDraft}
-                  maxLength={16}
-                  placeholder={t("life.namePh")}
-                  aria-label={t("life.namePh")}
-                  autoComplete="off"
-                  onChange={(event) => setNameDraft(event.target.value.slice(0, 16))}
-                />
-                <button type="submit" disabled={!nameDraft.trim()}>{t("life.nameSave")}</button>
-              </form>
-            )}
           </div>
           <div className="gb-home-body">
             <div className="gb-home-line">
@@ -352,27 +339,8 @@ export function LabPage({
                 style={{ ["--claim" as string]: chosen.element.color }}
                 disabled={farm.pending < 0.0001 || care.dark}
                 onClick={(event) => {
-                  claimFarm();
-                  playClaim();
-                  const from = event.currentTarget.getBoundingClientRect();
-                  const wallet = document.querySelector("[data-crumb-wallet]");
-                  const to = wallet?.getBoundingClientRect();
-                  if (!to) return;
-                  for (let i = 0; i < 6; i++) {
-                    const crumb = document.createElement("span");
-                    crumb.className = "crumb-fly";
-                    crumb.innerHTML = cookieSvg(18);
-                    crumb.style.left = `${from.left + from.width / 2}px`;
-                    crumb.style.top = `${from.top + from.height / 2}px`;
-                    document.body.appendChild(crumb);
-                    const dx = to.left + to.width / 2 - (from.left + from.width / 2) + (i - 2.5) * 6;
-                    const dy = to.top + to.height / 2 - (from.top + from.height / 2);
-                    crumb.animate([
-                      { transform: "translate(-50%, -50%) scale(0.4) rotateX(0deg)", opacity: 1 },
-                      { transform: `translate(calc(-50% + ${dx * 0.45}px), calc(-50% + ${dy * 0.35 - 28}px)) scale(1.15) rotateY(180deg)`, opacity: 1, offset: 0.45 },
-                      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(0.35) rotateY(360deg)`, opacity: 0.15 },
-                    ], { duration: 720, delay: i * 50, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" }).onfinish = () => crumb.remove();
-                  }
+                  noteHumanGesture(event.isTrusted);
+                  runClaim();
                 }}
               >
                 <b className="gb-a-mark" aria-hidden="true">
@@ -427,6 +395,29 @@ export function LabPage({
           <PetCardTrace color={chosen.element.color} />
         </div>
       </div>
+
+      {!life.givenName ? (
+        <form
+          className="life-name"
+          data-testid="life-name"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (nameLife(pet.active, nameDraft)) setNameDraft("");
+          }}
+        >
+          <p>{t("life.namePet")}</p>
+          <p>{t("life.nameBody")}</p>
+          <input
+            value={nameDraft}
+            maxLength={16}
+            placeholder={t("life.namePh")}
+            aria-label={t("life.namePh")}
+            autoComplete="off"
+            onChange={(event) => setNameDraft(event.target.value.slice(0, 16))}
+          />
+          <button type="submit" disabled={!nameDraft.trim()}>{t("life.nameSave")}</button>
+        </form>
+      ) : null}
 
       {sheet && !care.dark ? (
         <button

@@ -11,6 +11,8 @@ interface SettingsMenuProps {
   setMuted: (next: boolean | ((prev: boolean) => boolean)) => void;
   /** 40px header pill — matches shop button size in App header. */
   headerButton?: boolean;
+  /** Bumps when Select should open the menu. */
+  openToken?: number;
 }
 
 /**
@@ -20,12 +22,17 @@ interface SettingsMenuProps {
  *   - Language picker (flags shown for the languages exposed in `LANGS`)
  *   - Audio toggle (mute / unmute)
  */
-export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, headerButton = false }: SettingsMenuProps) {
+export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, headerButton = false, openToken = 0 }: SettingsMenuProps) {
   const { lang, setLang, t } = useT();
   const [open, setOpen] = useState(false);
   const [clicks, setClicks] = useState(clicksEnabled);
 
   // ESC closes the modal — small QoL on desktop / web preview.
+  useEffect(() => {
+    if (!openToken) return;
+    setOpen(true);
+  }, [openToken]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {

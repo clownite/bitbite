@@ -7,7 +7,6 @@ import { petDef } from "../pet/catalog";
 import { kinName, type FamilyId } from "../pet/kin";
 import {
   favoriteIds,
-  lifeArchive,
   livingSnapshot,
   subscribeLife,
   toggleFavorite,
@@ -96,16 +95,16 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   useEffect(() => subscribePet(() => setPet(getPet())), []);
 
   useEffect(() => subscribeLife(() => {
-    setLiving([livingSnapshot(getPet().active)]);
-    setArchive(lifeArchive());
+    setLiving(getPet().owned.map((id) => livingSnapshot(id)));
+    setArchive([]);
   }), []);
 
   useEffect(() => {
     if (!visible) return;
-    setLiving([livingSnapshot(getPet().active)]);
-    setArchive(lifeArchive());
+    setLiving(getPet().owned.map((id) => livingSnapshot(id)));
+    setArchive([]);
     setFavs(favoriteIds());
-  }, [visible, pet.active]);
+  }, [visible, pet.active, pet.owned]);
 
   useEffect(() => {
     if (!visible || !telegramId) return;

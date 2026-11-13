@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { UPCOMING_PRIZES, nextReset, weeklyInvestors, type InvestorRow } from "../pet/invested";
+import { nextReset } from "../pet/invested";
+import { xpLeaders, type XpRow } from "../pet/gameXp";
 import { getTelegramViewer } from "../utils/telegram";
 import { useT } from "../i18n/LanguageContext";
 
@@ -13,12 +14,12 @@ function formatGram(amount: number): string {
   return amount.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
-/** Top 10 by GRAM put into the app this week. Prizes are listed for the next reset. */
+/** One board: whoever earned the most XP from Cookies and Numbers this week. */
 export function RankPage({ telegramId, visible }: RankPageProps) {
   void visible;
-  const [rows, setRows] = useState<InvestorRow[]>(() => weeklyInvestors());
+  const [rows, setRows] = useState<XpRow[]>(() => xpLeaders());
   useEffect(() => {
-    const pull = () => setRows(weeklyInvestors());
+    const pull = () => setRows(xpLeaders());
     pull();
     window.addEventListener("focus", pull);
     document.addEventListener("visibilitychange", pull);
@@ -41,7 +42,7 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
         <div className="text-[11px] font-black tracking-[0.2em]" style={{ color: "#306230" }}>{t("rank.week")}</div>
         <h2 className="font-black text-2xl tracking-tight" style={{ color: "#0f380f" }}>{t("rank.title")}</h2>
         <p className="text-[12px] mt-1" style={{ color: "#306230" }}>
-          {t("rank.blurb", { day: nextReset() })}
+          {t("rank.xpLine", { day: nextReset() })}
         </p>
       </div>
 
@@ -58,7 +59,7 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
               >
                 <div className="font-black text-[13px] truncate" style={{ color: "#0f380f" }}>{entry.name.split(" ")[0]}</div>
                 <div className="font-black tabular-nums" style={{ color: "#0f380f", fontSize: tall ? 22 : 16 }}>{formatGram(entry.amount)}</div>
-                <div className="text-[10px] font-bold tracking-wide" style={{ color: "#306230" }}>GRAM</div>
+                <div className="text-[10px] font-bold tracking-wide" style={{ color: "#306230" }}>XP</div>
                 <div style={{ width: "78%", height: tall ? 78 : 52, marginTop: 6, background: "#0f380f" }} />
               </div>
             );
@@ -88,23 +89,12 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
                     {isUser && <span className="text-xs font-bold ml-1" style={{ color: "#306230" }}>{t("rank.you")}</span>}
                   </div>
                 </div>
-                <div className="text-sm font-black tabular-nums" style={{ color: "#0f380f" }}>{formatGram(entry.amount)} GRAM</div>
+                <div className="text-sm font-black tabular-nums" style={{ color: "#0f380f" }}>{formatGram(entry.amount)} XP</div>
               </div>
             );
           })}
         </div>
 
-        <section className="rank-prizes p-3 mt-3" style={{ background: "#8bac0f", border: "3px solid #0f380f" }}>
-          <div className="text-[11px] font-black tracking-[0.16em]" style={{ color: "#0f380f" }}>{t("rank.prizes")}</div>
-          <div className="grid grid-cols-4 gap-1.5 mt-2">
-            {UPCOMING_PRIZES.map((prize) => (
-              <div key={prize.place} className="px-2 py-2 text-center" style={{ background: "#9bbc0f", border: "2px solid #0f380f" }}>
-                <div className="text-[10px] font-black" style={{ color: "#306230" }}>#{prize.place}</div>
-                <div className="text-[11px] font-black mt-0.5" style={{ color: "#0f380f" }}>{prize.prize}</div>
-              </div>
-            ))}
-          </div>
-        </section>
       </div>
     </div>
   );

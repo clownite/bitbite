@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { playBite, playDone, playHappy, playMiss, playSad } from "../audio/sfx";
 import { recordCookies } from "../pet/cookieBoard";
+import { awardGameXp } from "../pet/gameXp";
 import { noteDisciplinePlay } from "../pet/discipline";
 import { LifeCreature } from "./LifeCreature";
 import { PixelCookie } from "./PixelCookie";
@@ -129,6 +130,7 @@ export function NumberGame({ pet }: { pet: PetState; color: string; lifeScale?: 
           if (!paid.current) {
             paid.current = true;
             recordCookies(nextWins);
+            awardGameXp(nextWins * 5);
             noteDisciplinePlay();
           }
           return;
