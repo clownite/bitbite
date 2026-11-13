@@ -280,9 +280,9 @@ function AppShell() {
     <div
       className={`gb-app tab-${tab} flex flex-col overflow-hidden relative${tab === "wallet" ? " is-profile" : ""}`}
       style={{
-        height: "100dvh",
-        paddingTop: "env(safe-area-inset-top, 0px)",
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
+        height: "var(--tg-viewport-stable-height, 100dvh)",
+        paddingTop: "calc(max(var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px)) + var(--tg-content-safe-area-inset-top, 0px))",
+        paddingBottom: "calc(max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px)) + var(--tg-content-safe-area-inset-bottom, 0px))",
       }}
     >
       <div className="gb-bezel">

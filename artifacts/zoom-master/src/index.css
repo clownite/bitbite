@@ -6155,6 +6155,7 @@ body, body * {
   background: #8b9568;
   color: #0f380f;
   font-family: ui-monospace, "Courier New", monospace;
+  min-height: var(--tg-viewport-stable-height, 100dvh);
 }
 .gb-bezel {
   display: flex;

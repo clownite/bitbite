@@ -14,27 +14,35 @@ function configureTelegramViewport() {
         WebApp?: {
           ready?: () => void;
           expand?: () => void;
-          exitFullscreen?: () => void;
+          requestFullscreen?: () => void;
           setHeaderColor?: (color: string) => void;
           setBackgroundColor?: (color: string) => void;
           setBottomBarColor?: (color: string) => void;
           enableVerticalSwipes?: () => void;
-          version?: string;
           onEvent?: (event: string, cb: () => void) => void;
         };
       };
     }).Telegram?.WebApp;
     if (!webApp) return;
 
-    webApp.setHeaderColor?.("#000000");
-    webApp.setBackgroundColor?.("#000000");
-    webApp.setBottomBarColor?.("#000000");
-    // Stay in the normal Mini App sheet. Fullscreen and locked swipes
-    // stop the user from dragging it down and leaving it running.
-    webApp.exitFullscreen?.();
-    webApp.enableVerticalSwipes?.();
-    webApp.expand?.();
+    const shell = "#8d976c";
+    webApp.setHeaderColor?.(shell);
+    webApp.setBackgroundColor?.(shell);
+    webApp.setBottomBarColor?.(shell);
     webApp.ready?.();
+    webApp.expand?.();
+    // Full screen so the Game Boy shell fills the phone. Swipes stay on,
+    // so dragging from the top still lowers the app.
+    try { webApp.requestFullscreen?.(); } catch { /**/ }
+    const keepSwipe = () => {
+      try { webApp.enableVerticalSwipes?.(); } catch { /**/ }
+    };
+    keepSwipe();
+    webApp.onEvent?.("fullscreenChanged", keepSwipe);
+    webApp.onEvent?.("fullscreenFailed", keepSwipe);
+    webApp.onEvent?.("viewportChanged", keepSwipe);
+    window.setTimeout(keepSwipe, 300);
+    window.setTimeout(keepSwipe, 1200);
   } catch { /**/ }
 }
 

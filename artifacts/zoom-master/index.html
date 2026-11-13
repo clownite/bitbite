@@ -510,11 +510,17 @@
             if (!tg) return;
             tg.ready && tg.ready();
             tg.expand && tg.expand();
-            try { if (tg.exitFullscreen) tg.exitFullscreen(); } catch (e) {}
+            try { if (tg.requestFullscreen) tg.requestFullscreen(); } catch (e) {}
             try { if (tg.enableVerticalSwipes) tg.enableVerticalSwipes(); } catch (e) {}
-            try { tg.setHeaderColor('#000000'); } catch (e) {}
-            try { tg.setBackgroundColor('#000000'); } catch (e) {}
-            try { tg.setBottomBarColor('#000000'); } catch (e) {}
+            try { tg.setHeaderColor('#8d976c'); } catch (e) {}
+            try { tg.setBackgroundColor('#8d976c'); } catch (e) {}
+            try { tg.setBottomBarColor('#8d976c'); } catch (e) {}
+            try {
+              var keepSwipe = function () { try { tg.enableVerticalSwipes && tg.enableVerticalSwipes(); } catch (e) {} };
+              tg.onEvent && tg.onEvent('fullscreenChanged', keepSwipe);
+              tg.onEvent && tg.onEvent('fullscreenFailed', keepSwipe);
+              tg.onEvent && tg.onEvent('viewportChanged', keepSwipe);
+            } catch (e) {}
             try {
               var sp = tg.initDataUnsafe && tg.initDataUnsafe.start_param;
               if (sp) localStorage.setItem('zoom-start-param', sp);
