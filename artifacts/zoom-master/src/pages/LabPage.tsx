@@ -12,7 +12,7 @@ import { noteHumanGesture } from "../pet/human";
 import { runTap } from "../utils/tap";
 import { PetPostcard } from "../components/PetPostcard";
 import { PetRoom } from "../components/PetRoom";
-import { noteHomeActive } from "../pet/quests";
+import { collectHomeBackground, markHomeBackground, noteHomeActive } from "../pet/quests";
 import { answerLife, eggLeft, familyOf, focusLife, formatLeft, nameLife, readLife, subscribeLife } from "../pet/life";
 import { kinName } from "../pet/kin";
 import { LifeEgg } from "../components/LifeEgg";
@@ -252,10 +252,24 @@ export function LabPage({
   }, [active, care.dark]);
   useEffect(() => {
     if (!active) return;
+    collectHomeBackground();
+    const down = () => markHomeBackground();
+    const up = () => collectHomeBackground();
+    const onVis = () => { if (document.hidden) down(); else up(); };
+    document.addEventListener("visibilitychange", onVis);
+    window.addEventListener("zoom-app-background", down);
+    window.addEventListener("zoom-app-foreground", up);
+    window.addEventListener("pagehide", down);
     const id = window.setInterval(() => {
       if (!document.hidden) noteHomeActive(1000);
     }, 1000);
-    return () => window.clearInterval(id);
+    return () => {
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", onVis);
+      window.removeEventListener("zoom-app-background", down);
+      window.removeEventListener("zoom-app-foreground", up);
+      window.removeEventListener("pagehide", down);
+    };
   }, [active]);
   const runClaim = () => {
     noteHumanGesture(true);

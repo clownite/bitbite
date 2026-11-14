@@ -40,17 +40,13 @@ function song(): HTMLAudioElement {
   document.body.appendChild(el);
   el.addEventListener("ended", () => {
     el.currentTime = 0;
-    if (started && !muted && !document.hidden) void el.play().catch(() => {});
+    if (started && !muted) void el.play().catch(() => {});
   });
   track = el;
   if (!watching) {
     watching = true;
     document.addEventListener("visibilitychange", () => {
-      if (!track || !started) return;
-      if (document.hidden || muted) {
-        track.pause();
-        return;
-      }
+      if (!track || !started || muted || document.hidden) return;
       track.volume = SONG_VOLUME;
       void track.play().catch(() => {});
     });
@@ -61,7 +57,7 @@ function song(): HTMLAudioElement {
 function playSong() {
   const el = song();
   el.volume = muted ? 0 : SONG_VOLUME;
-  if (muted || document.hidden) {
+  if (muted) {
     el.pause();
     return;
   }

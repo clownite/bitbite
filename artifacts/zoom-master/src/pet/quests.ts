@@ -189,6 +189,26 @@ export function noteHomeActive(ms: number, now = Date.now()) {
   emit();
 }
 
+const HOME_SINCE = "zoom-home-since";
+
+/** Home stays open while the mini app is put away. The clock starts once. */
+export function markHomeBackground(now = Date.now()) {
+  try {
+    if (localStorage.getItem(HOME_SINCE)) return;
+    localStorage.setItem(HOME_SINCE, String(now));
+  } catch { /**/ }
+}
+
+/** Add the time the mini app spent down, then clear the mark. */
+export function collectHomeBackground(now = Date.now()) {
+  let from = 0;
+  try {
+    from = Number(localStorage.getItem(HOME_SINCE)) || 0;
+    localStorage.removeItem(HOME_SINCE);
+  } catch { /**/ }
+  if (from > 0 && now > from) noteHomeActive(now - from, now);
+}
+
 export function noteShare(now = Date.now()) {
   roll(now);
   if (state.shared) return;

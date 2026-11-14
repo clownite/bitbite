@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
-import { primeChiptune } from "./audio/chiptune";
+import { primeChiptune, resumeChiptune } from "./audio/chiptune";
 import { hapticSoft } from "./utils/haptic";
 import { bindKeyboard } from "./utils/keyboard";
 import { BootErrorBoundary } from "./components/BootErrorBoundary";
@@ -40,6 +40,13 @@ function configureTelegramViewport() {
     webApp.onEvent?.("fullscreenChanged", keepSwipe);
     webApp.onEvent?.("fullscreenFailed", keepSwipe);
     webApp.onEvent?.("viewportChanged", keepSwipe);
+    const away = () => window.dispatchEvent(new Event("zoom-app-background"));
+    const back = () => {
+      window.dispatchEvent(new Event("zoom-app-foreground"));
+      resumeChiptune();
+    };
+    webApp.onEvent?.("deactivated", away);
+    webApp.onEvent?.("activated", back);
     window.setTimeout(keepSwipe, 300);
     window.setTimeout(keepSwipe, 1200);
   } catch { /**/ }
