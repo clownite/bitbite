@@ -19,6 +19,7 @@ import {
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { getPet, subscribePet, type PetState } from "../pet/petProgress";
 import { getTelegramViewer } from "../utils/telegram";
+import { runTap } from "../utils/tap";
 import {
   CRUMB_GRAM,
   formatCrumbs,
@@ -43,17 +44,30 @@ function shortAddress(address: string): string {
   return address.length > 10 ? `${address.slice(0, 4)}…${address.slice(-4)}` : address;
 }
 
-/** Top-right of the card. Telegram Wallet stays linked after the first connect. */
+/** Top-right of the card. Connects Telegram Wallet, and disconnects it again. */
 function WalletConnect() {
   const { t } = useT();
   const [ui] = useTonConnectUI();
   const address = useTonAddress();
   const linked = address.length > 0;
+  const press = () => {
+    if (linked) {
+      void ui.disconnect();
+      return;
+    }
+    void ui.openModal();
+  };
   return (
-    <button type="button" className="gb-b" data-testid="wallet-connect" onClick={() => void ui.openModal()}>
+    <button
+      type="button"
+      className="gb-b"
+      data-testid={linked ? "wallet-disconnect" : "wallet-connect"}
+      onPointerDown={(event) => runTap(event, press)}
+      onTouchStart={(event) => runTap(event, press)}
+    >
       <b>B</b>
       <span>
-        {linked ? t("wallet.connected") : t("wallet.connect")}
+        {linked ? t("wallet.disconnect") : t("wallet.connect")}
         {linked ? <em>{shortAddress(address)}</em> : null}
       </span>
     </button>
@@ -78,13 +92,20 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
   const [blips, setBlips] = useState<{ id: number; x: number; y: number }[]>([]);
   const blipId = useRef(0);
   const linkedAddress = useTonAddress();
+  const linkedSeen = useRef("");
   const viewer = getTelegramViewer();
   const def = petDef(pet.active);
   const number = personalPetNumber(petOwnerId(telegramId), pet.active);
 
   useEffect(() => {
-    if (!linkedAddress) return;
-    setWallet((current) => current || linkedAddress);
+    if (linkedAddress) {
+      linkedSeen.current = linkedAddress;
+      setWallet((current) => current || linkedAddress);
+      return;
+    }
+    const gone = linkedSeen.current;
+    linkedSeen.current = "";
+    if (gone) setWallet((current) => (current === gone ? "" : current));
   }, [linkedAddress]);
 
   useEffect(() => subscribeCrumbs(() => {
