@@ -365,6 +365,19 @@ export function LabPage({
                 <span>Z</span>
               </div>
             ) : null}
+            {sheet ? (
+              <button
+                type="button"
+                className="home-sheet"
+                data-testid="home-sheet"
+                onPointerDown={(event) => runTap(event, () => setSheet(null))}
+                onTouchStart={(event) => runTap(event, () => setSheet(null))}
+              >
+                <span className="sheet-grip" />
+                <strong>{t(`pet.sheet.${sheet}`)}</strong>
+                <span>{sheetBody}</span>
+              </button>
+            ) : null}
           </div>
           <div className="gb-home-body">
             <div className="gb-home-line">
@@ -438,19 +451,6 @@ export function LabPage({
           />
           <button type="submit" disabled={!nameDraft.trim()}>{t("life.nameSave")}</button>
         </form>
-      ) : null}
-
-      {sheet ? (
-        <button
-          type="button"
-          className="home-sheet"
-          data-testid="home-sheet"
-          onClick={() => setSheet(null)}
-        >
-          <span className="sheet-grip" />
-          <strong>{t(`pet.sheet.${sheet}`)}</strong>
-          <span>{sheetBody}</span>
-        </button>
       ) : null}
 
       <span data-crumb-wallet hidden />

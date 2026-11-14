@@ -7002,15 +7002,19 @@ body { background: #0c1008; }
 }
 .gb-app .gb-lcd::after { pointer-events: none !important; }
 .gb-app .home-sheet {
-  position: fixed;
-  left: 28px;
-  right: 28px;
-  top: 22%;
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 8px;
   bottom: auto;
-  z-index: 80;
-  max-height: none;
+  width: auto;
+  max-width: calc(100% - 16px);
+  z-index: 20;
+  max-height: calc(100% - 16px);
+  box-sizing: border-box;
   transform: none;
   animation: none;
+  overflow: auto;
 }
 .gb-app.tab-lab .gb-home-body { position: relative; z-index: 12; }
 .gb-app .claim-3d,
@@ -7492,20 +7496,37 @@ body { background: #0c1008; }
 .gb-app .card-status {
   animation: none !important;
   box-sizing: border-box;
-  padding: 16px 22px 28px;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 100%;
+  max-width: 100%;
+  padding: 8px 40px 14px;
 }
 .gb-app .card-time {
-  font-size: 40px;
+  font-size: 28px;
   max-width: 100%;
+  overflow: hidden;
 }
 .gb-app .card-pair {
-  gap: 14px;
+  gap: 10px;
   max-width: 100%;
 }
-.gb-app .card-pair strong { font-size: 34px; }
+.gb-app .card-pair strong {
+  font-size: 26px;
+  max-width: 100%;
+  overflow: hidden;
+}
 .gb-app .card-sub,
 .gb-app .card-kicker {
   max-width: 100%;
+  overflow: hidden;
+}
+.gb-app .card-hearts {
+  max-width: 100%;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 /* Night lamp and the pet's letter, only over the pet. */
