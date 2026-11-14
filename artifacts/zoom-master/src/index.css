@@ -7324,14 +7324,17 @@ body { background: #0c1008; }
 }
 .gb-app .gb-lcd {
   margin: 6px 16px 8px !important;
+  padding: 0 !important;
+  background: #9bbc0f !important;
   border: 9px solid #12160e !important;
-  border-radius: 18px !important;
+  border-radius: 12px !important;
   overflow: hidden !important;
   box-shadow:
     inset 0 0 0 3px #2a3422,
-    0 0 0 4px #8d976c !important;
+    0 0 0 4px #8d976c,
+    0 14px 22px rgba(12, 16, 8, 0.28) !important;
 }
-.gb-app .gb-lcd::after { border-radius: 10px; }
+.gb-app .gb-lcd::after { border-radius: 3px; }
 
 .gb-settings-open {
   display: flex;
@@ -7764,26 +7767,12 @@ body { background: #0c1008; }
   min-height: 168px;
 }
 
-/* The lime screen sits inside the bezel. Padding is the dark lip, so the
-   green panel — including the clock, weight and hungry cards — cannot
-   paint over the rounded frame. */
-.gb-app .gb-lcd {
-  background: #12160e !important;
-  padding: 5px !important;
-  border-radius: 18px !important;
-  overflow: hidden !important;
-}
+/* Same closed frame as the loading screen: the black lip seals the top. */
 .gb-app .gb-lcd > .relative {
-  background: #9bbc0f;
-  border-radius: 10px 10px 0 0;
+  background: transparent;
+  border-radius: 0;
   overflow: hidden !important;
   min-height: 0;
-}
-.gb-app .gb-lcd > .gb-nav.is-in-screen {
-  background: #9bbc0f !important;
-  border-radius: 0 0 10px 10px;
-  margin: 0 !important;
-  overflow: hidden;
 }
 
 /* Redeem code: dark ink on a light field, left aligned, so each letter

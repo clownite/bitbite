@@ -36,6 +36,7 @@
       }
       #splash-screen.hidden { display: none !important; }
       .gb-boot {
+        position: relative;
         box-sizing: border-box;
         height: 100%;
         display: flex;
@@ -44,6 +45,7 @@
         border: 8px solid #10140c;
         border-radius: 18px 18px 22px 22px;
         box-shadow: inset 0 0 0 2px #d7dec4, inset 0 0 0 6px #5e664e;
+        overflow: hidden;
       }
       .gb-boot-top {
         height: 22px;
@@ -121,19 +123,19 @@
         animation: gb-load 3s linear forwards;
       }
       @keyframes gb-load { to { width: 100%; } }
-      .boot-snow { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+      .boot-snow { position: absolute; inset: 0; z-index: 4; overflow: hidden; pointer-events: none; }
       .boot-snow i {
         position: absolute;
-        top: -12px;
-        color: rgba(255, 255, 255, 0.8);
+        top: 0;
+        color: rgba(255, 255, 255, 0.82);
         font-style: normal;
         line-height: 1;
         text-shadow: 0 1px 0 rgba(15, 56, 15, 0.25), 0 0 8px rgba(255, 255, 255, 0.5);
         animation: boot-fall linear infinite;
       }
       @keyframes boot-fall {
-        from { transform: translate3d(0, -12px, 0); }
-        to { transform: translate3d(var(--drift), 110%, 0); }
+        from { transform: translate3d(0, -8dvh, 0); }
+        to { transform: translate3d(var(--drift), 108dvh, 0); }
       }
       .gb-boot-console { position: relative; height: 118px; flex-shrink: 0; }
       .gb-boot-dpad { position: absolute; left: 16px; top: 4px; width: 78px; height: 78px; }
@@ -179,12 +181,6 @@
             <canvas id="splash-word" width="116" height="20" aria-label="Loading"></canvas>
             <div class="gb-load-track" aria-hidden="true"><i id="splash-meter-fill"></i></div>
           </div>
-          <div class="boot-snow" aria-hidden="true">
-            <i style="left:12%;font-size:14px;animation-duration:18s;animation-delay:-4s;--drift:14px">❄</i>
-            <i style="left:38%;font-size:10px;animation-duration:22s;animation-delay:-11s;--drift:-18px">❄</i>
-            <i style="left:64%;font-size:16px;animation-duration:20s;animation-delay:-7s;--drift:10px">❄</i>
-            <i style="left:82%;font-size:11px;animation-duration:24s;animation-delay:-15s;--drift:-12px">❄</i>
-          </div>
           <div class="gb-boot-nav" aria-hidden="true"></div>
         </div>
         <div class="gb-boot-console" aria-hidden="true">
@@ -192,6 +188,18 @@
           <div class="gb-boot-pills"><i></i><i></i></div>
           <div class="gb-boot-face"><b class="gb-boot-b"></b><b class="gb-boot-a"></b></div>
           <div class="gb-boot-speaker"><i></i><i></i><i></i></div>
+        </div>
+        <div class="boot-snow" aria-hidden="true">
+          <i style="left:6%;font-size:13px;animation-duration:16s;animation-delay:-2s;--drift:12px">❄</i>
+          <i style="left:16%;font-size:10px;animation-duration:19s;animation-delay:-9s;--drift:-16px">❄</i>
+          <i style="left:27%;font-size:15px;animation-duration:17s;animation-delay:-14s;--drift:18px">❄</i>
+          <i style="left:38%;font-size:11px;animation-duration:21s;animation-delay:-5s;--drift:-10px">❄</i>
+          <i style="left:48%;font-size:14px;animation-duration:18s;animation-delay:-12s;--drift:14px">❄</i>
+          <i style="left:58%;font-size:10px;animation-duration:22s;animation-delay:-3s;--drift:-20px">❄</i>
+          <i style="left:67%;font-size:16px;animation-duration:15s;animation-delay:-8s;--drift:8px">❄</i>
+          <i style="left:76%;font-size:12px;animation-duration:20s;animation-delay:-16s;--drift:-14px">❄</i>
+          <i style="left:86%;font-size:14px;animation-duration:17s;animation-delay:-6s;--drift:16px">❄</i>
+          <i style="left:93%;font-size:11px;animation-duration:23s;animation-delay:-11s;--drift:-8px">❄</i>
         </div>
       </div>
       <button type="button" id="splash-retry-btn">Riprova</button>
