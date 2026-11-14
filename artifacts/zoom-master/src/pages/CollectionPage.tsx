@@ -20,6 +20,7 @@ import {
 } from "../pet/petProgress";
 import { startStagePayment } from "../pet/payPet";
 import { noteFavorite } from "../pet/quests";
+import { runTap } from "../utils/tap";
 import { useT } from "../i18n/LanguageContext";
 
 const cardShell = {
@@ -75,15 +76,11 @@ export function CollectionPage({
                 key={`empty-${index}`}
                 type="button"
                 aria-label={t("pet.openShop")}
-                onClick={onOpenShop}
                 className="gb-plus"
-                style={{
-                  display: "grid",
-                  placeItems: "center",
-                  cursor: "pointer",
-                }}
+                onPointerDown={(event) => runTap(event, () => onOpenShop?.())}
+                onTouchStart={(event) => runTap(event, () => onOpenShop?.())}
               >
-                <span style={{ fontSize: 36, fontWeight: 300, lineHeight: 1 }}>+</span>
+                <span>+</span>
               </button>
             );
           }

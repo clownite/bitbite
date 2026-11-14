@@ -6523,16 +6523,18 @@ body, body * {
   box-shadow: inset 0 3px 0 rgba(10, 30, 0, 0.16), 0 2px 0 #3d5a10;
 }
 .gb-plus {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: 54%;
-  height: 58px;
+  display: grid;
+  place-items: center;
+  justify-self: stretch;
+  width: auto;
+  height: 168px;
+  min-height: 168px;
   border: 2px solid #16300c;
   border-radius: 4px;
-  background: linear-gradient(180deg, #2f6a18 0%, #1c4a10 100%);
-  color: #b6e24a;
-  box-shadow: inset 0 2px 0 rgba(180, 220, 80, 0.28), 0 3px 0 #0e2808;
-  font-size: 34px;
+  background: #5f7e12;
+  color: #c6e35a;
+  box-shadow: inset 0 3px 0 rgba(10, 30, 0, 0.18), 0 2px 0 #3d5a10;
+  font-size: 64px;
   font-weight: 400;
   line-height: 1;
 }
@@ -7747,7 +7749,8 @@ body { background: #0c1008; }
   flex: none;
   grid-template-rows: auto auto auto;
 }
-.gb-app.tab-farm .gb-slot {
+.gb-app.tab-farm .gb-slot,
+.gb-app.tab-farm .gb-plus {
   height: 168px;
   min-height: 168px;
 }
