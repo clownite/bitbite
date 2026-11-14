@@ -234,11 +234,17 @@ function AppShell() {
   }, [muted]);
 
   useEffect(() => {
-    const down = (e: PointerEvent) => {
-      noteHumanGesture(e.isTrusted);
+    let lastSound = 0;
+    const down = (event: Event) => {
+      const pointer = event as PointerEvent;
+      if (event.type === "pointerdown" && typeof pointer.button === "number" && pointer.button > 0) return;
+      const now = performance.now();
+      if (now - lastSound < 90) return;
+      lastSound = now;
+      noteHumanGesture(event.isTrusted);
       resumeChiptune();
-      const el = e.target as HTMLElement | null;
-      const hit = el?.closest?.("button, a, canvas, [role='button']");
+      const el = event.target as HTMLElement | null;
+      const hit = el?.closest?.("button, a, canvas, [role='button'], .life-pet");
       if (!hit) return;
       if (hit.closest(".gb-console")) {
         hapticCalm();
@@ -248,8 +254,12 @@ function AppShell() {
       if (hit.closest(".claim-3d, .pet-bowl")) return;
       playClick();
     };
-    window.addEventListener("pointerdown", down);
-    return () => window.removeEventListener("pointerdown", down);
+    window.addEventListener("pointerdown", down, true);
+    window.addEventListener("touchstart", down, true);
+    return () => {
+      window.removeEventListener("pointerdown", down, true);
+      window.removeEventListener("touchstart", down, true);
+    };
   }, []);
 
   useEffect(() => {

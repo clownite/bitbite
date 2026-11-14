@@ -104,11 +104,15 @@ export function playNotes(notes: { freq: number; at: number; dur: number; gain: 
   if (!audio || !sfx) return;
   const bus = sfx;
   const ring = () => {
-    const start = audio.currentTime + 0.012;
+    if (audio.state !== "running") return false;
+    const start = audio.currentTime + 0.02;
     for (const note of notes) {
       blip(note.freq, start + note.at, note.dur, "square", note.gain, bus);
     }
+    return true;
   };
-  if (audio.state === "suspended") void audio.resume().then(ring);
-  else ring();
+  if (ring()) return;
+  void audio.resume().then(() => {
+    if (!ring()) window.setTimeout(() => { ring(); }, 40);
+  });
 }
