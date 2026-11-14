@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useT } from "../i18n/LanguageContext";
 import { postcardAt, postcardLine } from "../pet/postcards";
 import { grantXp } from "../pet/petProgress";
@@ -50,6 +50,8 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
   const [lineId, setLineId] = useState<number | null>(null);
   const [shown, setShown] = useState("");
   const [hearts, setHearts] = useState(false);
+  const lastTap = useRef(0);
+  const paid = useRef(false);
   const full = lineId == null ? "" : postcardAt(lang, petName, lineId);
 
   useEffect(() => {
@@ -82,6 +84,7 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
         setLineId(line.id);
         setShown("");
         setHearts(false);
+        paid.current = false;
         setPhase("closed");
         hapticSoft();
       }, Math.max(0, due - Date.now()));
@@ -110,15 +113,23 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
   if (!phase) return null;
 
   const onNote = () => {
+    const now = performance.now();
+    if (now - lastTap.current < 380) return;
+    lastTap.current = now;
     if (phase === "closed") {
+      setShown(full);
       setPhase("writing");
       setHearts(true);
-      grantXp(LETTER_XP);
+      if (!paid.current) {
+        paid.current = true;
+        grantXp(LETTER_XP);
+      }
       hapticSoft();
       window.dispatchEvent(new Event("zoom-pet-hello"));
       return;
     }
-    if (phase === "writing") setPhase("away");
+    setHearts(false);
+    setPhase("closed");
   };
 
   return (

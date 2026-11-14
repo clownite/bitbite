@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { cleanMess, cure, feed, toggleLight, type CareView } from "../pet/care";
 import { settleFarm } from "../pet/crumbs";
-import { playClick, playHappy } from "../audio/sfx";
+import { playClick, playHappy, playNo } from "../audio/sfx";
 import { runTap } from "../utils/tap";
 import { useT } from "../i18n/LanguageContext";
 import { PixelCookie } from "./PixelCookie";
@@ -59,11 +59,20 @@ export function PetRoom({
   const { t } = useT();
   const lampOn = !care.lightOff;
   const [thanks, setThanks] = useState(0);
-  const [bits, setBits] = useState<{ id: number; x: number; y: number; rot: number }[]>([]);
-  const bitTimer = useRef(0);
   const praise = () => {
     window.dispatchEvent(new Event("zoom-pet-hello"));
     setThanks((n) => n + 1);
+  };
+  const onBowl = () => {
+    settleFarm();
+    if (!feed()) {
+      playNo(0);
+      return;
+    }
+    window.dispatchEvent(new Event("zoom-pet-cared"));
+    window.dispatchEvent(new Event("zoom-pet-eat"));
+    playHappy();
+    praise();
   };
   useEffect(() => {
     if (thanks <= 0) return;
@@ -123,37 +132,13 @@ export function PetRoom({
         className={care.hungry ? "pet-bowl is-hungry" : "pet-bowl"}
         data-testid="pet-bowl"
         aria-label={care.cookies >= 3 ? t("pet.full") : t("pet.feed")}
-        onPointerDown={(event) => {
-          if (event.button !== 0) return;
-          settleFarm();
-          const ate = feed();
-          if (ate) window.dispatchEvent(new Event("zoom-pet-cared"));
-          window.dispatchEvent(new Event("zoom-pet-eat"));
-          playHappy();
-          praise();
-          const stamp = Date.now();
-          setBits([0, 1, 2, 3, 4, 5, 6].map((i) => ({
-            id: stamp + i,
-            x: 22 + ((i * 11) % 62),
-            y: 1 + (i % 3) * 3,
-            rot: (i * 28) % 70 - 20,
-          })));
-          window.clearTimeout(bitTimer.current);
-          bitTimer.current = window.setTimeout(() => setBits([]), 1400);
-        }}
+        onPointerDown={(event) => runTap(event, onBowl)}
+        onTouchStart={(event) => runTap(event, onBowl)}
       >
         <PixelBowl cookies={care.cookies} />
         <span>{care.cookies >= 3 ? t("pet.full") : t("pet.feed")}</span>
       </button>
       )}
-      {bits.map((bit) => (
-        <i
-          key={bit.id}
-          className="pet-kibble"
-          style={{ left: `${bit.x}%`, bottom: `${bit.y}%`, ["--rot" as string]: `${bit.rot}deg` }}
-          aria-hidden
-        />
-      ))}
       {care.showLamp ? (
         <button
           type="button"

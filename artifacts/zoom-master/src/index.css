@@ -7574,16 +7574,24 @@ body { background: #0c1008; }
 .gb-app .pet-note {
   z-index: 13;
   top: auto !important;
-  right: auto !important;
-  left: 8px;
+  left: auto !important;
+  right: 8px !important;
   bottom: 8px !important;
   width: 40px;
   height: 30px;
+  overflow: hidden;
+  pointer-events: auto !important;
+  touch-action: manipulation;
 }
 .gb-app .pet-note.is-open {
+  left: auto !important;
   right: 8px !important;
-  width: min(180px, 78%);
-  height: auto;
+  bottom: 8px !important;
+  width: min(210px, 82%) !important;
+  height: auto !important;
+  max-height: 72%;
+  overflow: auto;
+  text-align: left;
 }
 
 /* More of the screen belongs to the pet. The keys underneath are smaller. */
