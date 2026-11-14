@@ -31,6 +31,7 @@ import { hapticCalm, hapticSoft } from "./utils/haptic";
 import { runTap } from "./utils/tap";
 import { playClick } from "./audio/sfx";
 import { settlePetPayments } from "./pet/payPet";
+import { syncPetCloud } from "./pet/cloud";
 import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { careView, subscribeCare } from "./pet/care";
@@ -189,6 +190,16 @@ function AppShell() {
   });
   const session = usePetSession();
   useGlobalInit(session.telegramId);
+  useEffect(() => {
+    if (!session.telegramId) return;
+    let stop = () => {};
+    let dead = false;
+    void syncPetCloud(session.telegramId).then((done) => {
+      if (dead) done?.();
+      else if (done) stop = done;
+    });
+    return () => { dead = true; stop(); };
+  }, [session.telegramId]);
   const [care, setCare] = useState(() => careView());
   useEffect(() => {
     const pull = () => setCare(careView());

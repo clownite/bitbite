@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useFarm } from "../components/PetFarmButton";
 import { petCombat, petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
-import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, type PetState } from "../pet/petProgress";
+import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
 import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
 import { dismissAway, markHere, readAway, type AwayKind } from "../pet/away";
 import { careView, subscribeCare, takeCareXp } from "../pet/care";
@@ -346,7 +346,7 @@ export function LabPage({
                 label={t("life.eggAsk")}
               />
             ) : null}
-            {life.form !== "egg" && life.sex ? <LifeMarks sex={life.sex} road={life.road} /> : null}
+            {life.form !== "egg" && life.sex ? <LifeMarks sex={life.sex} road={null} /> : null}
             {pet.stage > 1 ? <div className={pet.stage === 3 ? "grown-ring s3" : "grown-ring"} style={{ "--ink": chosen.element.color } as CSSProperties} /> : null}
             {pet.stage === 3 ? <div className="grown-star" style={{ color: chosen.element.color }}>✦</div> : null}
             {away && life.form !== "egg" ? (
@@ -383,6 +383,7 @@ export function LabPage({
             <div className="gb-home-line">
               {chosen.name} · {t(`life.${life.form === "egg" ? "egg" : life.form}`)} · {t("life.generation", { n: life.generation })} · {t("pet.stage").toUpperCase()} {pet.stage}/3
             </div>
+            <div className="gb-home-xp" data-testid="home-xp">{xpLabel(pet)}</div>
             <div className="gb-farm">
               <div>{t("pet.farm")} {formatCrumbs(farm.pending)}</div>
               <div>{formatCrumbs(farm.cap)} / day</div>

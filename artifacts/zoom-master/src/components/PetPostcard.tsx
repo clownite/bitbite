@@ -87,6 +87,7 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
         paid.current = false;
         setPhase("closed");
         hapticSoft();
+        plan();
       }, Math.max(0, due - Date.now()));
     };
     plan();
@@ -129,7 +130,7 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
       return;
     }
     setHearts(false);
-    setPhase("closed");
+    setPhase("away");
   };
 
   return (

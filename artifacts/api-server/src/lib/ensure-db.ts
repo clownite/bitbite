@@ -40,7 +40,8 @@ async function seedDefaults(): Promise<void> {
   try {
     await db.execute(sql`
       ALTER TABLE users
-        ADD COLUMN IF NOT EXISTS season_zoom_start real NOT NULL DEFAULT 0
+        ADD COLUMN IF NOT EXISTS season_zoom_start real NOT NULL DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS pet_save jsonb
     `);
     await db
       .insert(appSettingsTable)

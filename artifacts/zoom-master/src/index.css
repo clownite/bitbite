@@ -5183,12 +5183,13 @@ body, body * {
 }
 .nav-call-dot {
   position: absolute;
-  top: -2px;
-  right: -6px;
-  width: 8px;
-  height: 8px;
-  background: #ff4d6d;
-  box-shadow: 0 0 0 2px #041018;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 1px;
+  background: #e23b4a;
+  box-shadow: 0 0 0 2px #8d976c;
 }
 .nav-call svg {
   animation: pet-call-burst 3.2s steps(2) infinite;
@@ -6834,7 +6835,7 @@ body, body * {
   height: auto;
   min-height: 0;
 }
-.gb-app .cookie-arena .life-pet { bottom: 28%; }
+.gb-app .cookie-arena .life-pet { bottom: 18%; }
 .gb-app .cookie-hint {
   top: auto;
   bottom: 18px;
@@ -7535,8 +7536,47 @@ body { background: #0c1008; }
 }
 .gb-home-pet.is-dark .life-pet,
 .gb-home-pet.is-dark .life-egg,
-.gb-home-pet.is-dark .life-heir,
-.gb-home-pet.is-dark .life-marks,
+.gb-home-pet.is-dark .life-heir {
+  display: none !important;
+}
+.gb-app .life-marks {
+  display: flex !important;
+  top: 4px;
+  left: 6px;
+  z-index: 16;
+  gap: 4px;
+}
+.gb-app .life-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 2px;
+  background: transparent;
+  box-shadow: none;
+}
+.gb-app .pet-cure {
+  display: block !important;
+  left: auto;
+  right: 8px;
+  bottom: 8px;
+  z-index: 16;
+  border-radius: 2px;
+  border: 3px solid #0f380f;
+  background: #c6e35a;
+  color: #0f380f;
+  box-shadow: 2px 2px 0 #0f380f;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  letter-spacing: 0;
+}
+.gb-app .gb-home-xp {
+  margin: 0 4px 2px;
+  text-align: center;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 0;
+  color: #0f380f;
+  font-variant-numeric: tabular-nums;
+}
 .gb-home-pet.is-dark .grown-ring,
 .gb-home-pet.is-dark .grown-star,
 .gb-home-pet.is-dark .tap-party {

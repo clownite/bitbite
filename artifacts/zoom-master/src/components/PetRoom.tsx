@@ -168,10 +168,14 @@ export function PetRoom({
           type="button"
           className="pet-cure"
           data-testid="pet-cure"
-          onClick={() => {
+          onPointerDown={(event) => runTap(event, () => {
             settleFarm();
             if (cure()) praise();
-          }}
+          })}
+          onTouchStart={(event) => runTap(event, () => {
+            settleFarm();
+            if (cure()) praise();
+          })}
         >
           {t("pet.cure")}
         </button>

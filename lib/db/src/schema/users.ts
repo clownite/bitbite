@@ -190,6 +190,8 @@ export const usersTable = pgTable("users", {
   // across devices. White / Earth Collection planets live in a separate
   // table because they have a deterministic identity tuple.
   planetsJson: jsonb("planets_json").notNull().default(sql`'[]'::jsonb`),
+  /** Pet, crumbs, XP and evolutions. Follows the player across phones. */
+  petSave: jsonb("pet_save"),
   // Server-side counter of how many bonus planets the client has already
   // materialized into planetsJson. Mirrors the local
   // `claimedBonusBasic/Rare/Epic/Gold/V1` so applyGrants on a fresh device
