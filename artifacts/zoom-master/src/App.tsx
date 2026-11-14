@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import House from "lucide-react/dist/esm/icons/house.js";
 import LayoutGrid from "lucide-react/dist/esm/icons/layout-grid.js";
 import Play from "lucide-react/dist/esm/icons/play.js";
@@ -185,6 +185,8 @@ function AppShell() {
   const [tab, setTab] = useState<Tab>("lab");
   const [gear, setGear] = useState(0);
   const [held, setHeld] = useState<string | null>(null);
+  const [smoke, setSmoke] = useState(0);
+  const smokeAt = useRef(0);
   const [muted, setMuted] = useState(() => {
     try { return localStorage.getItem("zoom-bgm-muted") === "1"; } catch { return false; }
   });
@@ -441,7 +443,30 @@ function AppShell() {
           <button type="button" className={`gb-console-b${held === "b" ? " is-down" : ""}`} aria-label="B" onPointerDown={(event) => runTap(event, () => press("b", () => { /**/ }))} onTouchStart={(event) => runTap(event, () => press("b", () => { /**/ }))} />
           <button type="button" className={`gb-console-a${held === "a" ? " is-down" : ""}`} aria-label="A" onPointerDown={(event) => runTap(event, () => press("a", () => { if (tab !== "lab") return; noteHumanGesture(true); window.dispatchEvent(new Event("zoom-home-claim")); }))} onTouchStart={(event) => runTap(event, () => press("a", () => { if (tab !== "lab") return; noteHumanGesture(true); window.dispatchEvent(new Event("zoom-home-claim")); }))} />
         </div>
-        <div className="gb-speaker"><i /><i /><i /></div>
+        <button
+          type="button"
+          className="gb-speaker"
+          aria-label="Speaker"
+          onPointerDown={(event) => runTap(event, () => {
+            const now = performance.now();
+            if (now - smokeAt.current < 3000) return;
+            smokeAt.current = now;
+            setSmoke((n) => n + 1);
+          })}
+          onTouchStart={(event) => runTap(event, () => {
+            const now = performance.now();
+            if (now - smokeAt.current < 3000) return;
+            smokeAt.current = now;
+            setSmoke((n) => n + 1);
+          })}
+        >
+          <i /><i /><i />
+          {smoke > 0 ? (
+            <span key={smoke} className="gb-smoke" aria-hidden>
+              <b /><b /><b /><b /><b /><b />
+            </span>
+          ) : null}
+        </button>
       </div>
       {admin && maintenance.enabled && (
         <div style={{ position: "fixed", left: 12, right: 12, bottom: 96, zIndex: 70, textAlign: "center", fontSize: 11, fontWeight: 800, color: "#ffd36a" }}>
