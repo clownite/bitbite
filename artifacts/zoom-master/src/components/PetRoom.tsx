@@ -115,13 +115,20 @@ export function PetRoom({
           data-testid="pet-mess"
           style={{ left: `${crumb.left}%`, bottom: `${crumb.bottom}%` }}
           aria-label={t("pet.messy")}
-          onClick={() => {
+          onPointerDown={(event) => runTap(event, () => {
             settleFarm();
             if (cleanMess(crumb.id)) {
-            window.dispatchEvent(new Event("zoom-pet-cared"));
-            praise();
-          }
-          }}
+              window.dispatchEvent(new Event("zoom-pet-cared"));
+              praise();
+            }
+          })}
+          onTouchStart={(event) => runTap(event, () => {
+            settleFarm();
+            if (cleanMess(crumb.id)) {
+              window.dispatchEvent(new Event("zoom-pet-cared"));
+              praise();
+            }
+          })}
         >
           <PixelCookie />
         </button>

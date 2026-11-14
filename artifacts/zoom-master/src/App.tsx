@@ -396,7 +396,7 @@ function AppShell() {
               const active = tab === item.id;
               const Icon = item.icon;
               const calling = item.id === "lab"
-                ? care.call && eggLeft(getPet().active) <= 0
+                ? care.calling && eggLeft(getPet().active) <= 0
                 : item.id === "earn" && taskCall;
               return (
                 <button
