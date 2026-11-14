@@ -4,7 +4,7 @@ import { useGlobalStore, refreshDailyStatus, applyDailyClaimResult } from "../st
 import { addPetXp, claimDailyPetXp, DAILY_XP, DAILY_XP_WEEK, dailyXpStatus, getPet, INVITE_XP, LEVEL_XP, LEVEL10_GRAM, LEVEL5_GRAM, subscribePet, syncReferralXp, xpFromCrumbs, type PetState } from "../pet/petProgress";
 import { QuestBoard } from "../components/QuestBoard";
 import { useT } from "../i18n/LanguageContext";
-import { SpaceTicketIcon, SpeedBoltIcon } from "../components/icons/GameIcons";
+import { SpeedBoltIcon } from "../components/icons/GameIcons";
 
 
 interface EarnPageProps {
@@ -477,7 +477,6 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
         </section>
 
         <section className="redeem-vault">
-          <div className="redeem-mark" aria-hidden><SpaceTicketIcon size={28} /></div>
           <div className="redeem-title">{t("earn.redeemCode")}</div>
           <p className="redeem-hint">{t("earn.redeemHint")}</p>
           <input
