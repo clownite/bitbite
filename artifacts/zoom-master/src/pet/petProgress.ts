@@ -10,10 +10,10 @@ export const LEVEL_XP = 500;
 export const PET_LEVELS = 10;
 /** Four bars, then 3 GRAM, and the pet becomes level 5. */
 export const LEVEL5_XP = LEVEL_XP * 4;
-/** Five more bars, then 6 GRAM, and the pet becomes level 10. Nine bars in all. */
+/** Five more bars, then 10 GRAM, and the pet becomes level 10. Nine bars in all. */
 export const LEVEL10_XP = LEVEL_XP * 9;
 export const LEVEL5_GRAM = 3;
-export const LEVEL10_GRAM = 6;
+export const LEVEL10_GRAM = 10;
 
 /** One claim every 24h. A week is 80 XP. Each pet level is another 500 XP. */
 export const DAILY_XP = [8, 8, 10, 10, 12, 14, 18] as const;
@@ -79,9 +79,17 @@ const LEGACY_KEY = "biscotto-pet-v3";
 
 const FRESH: PetCore = { stage: 1, xp: 0, level: 1, finished: false };
 
-const ROSTER: PetId[] = ["dolphin", "finch", "lynx", "stag"];
+const ROSTER: PetId[] = ["dolphin", "lynx", "stag"];
 
-/** Emberin, Lynvyr and Cervolt sit in the collection beside Aquin. */
+/** Emberin is bought. Lynvyr and Cervolt sit in the collection beside Aquin. */
+function emberinPaid(): boolean {
+  try {
+    const orders = JSON.parse(localStorage.getItem("zoom-pet-orders-v1") || "[]") as { petId?: string; status?: string; kind?: string }[];
+    return orders.some((order) => order.kind !== "stage" && order.petId === "finch" && order.status === "paid");
+  } catch {
+    return false;
+  }
+}
 function grantRoster(owned: PetId[], byId: Partial<Record<PetId, PetCore>>): boolean {
   let added = false;
   for (const id of ROSTER) {
@@ -185,6 +193,10 @@ function load(): PetState {
       (id): id is PetId => id === "dolphin" || id === "finch" || id === "lynx" || id === "stag",
     );
     if (!owned.includes("dolphin")) owned.unshift("dolphin");
+    if (!emberinPaid()) {
+      const finch = owned.indexOf("finch");
+      if (finch >= 0) owned.splice(finch, 1);
+    }
     const active: PetId = owned.includes(p.active as PetId) ? (p.active as PetId) : "dolphin";
     const byId: Partial<Record<PetId, PetCore>> = {};
     for (const id of owned) byId[id] = readCore(p.byId?.[id] ?? (id === "dolphin" ? p : undefined));
@@ -225,8 +237,9 @@ function emit() {
 
 try {
   const saved = JSON.parse(localStorage.getItem(KEY) || "null") as { owned?: unknown } | null;
-  const before = Array.isArray(saved?.owned) ? saved.owned.length : 0;
-  if (state.owned.length > before) emit();
+  const before = Array.isArray(saved?.owned) ? saved.owned : [];
+  const droppedEmberin = before.includes("finch") && !state.owned.includes("finch");
+  if (state.owned.length > before.length || droppedEmberin) emit();
 } catch { /**/ }
 
 function applyXp(amount: number) {
@@ -541,10 +554,8 @@ export function confirmGramUpgrade() {
   const cost = gramCost(state);
   if (cost == null) return;
   settleFarm();
-  const extra = state.xp - LEVEL_XP;
   if (state.level === 4) {
     state = syncActive({ ...state, stage: 2, xp: 0, level: 5, finished: false });
-    if (extra > 0) applyXp(extra);
   } else if (state.level === 9) {
     state = syncActive({ ...state, stage: 3, xp: 0, level: 10, finished: true });
   }

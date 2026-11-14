@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useFarm } from "../components/PetFarmButton";
 import { petCombat, petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
-import { getPet, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { getPet, gramCost, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { startStagePayment } from "../pet/payPet";
 import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
 import { dismissAway, markHere, readAway, type AwayKind } from "../pet/away";
 import { careView, subscribeCare, takeCareXp } from "../pet/care";
@@ -419,7 +420,8 @@ export function LabPage({
               <div>{t("pet.farm")} {formatCrumbs(farm.pending)}</div>
               <div>{formatCrumbs(farm.cap)} / day</div>
             </div>
-            <button
+            <div className="gb-claim-row">
+              <button
                 type="button"
                 className={farm.pending >= 0.0001 ? "claim-3d" : "claim-3d is-empty"}
                 style={{ ["--claim" as string]: chosen.element.color }}
@@ -434,6 +436,26 @@ export function LabPage({
                 </b>
                 {t("pet.claim")}
               </button>
+              {gramCost(pet) != null ? (
+                <button
+                  type="button"
+                  className="stage-pop"
+                  data-testid="stage-pay"
+                  onPointerDown={(event) => runTap(event, () => {
+                    const cost = gramCost(getPet());
+                    if (cost == null) return;
+                    startStagePayment(cost, getPet().level < 5 ? 5 : 10);
+                  })}
+                  onTouchStart={(event) => runTap(event, () => {
+                    const cost = gramCost(getPet());
+                    if (cost == null) return;
+                    startStagePayment(cost, getPet().level < 5 ? 5 : 10);
+                  })}
+                >
+                  {t("pet.stagePay", { n: gramCost(pet), s: pet.level < 5 ? 2 : 3 })}
+                </button>
+              ) : null}
+            </div>
             <div className="gb-stats">
               {stats.map((stat) => (
                 <button

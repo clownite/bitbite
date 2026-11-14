@@ -1,5 +1,5 @@
 import type { PetId } from "./catalog";
-import { buyPet, getPet } from "./petProgress";
+import { buyPet, confirmGramUpgrade, getPet, gramCost } from "./petProgress";
 import { recordGramInvested } from "./invested";
 
 /** The wallet that receives GRAM when a player buys a pet. */
@@ -9,7 +9,9 @@ const KEY = "zoom-pet-orders-v1";
 
 type Order = {
   id: string;
-  petId: PetId;
+  kind?: "pet" | "stage";
+  petId?: PetId;
+  nextLevel?: 5 | 10;
   price: number;
   comment: string;
   status: "pending" | "paid";
@@ -39,7 +41,7 @@ export function startPetPayment(petId: PetId, name: string, price: number) {
   const id = Math.random().toString(36).slice(2, 8);
   const comment = `BitBite ${name} ${id}`;
   const orders = read().filter((order) => order.status === "pending" && order.petId !== petId);
-  orders.push({ id, petId, price, comment, status: "pending" });
+  orders.push({ id, kind: "pet", petId, price, comment, status: "pending" });
   write(orders);
   const nano = Math.round(price * 1e9);
   const url = `https://app.tonkeeper.com/transfer/${PET_TREASURY}?amount=${nano}&text=${encodeURIComponent(comment)}`;
@@ -60,6 +62,18 @@ function nanoOf(tx: unknown): number {
   const msg = (tx as { in_msg?: { value?: string | number } })?.in_msg;
   const value = Number(msg?.value ?? 0);
   return Number.isFinite(value) ? value : 0;
+}
+
+/** Opens the same wallet for the stage gate. 3 GRAM opens stage 2. 10 GRAM opens stage 3. */
+export function startStagePayment(price: number, nextLevel: 5 | 10) {
+  const id = Math.random().toString(36).slice(2, 8);
+  const comment = `BitBite stage ${nextLevel} ${id}`;
+  const orders = read().filter((order) => order.status === "pending" && order.kind !== "stage");
+  orders.push({ id, kind: "stage", nextLevel, price, comment, status: "pending" });
+  write(orders);
+  const nano = Math.round(price * 1e9);
+  const url = `https://app.tonkeeper.com/transfer/${PET_TREASURY}?amount=${nano}&text=${encodeURIComponent(comment)}`;
+  openPayLink(url);
 }
 
 /** When the treasury has the GRAM, the pet enters the collection and the weekly board moves. */
@@ -86,6 +100,14 @@ export async function settlePetPayments(): Promise<PetId[]> {
     if (!hit) continue;
     const row = next.find((item) => item.id === order.id);
     if (!row || row.status === "paid") continue;
+    if (order.kind === "stage") {
+      if (gramCost(getPet()) !== order.price) continue;
+      row.status = "paid";
+      recordGramInvested(order.price);
+      confirmGramUpgrade();
+      continue;
+    }
+    if (!order.petId) continue;
     const had = getPet().owned.includes(order.petId);
     buyPet(order.petId);
     const owns = getPet().owned.includes(order.petId);

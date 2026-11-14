@@ -7,7 +7,6 @@ import { dailyFarm, formatRate, petDef, type PetId } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
 import { PetCombatSheet } from "../components/PetCombatSheet";
 import {
-  confirmGramUpgrade,
   getPet,
   gramCost,
   PET_SLOTS,
@@ -19,7 +18,7 @@ import {
   LEVEL10_GRAM,
   type PetState,
 } from "../pet/petProgress";
-import { recordGramInvested } from "../pet/invested";
+import { startStagePayment } from "../pet/payPet";
 import { noteFavorite } from "../pet/quests";
 import { useT } from "../i18n/LanguageContext";
 
@@ -50,7 +49,8 @@ export function CollectionPage({
   const goal = stageGoal(pet.stage);
   const cost = gramCost(pet);
   const ready = cost != null;
-  const canPay = ready && gram + 1e-9 >= cost;
+  void onPay;
+  void gram;
   const active = petDef(pet.active);
   const rate = dailyFarm(pet.active, pet.level);
   const one = rate > 0 ? 1 / rate : 0;
@@ -142,12 +142,10 @@ export function CollectionPage({
         {ready && (
           <button
             type="button"
-            disabled={!canPay}
+            disabled={!ready}
             onClick={() => {
-              if (!canPay || cost == null) return;
-              if (!onPay(cost)) return;
-              recordGramInvested(cost);
-              confirmGramUpgrade();
+              if (cost == null) return;
+              startStagePayment(cost, pet.level < 5 ? 5 : 10);
             }}
             style={{
               marginTop: 12,
@@ -156,7 +154,7 @@ export function CollectionPage({
               borderRadius: 2,
               padding: "12px 14px",
               fontWeight: 800,
-              background: canPay ? "#d7d3c4" : "#8bac0f",
+              background: "#d7d3c4",
               color: "#0f380f",
               boxShadow: "3px 3px 0 #0f380f",
             }}

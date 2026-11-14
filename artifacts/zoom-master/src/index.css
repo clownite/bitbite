@@ -6720,6 +6720,25 @@ body, body * {
   font-weight: 800;
   letter-spacing: 0.04em;
 }
+.gb-claim-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
+  margin: 8px 4px 0;
+}
+.stage-pop {
+  flex: 1;
+  border: 3px solid #0f380f;
+  border-radius: 8px;
+  background: #c6e35a;
+  color: #0f380f;
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1.15;
+  padding: 8px;
+  box-shadow: 3px 3px 0 #0f380f;
+}
 .gb-app.tab-lab .claim-3d {
   width: min(230px, 62%);
   margin: 8px auto 0;
@@ -7703,6 +7722,8 @@ body { background: #0c1008; }
 .gb-app.tab-lab .gb-farm { padding: 6px 8px 5px; }
 .gb-app.tab-lab .gb-farm div:first-child { font-size: 17px; }
 .gb-app.tab-lab .claim-3d { margin: 4px auto 0; padding: 4px 12px; width: min(210px, 58%); }
+.gb-app.tab-lab .gb-claim-row { margin: 4px 4px 0; }
+.gb-app.tab-lab .gb-claim-row .claim-3d { width: auto; flex: 1.2; margin: 0; }
 .gb-app.tab-lab .gb-stats { margin: 4px 0 0; gap: 4px; }
 .gb-app.tab-lab .gb-stat { padding: 6px 4px; font-size: 14px; }
 
