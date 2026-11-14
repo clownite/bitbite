@@ -25,7 +25,7 @@ import { hideHtmlSplash } from "./components/SplashScreen";
 import { fetchGateStatus, fetchMaintenanceStatus } from "./utils/api";
 import { getVerifiedTelegramUserId } from "./utils/telegram";
 import { initVersionCheck } from "./utils/appVersion";
-import { noteVisit, questRows, subscribeQuests } from "./pet/quests";
+import { noteVisit, subscribeQuests, tasksWaiting } from "./pet/quests";
 import { FirstGuide, type GuideTab } from "./components/FirstGuide";
 import { hapticCalm, hapticSoft } from "./utils/haptic";
 import { runTap } from "./utils/tap";
@@ -36,7 +36,7 @@ import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
 import { careView, subscribeCare } from "./pet/care";
 import { eggLeft } from "./pet/life";
-import { getPet } from "./pet/petProgress";
+import { getPet, subscribePet } from "./pet/petProgress";
 import { noteHumanGesture } from "./pet/human";
 import { crumbsEarned, subscribeCrumbs } from "./pet/crumbs";
 import { SettingsMenu } from "./components/SettingsMenu";
@@ -213,14 +213,16 @@ function AppShell() {
   }, []);
   useEffect(() => {
     const pull = () => {
-      setTaskCall(questRows(session.referralCount, crumbsEarned()).some((row) => row.ready));
+      setTaskCall(tasksWaiting(session.referralCount, crumbsEarned()));
     };
     pull();
     const unsubQuests = subscribeQuests(pull);
     const unsubCrumbs = subscribeCrumbs(pull);
+    const unsubPet = subscribePet(pull);
     return () => {
       unsubQuests();
       unsubCrumbs();
+      unsubPet();
     };
   }, [session.referralCount]);
 

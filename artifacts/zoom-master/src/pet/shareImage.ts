@@ -124,14 +124,6 @@ function blit(ctx: CanvasRenderingContext2D, rows: string[], ink: Record<string,
   });
 }
 
-function rgba(hex: string, alpha: number): string {
-  const h = hex.replace("#", "");
-  const full = h.length === 3 ? h.split("").map((c) => c + c).join("") : h;
-  const n = Number.parseInt(full, 16);
-  if (!Number.isFinite(n)) return `rgba(122,215,255,${alpha})`;
-  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
-}
-
 function wrap(ctx: CanvasRenderingContext2D, text: string, max: number): string[] {
   const words = text.split(/\s+/).filter(Boolean);
   const lines: string[] = [];
@@ -164,29 +156,24 @@ export function drawShareCard(shot: ShareShot): { image: string; thumb: string }
   if (!ctx) return null;
   ctx.imageSmoothingEnabled = false;
 
-  const radius = 36;
-  ctx.beginPath();
-  ctx.roundRect(0, 0, SHARE_W, SHARE_H, radius);
-  ctx.clip();
-  ctx.fillStyle = "#071018";
+  ctx.fillStyle = "#1a2410";
   ctx.fillRect(0, 0, SHARE_W, SHARE_H);
-  const glow = ctx.createRadialGradient(SHARE_W / 2, 280, 20, SHARE_W / 2, 280, 420);
-  glow.addColorStop(0, rgba(shot.color, 0.85));
-  glow.addColorStop(0.42, rgba(shot.color, 0.28));
-  glow.addColorStop(1, "rgba(0,0,0,0)");
-  ctx.fillStyle = glow;
-  ctx.fillRect(0, 0, SHARE_W, SHARE_H);
-  const fade = ctx.createLinearGradient(0, 0, 0, SHARE_H);
-  fade.addColorStop(0, rgba(shot.color, 0.22));
-  fade.addColorStop(0.58, "rgba(7,16,24,0.2)");
-  fade.addColorStop(1, "#05080e");
-  ctx.fillStyle = fade;
-  ctx.fillRect(0, 0, SHARE_W, SHARE_H);
+  const lcdX = 28;
+  const lcdY = 24;
+  const lcdW = SHARE_W - 56;
+  const lcdH = SHARE_H - 48;
+  ctx.fillStyle = "#9bbc0f";
+  ctx.fillRect(lcdX, lcdY, lcdW, lcdH);
+  ctx.strokeStyle = "#0f380f";
+  ctx.lineWidth = 8;
+  ctx.strokeRect(lcdX + 8, lcdY + 8, lcdW - 16, lcdH - 16);
 
-  ctx.fillStyle = "#e8f7ff";
-  ctx.font = "800 34px Fredoka, Nunito, sans-serif";
-  ctx.textAlign = "center";
-  ctx.fillText(shot.playerName.slice(0, 32), SHARE_W / 2, 72);
+  ctx.fillStyle = "#0f380f";
+  ctx.font = "800 28px Fredoka, Nunito, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("BITBITE", lcdX + 28, lcdY + 52);
+  ctx.textAlign = "right";
+  ctx.fillText(shot.playerName.slice(0, 18), lcdX + lcdW - 28, lcdY + 52);
 
   const sprite = shot.form === "egg"
     ? { rows: EGG, ink: EGG_INK }
@@ -214,7 +201,7 @@ export function drawShareCard(shot: ShareShot): { image: string; thumb: string }
   }
 
   if (shot.form !== "egg" && shot.sex) {
-    blit(ctx, shot.sex === "boy" ? MALE : FEMALE, { "1": shot.sex === "boy" ? "#7ad7ff" : "#ff4d8a" }, 36, 108, 5);
+    blit(ctx, shot.sex === "boy" ? MALE : FEMALE, { "1": "#0f380f" }, 56, 100, 5);
     if (shot.road) {
       const rows = shot.road === "wild" ? TREE : FLOWER;
       const ink = shot.road === "wild"
@@ -224,34 +211,25 @@ export function drawShareCard(shot: ShareShot): { image: string; thumb: string }
     }
   }
 
-  ctx.fillStyle = "rgba(0,0,0,0.55)";
-  ctx.fillRect(0, 760, SHARE_W, 200);
+  ctx.fillStyle = "#8bac0f";
+  ctx.fillRect(lcdX + 20, 760, lcdW - 40, 150);
   ctx.textAlign = "left";
-  ctx.fillStyle = "#7ad7ff";
+  ctx.fillStyle = "#0f380f";
   ctx.font = "800 26px Fredoka, Nunito, sans-serif";
   const lines = wrap(ctx, shot.title, 470);
-  lines.forEach((line, i) => ctx.fillText(line, 36, 818 + i * 34));
-  ctx.fillStyle = "rgba(186,220,236,0.85)";
+  lines.forEach((line, i) => ctx.fillText(line, lcdX + 36, 804 + i * 34));
   ctx.font = "700 22px Fredoka, Nunito, sans-serif";
-  ctx.fillText(shot.xp, 36, 818 + lines.length * 34 + 8);
+  ctx.fillText(shot.xp, lcdX + 36, 804 + lines.length * 34 + 8);
 
   const badge = shot.element.slice(0, 16);
   ctx.font = "800 18px Fredoka, Nunito, sans-serif";
   const bw = Math.ceil(ctx.measureText(badge).width) + 28;
-  const bx = SHARE_W - bw - 28;
-  ctx.fillStyle = shot.color;
-  ctx.beginPath();
-  ctx.roundRect(bx, 792, bw, 36, 18);
-  ctx.fill();
-  ctx.fillStyle = "#041018";
+  const bx = lcdX + lcdW - bw - 36;
+  ctx.fillStyle = "#0f380f";
+  ctx.fillRect(bx, 792, bw, 36);
+  ctx.fillStyle = "#c6e35a";
   ctx.textAlign = "center";
   ctx.fillText(badge, bx + bw / 2, 816);
-
-  ctx.strokeStyle = "rgba(122,215,255,0.4)";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.roundRect(8, 8, SHARE_W - 16, SHARE_H - 16, 30);
-  ctx.stroke();
 
   const thumb = document.createElement("canvas");
   thumb.width = 240;

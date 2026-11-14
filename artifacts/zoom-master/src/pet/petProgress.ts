@@ -503,6 +503,12 @@ export function claimOnceTask(which: "community" | "chat" | "invite", invites = 
   return gained;
 }
 
+/** Quests listen here so a real XP tap is never missed. */
+let tapHook: ((now: number) => void) | null = null;
+export function bindTapHook(fn: (now: number) => void) {
+  tapHook = fn;
+}
+
 /** One of the four hearts. A click during the 3s pause, or with every heart still charging, does not add XP. */
 export function tapPet(now = Date.now()): TapResult {
   if (!humanJustTouched(now)) return { xp: 0, count: liveCharges(now).length, max: PET_TAP_MAX, reason: "wait" };
@@ -526,6 +532,7 @@ export function tapPet(now = Date.now()): TapResult {
     emit();
     return { xp: 0, count: charges.length, max: PET_TAP_MAX, reason: "done" };
   }
+  tapHook?.(now);
   return { xp: gained, count: charges.length + 1, max: PET_TAP_MAX, reason: "ok" };
 }
 

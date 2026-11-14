@@ -59,6 +59,7 @@ function TaskCheck({
       onTouchStart={(event) => runTap(event, onPress)}
     >
       {icon}
+      {state === "ready" ? <em>{label}</em> : null}
     </button>
   );
 }
@@ -122,7 +123,7 @@ export function QuestBoard({
     if (status === "missing") setShareHint(t("quest.shareFail"));
   };
 
-  const visible = rows;
+  const visible = [...rows].sort((a, b) => Number(b.ready && !b.claimed) - Number(a.ready && !a.claimed));
 
   return (
     <section className="earn-panel">
@@ -159,14 +160,14 @@ export function QuestBoard({
             if (gained > 0) onReward(`+${gained} XP`);
           };
           return (
-            <div key={row.id} className="earn-row gb-quest">
+            <div key={row.id} className={`earn-row gb-quest${state === "ready" ? " is-ready" : ""}`}>
               <div className="min-w-0">
                 <div className="text-sm font-black" style={{ color: "var(--earn-ink)" }}>{t(`quest.${row.id}`)}</div>
                 <div className="gb-quest-meta">+{row.xp} XP{missing && !row.claimed ? ` · ${missing}` : ""}</div>
               </div>
               <TaskCheck
                 state={state}
-                label={row.claimed ? t("quest.done") : row.ready ? t("quest.done") : missing || t(`quest.${row.id}`)}
+                label={row.claimed ? t("quest.done") : row.ready ? t("quest.claim") : missing || t(`quest.${row.id}`)}
                 testId={row.id === "share" ? "share-pet" : undefined}
                 onPress={row.id === "share" && state === "wait" ? sendShare : state === "ready" ? claim : undefined}
               />
@@ -182,7 +183,7 @@ export function QuestBoard({
               </div>
               <TaskCheck
                 state={pet.claimedCommunity ? "done" : pet.openedCommunity ? "ready" : "wait"}
-                label={t("quest.community")}
+                label={pet.openedCommunity && !pet.claimedCommunity ? t("quest.claim") : t("quest.community")}
                 onPress={pet.claimedCommunity ? undefined : () => (pet.openedCommunity ? (claimOnceTask("community") > 0 && onReward(`+${TASK_ONCE_XP} XP`)) : openLink("community", COMMUNITY_URL))}
               />
             </div>
@@ -193,7 +194,7 @@ export function QuestBoard({
               </div>
               <TaskCheck
                 state={pet.claimedChat ? "done" : pet.openedChat ? "ready" : "wait"}
-                label={t("quest.chat")}
+                label={pet.openedChat && !pet.claimedChat ? t("quest.claim") : t("quest.chat")}
                 onPress={pet.claimedChat ? undefined : () => (pet.openedChat ? (claimOnceTask("chat") > 0 && onReward(`+${TASK_ONCE_XP} XP`)) : openLink("chat", CHAT_URL))}
               />
             </div>
@@ -204,7 +205,7 @@ export function QuestBoard({
               </div>
               <TaskCheck
                 state={pet.claimedInviteTask ? "done" : referralCount > 0 ? "ready" : "wait"}
-                label={t("quest.friend")}
+                label={!pet.claimedInviteTask && referralCount > 0 ? t("quest.claim") : t("quest.friend")}
                 onPress={pet.claimedInviteTask ? undefined : () => (referralCount > 0 ? (claimOnceTask("invite", referralCount) > 0 && onReward(`+${TASK_INVITE_ONCE_XP} XP`)) : openTelegramChat(t("quest.shareText"), `https://t.me/TESTZOOMDEV_bot?startapp=${referralCode}`))}
               />
             </div>

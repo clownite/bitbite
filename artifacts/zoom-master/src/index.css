@@ -6903,8 +6903,22 @@ body, body * {
   box-shadow: none;
 }
 .gb-check.is-ready {
+  width: auto;
+  padding: 0 8px;
+  gap: 4px;
   background: #0f380f;
   color: #c6e35a;
+}
+.gb-check em {
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+.gb-quest.is-ready {
+  border: 3px solid #0f380f;
+  background: #c6e35a;
+  padding: 8px;
 }
 .gb-check.is-done {
   background: #0f380f;

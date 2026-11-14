@@ -2,7 +2,6 @@ import { useLayoutEffect, useRef, useState } from "react";
 import art from "../pet/kinArt.json";
 import type { FamilyId } from "../pet/kin";
 import type { LifeForm, LifeMark } from "../pet/life";
-import { notePetTap } from "../pet/quests";
 import { tapPet } from "../pet/petProgress";
 import { translate, type Lang } from "../i18n/translations";
 import { noteHumanGesture } from "../pet/human";
@@ -135,7 +134,6 @@ export function LifeCreature({
     noteHumanGesture(true);
     const result = tapPet();
     if (result.reason === "ok") {
-      notePetTap();
       const kinds = ["fire", "confetti", "clover"] as const;
       setPartyKind(kinds[Math.floor(Math.random() * kinds.length)]);
       setParty((n) => n + 1);

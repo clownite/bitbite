@@ -1,4 +1,4 @@
-import { addPetXp, PET_TAP_MAX } from "./petProgress";
+import { addPetXp, bindTapHook, getPet, PET_TAP_MAX } from "./petProgress";
 
 /**
  * XP on top of the daily check-in and the 4 pet taps.
@@ -182,6 +182,24 @@ export function notePetTap(now = Date.now()) {
   return { day: state.dayTaps, week: state.weekTaps, life: state.lifetimeTaps };
 }
 
+bindTapHook(notePetTap);
+
+/** The pet already remembers today's taps. Catch the quests up when they fell behind. */
+function catchUpTaps(now = Date.now()) {
+  roll(now);
+  const pet = getPet();
+  const fromPet = pet.tapDay === dayKey(now) ? Math.max(0, Math.min(PET_TAP_MAX, pet.tapCount)) : 0;
+  if (fromPet <= state.dayTaps) return;
+  const extra = fromPet - state.dayTaps;
+  state = {
+    ...state,
+    dayTaps: fromPet,
+    weekTaps: state.weekTaps + extra,
+    lifetimeTaps: state.lifetimeTaps + extra,
+  };
+  emit();
+}
+
 export function noteHomeActive(ms: number, now = Date.now()) {
   if (ms <= 0) return;
   roll(now);
@@ -244,8 +262,18 @@ function rows(referralCount: number, crumbsEarned: number): QuestRow[] {
 }
 
 export function questRows(referralCount: number, crumbsEarned: number, now = Date.now()): QuestRow[] {
-  roll(now);
+  catchUpTaps(now);
   return rows(referralCount, crumbsEarned);
+}
+
+/** True when a task on the Earn screen can be collected. */
+export function tasksWaiting(referralCount: number, crumbsEarned: number): boolean {
+  if (questRows(referralCount, crumbsEarned).some((row) => row.ready)) return true;
+  const pet = getPet();
+  if (pet.openedCommunity && !pet.claimedCommunity) return true;
+  if (pet.openedChat && !pet.claimedChat) return true;
+  if (!pet.claimedInviteTask && referralCount > 0) return true;
+  return false;
 }
 
 export function claimQuest(id: string, referralCount: number, crumbsEarned: number, now = Date.now()): number {
