@@ -7599,7 +7599,7 @@ body { background: #0c1008; }
   left: 8px;
   bottom: 0;
   font-size: 28px;
-  animation: gb-zzz-rise 7.2s linear infinite !important;
+  animation: none !important;
 }
 .gb-home-pet.is-dark .pet-zzz span:nth-child(2) {
   left: 28px;

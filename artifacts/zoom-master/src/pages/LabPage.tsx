@@ -21,6 +21,39 @@ import { LifeMarks } from "../components/LifeMarks";
 import { CardReel } from "../components/CardReel";
 import { useT } from "../i18n/LanguageContext";
 
+const Z_CYCLE = 7200;
+const Z_SHIFT = [0, 2100, 4200];
+
+/** Sleep marks follow the clock, so leaving Home does not freeze or restart them. */
+function SleepZs() {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
+    const spans = [...root.children] as HTMLElement[];
+    let frame = 0;
+    const tick = () => {
+      const now = Date.now();
+      spans.forEach((el, i) => {
+        const p = ((now + Z_SHIFT[i]) % Z_CYCLE) / Z_CYCLE;
+        const opacity = p < 0.18 ? p / 0.18 : Math.max(0, 1 - (p - 0.18) / 0.82);
+        el.style.bottom = `${p * 100}%`;
+        el.style.opacity = opacity.toFixed(3);
+      });
+      frame = window.requestAnimationFrame(tick);
+    };
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+  return (
+    <div className="pet-zzz" ref={ref} data-testid="home-night" aria-hidden>
+      <span>Z</span>
+      <span>Z</span>
+      <span>Z</span>
+    </div>
+  );
+}
+
 function EggAsk({ time, explain, label }: { time: string; explain: string; label: string }) {
   const [small, setSmall] = useState(false);
   return (
@@ -242,10 +275,9 @@ export function LabPage({
     return () => window.removeEventListener("zoom-pet-eat", onEat);
   }, []);
   useEffect(() => {
-    if (!active) return;
+    if (!active || care.dark) return;
     const kick = () => {
-      const sel = care.dark ? ".gb-home-pet .pet-zzz span" : ".gb-home-pet .life-pet-body";
-      document.querySelectorAll<HTMLElement>(sel).forEach((el) => {
+      document.querySelectorAll<HTMLElement>(".gb-home-pet .life-pet-body").forEach((el) => {
         el.style.setProperty("animation", "none", "important");
         void el.offsetWidth;
         el.style.removeProperty("animation");
@@ -363,13 +395,7 @@ export function LabPage({
             <PetPostcard active={active && life.form !== "egg"} soon={care.asleep} petName={chosen.name} />
             <PetRoom care={care} toast={wakeToast} waiting={life.form === "egg"} />
             </CardReel>
-            {care.dark ? (
-              <div className="pet-zzz" data-testid="home-night" aria-hidden>
-                <span>Z</span>
-                <span>Z</span>
-                <span>Z</span>
-              </div>
-            ) : null}
+            {care.dark ? <SleepZs /> : null}
             {sheet ? (
               <button
                 type="button"
