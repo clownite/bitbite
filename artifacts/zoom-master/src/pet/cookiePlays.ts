@@ -1,12 +1,13 @@
-/** Three finished series a day. A bomb does not spend one. The count lives on the phone. */
+/** Ten finished games a day, for Cookies and for Numbers. A bomb does not spend one. */
 
-export const PLAYS_PER_DAY = 3;
+export const PLAYS_PER_DAY = 10;
 
 const KEY = "biscotto-cookie-plays-v1";
+const NUMBER_KEY = "biscotto-number-plays-v1";
 
 export type PlayDay = { day: string; used: number };
 
-/** The player's local calendar day. Midnight on their phone starts a new three. */
+/** The player's local calendar day. Midnight on their phone starts a new ten. */
 export function dayKey(now = Date.now()): string {
   const date = new Date(now);
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -35,28 +36,41 @@ export function spendPlay(saved: PlayDay, now = Date.now()): PlayDay {
   return { day: current.day, used: current.used + 1 };
 }
 
-function read(now = Date.now()): PlayDay {
+function read(key: string, now = Date.now()): PlayDay {
   try {
-    const parsed = JSON.parse(localStorage.getItem(KEY) || "") as Partial<PlayDay>;
+    const parsed = JSON.parse(localStorage.getItem(key) || "") as Partial<PlayDay>;
     return normalizePlays(parsed, now);
   } catch {
     return freshPlays(now);
   }
 }
 
-function write(day: PlayDay) {
-  try { localStorage.setItem(KEY, JSON.stringify(day)); } catch { /**/ }
+function write(key: string, day: PlayDay) {
+  try { localStorage.setItem(key, JSON.stringify(day)); } catch { /**/ }
 }
 
 export function cookiePlays(now = Date.now()): PlayDay {
-  const day = read(now);
-  write(day);
+  const day = read(KEY, now);
+  write(KEY, day);
   return day;
 }
 
 /** A finished series spends one play. Calling this on a bomb run is the wrong door. */
 export function noteFinishedSeries(now = Date.now()): PlayDay {
-  const next = spendPlay(read(now), now);
-  write(next);
+  const next = spendPlay(read(KEY, now), now);
+  write(KEY, next);
+  return next;
+}
+
+export function numberPlays(now = Date.now()): PlayDay {
+  const day = read(NUMBER_KEY, now);
+  write(NUMBER_KEY, day);
+  return day;
+}
+
+/** One finished Numbers match spends one of the ten. */
+export function noteNumberPlay(now = Date.now()): PlayDay {
+  const next = spendPlay(read(NUMBER_KEY, now), now);
+  write(NUMBER_KEY, next);
   return next;
 }

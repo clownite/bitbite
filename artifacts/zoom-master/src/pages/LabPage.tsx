@@ -242,13 +242,18 @@ export function LabPage({
     return () => window.removeEventListener("zoom-pet-eat", onEat);
   }, []);
   useEffect(() => {
-    if (!active || care.dark) return;
-    const nodes = document.querySelectorAll<HTMLElement>(".gb-home-pet .life-pet-body");
-    nodes.forEach((el) => {
-      el.style.setProperty("animation", "none", "important");
-      void el.offsetWidth;
-      el.style.removeProperty("animation");
-    });
+    if (!active) return;
+    const kick = () => {
+      const sel = care.dark ? ".gb-home-pet .pet-zzz span" : ".gb-home-pet .life-pet-body";
+      document.querySelectorAll<HTMLElement>(sel).forEach((el) => {
+        el.style.setProperty("animation", "none", "important");
+        void el.offsetWidth;
+        el.style.removeProperty("animation");
+      });
+    };
+    kick();
+    const frame = window.requestAnimationFrame(kick);
+    return () => window.cancelAnimationFrame(frame);
   }, [active, care.dark]);
   useEffect(() => {
     if (!active) return;

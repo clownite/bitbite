@@ -3,6 +3,7 @@ import { playBite, playDone, playHappy, playMiss, playSad } from "../audio/sfx";
 import { recordCookies } from "../pet/cookieBoard";
 import { awardGameXp } from "../pet/gameXp";
 import { noteDisciplinePlay } from "../pet/discipline";
+import { noteNumberPlay, numberPlays, playsLeft } from "../pet/cookiePlays";
 import { LifeCreature } from "./LifeCreature";
 import { PixelCookie } from "./PixelCookie";
 import { familyOf, readLife } from "../pet/life";
@@ -79,7 +80,7 @@ const CREAM = { "1": "#0f380f" };
 const SKULL_INK = { "1": "#0f380f" };
 const HEART_INK = { "1": "#ff5a7a" };
 
-export function NumberGame({ pet }: { pet: PetState; color: string; lifeScale?: number }) {
+export function NumberGame({ pet, onPlayed }: { pet: PetState; color: string; lifeScale?: number; onPlayed?: () => void }) {
   const { t } = useT();
   const [phase, setPhase] = useState<"idle" | "mine" | "win" | "lose" | "done">("idle");
   const [mine, setMine] = useState(1);
@@ -89,6 +90,7 @@ export function NumberGame({ pet }: { pet: PetState; color: string; lifeScale?: 
   const [mad, setMad] = useState(false);
   const timers = useRef<number[]>([]);
   const paid = useRef(false);
+  const [left, setLeft] = useState(() => playsLeft(numberPlays()));
 
   useEffect(() => () => {
     timers.current.forEach((id) => window.clearTimeout(id));
@@ -132,6 +134,8 @@ export function NumberGame({ pet }: { pet: PetState; color: string; lifeScale?: 
             recordCookies(nextWins);
             awardGameXp(nextWins * 5);
             noteDisciplinePlay();
+            setLeft(playsLeft(noteNumberPlay()));
+            onPlayed?.();
           }
           return;
         }
@@ -142,6 +146,10 @@ export function NumberGame({ pet }: { pet: PetState; color: string; lifeScale?: 
 
   const start = () => {
     if (phase !== "idle" && phase !== "done") return;
+    if (playsLeft(numberPlays()) <= 0) {
+      setLeft(0);
+      return;
+    }
     timers.current.forEach((id) => window.clearTimeout(id));
     timers.current = [];
     paid.current = false;
@@ -164,21 +172,31 @@ export function NumberGame({ pet }: { pet: PetState; color: string; lifeScale?: 
     >
       <LifeCreature family={familyOf(pet.active)} form={life.form} kin={life.kin} mark={life.mark} />
       <div className="cookie-floor" />
-      {phase === "idle" ? (
+      {phase === "idle" && left > 0 ? (
         <button type="button" className="cookie-go num-go" data-testid="number-start" onClick={start}>
           <PixelCookie size={18} />
           {t("play.start")}
         </button>
-      ) : phase === "done" ? (
+      ) : null}
+      {phase === "idle" && left === 0 ? (
+        <div className="cookie-over" data-testid="number-plays-done">
+          <strong>{t("play.playsDone")}</strong>
+        </div>
+      ) : null}
+      {phase === "done" ? (
         <div className="cookie-over" data-testid="number-done">
           <strong>{t("play.roundDone", { win: wins, max: ROUNDS })}</strong>
           <span data-testid="number-points">{t("play.roundPoints", { n: wins })}</span>
-          <button type="button" className="cookie-go" data-testid="number-again" onClick={start}>
-            <PixelCookie size={18} />
-            {t("play.again")}
-          </button>
+          {left > 0 ? (
+            <button type="button" className="cookie-go" data-testid="number-again" onClick={start}>
+              <PixelCookie size={18} />
+              {t("play.again")}
+            </button>
+          ) : (
+            <span data-testid="number-plays-done">{t("play.playsDone")}</span>
+          )}
         </div>
-      ) : (
+      ) : phase === "idle" ? null : (
         <div className="num-game">
           <div className="num-round" data-testid="number-round">{t("play.round", { n: round, max: ROUNDS })}</div>
           <div className="num-side is-you" data-testid="number-you">

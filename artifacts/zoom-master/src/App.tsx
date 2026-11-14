@@ -25,7 +25,7 @@ import { hideHtmlSplash } from "./components/SplashScreen";
 import { fetchGateStatus, fetchMaintenanceStatus } from "./utils/api";
 import { getVerifiedTelegramUserId } from "./utils/telegram";
 import { initVersionCheck } from "./utils/appVersion";
-import { noteVisit } from "./pet/quests";
+import { noteVisit, questRows, subscribeQuests } from "./pet/quests";
 import { FirstGuide, type GuideTab } from "./components/FirstGuide";
 import { hapticCalm, hapticSoft } from "./utils/haptic";
 import { runTap } from "./utils/tap";
@@ -38,7 +38,7 @@ import { careView, subscribeCare } from "./pet/care";
 import { eggLeft } from "./pet/life";
 import { getPet } from "./pet/petProgress";
 import { noteHumanGesture } from "./pet/human";
-import { subscribeCrumbs } from "./pet/crumbs";
+import { crumbsEarned, subscribeCrumbs } from "./pet/crumbs";
 import { SettingsMenu } from "./components/SettingsMenu";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
@@ -201,6 +201,7 @@ function AppShell() {
     return () => { dead = true; stop(); };
   }, [session.telegramId]);
   const [care, setCare] = useState(() => careView());
+  const [taskCall, setTaskCall] = useState(false);
   useEffect(() => {
     const pull = () => setCare(careView());
     const unsubCare = subscribeCare(pull);
@@ -210,6 +211,18 @@ function AppShell() {
       unsubFarm();
     };
   }, []);
+  useEffect(() => {
+    const pull = () => {
+      setTaskCall(questRows(session.referralCount, crumbsEarned()).some((row) => row.ready));
+    };
+    pull();
+    const unsubQuests = subscribeQuests(pull);
+    const unsubCrumbs = subscribeCrumbs(pull);
+    return () => {
+      unsubQuests();
+      unsubCrumbs();
+    };
+  }, [session.referralCount]);
 
   const initialMaint = readMaintCache();
   const [maintenance, setMaintenance] = useState<MaintSnapshot>(() => (
@@ -380,7 +393,9 @@ function AppShell() {
             {NAV.map((item) => {
               const active = tab === item.id;
               const Icon = item.icon;
-              const calling = item.id === "lab" && care.call && eggLeft(getPet().active) <= 0;
+              const calling = item.id === "lab"
+                ? care.call && eggLeft(getPet().active) <= 0
+                : item.id === "earn" && taskCall;
               return (
                 <button
                   key={item.id}
@@ -399,7 +414,7 @@ function AppShell() {
                     whiteSpace: "nowrap",
                     color: calling && tab !== "lab" && care.bubble ? "#1c3a0c" : undefined,
                   }}>
-                    {calling && tab !== "lab" && care.bubble ? t(care.bubble) : t(item.key)}
+                    {item.id === "lab" && calling && tab !== "lab" && care.bubble ? t(care.bubble) : t(item.key)}
                   </div>
                 </button>
               );

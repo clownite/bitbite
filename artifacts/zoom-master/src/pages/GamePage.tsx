@@ -4,7 +4,7 @@ import { NumberGame } from "../components/NumberGame";
 import { petDef } from "../pet/catalog";
 import { ackCookieBanner, cookieBoard, nextReset, recordCookies, xpForPlace, type BoardRow } from "../pet/cookieBoard";
 import { awardGameXp } from "../pet/gameXp";
-import { cookiePlays, noteFinishedSeries, PLAYS_PER_DAY, playsLeft, type PlayDay } from "../pet/cookiePlays";
+import { cookiePlays, noteFinishedSeries, numberPlays, PLAYS_PER_DAY, playsLeft, type PlayDay } from "../pet/cookiePlays";
 import { noteDisciplinePlay } from "../pet/discipline";
 import {
   freshRun, SERIES, stagePoint, startRun, stepRun, tapDrop, type Run,
@@ -90,6 +90,7 @@ export function GamePage({ active }: { active: boolean }) {
   const [run, setRun] = useState<Run>(() => freshRun());
   const [board, setBoard] = useState(() => cookieBoard());
   const [plays, setPlays] = useState<PlayDay>(() => cookiePlays());
+  const [numberLeft, setNumberLeft] = useState(() => playsLeft(numberPlays()));
   const [boardOpen, setBoardOpen] = useState(false);
   const [hint, setHint] = useState(true);
   const [mode, setMode] = useState<"cookies" | "numbers">("cookies");
@@ -209,7 +210,9 @@ export function GamePage({ active }: { active: boolean }) {
             <div>
               <div className="cookie-board-kicker">{t("play.kicker")}</div>
               <h2>{waiting ? t("life.egg") : mode === "numbers" ? t("play.numbers") : t("play.title")}</h2>
-              {mode === "cookies" && !waiting ? <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left, max: PLAYS_PER_DAY })}</div> : null}
+              {!waiting && (mode === "cookies" || mode === "numbers") ? (
+                <div className="cookie-plays" data-testid="cookie-plays">{t("play.plays", { left: mode === "numbers" ? numberLeft : left, max: PLAYS_PER_DAY })}</div>
+              ) : null}
             </div>
             <div className="cookie-top-score" data-testid="cookie-score">{mode === "cookies" && !waiting ? run.score : ""}</div>
             <div className="play-side">
@@ -240,7 +243,9 @@ export function GamePage({ active }: { active: boolean }) {
           </div>
         ) : null}
 
-        {!waiting && mode === "numbers" ? <NumberGame pet={pet} color={color} lifeScale={life.scale} /> : null}
+        {!waiting && mode === "numbers" ? (
+          <NumberGame pet={pet} color={color} lifeScale={life.scale} onPlayed={() => setNumberLeft(playsLeft(numberPlays()))} />
+        ) : null}
 
         {board.banner ? (
           <button
