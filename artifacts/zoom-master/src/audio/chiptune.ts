@@ -29,7 +29,8 @@ function blip(freq: number, when: number, dur: number, type: OscillatorType, amo
 
 function song(): HTMLAudioElement {
   if (track) return track;
-  const el = new Audio(TRACK);
+  const prior = (window as unknown as { __bitbiteSong?: HTMLAudioElement }).__bitbiteSong;
+  const el = prior instanceof HTMLAudioElement ? prior : new Audio(TRACK);
   el.loop = true;
   el.preload = "auto";
   el.volume = muted ? 0 : SONG_VOLUME;

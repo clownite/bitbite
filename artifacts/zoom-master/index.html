@@ -15,7 +15,7 @@
     <style>
       html, body {
         margin: 0;
-        background: #000000;
+        background: #8d976c;
         min-height: 100%;
       }
       body.zoom-splash-on #root {
@@ -25,214 +25,156 @@
         position: fixed;
         inset: 0;
         z-index: 2147483647;
+        background: #8d976c;
+        overflow: hidden;
+      }
+      #splash-screen.hidden { display: none !important; }
+      .gb-boot {
+        box-sizing: border-box;
+        height: 100%;
         display: flex;
         flex-direction: column;
+        background: #8d976c;
+        border: 8px solid #10140c;
+        border-radius: 18px 18px 22px 22px;
+        box-shadow: inset 0 0 0 2px #d7dec4, inset 0 0 0 6px #5e664e;
+      }
+      .gb-boot-top {
+        height: 22px;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 5px;
+        padding: 0 16px;
+      }
+      .gb-boot-top i { width: 10px; height: 10px; background: #9a3b3b; }
+      .gb-boot-top i:nth-child(2) { background: #c4b15a; }
+      .gb-boot-top i:nth-child(3) { background: #3d6b3a; }
+      .gb-boot-lcd {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+        margin: 6px 16px 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         justify-content: center;
-        background: #000000;
-        opacity: 1;
-        isolation: isolate;
+        gap: 18px;
+        background: #9bbc0f;
+        border: 9px solid #12160e;
+        border-radius: 12px;
+        box-shadow: inset 0 0 0 3px #2a3422, 0 0 0 4px #8d976c;
         overflow: hidden;
-        transform: translateZ(0);
-        -webkit-transform: translateZ(0);
       }
-      #splash-screen.hidden {
-        opacity: 0;
-        pointer-events: none;
-        display: none !important;
-      }
-      #splash-screen .splash-sky {
+      .gb-boot-lcd::after {
+        content: "";
         position: absolute;
         inset: 0;
-        background: #000000;
-      }
-      #splash-screen .splash-copy {
-        position: relative;
-        z-index: 4;
-        text-align: center;
-        margin-top: -8vh;
-        padding: 0 24px;
-      }
-      .splash-in {
-        opacity: 0;
-        animation: splash-in 2.4s cubic-bezier(.16, 1, .3, 1) forwards;
-      }
-      @keyframes splash-in {
-        0% { opacity: 0; }
-        100% { opacity: 1; }
-      }
-      .splash-title {
-        position: relative;
-        display: inline-block;
-        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      }
-      .splash-m { position: relative; }
-      #splash-gift {
-        position: absolute;
-        width: 34px;
-        height: 34px;
-        left: 6px;
-        top: -20px;
-        transform: rotate(16deg);
-        image-rendering: pixelated;
         pointer-events: none;
+        background: repeating-linear-gradient(180deg, transparent 0 2px, rgba(15, 56, 15, 0.06) 2px 3px);
       }
-      #splash-screen,
-      #splash-screen * {
-        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-      }
-      #splash-screen .splash-title {
-        margin: 0;
-        font-weight: 900;
-        font-size: 34px;
-        letter-spacing: 0.06em;
-        color: #fff8ee;
-        text-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-      }
-      #splash-screen .splash-sub {
-        margin-top: 14px;
-        font-size: 28px;
-        font-weight: 800;
-        font-style: italic;
-        letter-spacing: 0;
-        line-height: 1.15;
-        color: #fff8ee;
-        text-transform: none;
-        animation: none;
-      }
-      #splash-screen .splash-sub span {
-        display: block;
-        color: #fff8ee;
-      }
-      #splash-screen .splash-line {
-        display: block;
-      }
-      #splash-snow {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
+      #splash-word {
+        position: relative;
         z-index: 1;
-        display: block;
-        pointer-events: none;
+        width: 232px;
+        height: 40px;
+        image-rendering: pixelated;
+        image-rendering: crisp-edges;
       }
-      .splash-noel {
-        position: absolute;
-        inset: 0;
-        z-index: 2;
-        pointer-events: none;
-        background: linear-gradient(180deg, rgba(8, 18, 40, 0.2) 0%, rgba(10, 24, 40, 0.05) 36%, rgba(6, 14, 28, 0.32) 100%);
-      }
-      .splash-dock {
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 5;
-        padding: 0 22px max(18px, env(safe-area-inset-bottom, 0px));
-      }
-      .splash-meter {
+      .gb-load-track {
         position: relative;
-        z-index: 5;
-        margin: 0 34px 14px;
-        height: 3px;
-        border-radius: 99px;
-        background: rgba(255, 255, 255, 0.28);
-        overflow: hidden;
+        z-index: 1;
+        width: 168px;
+        height: 14px;
+        box-sizing: border-box;
+        padding: 2px;
+        border: 3px solid #0f380f;
+        background: #8bac0f;
       }
-      .splash-meter span {
+      .gb-load-track i {
         display: block;
         height: 100%;
         width: 0;
-        background: #ffffff;
-        box-shadow: 0 0 8px #ffffff, 0 0 16px rgba(255, 255, 255, 0.95);
-        animation: splash-meter 2.4s linear forwards;
+        background: #0f380f;
+        animation: gb-load 2.2s steps(11, end) forwards;
       }
-      @keyframes splash-meter {
-        to { width: 100%; }
+      @keyframes gb-load { to { width: 100%; } }
+      .gb-boot-console { position: relative; height: 118px; flex-shrink: 0; }
+      .gb-boot-dpad { position: absolute; left: 16px; top: 4px; width: 78px; height: 78px; }
+      .gb-boot-dpad i, .gb-boot-dpad b {
+        position: absolute;
+        background: linear-gradient(160deg, #5a5a5a, #1c1c1c 55%, #111);
+        box-shadow: inset 2px 2px 0 #7a7a7a, inset -2px -3px 0 #0a0a0a, 0 3px 0 #111;
+        border-radius: 4px;
       }
-      #splash-enter {
-        position: relative;
-        z-index: 5;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 76px;
-        height: 76px;
-        margin: 0 auto;
-        padding: 0;
-        border: none;
-        border-radius: 0;
-        background: transparent;
-        cursor: pointer;
-      }
-      #splash-cookie {
-        display: block;
-        width: 64px;
-        height: 64px;
-        visibility: hidden;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-        pointer-events: none;
-      }
-      .splash-bit {
-        position: fixed;
-        image-rendering: pixelated;
-        image-rendering: crisp-edges;
-        pointer-events: none;
-        z-index: 2147483647;
-      }
+      .gb-boot-dpad i:first-child { left: 28px; top: 0; width: 22px; height: 78px; }
+      .gb-boot-dpad i:nth-child(2) { left: 0; top: 28px; width: 78px; height: 22px; }
+      .gb-boot-dpad b { left: 28px; top: 28px; width: 22px; height: 22px; border-radius: 50%; background: #1a1a1a; }
+      .gb-boot-pills { position: absolute; left: 50%; bottom: 8px; display: flex; gap: 12px; transform: translateX(-50%); }
+      .gb-boot-pills i { width: 28px; height: 10px; border-radius: 8px; background: #1c1c1c; box-shadow: inset 1px 1px 0 #666; transform: rotate(-28deg); }
+      .gb-boot-face { position: absolute; right: 12px; top: 2px; width: 112px; height: 92px; }
+      .gb-boot-a, .gb-boot-b { position: absolute; border-radius: 50%; }
+      .gb-boot-a { right: 0; top: 0; width: 50px; height: 50px; background: radial-gradient(circle at 34% 30%, #5ec46a, #1f7a32 58%, #0d4a18); box-shadow: inset 2px 2px 0 #b6f0a8, 0 4px 0 #06240c; }
+      .gb-boot-b { left: 6px; bottom: 0; width: 38px; height: 38px; background: radial-gradient(circle at 34% 30%, #e07078, #9a2834 58%, #5c121c); box-shadow: inset 2px 2px 0 #ffc0c0, 0 3px 0 #3a1014; }
+      .gb-boot-speaker { position: absolute; right: 10px; bottom: 8px; display: flex; gap: 4px; transform: rotate(32deg); }
+      .gb-boot-speaker i { width: 3px; height: 16px; border-radius: 2px; background: #3e4630; }
       #splash-retry-btn {
         display: none;
-        position: relative;
+        position: absolute;
+        left: 50%;
+        bottom: 132px;
         z-index: 5;
-        margin: 0 auto 12px;
-        padding: 12px 28px;
-        border-radius: 999px;
-        border: 1px solid rgba(255,255,255,0.22);
-        background: rgba(255,255,255,0.08);
-        color: #fff8ee;
+        transform: translateX(-50%);
+        padding: 8px 16px;
+        border: 3px solid #0f380f;
+        background: #c6e35a;
+        color: #0f380f;
+        font-family: ui-monospace, monospace;
         font-weight: 700;
-        font-size: 13px;
-        letter-spacing: 0.08em;
       }
     </style>
   </head>
   <body class="zoom-splash-on">
-    <div id="splash-screen" role="dialog" aria-label="Enter BitBite">
-      <div class="splash-sky"></div>
-      <div class="splash-copy">
-        <div class="splash-title splash-in" style="animation-delay: 0.35s">BITBITE</div>
-        <div class="splash-sub">
-          <span class="splash-line splash-in" id="splash-line-0" style="animation-delay: 1.7s">One small life.</span>
-          <span class="splash-line splash-in" id="splash-line-1" style="animation-delay: 3.1s">A world that answers.</span>
+    <div id="splash-screen" role="status" aria-label="Loading">
+      <div class="gb-boot">
+        <div class="gb-boot-top" aria-hidden="true"><i></i><i></i><i></i></div>
+        <div class="gb-boot-lcd">
+          <canvas id="splash-word" width="116" height="20" aria-label="Loading"></canvas>
+          <div class="gb-load-track" aria-hidden="true"><i id="splash-meter-fill"></i></div>
+        </div>
+        <div class="gb-boot-console" aria-hidden="true">
+          <div class="gb-boot-dpad"><i></i><i></i><b></b></div>
+          <div class="gb-boot-pills"><i></i><i></i></div>
+          <div class="gb-boot-face"><b class="gb-boot-b"></b><b class="gb-boot-a"></b></div>
+          <div class="gb-boot-speaker"><i></i><i></i><i></i></div>
         </div>
       </div>
-      <!-- NOEL: la neve. Toglila dopo Natale. Lo sfondo nero resta. -->
-      <canvas id="splash-snow" aria-hidden="true"></canvas>
-      <div class="splash-dock">
-        <button type="button" id="splash-retry-btn">Riprova</button>
-        <div class="splash-meter" aria-hidden="true"><span id="splash-meter-fill"></span></div>
-        <button type="button" id="splash-enter" disabled aria-label="Enter"><canvas id="splash-cookie" width="11" height="11"></canvas></button>
-      </div>
+      <button type="button" id="splash-retry-btn">Riprova</button>
     </div>
     <script>
       (function() {
-        var SPLASH_SUB = {
-          en: "Enter the game",
-          it: "Entra in gioco",
-          es: "Entra al juego",
-          fil: "Pasok sa laro",
-          ru: "Войти в игру",
-          uk: "Увійти в гру"
-        };
-        function splashLang() {
-          try {
-            var saved = localStorage.getItem("zoom-lang");
-            if (saved && SPLASH_SUB[saved]) return saved;
-          } catch (e) {}
-          return "en";
-        }
         var splash = document.getElementById("splash-screen");
+        window.__zoomWantMusic = true;
+        try {
+          if (localStorage.getItem("zoom-bgm-muted") !== "1") {
+            var bootSong = new Audio("/audio/lonely-cherry-tree.mp3");
+            bootSong.loop = true;
+            bootSong.preload = "auto";
+            bootSong.volume = 0.5;
+            bootSong.setAttribute("playsinline", "true");
+            window.__bitbiteSong = bootSong;
+            var started = bootSong.play();
+            if (started && started.catch) started.catch(function () {});
+            var nudge = function () {
+              if (bootSong.paused) {
+                var again = bootSong.play();
+                if (again && again.catch) again.catch(function () {});
+              }
+            };
+            window.addEventListener("pointerdown", nudge, true);
+            window.addEventListener("touchstart", nudge, true);
+          }
+        } catch (e) {}
         window.__zoomSplashStart = performance.now();
         var splashHidden = false;
 
@@ -248,153 +190,57 @@
         }
         window.__hideHtmlSplash = hideSplash;
 
-        var enterBtn = document.getElementById("splash-enter");
-        var splashReady = false;
-        function armEnter() {
-          if (splashReady) return;
-          splashReady = true;
-          if (!enterBtn) return;
-          enterBtn.disabled = false;
-          enterBtn.classList.add("is-ready");
-        }
-        function paintCookie(canvas) {
-          var src = document.createElement("canvas");
-          src.width = 64;
-          src.height = 64;
-          var sctx = src.getContext("2d");
-          var ctx = canvas.getContext("2d");
-          if (!sctx || !ctx) return;
-          sctx.font = "54px \"Apple Color Emoji\", \"Segoe UI Emoji\", \"Noto Color Emoji\", sans-serif";
-          sctx.textAlign = "center";
-          sctx.textBaseline = "middle";
-          sctx.fillText("🍪", 32, 36);
-          var pixels = sctx.getImageData(0, 0, 64, 64).data;
-          var minX = 64, minY = 64, maxX = 0, maxY = 0, seen = false;
-          for (var y = 0; y < 64; y++) {
-            for (var x = 0; x < 64; x++) {
-              if (pixels[(y * 64 + x) * 4 + 3] < 20) continue;
-              seen = true;
-              if (x < minX) minX = x;
-              if (y < minY) minY = y;
-              if (x > maxX) maxX = x;
-              if (y > maxY) maxY = y;
-            }
-          }
-          if (!seen) return;
-          var cols = 11;
-          var rows = Math.max(11, Math.round(((maxY - minY + 1) / (maxX - minX + 1)) * cols));
-          canvas.width = cols;
+        var GLYPH = {
+          L: ["#...", "#...", "#...", "#...", "#...", "#...", "####"],
+          O: [".##.", "#..#", "#..#", "#..#", "#..#", "#..#", ".##."],
+          A: [".##.", "#..#", "#..#", "####", "#..#", "#..#", "#..#"],
+          D: ["###.", "#..#", "#..#", "#..#", "#..#", "#..#", "###."],
+          I: ["###", ".#.", ".#.", ".#.", ".#.", ".#.", "###"],
+          N: ["#..#", "##.#", "##.#", "#.##", "#.##", "#..#", "#..#"],
+          G: [".##.", "#..#", "#...", "#.##", "#..#", "#..#", ".###"]
+        };
+        (function drawLoading() {
+          var canvas = document.getElementById("splash-word");
+          if (!canvas) return;
+          var word = "LOADING";
+          var rows = 7;
+          var gap = 1;
+          var width = 0;
+          for (var n = 0; n < word.length; n++) width += GLYPH[word[n]][0].length + (n ? gap : 0);
+          canvas.width = width;
           canvas.height = rows;
-          ctx.imageSmoothingEnabled = false;
-          ctx.drawImage(src, minX, minY, maxX - minX + 1, maxY - minY + 1, 0, 0, cols, rows);
-          var img = ctx.getImageData(0, 0, cols, rows);
-          var data = img.data;
-          var cx = (cols - 1) / 2;
-          var cy = (rows - 1) / 2;
-          var rad = Math.min(cx, cy) + 0.45;
-          function doughAt(px, py) {
-            var i = (py * cols + px) * 4;
-            var r = data[i], g = data[i + 1], b = data[i + 2];
-            return data[i + 3] > 40 && !(r < 140 && g < 100 && r > g + 15 && b < r - 25);
-          }
-          for (y = 0; y < rows; y++) {
-            for (x = 0; x < cols; x++) {
-              if (Math.sqrt((x - cx) * (x - cx) + (y - cy) * (y - cy)) > rad) continue;
-              if (data[(y * cols + x) * 4 + 3] > 40) continue;
-              var best = 1e9;
-              var color = [214, 140, 60];
-              for (var yy = 0; yy < rows; yy++) {
-                for (var xx = 0; xx < cols; xx++) {
-                  if (!doughAt(xx, yy)) continue;
-                  var dist = (xx - x) * (xx - x) + (yy - y) * (yy - y);
-                  if (dist < best) {
-                    best = dist;
-                    var ii = (yy * cols + xx) * 4;
-                    color = [data[ii], data[ii + 1], data[ii + 2]];
-                  }
-                }
+          var ctx = canvas.getContext("2d");
+          if (!ctx) return;
+          ctx.fillStyle = "#0f380f";
+          var x0 = 0;
+          for (n = 0; n < word.length; n++) {
+            var rowsOf = GLYPH[word[n]];
+            for (var y = 0; y < rowsOf.length; y++) {
+              for (var x = 0; x < rowsOf[y].length; x++) {
+                if (rowsOf[y][x] === "#") ctx.fillRect(x0 + x, y, 1, 1);
               }
-              var put = (y * cols + x) * 4;
-              data[put] = color[0];
-              data[put + 1] = color[1];
-              data[put + 2] = color[2];
-              data[put + 3] = 255;
             }
+            x0 += rowsOf[0].length + gap;
           }
-          ctx.putImageData(img, 0, 0);
+        })();
+        var barDone = false;
+        function gameReady() {
+          var root = document.getElementById("root");
+          return !!(root && (root.querySelector(".gb-app") || root.querySelector(".zoom-splash-screen")));
         }
-        var cookie = document.getElementById("splash-cookie");
-        if (cookie) {
-          paintCookie(cookie);
-          cookie.style.visibility = "visible";
+        function tryEnter() {
+          if (!barDone || splashHidden || !gameReady()) return;
+          hideSplash();
         }
-        function breakCookie() {
-          if (!cookie) return;
-          var box = cookie.getBoundingClientRect();
-          var sw = cookie.width;
-          var sh = cookie.height;
-          var cuts = [
-            { x: 0, y: 0, dx: -52, dy: -78, rot: -32 },
-            { x: 1, y: 0, dx: 56, dy: -70, rot: 28 },
-            { x: 0, y: 1, dx: -40, dy: -30, rot: 22 },
-            { x: 1, y: 1, dx: 44, dy: -24, rot: -20 }
-          ];
-          cookie.style.visibility = "hidden";
-          cuts.forEach(function (cut) {
-            var pw = Math.ceil(sw / 2);
-            var ph = Math.ceil(sh / 2);
-            var bit = document.createElement("canvas");
-            bit.width = pw;
-            bit.height = ph;
-            bit.className = "splash-bit";
-            var bctx = bit.getContext("2d");
-            if (bctx) {
-              bctx.imageSmoothingEnabled = false;
-              bctx.drawImage(cookie, cut.x * Math.floor(sw / 2), cut.y * Math.floor(sh / 2), pw, ph, 0, 0, pw, ph);
-            }
-            bit.style.left = (box.left + cut.x * box.width / 2) + "px";
-            bit.style.top = (box.top + cut.y * box.height / 2) + "px";
-            bit.style.width = (box.width / 2) + "px";
-            bit.style.height = (box.height / 2) + "px";
-            document.body.appendChild(bit);
-            bit.animate([
-              { transform: "translate(0px, 0px) rotate(0deg)", opacity: 1 },
-              { transform: "translate(" + cut.dx + "px, " + cut.dy + "px) rotate(" + cut.rot + "deg)", opacity: 0 }
-            ], { duration: 460, easing: "cubic-bezier(.2,.7,.2,1)", fill: "forwards" });
-            setTimeout(function () { bit.remove(); }, 480);
-          });
-        }
-        if (enterBtn) {
-          enterBtn.onclick = function() {
-            if (!splashReady || enterBtn.disabled || enterBtn.dataset.broke) return;
-            enterBtn.dataset.broke = "1";
-            enterBtn.disabled = true;
-            breakCookie();
-            window.__zoomCookieTapped = true;
-            window.__zoomWantMusic = true;
-            if (typeof window.__primeZoomAudio === "function") window.__primeZoomAudio();
-            setTimeout(function () {
-              if (typeof window.__primeZoomAudio === "function") window.__primeZoomAudio();
-            }, 520);
-          };
+        function arm() {
+          barDone = true;
+          window.__zoomCookieTapped = true;
+          tryEnter();
         }
         var meter = document.getElementById("splash-meter-fill");
-        if (meter) meter.addEventListener("animationend", armEnter);
-        setTimeout(armEnter, 2600);
-        var SPLASH_COPY = {
-          en: ["One small life.", "A world that answers."],
-          it: ["Una vita piccola.", "Un mondo che risponde."],
-          es: ["Una vida pequeña.", "Un mundo que responde."],
-          fil: ["Isang munting buhay.", "Isang mundong sumasagot."],
-          ru: ["Одна маленькая жизнь.", "Мир, который отвечает."],
-          uk: ["Одне маленьке життя.", "Світ, який відповідає."]
-        };
-        var lines = SPLASH_COPY[splashLang()] || SPLASH_COPY.en;
-        var line0 = document.getElementById("splash-line-0");
-        var line1 = document.getElementById("splash-line-1");
-        if (line0) line0.textContent = lines[0];
-        if (line1) line1.textContent = lines[1];
-
+        if (meter) meter.addEventListener("animationend", arm);
+        setTimeout(arm, 2300);
+        setInterval(tryEnter, 80);
         setTimeout(function() {
           if (!window.__zoomReactBooted) {
             var btn = document.getElementById("splash-retry-btn");
@@ -403,98 +249,6 @@
         }, 8000);
 
         function applySplashSubtitle() { /**/ }
-
-        (function snowAndGift() {
-          var gift = document.getElementById("splash-gift");
-          if (gift) {
-            var g = gift.getContext("2d");
-            if (g) {
-              var ink = {
-                r: "#e23b4a",
-                w: "#ffd0d6",
-                d: "#8e1830",
-                g: "#f6d56a",
-                h: "#fff3c4",
-                b: "#d4263c",
-                s: "#9a1830",
-                l: "#ff6d7c"
-              };
-              var pix = [
-                "....rr....rr....",
-                "...rwwr..rwwr...",
-                "..rd.rrrr.dr....",
-                "...rrrrrrrrr....",
-                "....rrggrr......",
-                ".....rgggr......",
-                "..llllllllllll..",
-                ".lbbbbbbbbbbbbl.",
-                ".bbbbbbggbbbbbb.",
-                ".bbbbbbggbbbbbb.",
-                ".bbbggggggggbbb.",
-                ".bbbbhhggbbbbbb.",
-                ".bbbbbbggbbbbbb.",
-                ".sbbbbbbbbbbbbs.",
-                "..ssssssssssss..",
-                "................"
-              ];
-              pix.forEach(function (row, y) {
-                row.split("").forEach(function (bit, x) {
-                  if (!ink[bit]) return;
-                  g.fillStyle = ink[bit];
-                  g.fillRect(x, y, 1, 1);
-                });
-              });
-            }
-          }
-          var canvas = document.getElementById("splash-snow");
-          if (!canvas) return;
-          var ctx = canvas.getContext("2d");
-          if (!ctx) return;
-          var dpr = 1;
-          var flakes = [];
-          for (var i = 0; i < 90; i++) {
-            flakes.push({
-              x: Math.random(),
-              y: Math.random(),
-              r: 0.8 + Math.random() * 2.2,
-              v: 0.03 + Math.random() * 0.1,
-              drift: (Math.random() - 0.5) * 0.03,
-              a: 0.45 + Math.random() * 0.5
-            });
-          }
-          function resize() {
-            dpr = Math.min(window.devicePixelRatio || 1, 2);
-            var rect = canvas.getBoundingClientRect();
-            canvas.width = Math.max(1, Math.round(rect.width * dpr));
-            canvas.height = Math.max(1, Math.round(rect.height * dpr));
-          }
-          resize();
-          window.addEventListener("resize", resize);
-          var last = performance.now();
-          function frame(now) {
-            if (!document.getElementById("splash-screen")) return;
-            var rect = canvas.getBoundingClientRect();
-            if (Math.round(rect.width * dpr) !== canvas.width) resize();
-            var dt = Math.min(0.034, (now - last) / 1000);
-            last = now;
-            var w = canvas.width / dpr;
-            var h = canvas.height / dpr;
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            ctx.clearRect(0, 0, w, h);
-            for (var n = 0; n < flakes.length; n++) {
-              var flake = flakes[n];
-              flake.y += dt * flake.v;
-              flake.x += dt * flake.drift + Math.sin(now / 900 + n) * dt * 0.015;
-              if (flake.y > 1.05) { flake.y = -0.02; flake.x = Math.random(); }
-              ctx.beginPath();
-              ctx.fillStyle = "rgba(255,255,255," + flake.a + ")";
-              ctx.arc(flake.x * w, flake.y * h, flake.r, 0, Math.PI * 2);
-              ctx.fill();
-            }
-            requestAnimationFrame(frame);
-          }
-          requestAnimationFrame(frame);
-        })();
 
         var retryBtn = document.getElementById("splash-retry-btn");
         if (retryBtn) {
