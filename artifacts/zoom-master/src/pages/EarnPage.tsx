@@ -481,10 +481,16 @@ export function EarnPage({ referralCode, referralCount, referralSpeedBonus, refe
           <p className="redeem-hint">{t("earn.redeemHint")}</p>
           <input
             type="text"
+            inputMode="text"
+            enterKeyHint="done"
+            autoCapitalize="characters"
+            autoCorrect="off"
+            autoComplete="off"
+            spellCheck={false}
             value={redeemInput}
             onChange={(e) => setRedeemInput(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === "Enter" && handleRedeem()}
-            placeholder="····"
+            placeholder="CODICE"
             className="redeem-input"
             data-testid="input-redeem-code"
           />

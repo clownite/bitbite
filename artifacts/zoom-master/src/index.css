@@ -7325,12 +7325,13 @@ body { background: #0c1008; }
 .gb-app .gb-lcd {
   margin: 6px 16px 8px !important;
   border: 9px solid #12160e !important;
-  border-radius: 12px !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
   box-shadow:
     inset 0 0 0 3px #2a3422,
     0 0 0 4px #8d976c !important;
 }
-.gb-app .gb-lcd::after { border-radius: 4px; }
+.gb-app .gb-lcd::after { border-radius: 10px; }
 
 .gb-settings-open {
   display: flex;
@@ -7543,15 +7544,18 @@ body { background: #0c1008; }
 }
 .gb-app .card-status {
   animation: none !important;
+  transform: none !important;
   box-sizing: border-box;
   left: 0 !important;
   right: 0 !important;
   top: 0 !important;
   bottom: 0 !important;
-  width: 100%;
+  width: auto !important;
   max-width: 100%;
-  padding: 8px 40px 14px;
+  padding: 8px 44px 14px;
 }
+.gb-app .card-reel-nav.is-prev { left: 10px !important; }
+.gb-app .card-reel-nav.is-next { right: 10px !important; }
 .gb-app .card-time {
   font-size: 28px;
   max-width: 100%;
@@ -7758,5 +7762,69 @@ body { background: #0c1008; }
 .gb-app.tab-farm .gb-plus {
   height: 168px;
   min-height: 168px;
+}
+
+/* The lime screen sits inside the bezel. Padding is the dark lip, so the
+   green panel — including the clock, weight and hungry cards — cannot
+   paint over the rounded frame. */
+.gb-app .gb-lcd {
+  background: #12160e !important;
+  padding: 5px !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+}
+.gb-app .gb-lcd > .relative {
+  background: #9bbc0f;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden !important;
+  min-height: 0;
+}
+.gb-app .gb-lcd > .gb-nav.is-in-screen {
+  background: #9bbc0f !important;
+  border-radius: 0 0 10px 10px;
+  margin: 0 !important;
+  overflow: hidden;
+}
+
+/* Redeem code: dark ink on a light field, left aligned, so each letter
+   stays visible while it is typed. */
+.gb-app .redeem-input {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  box-sizing: border-box;
+  margin-top: 12px;
+  padding: 12px 14px;
+  border: 3px solid #0f380f;
+  border-radius: 4px;
+  background: #f4f6d8 !important;
+  color: #14210c !important;
+  -webkit-text-fill-color: #14210c;
+  caret-color: #14210c;
+  text-align: left;
+  text-transform: none;
+  letter-spacing: 0.04em;
+  font-size: 18px !important;
+  line-height: 1.3;
+  font-weight: 700;
+  opacity: 1;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  touch-action: manipulation;
+  pointer-events: auto !important;
+}
+.gb-app .redeem-input::placeholder {
+  color: #5d6b32;
+  -webkit-text-fill-color: #5d6b32;
+  letter-spacing: 0.08em;
+  opacity: 1;
+}
+.gb-app .redeem-input:focus {
+  background: #fffef4 !important;
+  color: #14210c !important;
+  -webkit-text-fill-color: #14210c;
+  caret-color: #14210c;
+  outline: 2px solid #0f380f;
+  outline-offset: 1px;
 }
 

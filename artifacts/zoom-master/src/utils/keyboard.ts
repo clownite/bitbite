@@ -75,6 +75,10 @@ export function pinnedTop(metrics: {
 }
 
 function place() {
+  if (field && field.isConnected && staysInScreen(field)) {
+    scrollField(field);
+    return;
+  }
   if (!pinned || !field || !pinned.isConnected) return;
   const vv = window.visualViewport;
   if (!vv) return;
@@ -104,9 +108,54 @@ function release() {
   if (pinned) restore(pinned);
   pinned = null;
   field = null;
+  clearScreenPadding();
+}
+
+function keyboardCover(): number {
+  const vv = window.visualViewport;
+  if (!vv) return 0;
+  return Math.max(0, Math.round(window.innerHeight - vv.offsetTop - vv.height));
+}
+
+/** The redeem field stays in the screen. Pulling it out with position:fixed
+    clips the letters, so what you type disappears. */
+function staysInScreen(el: HTMLElement): boolean {
+  return !!el.closest(".redeem-input");
+}
+
+function scrollField(el: HTMLElement) {
+  const page = el.closest(".earn-page") as HTMLElement | null;
+  const cover = keyboardCover();
+  if (page) page.style.paddingBottom = cover > 40 ? `${cover + 28}px` : "";
+  const vv = window.visualViewport;
+  const bandTop = (vv?.offsetTop ?? 0) + 12;
+  const bandBottom = (vv ? vv.offsetTop + vv.height : window.innerHeight) - 18;
+  const rect = el.getBoundingClientRect();
+  const scroller = page && page.scrollHeight > page.clientHeight + 2 ? page : null;
+  if (scroller) {
+    if (rect.bottom > bandBottom) scroller.scrollTop += rect.bottom - bandBottom + 20;
+    else if (rect.top < bandTop) scroller.scrollTop -= bandTop - rect.top + 12;
+    return;
+  }
+  if (rect.bottom > bandBottom || rect.top < bandTop) {
+    el.scrollIntoView({ block: "center", inline: "nearest" });
+  }
+}
+
+function clearScreenPadding() {
+  document.querySelectorAll<HTMLElement>(".earn-page").forEach((page) => {
+    page.style.paddingBottom = "";
+  });
 }
 
 function hold(nextField: HTMLElement) {
+  if (staysInScreen(nextField)) {
+    if (pinned) restore(pinned);
+    pinned = null;
+    field = nextField;
+    scrollField(nextField);
+    return;
+  }
   const next = keeperOf(nextField);
   if (pinned && pinned !== next) restore(pinned);
   pinned = next;

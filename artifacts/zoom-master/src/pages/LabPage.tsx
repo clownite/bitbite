@@ -337,7 +337,7 @@ export function LabPage({
             display: "flex",
             flexDirection: "column",
             position: "relative",
-            borderRadius: 26,
+            borderRadius: 0,
             overflow: "hidden",
             background: "transparent",
             border: "none",
