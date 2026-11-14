@@ -3690,7 +3690,7 @@ body, body * {
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif !important;
 }
 .christmas-snow {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 70;
   overflow: hidden;
@@ -7316,6 +7316,7 @@ body { background: #0c1008; }
 
 /* One closed shell. The screen sits in a dark lip that meets on all four sides. */
 .gb-app {
+  min-height: 0 !important;
   border: 8px solid #10140c !important;
   border-radius: 18px 18px 22px 22px !important;
   box-shadow:
@@ -7463,6 +7464,28 @@ body { background: #0c1008; }
 }
 .gb-app.tab-lab .gb-home-pet.is-fed .life-pet {
   animation: gb-pet-happy 0.4s ease-in-out 3;
+}
+
+/* One pixel heart and one pixel clover, only after an action. */
+.pixel-pop {
+  position: absolute;
+  left: 50%;
+  top: 22%;
+  z-index: 8;
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  pointer-events: none;
+  animation: pixel-pop-up 1.35s ease forwards;
+}
+.pixel-pop svg { image-rendering: pixelated; }
+@keyframes pixel-pop-up {
+  0% { transform: translate(-50%, 8px); opacity: 0; }
+  16% { opacity: 1; }
+  100% { transform: translate(-50%, -46px); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pixel-pop { animation-duration: 0.8s; }
 }
 
 /* The four daily taps: hearts, plus fireworks, confetti, or a clover. */
@@ -7858,4 +7881,7 @@ body { background: #0c1008; }
   outline: 2px solid #0f380f;
   outline-offset: 1px;
 }
+
+/* The phone stays black above the shell, the way the loading screen does. */
+html, body, #root { background: #000 !important; }
 

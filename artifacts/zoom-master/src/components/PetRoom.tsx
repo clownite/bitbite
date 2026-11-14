@@ -5,6 +5,7 @@ import { playClick, playHappy, playNo } from "../audio/sfx";
 import { runTap } from "../utils/tap";
 import { useT } from "../i18n/LanguageContext";
 import { PixelCookie } from "./PixelCookie";
+import { PixelHeart } from "./PixelPop";
 
 function PixelBowl({ cookies }: { cookies: number }) {
   const spots = [
@@ -188,8 +189,8 @@ export function PetRoom({
         </button>
       ) : null}
       {thanks > 0 ? (
-        <span className="pet-hearts" key={thanks} aria-hidden>
-          <i /><i /><i />
+        <span className="pixel-pop" key={thanks} aria-hidden>
+          <PixelHeart />
         </span>
       ) : null}
       {toast > 0 ? <div className="pet-wake">+{toast} XP</div> : null}

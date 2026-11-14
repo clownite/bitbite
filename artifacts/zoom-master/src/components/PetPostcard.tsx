@@ -4,6 +4,7 @@ import { postcardAt, postcardLine } from "../pet/postcards";
 import { grantXp } from "../pet/petProgress";
 import { hapticSoft } from "../utils/haptic";
 import { runTap } from "../utils/tap";
+import { PixelHeart } from "./PixelPop";
 
 /** First letter after a short while on Home, then a quiet gap, and only a few a day. */
 const FIRST_MS = 18_000;
@@ -154,8 +155,8 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
         )}
       </button>
       {hearts && (
-        <span className="pet-hearts" aria-hidden>
-          <i /><i /><i />
+        <span className="pixel-pop" aria-hidden>
+          <PixelHeart />
         </span>
       )}
     </>
