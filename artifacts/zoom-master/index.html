@@ -23,8 +23,14 @@
       }
       #splash-screen {
         position: fixed;
-        inset: 0;
+        left: 0;
+        right: 0;
+        top: 0;
         z-index: 2147483647;
+        box-sizing: border-box;
+        height: var(--tg-viewport-stable-height, 100dvh);
+        max-height: 100dvh;
+        padding-top: calc(max(var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px)) + var(--tg-content-safe-area-inset-top, 0px));
         background: #8d976c;
         overflow: hidden;
       }
@@ -57,14 +63,29 @@
         margin: 6px 16px 8px;
         display: flex;
         flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 18px;
         background: #9bbc0f;
         border: 9px solid #12160e;
         border-radius: 12px;
-        box-shadow: inset 0 0 0 3px #2a3422, 0 0 0 4px #8d976c;
+        box-shadow: inset 0 0 0 3px #2a3422, 0 0 0 4px #8d976c, 0 14px 22px rgba(12, 16, 8, 0.28);
         overflow: hidden;
+      }
+      .gb-boot-stage {
+        position: relative;
+        z-index: 1;
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        filter: drop-shadow(4px 6px 0 rgba(15, 56, 15, 0.28));
+      }
+      .gb-boot-nav {
+        height: 46px;
+        margin: 2px 4px 2px;
+        flex-shrink: 0;
+        border-top: 3px solid #10260e;
       }
       .gb-boot-lcd::after {
         content: "";
@@ -96,9 +117,24 @@
         height: 100%;
         width: 0;
         background: #0f380f;
-        animation: gb-load 2.2s steps(11, end) forwards;
+        box-shadow: 6px 0 0 rgba(15, 56, 15, 0.18);
+        animation: gb-load 3s linear forwards;
       }
       @keyframes gb-load { to { width: 100%; } }
+      .boot-snow { position: absolute; inset: 0; z-index: 2; overflow: hidden; pointer-events: none; }
+      .boot-snow i {
+        position: absolute;
+        top: -12px;
+        color: rgba(255, 255, 255, 0.8);
+        font-style: normal;
+        line-height: 1;
+        text-shadow: 0 1px 0 rgba(15, 56, 15, 0.25), 0 0 8px rgba(255, 255, 255, 0.5);
+        animation: boot-fall linear infinite;
+      }
+      @keyframes boot-fall {
+        from { transform: translate3d(0, -12px, 0); }
+        to { transform: translate3d(var(--drift), 110%, 0); }
+      }
       .gb-boot-console { position: relative; height: 118px; flex-shrink: 0; }
       .gb-boot-dpad { position: absolute; left: 16px; top: 4px; width: 78px; height: 78px; }
       .gb-boot-dpad i, .gb-boot-dpad b {
@@ -139,8 +175,17 @@
       <div class="gb-boot">
         <div class="gb-boot-top" aria-hidden="true"><i></i><i></i><i></i></div>
         <div class="gb-boot-lcd">
-          <canvas id="splash-word" width="116" height="20" aria-label="Loading"></canvas>
-          <div class="gb-load-track" aria-hidden="true"><i id="splash-meter-fill"></i></div>
+          <div class="gb-boot-stage">
+            <canvas id="splash-word" width="116" height="20" aria-label="Loading"></canvas>
+            <div class="gb-load-track" aria-hidden="true"><i id="splash-meter-fill"></i></div>
+          </div>
+          <div class="boot-snow" aria-hidden="true">
+            <i style="left:12%;font-size:14px;animation-duration:18s;animation-delay:-4s;--drift:14px">❄</i>
+            <i style="left:38%;font-size:10px;animation-duration:22s;animation-delay:-11s;--drift:-18px">❄</i>
+            <i style="left:64%;font-size:16px;animation-duration:20s;animation-delay:-7s;--drift:10px">❄</i>
+            <i style="left:82%;font-size:11px;animation-duration:24s;animation-delay:-15s;--drift:-12px">❄</i>
+          </div>
+          <div class="gb-boot-nav" aria-hidden="true"></div>
         </div>
         <div class="gb-boot-console" aria-hidden="true">
           <div class="gb-boot-dpad"><i></i><i></i><b></b></div>
@@ -239,7 +284,7 @@
         }
         var meter = document.getElementById("splash-meter-fill");
         if (meter) meter.addEventListener("animationend", arm);
-        setTimeout(arm, 2300);
+        setTimeout(arm, 3000);
         setInterval(tryEnter, 80);
         setTimeout(function() {
           if (!window.__zoomReactBooted) {

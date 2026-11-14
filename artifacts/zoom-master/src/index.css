@@ -3698,13 +3698,23 @@ body, body * {
 }
 .christmas-snow span {
   position: absolute;
-  top: -8px;
+  top: -12px;
   border-radius: 50%;
   background: #fff;
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.35);
   animation-name: christmas-snow-fall;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
+}
+.christmas-snow span.is-flake {
+  width: auto;
+  height: auto;
+  background: none;
+  box-shadow: none;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(15, 56, 15, 0.25), 0 0 8px rgba(255, 255, 255, 0.55);
 }
 @keyframes christmas-snow-fall {
   0% { transform: translate3d(0, -12px, 0); }
@@ -6465,17 +6475,12 @@ body, body * {
   border: 2px solid #c6e84a;
   border-radius: 8px;
 }
-.gb-app.tab-wallet .christmas-snow,
-.gb-app.tab-earn .christmas-snow,
-.gb-app.tab-play .christmas-snow { display: none; }
 .gb-app.tab-lab {
   -webkit-font-smoothing: none;
   font-smooth: never;
   background-color: #8d976c;
   background-image: none;
 }
-.gb-app.tab-lab .christmas-snow,
-.gb-app.tab-farm .christmas-snow { display: none; }
 .gb-app.tab-farm {
   -webkit-font-smoothing: none;
   background-color: #8d976c;

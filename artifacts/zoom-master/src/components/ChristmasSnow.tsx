@@ -1,38 +1,53 @@
 import { useMemo } from "react";
 
-const FLAKES = 26;
+const DOTS = 9;
+const FLAKES = 5;
 
-/** A light Christmas fall. It sits over the app and does not take taps. */
+/** A quiet fall. A few dots, and a flake now and then. It never takes a tap. */
 export function ChristmasSnow() {
-  const flakes = useMemo(
-    () =>
-      Array.from({ length: FLAKES }, (_, id) => ({
-        id,
-        left: `${Math.random() * 100}%`,
-        delay: `${-Math.random() * 18}s`,
-        duration: `${14 + Math.random() * 12}s`,
-        size: `${1.5 + Math.random() * 2.2}px`,
-        opacity: 0.22 + Math.random() * 0.38,
-        drift: `${-20 + Math.random() * 40}px`,
-      })),
-    [],
-  );
+  const bits = useMemo(() => {
+    const dots = Array.from({ length: DOTS }, (_, id) => ({
+      id: `d${id}`,
+      flake: false,
+      left: `${6 + Math.random() * 88}%`,
+      delay: `${-Math.random() * 22}s`,
+      duration: `${16 + Math.random() * 14}s`,
+      size: `${1.5 + Math.random() * 1.6}px`,
+      opacity: 0.28 + Math.random() * 0.28,
+      drift: `${-16 + Math.random() * 32}px`,
+    }));
+    const flakes = Array.from({ length: FLAKES }, (_, id) => ({
+      id: `f${id}`,
+      flake: true,
+      left: `${8 + Math.random() * 84}%`,
+      delay: `${-Math.random() * 26}s`,
+      duration: `${20 + Math.random() * 12}s`,
+      size: `${12 + Math.random() * 6}px`,
+      opacity: 0.45 + Math.random() * 0.3,
+      drift: `${-24 + Math.random() * 48}px`,
+    }));
+    return [...dots, ...flakes];
+  }, []);
 
   return (
     <div className="christmas-snow" aria-hidden>
-      {flakes.map((flake) => (
+      {bits.map((bit) => (
         <span
-          key={flake.id}
+          key={bit.id}
+          className={bit.flake ? "is-flake" : undefined}
           style={{
-            left: flake.left,
-            animationDelay: flake.delay,
-            animationDuration: flake.duration,
-            width: flake.size,
-            height: flake.size,
-            opacity: flake.opacity,
-            ["--drift" as string]: flake.drift,
+            left: bit.left,
+            animationDelay: bit.delay,
+            animationDuration: bit.duration,
+            width: bit.flake ? undefined : bit.size,
+            height: bit.flake ? undefined : bit.size,
+            fontSize: bit.flake ? bit.size : undefined,
+            opacity: bit.opacity,
+            ["--drift" as string]: bit.drift,
           }}
-        />
+        >
+          {bit.flake ? "❄" : null}
+        </span>
       ))}
     </div>
   );
