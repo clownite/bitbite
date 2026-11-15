@@ -6690,7 +6690,7 @@ body, body * {
   overflow: hidden;
 }
 .gb-app.tab-lab .life-pet {
-  --cell: 13px;
+  --cell: 9px;
   top: auto;
   bottom: 6px;
   height: calc(12 * var(--cell));
