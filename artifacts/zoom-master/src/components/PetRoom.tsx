@@ -31,6 +31,24 @@ function PixelBowl({ cookies }: { cookies: number }) {
   );
 }
 
+function PixelPotion() {
+  return (
+    <svg width="22" height="26" viewBox="0 0 9 11" shapeRendering="crispEdges" aria-hidden>
+      <rect x="3" y="0" width="3" height="1" fill="#f0c27a" />
+      <rect x="3" y="1" width="3" height="1" fill="#a56b28" />
+      <rect x="3" y="2" width="3" height="1" fill="#d7f3ff" />
+      <rect x="1" y="3" width="7" height="1" fill="#9ec4d8" />
+      <rect x="0" y="4" width="1" height="6" fill="#7aa8c0" />
+      <rect x="8" y="4" width="1" height="6" fill="#7aa8c0" />
+      <rect x="1" y="4" width="7" height="2" fill="#eef8ff" />
+      <rect x="1" y="5" width="2" height="1" fill="#ffffff" />
+      <rect x="1" y="6" width="7" height="3" fill="#ff4d6d" />
+      <rect x="1" y="6" width="2" height="1" fill="#ffb3c4" />
+      <rect x="1" y="9" width="7" height="1" fill="#d12d4a" />
+    </svg>
+  );
+}
+
 function PixelLamp({ on }: { on: boolean }) {
   const glow = on ? "#ffe14a" : "#8aa0b4";
   const glass = on ? "#fff6c2" : "#243140";
@@ -176,6 +194,7 @@ export function PetRoom({
           type="button"
           className="pet-cure"
           data-testid="pet-cure"
+          aria-label={t("pet.cure")}
           onPointerDown={(event) => runTap(event, () => {
             settleFarm();
             if (cure()) praise();
@@ -185,7 +204,7 @@ export function PetRoom({
             if (cure()) praise();
           })}
         >
-          {t("pet.cure")}
+          <PixelPotion />
         </button>
       ) : null}
       {thanks > 0 ? (

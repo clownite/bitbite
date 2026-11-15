@@ -7641,10 +7641,14 @@ body { background: #0c1008; }
   box-shadow: none;
 }
 .gb-app .pet-cure {
-  display: block !important;
+  display: grid !important;
+  place-items: center;
   left: auto;
   right: 8px;
   bottom: 8px;
+  width: 40px;
+  height: 40px;
+  padding: 0;
   z-index: 16;
   border-radius: 2px;
   border: 3px solid #0f380f;
@@ -7740,6 +7744,11 @@ body { background: #0c1008; }
   max-height: 72%;
   overflow: auto;
   text-align: left;
+}
+/* The closed letter sits above the potion, so the two never share a corner. */
+.gb-home-pet:has(.pet-cure) .pet-note,
+.gb-home-pet:has(.pet-cure) .pet-note.is-open {
+  bottom: 54px !important;
 }
 
 /* More of the screen belongs to the pet. The keys underneath are smaller. */
