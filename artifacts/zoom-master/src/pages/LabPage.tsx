@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useFarm } from "../components/PetFarmButton";
 import { petCombat, petDef } from "../pet/catalog";
 import { personalPetNumber, petOwnerId } from "../pet/number";
-import { getPet, gramCost, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState } from "../pet/petProgress";
+import { getPet, gramCost, PET_TAP_RECHARGE_MS, petTapStatus, subscribePet, xpLabel, type PetState, type TapHeart } from "../pet/petProgress";
 import { startStagePayment } from "../pet/payPet";
 import { claimFarm, formatCrumbs, subscribeCrumbs } from "../pet/crumbs";
 import { dismissAway, markHere, readAway, type AwayKind } from "../pet/away";
@@ -99,6 +99,20 @@ function HeartShape({ tone }: { tone: "full" | "empty" }) {
       <rect x="3" y="5" width="2" height="1" fill="#e01838" />
       <rect x="1" y="1" width="1" height="1" fill="#ff8aa0" />
     </svg>
+  );
+}
+
+function TapHearts({ hearts }: { hearts: TapHeart[] }) {
+  return (
+    <span className="tap-hearts" aria-hidden>
+      {hearts.map((heart, index) => (
+        heart.startedAt == null ? (
+          <span className="tap-heart" key={index}><HeartShape tone="full" /></span>
+        ) : (
+          <ChargingHeart key={index} startedAt={heart.startedAt} />
+        )
+      ))}
+    </span>
   );
 }
 
@@ -457,7 +471,11 @@ export function LabPage({
               ) : null}
             </div>
             <div className="gb-stats">
-              {stats.map((stat) => (
+              {stats.map((stat) => stat.id === "tap" ? (
+                <div key={stat.id} className="gb-stat is-taps" data-testid="stat-tap" aria-label={`${t("pet.tap")} ${taps.max - taps.count}/${taps.max}`}>
+                  <TapHearts hearts={taps.hearts} />
+                </div>
+              ) : (
                 <button
                   key={stat.id}
                   type="button"
@@ -474,7 +492,7 @@ export function LabPage({
                   }}
                 >
                   <div style={{ fontSize: 15, fontWeight: 900, color: "#0f380f" }}>
-                    {stat.id === "ability" ? abilityName : stat.id === "hp" ? `HP ${stat.value}` : stat.id === "tap" ? stat.label : `${stat.label} ${stat.value}`}
+                    {stat.id === "ability" ? abilityName : stat.id === "hp" ? `HP ${stat.value}` : `${stat.label} ${stat.value}`}
                   </div>
                 </button>
               ))}

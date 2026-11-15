@@ -7831,6 +7831,17 @@ body { background: #0c1008; }
 .gb-app.tab-lab .gb-claim-row .claim-3d { width: auto; flex: 1.2; margin: 0; }
 .gb-app.tab-lab .gb-stats { margin: 4px 0 0; gap: 4px; }
 .gb-app.tab-lab .gb-stat { padding: 6px 4px; font-size: 14px; }
+.gb-app .tap-hearts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.gb-app .tap-hearts .tap-heart,
+.gb-app .tap-hearts .tap-heart svg {
+  width: 18px;
+  height: 16px;
+}
 
 /* Collection can be pulled down a little. */
 .gb-collection {
