@@ -184,6 +184,7 @@ function AppShell() {
   const { t } = useT();
   const [tab, setTab] = useState<Tab>("lab");
   const [gear, setGear] = useState(0);
+  const shopFrom = useRef<Tab>("lab");
   const [held, setHeld] = useState<string | null>(null);
   const [smoke, setSmoke] = useState(0);
   const smokeAt = useRef(0);
@@ -437,7 +438,15 @@ function AppShell() {
         </div>
         <div className="gb-pills">
           <button type="button" className={held === "select" ? "is-down" : ""} aria-label="Select" onPointerDown={(event) => runTap(event, () => press("select", () => setGear((n) => n + 1)))} onTouchStart={(event) => runTap(event, () => press("select", () => setGear((n) => n + 1)))} />
-          <button type="button" className={held === "start" ? "is-down" : ""} aria-label="Start" onPointerDown={(event) => runTap(event, () => press("start", () => setTab("shop")))} onTouchStart={(event) => runTap(event, () => press("start", () => setTab("shop")))} />
+          <button type="button" className={held === "start" ? "is-down" : ""} aria-label="Start" onPointerDown={(event) => runTap(event, () => press("start", () => setTab((cur) => {
+            if (cur === "shop") return shopFrom.current;
+            shopFrom.current = cur;
+            return "shop";
+          })))} onTouchStart={(event) => runTap(event, () => press("start", () => setTab((cur) => {
+            if (cur === "shop") return shopFrom.current;
+            shopFrom.current = cur;
+            return "shop";
+          })))} />
         </div>
         <div className="gb-face">
           <button type="button" className={`gb-console-b${held === "b" ? " is-down" : ""}`} aria-label="B" onPointerDown={(event) => runTap(event, () => press("b", () => { /**/ }))} onTouchStart={(event) => runTap(event, () => press("b", () => { /**/ }))} />

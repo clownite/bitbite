@@ -8,7 +8,7 @@ interface SettingsMenuProps {
   setMuted: (next: boolean | ((prev: boolean) => boolean)) => void;
   /** The three lights in the bezel. */
   headerButton?: boolean;
-  /** Bumps when Select should open the menu. */
+  /** Bumps when Select should open the menu, or close it if it is already open. */
   openToken?: number;
 }
 
@@ -20,7 +20,7 @@ export const SettingsMenu = memo(function SettingsMenu({ muted, setMuted, header
 
   useEffect(() => {
     if (!openToken) return;
-    setOpen(true);
+    setOpen((value) => !value);
   }, [openToken]);
 
   useEffect(() => {

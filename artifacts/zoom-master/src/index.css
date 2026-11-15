@@ -7769,7 +7769,15 @@ body { background: #0c1008; }
 .gb-app .gb-dir.is-left { left: 0; top: 22px; width: 30px; height: 34px; }
 .gb-app .gb-dir.is-right { right: 0; top: 22px; width: 30px; height: 34px; }
 .gb-app .gb-pills { bottom: 8px; gap: 12px; }
-.gb-app .gb-pills button { width: 28px; height: 10px; }
+.gb-app .gb-pills button { position: relative; width: 28px; height: 10px; }
+.gb-app .gb-pills button::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  right: -8px;
+  top: -18px;
+  bottom: -18px;
+}
 .gb-app .gb-face { right: 12px; top: 2px; width: 112px; height: 92px; }
 .gb-app .gb-console-a { width: 50px; height: 50px; }
 .gb-app .gb-console-b { width: 38px; height: 38px; }
