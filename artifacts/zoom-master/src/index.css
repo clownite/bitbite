@@ -7476,7 +7476,7 @@ body { background: #0c1008; }
   animation: gb-pet-happy 0.4s ease-in-out 3;
 }
 
-/* One pixel heart and one pixel clover, only after an action. */
+/* One pixel heart, after feeding or a letter. */
 .pixel-pop {
   position: absolute;
   left: 50%;

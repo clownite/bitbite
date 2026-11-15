@@ -7,7 +7,6 @@ import { translate, type Lang } from "../i18n/translations";
 import { noteHumanGesture } from "../pet/human";
 import { playHappy } from "../audio/sfx";
 import { runTap } from "../utils/tap";
-import { PixelClover, PixelHeart } from "./PixelPop";
 
 type Sprite = { rows: string[]; ink: Record<string, string> };
 type FamilyArt = { baby: Sprite; child: Sprite; teen: Sprite; adults: Sprite[] };
@@ -102,7 +101,6 @@ export function LifeCreature({
   const shadowRef = useRef<HTMLCanvasElement>(null);
   const drag = useRef(0);
   const [flash, setFlash] = useState<string | null>(null);
-  const [party, setParty] = useState(0);
   const rising = form === "ascend";
   const pack = FAMILIES[family];
   const grown = form === "adult" || form === "elder" || form === "ascend";
@@ -134,7 +132,6 @@ export function LifeCreature({
     noteHumanGesture(true);
     const result = tapPet();
     if (result.reason === "ok") {
-      setParty((n) => n + 1);
       playHappy();
       setFlash(ui("pet.xpFlash", { xp: result.xp, n: result.count, max: result.max }));
     } else if (result.reason === "wait") setFlash(ui("pet.wait"));
@@ -161,12 +158,6 @@ export function LifeCreature({
       <canvas ref={shadowRef} className="life-pet-shadow" />
       <canvas ref={bodyRef} className="life-pet-body" style={{ width: `calc(${width} * var(--cell))` }} />
       {flash ? <span className="life-pet-flash">{flash}</span> : null}
-      {party > 0 ? (
-        <span className="pixel-pop" key={party} aria-hidden>
-          <PixelHeart />
-          <PixelClover />
-        </span>
-      ) : null}
     </div>
   );
 }
