@@ -32,17 +32,19 @@ const EGG_INK: Record<string, string> = {
 };
 
 function outline(rows: string[]): string[] {
-  const h = rows.length;
-  const w = rows[0]?.length ?? 0;
-  const g = rows.map((row) => [...row]);
+  const width = (rows[0]?.length ?? 0) + 2;
+  const blank = ".".repeat(width);
+  const g = [blank, ...rows.map((row) => `.${row}.`), blank].map((row) => [...row]);
+  const height = g.length;
   const o = g.map((row) => [...row]);
-  for (let y = 0; y < h; y += 1) {
-    for (let x = 0; x < w; x += 1) {
+  const near = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]] as const;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
       if (g[y][x] !== ".") continue;
-      for (const [dy, dx] of [[0, 1], [0, -1], [1, 0], [-1, 0]] as const) {
+      for (const [dy, dx] of near) {
         const ny = y + dy;
         const nx = x + dx;
-        if (ny >= 0 && ny < h && nx >= 0 && nx < w && g[ny][nx] !== ".") {
+        if (ny >= 0 && ny < height && nx >= 0 && nx < width && g[ny][nx] !== ".") {
           o[y][x] = "o";
           break;
         }
