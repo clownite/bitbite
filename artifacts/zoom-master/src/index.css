@@ -6928,17 +6928,27 @@ body, body * {
   box-shadow: none;
 }
 .gb-check.is-ready {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
   width: auto;
-  padding: 0 8px;
-  gap: 4px;
+  height: auto;
+  min-height: 36px;
+  padding: 6px 12px;
+  gap: 6px;
   background: #0f380f;
-  color: #c6e35a;
+  color: #f4f6d8;
+  overflow: visible;
 }
 .gb-check em {
   font-style: normal;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 800;
-  letter-spacing: 0;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  color: #f4f6d8;
+  white-space: nowrap;
 }
 .gb-quest.is-ready {
   border: 3px solid #0f380f;
