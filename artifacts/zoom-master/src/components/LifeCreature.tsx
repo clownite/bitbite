@@ -7,6 +7,7 @@ import { translate, type Lang } from "../i18n/translations";
 import { noteHumanGesture } from "../pet/human";
 import { playHappy } from "../audio/sfx";
 import { runTap } from "../utils/tap";
+import { PixelHeart } from "./PixelPop";
 
 type Sprite = { rows: string[]; ink: Record<string, string> };
 type FamilyArt = { baby: Sprite; child: Sprite; teen: Sprite; adults: Sprite[] };
@@ -101,6 +102,8 @@ export function LifeCreature({
   const shadowRef = useRef<HTMLCanvasElement>(null);
   const drag = useRef(0);
   const [flash, setFlash] = useState<string | null>(null);
+  const [hearts, setHearts] = useState(0);
+  const heartPop = useRef(0);
   const rising = form === "ascend";
   const pack = FAMILIES[family];
   const grown = form === "adult" || form === "elder" || form === "ascend";
@@ -133,6 +136,10 @@ export function LifeCreature({
     const result = tapPet();
     if (result.reason === "ok") {
       playHappy();
+      const pop = heartPop.current + 1;
+      heartPop.current = pop;
+      setHearts(pop);
+      window.setTimeout(() => setHearts((cur) => (cur === pop ? 0 : cur)), 1300);
       setFlash(ui("pet.xpFlash", { xp: result.xp, n: result.count, max: result.max }));
     } else if (result.reason === "wait") setFlash(ui("pet.wait"));
     else if (result.reason === "gate") setFlash(ui("pet.payGram"));
@@ -158,6 +165,13 @@ export function LifeCreature({
       <canvas ref={shadowRef} className="life-pet-shadow" />
       <canvas ref={bodyRef} className="life-pet-body" style={{ width: `calc(${width} * var(--cell))` }} />
       {flash ? <span className="life-pet-flash">{flash}</span> : null}
+      {hearts > 0 ? (
+        <span className="pet-tap-hearts" key={hearts} aria-hidden>
+          <PixelHeart />
+          <PixelHeart />
+          <PixelHeart />
+        </span>
+      ) : null}
     </div>
   );
 }
