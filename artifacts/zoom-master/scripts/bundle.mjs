@@ -33,6 +33,9 @@ export async function bundleJs() {
     minify: true,
     legalComments: "none",
     target: ["es2022"],
+    loader: { ".png": "file" },
+    assetNames: "stage/[name]",
+    publicPath: `${base}assets/`,
     define: {
       __BUILD_VERSION__: JSON.stringify(version),
       "import.meta.env.PROD": "true",
