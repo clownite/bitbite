@@ -7952,3 +7952,69 @@ body { background: #0c1008; }
 /* The phone stays black above the shell, the way the loading screen does. */
 html, body, #root { background: #000 !important; }
 
+/* The living pet is the 3D picture, sitting on the green screen. */
+.life-pet.is-photo {
+  width: 168px;
+  height: auto;
+  margin-left: -84px;
+}
+.life-pet.is-photo.is-mini {
+  width: 72px;
+  margin-left: -36px;
+}
+.life-pet-photo,
+.life-egg-photo {
+  width: 100%;
+  height: auto;
+  display: block;
+  image-rendering: auto;
+  pointer-events: none;
+  user-select: none;
+}
+.gb-app.tab-lab .life-pet.is-photo {
+  width: min(54%, 210px);
+  max-height: 82%;
+  margin-left: 0;
+  left: 50%;
+  bottom: 2px;
+  transform: translateX(-50%);
+  animation: none !important;
+}
+.gb-app.tab-lab .life-pet.is-photo .life-pet-photo {
+  max-height: 100%;
+  width: auto;
+  margin: 0 auto;
+  animation: gb-home-breathe 1.8s ease-in-out infinite;
+}
+.gb-app.tab-lab .gb-home-pet.is-fed .life-pet.is-photo {
+  animation: gb-photo-happy 0.4s ease-in-out 3 !important;
+}
+@keyframes gb-photo-happy {
+  0%, 100% { transform: translateX(-50%) translateY(0) scale(1); }
+  40% { transform: translateX(-50%) translateY(-12px) scale(1.05); }
+}
+.life-egg.is-photo {
+  width: 118px;
+  height: auto;
+  margin-left: -59px;
+}
+.life-egg.is-photo.is-mini {
+  width: 56px;
+  margin-left: -28px;
+}
+.gb-slot .life-pet.is-photo.is-mini,
+.gb-slot .life-egg.is-photo.is-mini {
+  bottom: 38%;
+  width: 78px;
+  margin-left: -39px;
+}
+.kin-portrait.is-photo {
+  width: 84px;
+  image-rendering: auto;
+}
+.gb-app .shop-foil .life-pet.is-photo {
+  width: 150px;
+  margin-left: -75px;
+  bottom: 10%;
+}
+

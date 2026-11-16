@@ -365,7 +365,7 @@ export function LabPage({
           </div>
           <div className={`gb-home-pet${fed ? " is-fed" : ""}${care.dark ? " is-dark" : ""}`} data-testid="pet-room">
             <CardReel petId={pet.active} petName={chosen.name} now={now} care={care} egg={life.form === "egg"}>
-            {life.form === "egg" ? <LifeEgg color={chosen.element.color} /> : (
+            {life.form === "egg" ? <LifeEgg family={familyOf(pet.active)} /> : (
               <LifeCreature
                 family={familyOf(pet.active)}
                 form={life.form}
@@ -377,7 +377,7 @@ export function LabPage({
             )}
             {life.child ? (
               <div className="life-heir" data-testid="life-heir">
-                {life.child.form === "egg" ? <LifeEgg color={chosen.element.color} mini /> : (
+                {life.child.form === "egg" ? <LifeEgg family={familyOf(pet.active)} mini /> : (
                   <LifeCreature family={familyOf(pet.active)} form={life.child.form} kin={0} mark={life.child.mark} mini />
                 )}
               </div>

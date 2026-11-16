@@ -84,7 +84,6 @@ export function CollectionPage({
               </button>
             );
           }
-          const color = petDef(id).element.color;
           const life = readLife(id);
           return (
             <div
@@ -101,7 +100,7 @@ export function CollectionPage({
                 boxShadow: "inset 0 3px 0 rgba(10, 30, 0, 0.18), 0 2px 0 #3d5a10",
               }}
             >
-              {life.form === "egg" ? <LifeEgg color={color} mini /> : (
+              {life.form === "egg" ? <LifeEgg family={familyOf(id)} mini /> : (
                 <LifeCreature family={familyOf(id)} form={life.form} kin={life.kin} mark={life.mark} mini />
               )}
               <div style={{ position: "absolute", left: 8, right: 8, bottom: 8, textAlign: "center", pointerEvents: "none", color: "#0f380f" }}>

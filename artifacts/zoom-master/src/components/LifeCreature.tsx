@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import art from "../pet/kinArt.json";
 import type { FamilyId } from "../pet/kin";
 import type { LifeForm, LifeMark } from "../pet/life";
+import { stageImage } from "../pet/stageArt";
 import { tapPet } from "../pet/petProgress";
 import { translate, type Lang } from "../i18n/translations";
 import { noteHumanGesture } from "../pet/human";
@@ -153,19 +154,21 @@ export function LifeCreature({
     runTap(event, tap);
   };
 
+  const photo = stageImage(family, form);
   const width = Math.max(rows[0]?.length ?? 12, 12);
   return (
     <div
-      className={`life-pet${mini ? " is-mini" : ""}${asleep ? " is-asleep" : ""}${rising ? " is-rise" : ""}${form === "elder" ? " is-elder" : ""}${asking ? " is-asking" : ""}`}
-      style={{ width: `calc(${width} * var(--cell))`, marginLeft: `calc(${width} * var(--cell) / -2)` }}
+      className={`life-pet is-photo${mini ? " is-mini" : ""}${asleep ? " is-asleep" : ""}${rising ? " is-rise" : ""}${form === "elder" ? " is-elder" : ""}${asking ? " is-asking" : ""}`}
+      style={photo ? undefined : { width: `calc(${width} * var(--cell))`, marginLeft: `calc(${width} * var(--cell) / -2)` }}
       data-testid={mini ? "life-pet-mini" : "life-pet"}
       onPointerDown={onTap ? () => { drag.current = 0; } : undefined}
       onPointerMove={onTap ? (event) => { drag.current += Math.abs(event.movementX) + Math.abs(event.movementY); } : undefined}
       onPointerUp={onTap ? press : undefined}
       onTouchEnd={onTap ? press : undefined}
     >
-      <canvas ref={shadowRef} className="life-pet-shadow" />
-      <canvas ref={bodyRef} className="life-pet-body" style={{ width: `calc(${width} * var(--cell))` }} />
+      <img src={photo} alt="" className="life-pet-photo" draggable={false} />
+      <canvas ref={shadowRef} className="life-pet-shadow" hidden />
+      <canvas ref={bodyRef} className="life-pet-body" hidden />
       {flash ? <span className="life-pet-flash">{flash}</span> : null}
       {hearts > 0 ? (
         <span className="pet-tap-hearts" key={hearts} aria-hidden>

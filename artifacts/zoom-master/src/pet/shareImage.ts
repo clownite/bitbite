@@ -1,4 +1,5 @@
 import art from "./kinArt.json";
+import { stageElement } from "./stageArt";
 import type { FamilyId } from "./kin";
 import type { LifeForm, LifeMark, LifeRoad, LifeSex } from "./life";
 
@@ -177,21 +178,35 @@ export function drawShareCard(shot: ShareShot): { image: string; thumb: string }
   ctx.textAlign = "right";
   ctx.fillText(shot.playerName.slice(0, 18), lcdX + lcdW - 28, lcdY + 52);
 
-  const sprite = shot.form === "egg"
-    ? { rows: EGG, ink: EGG_INK }
-    : bodySprite(shot.family, shot.form, shot.kin);
-  if (sprite && shot.form !== "egg" && shot.mark) stampMark(sprite.rows, sprite.ink, shot.mark);
-  if (sprite) {
-    const scale = shot.form === "egg" ? 16 : 18;
-    const pw = sprite.rows[0].length * scale;
-    const ph = sprite.rows.length * scale;
+  const photo = stageElement(shot.family, shot.form);
+  if (photo) {
+    ctx.imageSmoothingEnabled = true;
+    const maxW = 340;
+    const maxH = 380;
+    const scale = Math.min(maxW / photo.naturalWidth, maxH / photo.naturalHeight);
+    const pw = photo.naturalWidth * scale;
+    const ph = photo.naturalHeight * scale;
     const px = Math.round((SHARE_W - pw) / 2);
-    const py = Math.round(430 - ph / 2);
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
-    ctx.beginPath();
-    ctx.ellipse(SHARE_W / 2, py + ph + 18, pw * 0.34, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-    blit(ctx, sprite.rows, sprite.ink, px, py, scale, shot.color);
+    const py = Math.round(500 - ph);
+    ctx.drawImage(photo, px, py, pw, ph);
+    ctx.imageSmoothingEnabled = false;
+  } else {
+    const sprite = shot.form === "egg"
+      ? { rows: EGG, ink: EGG_INK }
+      : bodySprite(shot.family, shot.form, shot.kin);
+    if (sprite && shot.form !== "egg" && shot.mark) stampMark(sprite.rows, sprite.ink, shot.mark);
+    if (sprite) {
+      const scale = shot.form === "egg" ? 16 : 18;
+      const pw = sprite.rows[0].length * scale;
+      const ph = sprite.rows.length * scale;
+      const px = Math.round((SHARE_W - pw) / 2);
+      const py = Math.round(430 - ph / 2);
+      ctx.fillStyle = "rgba(0,0,0,0.35)";
+      ctx.beginPath();
+      ctx.ellipse(SHARE_W / 2, py + ph + 18, pw * 0.34, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+      blit(ctx, sprite.rows, sprite.ink, px, py, scale, shot.color);
+    }
   }
 
   if (shot.child) {

@@ -238,7 +238,7 @@ export function GamePage({ active }: { active: boolean }) {
 
         {waiting ? (
           <div className="egg-wait" data-testid="egg-wait">
-            <LifeEgg color={color} />
+            <LifeEgg family={familyOf(pet.active)} />
             <strong data-testid="egg-left">{t("life.waitLeft", { time: formatLeft(eggLeft(pet.active, now)) })}</strong>
           </div>
         ) : null}
