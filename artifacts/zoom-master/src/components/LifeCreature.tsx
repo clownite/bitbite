@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import art from "../pet/kinArt.json";
 import type { FamilyId } from "../pet/kin";
 import type { LifeForm, LifeMark } from "../pet/life";
@@ -8,6 +8,7 @@ import { translate, type Lang } from "../i18n/translations";
 import { noteHumanGesture } from "../pet/human";
 import { playHappy } from "../audio/sfx";
 import { runTap } from "../utils/tap";
+import { PixelCookie } from "./PixelCookie";
 import { PixelHeart } from "./PixelPop";
 
 type Sprite = { rows: string[]; ink: Record<string, string> };
@@ -106,12 +107,28 @@ export function LifeCreature({
   const drag = useRef(0);
   const [flash, setFlash] = useState<string | null>(null);
   const [hearts, setHearts] = useState(0);
+  const [eating, setEating] = useState(false);
   const heartPop = useRef(0);
   const rising = form === "ascend";
   const pack = FAMILIES[family];
   const grown = form === "adult" || form === "elder" || form === "ascend";
   const sprite = grown ? pack.adults[Math.min(9, Math.max(0, kin))] : pack[form === "baby" || form === "child" || form === "teen" ? form : "baby"];
   const rows = rising ? wings(sprite.rows) : sprite.rows;
+
+  useEffect(() => {
+    if (!onTap || mini) return;
+    let hide = 0;
+    const onEat = () => {
+      setEating(true);
+      window.clearTimeout(hide);
+      hide = window.setTimeout(() => setEating(false), 2100);
+    };
+    window.addEventListener("zoom-pet-eat", onEat);
+    return () => {
+      window.removeEventListener("zoom-pet-eat", onEat);
+      window.clearTimeout(hide);
+    };
+  }, [onTap, mini]);
 
   useLayoutEffect(() => {
     if (bodyRef.current) paint(bodyRef.current, rows, sprite.ink, mark ?? null);
@@ -158,7 +175,9 @@ export function LifeCreature({
   const width = Math.max(rows[0]?.length ?? 12, 12);
   return (
     <div
-      className={`life-pet is-photo${mini ? " is-mini" : ""}${asleep ? " is-asleep" : ""}${rising ? " is-rise" : ""}${form === "elder" ? " is-elder" : ""}${asking ? " is-asking" : ""}`}
+      className={`life-pet is-photo${mini ? " is-mini" : ""}${asleep ? " is-asleep" : ""}${rising ? " is-rise" : ""}${form === "elder" ? " is-elder" : ""}${asking ? " is-asking" : ""}${eating ? " is-eating" : ""}`}
+      data-family={family}
+      data-form={form}
       style={photo ? undefined : { width: `calc(${width} * var(--cell))`, marginLeft: `calc(${width} * var(--cell) / -2)` }}
       data-testid={mini ? "life-pet-mini" : "life-pet"}
       onPointerDown={onTap ? () => { drag.current = 0; } : undefined}
@@ -167,6 +186,14 @@ export function LifeCreature({
       onTouchEnd={onTap ? press : undefined}
     >
       <img src={photo} alt="" className="life-pet-photo" draggable={false} />
+      {eating ? (
+        <>
+          <span className="pet-mouth" aria-hidden />
+          <span className="pet-bite" aria-hidden>
+            <PixelCookie size={30} />
+          </span>
+        </>
+      ) : null}
       <canvas ref={shadowRef} className="life-pet-shadow" hidden />
       <canvas ref={bodyRef} className="life-pet-body" hidden />
       {flash ? <span className="life-pet-flash">{flash}</span> : null}

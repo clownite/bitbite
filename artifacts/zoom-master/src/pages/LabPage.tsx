@@ -284,7 +284,7 @@ export function LabPage({
     const onEat = () => {
       setFed(true);
       window.clearTimeout(fedTimer.current);
-      fedTimer.current = window.setTimeout(() => setFed(false), 1200);
+      fedTimer.current = window.setTimeout(() => setFed(false), 2100);
     };
     window.addEventListener("zoom-pet-eat", onEat);
     return () => window.removeEventListener("zoom-pet-eat", onEat);
