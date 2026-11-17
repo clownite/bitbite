@@ -7282,6 +7282,7 @@ body { background: #0c1008; }
 .gb-app .cookie-over .cookie-go { pointer-events: auto; }
 @media (prefers-reduced-motion: reduce) {
   .gb-app.tab-lab .life-pet { animation: none; }
+  .life-pet-live, .life-egg-live, .kin-hop, .life-pet-lid, .life-egg-lid, .kin-lid { animation: none; }
   .pet-kibble { animation: none; }
   .gb-app .kin-portrait { animation: none; }
 }
@@ -7326,6 +7327,15 @@ body { background: #0c1008; }
 .gb-app .hall-frame .kin-portrait {
   width: 74px;
   height: 74px;
+  animation: none;
+}
+.kin-hop {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.gb-app .hall-frame .kin-hop {
   animation: hall-hop 0.48s steps(2, end) infinite;
 }
 
@@ -7984,25 +7994,22 @@ html, body, #root { background: #000 !important; }
   left: 50%;
   bottom: 2px;
   transform: translateX(-50%);
-  transform-origin: 50% 100%;
-  animation: pet-hop 1.05s ease-in-out infinite !important;
+  animation: none !important;
 }
-.gb-app.tab-lab .life-pet.is-photo.is-asleep {
+.gb-app.tab-lab .life-pet.is-photo .life-pet-live,
+.gb-app.tab-lab .life-egg.is-photo .life-egg-live {
+  animation: pet-px 0.48s steps(2, end) infinite;
+}
+.gb-app.tab-lab .life-pet.is-photo.is-asleep .life-pet-live {
   animation: pet-sleep 2.4s ease-in-out infinite !important;
 }
-.gb-app.tab-lab .life-pet.is-photo.is-eating {
+.gb-app.tab-lab .life-pet.is-photo.is-eating .life-pet-live {
   animation: none !important;
-  transform: translateX(-50%);
-}
-@keyframes pet-hop {
-  0%, 42% { transform: translateX(-50%) translateY(0) scale(1, 1); }
-  58% { transform: translateX(-50%) translateY(-18px) scale(0.98, 1.03); }
-  74% { transform: translateX(-50%) translateY(0) scale(1.035, 0.95); }
-  86%, 100% { transform: translateX(-50%) translateY(0) scale(1, 1); }
+  transform: none;
 }
 @keyframes pet-sleep {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-4px); }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
 }
 .life-pet { --mouth: 57%; }
 .life-pet[data-family="electric"] { --mouth: 60%; }
@@ -8010,6 +8017,7 @@ html, body, #root { background: #000 !important; }
 .life-pet[data-form="child"] { --mouth: 58%; }
 .life-pet-live {
   position: relative;
+  z-index: 2;
   display: block;
   width: 100%;
   height: 100%;
@@ -8100,6 +8108,15 @@ html, body, #root { background: #000 !important; }
   align-items: flex-end;
   justify-content: center;
 }
+.gb-app.tab-farm .gb-slot .life-pet.is-photo.is-mini .life-pet-live,
+.gb-app.tab-farm .gb-slot .life-egg.is-photo.is-mini .life-egg-live {
+  width: 100%;
+  height: 100%;
+}
+.gb-app.tab-farm .gb-slot .life-egg.is-photo .life-egg-live,
+.gb-app.tab-play .life-egg.is-photo .life-egg-live {
+  animation: pet-px 0.48s steps(2, end) infinite;
+}
 .gb-app.tab-farm .gb-slot .life-pet.is-photo.is-mini .life-pet-photo,
 .gb-app.tab-farm .gb-slot .life-egg.is-photo.is-mini .life-egg-photo {
   width: 100%;
@@ -8109,6 +8126,17 @@ html, body, #root { background: #000 !important; }
   object-fit: contain;
   object-position: center bottom;
   animation: none;
+}
+.gb-app.tab-farm .gb-slot .life-pet-base,
+.gb-app.tab-farm .gb-slot .life-pet-lid,
+.gb-app.tab-farm .gb-slot .life-egg-base,
+.gb-app.tab-farm .gb-slot .life-egg-lid,
+.gb-app .shop-foil .life-pet-base,
+.gb-app .shop-foil .life-pet-lid,
+.gb-app .hall-frame .kin-base,
+.gb-app .hall-frame .kin-lid {
+  object-fit: contain;
+  object-position: center bottom;
 }
 .kin-portrait.is-photo {
   position: relative;
@@ -8124,38 +8152,49 @@ html, body, #root { background: #000 !important; }
   object-position: center bottom;
   pointer-events: none;
 }
-.life-pet[data-family="water"],
-.kin-portrait[data-family="water"] { --lid: #7ec4dc; --eye-y: 41%; --eye-l: 26%; --eye-r: 56%; }
-.life-pet[data-family="fire"],
-.kin-portrait[data-family="fire"] { --lid: #f2b24a; --eye-y: 41%; --eye-l: 28%; --eye-r: 58%; }
-.life-pet[data-family="grass"],
-.kin-portrait[data-family="grass"] { --lid: #c6d070; --eye-y: 43%; --eye-l: 26%; --eye-r: 56%; }
-.life-pet[data-family="electric"],
-.kin-portrait[data-family="electric"] { --lid: #e8b878; --eye-y: 45%; --eye-l: 25%; --eye-r: 58%; }
-.pet-lids { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
-.pet-lid {
+.life-pet-base,
+.life-egg-base,
+.kin-base {
   position: absolute;
-  top: var(--eye-y, 42%);
-  width: 18%;
-  height: 14%;
-  border-radius: 50%;
-  background: var(--lid, #f2d2b0);
-  transform: scaleY(0);
-  transform-origin: center top;
-  animation: pet-blink 3.6s ease-in-out infinite;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
 }
-.pet-lid.is-l { left: var(--eye-l, 29%); }
-.pet-lid.is-r { left: var(--eye-r, 58%); }
-.life-pet[data-family="fire"] .pet-lid,
-.kin-portrait[data-family="fire"] .pet-lid { animation-delay: 0.7s; }
-.life-pet[data-family="grass"] .pet-lid,
-.kin-portrait[data-family="grass"] .pet-lid { animation-delay: 1.3s; }
-.life-pet[data-family="electric"] .pet-lid,
-.kin-portrait[data-family="electric"] .pet-lid { animation-delay: 1.9s; }
-.life-pet.is-eating .pet-lid { animation: none; transform: scaleY(0); }
+.life-egg-live {
+  position: relative;
+  z-index: 2;
+  display: block;
+  width: 100%;
+}
+.life-pet-lid,
+.life-egg-lid,
+.kin-lid {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  opacity: 0;
+  animation: pet-blink 3.4s linear infinite;
+}
+.life-pet[data-family="fire"] .life-pet-lid,
+.kin-portrait[data-family="fire"] .kin-lid,
+.life-egg[data-family="fire"] .life-egg-lid { animation-delay: 0.7s; }
+.life-pet[data-family="grass"] .life-pet-lid,
+.kin-portrait[data-family="grass"] .kin-lid,
+.life-egg[data-family="grass"] .life-egg-lid { animation-delay: 1.3s; }
+.life-pet[data-family="electric"] .life-pet-lid,
+.kin-portrait[data-family="electric"] .kin-lid,
+.life-egg[data-family="electric"] .life-egg-lid { animation-delay: 1.9s; }
+.life-pet.is-eating .life-pet-lid { animation: none; opacity: 0; }
 @keyframes pet-blink {
-  0%, 88%, 100% { transform: scaleY(0); }
-  91%, 95% { transform: scaleY(1); }
+  0%, 88%, 100% { opacity: 0; }
+  91%, 96% { opacity: 1; }
 }
 @keyframes pet-px {
   0%, 49% { transform: translateY(0); }
