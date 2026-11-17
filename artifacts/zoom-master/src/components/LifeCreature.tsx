@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import art from "../pet/kinArt.json";
 import type { FamilyId } from "../pet/kin";
 import type { LifeForm, LifeMark } from "../pet/life";
-import { stageBase, stageImage, stageLid } from "../pet/stageArt";
+import { stageImage } from "../pet/stageArt";
 import { tapPet } from "../pet/petProgress";
 import { translate, type Lang } from "../i18n/translations";
 import { noteHumanGesture } from "../pet/human";
@@ -185,11 +185,9 @@ export function LifeCreature({
       onPointerUp={onTap ? press : undefined}
       onTouchEnd={onTap ? press : undefined}
     >
-      <img src={stageBase(family, form)} alt="" className="life-pet-base" draggable={false} />
       <span className="life-pet-live">
         <span className="life-pet-face">
           <img src={photo} alt="" className="life-pet-photo" draggable={false} />
-          <img src={stageLid(family, form)} alt="" className="life-pet-lid" draggable={false} />
           {eating ? (
             <>
               <span className="pet-hole" aria-hidden />

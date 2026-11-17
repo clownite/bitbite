@@ -7282,7 +7282,7 @@ body { background: #0c1008; }
 .gb-app .cookie-over .cookie-go { pointer-events: auto; }
 @media (prefers-reduced-motion: reduce) {
   .gb-app.tab-lab .life-pet { animation: none; }
-  .life-pet-live, .life-egg-live, .kin-hop, .life-pet-lid, .life-egg-lid, .kin-lid { animation: none; }
+  .life-pet-live, .life-egg-live, .kin-hop { animation: none; }
   .pet-kibble { animation: none; }
   .gb-app .kin-portrait { animation: none; }
 }
@@ -8127,17 +8127,6 @@ html, body, #root { background: #000 !important; }
   object-position: center bottom;
   animation: none;
 }
-.gb-app.tab-farm .gb-slot .life-pet-base,
-.gb-app.tab-farm .gb-slot .life-pet-lid,
-.gb-app.tab-farm .gb-slot .life-egg-base,
-.gb-app.tab-farm .gb-slot .life-egg-lid,
-.gb-app .shop-foil .life-pet-base,
-.gb-app .shop-foil .life-pet-lid,
-.gb-app .hall-frame .kin-base,
-.gb-app .hall-frame .kin-lid {
-  object-fit: contain;
-  object-position: center bottom;
-}
 .kin-portrait.is-photo {
   position: relative;
   display: block;
@@ -8152,49 +8141,11 @@ html, body, #root { background: #000 !important; }
   object-position: center bottom;
   pointer-events: none;
 }
-.life-pet-base,
-.life-egg-base,
-.kin-base {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  pointer-events: none;
-}
 .life-egg-live {
   position: relative;
   z-index: 2;
   display: block;
   width: 100%;
-}
-.life-pet-lid,
-.life-egg-lid,
-.kin-lid {
-  position: absolute;
-  inset: 0;
-  z-index: 6;
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  pointer-events: none;
-  opacity: 0;
-  animation: pet-blink 3.4s linear infinite;
-}
-.life-pet[data-family="fire"] .life-pet-lid,
-.kin-portrait[data-family="fire"] .kin-lid,
-.life-egg[data-family="fire"] .life-egg-lid { animation-delay: 0.7s; }
-.life-pet[data-family="grass"] .life-pet-lid,
-.kin-portrait[data-family="grass"] .kin-lid,
-.life-egg[data-family="grass"] .life-egg-lid { animation-delay: 1.3s; }
-.life-pet[data-family="electric"] .life-pet-lid,
-.kin-portrait[data-family="electric"] .kin-lid,
-.life-egg[data-family="electric"] .life-egg-lid { animation-delay: 1.9s; }
-.life-pet.is-eating .life-pet-lid { animation: none; opacity: 0; }
-@keyframes pet-blink {
-  0%, 88%, 100% { opacity: 0; }
-  91%, 96% { opacity: 1; }
 }
 @keyframes pet-px {
   0%, 49% { transform: translateY(0); }
