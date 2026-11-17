@@ -8,6 +8,7 @@ import { translate, type Lang } from "../i18n/translations";
 import { noteHumanGesture } from "../pet/human";
 import { playHappy } from "../audio/sfx";
 import { runTap } from "../utils/tap";
+import { PetLids } from "./PetLids";
 import { PixelCookie } from "./PixelCookie";
 import { PixelHeart } from "./PixelPop";
 
@@ -186,16 +187,19 @@ export function LifeCreature({
       onTouchEnd={onTap ? press : undefined}
     >
       <span className="life-pet-live">
-        <img src={photo} alt="" className="life-pet-photo" draggable={false} />
-        {eating ? (
-          <>
-            <span className="pet-hole" aria-hidden />
-            <img src={photo} alt="" className="life-pet-photo is-chin" draggable={false} />
-            <span className="pet-bite" aria-hidden>
-              <PixelCookie size={26} />
-            </span>
-          </>
-        ) : null}
+        <span className="life-pet-face">
+          <img src={photo} alt="" className="life-pet-photo" draggable={false} />
+          <PetLids form={form} />
+          {eating ? (
+            <>
+              <span className="pet-hole" aria-hidden />
+              <img src={photo} alt="" className="life-pet-photo is-chin" draggable={false} />
+              <span className="pet-bite" aria-hidden>
+                <PixelCookie size={26} />
+              </span>
+            </>
+          ) : null}
+        </span>
       </span>
       <canvas ref={shadowRef} className="life-pet-shadow" hidden />
       <canvas ref={bodyRef} className="life-pet-body" hidden />

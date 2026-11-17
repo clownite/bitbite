@@ -5592,7 +5592,10 @@ body, body * {
 .hall-frame {
   display: grid;
   place-items: center;
-  min-height: 84px;
+  width: 92px;
+  height: 92px;
+  min-height: 92px;
+  overflow: hidden;
   background: #9bbc0f;
   border: 3px solid #0f380f;
   box-shadow: inset 0 0 0 3px #8bac0f;
@@ -7318,9 +7321,11 @@ body { background: #0c1008; }
 .gb-app .card-reel-nav::before { border-color: #c6e35a; }
 @keyframes hall-hop {
   0%, 49% { transform: translateY(0); }
-  50%, 100% { transform: translateY(-5px); }
+  50%, 100% { transform: translateY(-4px); }
 }
-.gb-app .kin-portrait {
+.gb-app .hall-frame .kin-portrait {
+  width: 74px;
+  height: 74px;
   animation: hall-hop 0.48s steps(2, end) infinite;
 }
 
@@ -7973,7 +7978,7 @@ html, body, #root { background: #000 !important; }
 }
 .gb-app.tab-lab .life-pet.is-photo {
   width: min(48%, 176px);
-  height: min(72%, 196px);
+  height: auto;
   max-height: none;
   margin-left: 0;
   left: 50%;
@@ -8009,11 +8014,21 @@ html, body, #root { background: #000 !important; }
   width: 100%;
   height: 100%;
 }
+.life-pet-face {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.gb-app.tab-lab .life-pet.is-photo .life-pet-live,
+.gb-app.tab-lab .life-pet.is-photo .life-pet-face {
+  width: 100%;
+  height: auto;
+}
 .gb-app.tab-lab .life-pet.is-photo .life-pet-photo {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  object-position: center bottom;
+  height: auto;
+  object-fit: fill;
   animation: none;
 }
 .life-pet-photo.is-chin {
@@ -8096,8 +8111,73 @@ html, body, #root { background: #000 !important; }
   animation: none;
 }
 .kin-portrait.is-photo {
+  position: relative;
+  display: block;
   width: 84px;
   image-rendering: auto;
+}
+.kin-portrait-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+}
+.life-pet[data-family="water"],
+.kin-portrait[data-family="water"] { --lid: #7ec4dc; --eye-y: 41%; --eye-l: 26%; --eye-r: 56%; }
+.life-pet[data-family="fire"],
+.kin-portrait[data-family="fire"] { --lid: #f2b24a; --eye-y: 41%; --eye-l: 28%; --eye-r: 58%; }
+.life-pet[data-family="grass"],
+.kin-portrait[data-family="grass"] { --lid: #c6d070; --eye-y: 43%; --eye-l: 26%; --eye-r: 56%; }
+.life-pet[data-family="electric"],
+.kin-portrait[data-family="electric"] { --lid: #e8b878; --eye-y: 45%; --eye-l: 25%; --eye-r: 58%; }
+.pet-lids { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+.pet-lid {
+  position: absolute;
+  top: var(--eye-y, 42%);
+  width: 18%;
+  height: 14%;
+  border-radius: 50%;
+  background: var(--lid, #f2d2b0);
+  transform: scaleY(0);
+  transform-origin: center top;
+  animation: pet-blink 3.6s ease-in-out infinite;
+}
+.pet-lid.is-l { left: var(--eye-l, 29%); }
+.pet-lid.is-r { left: var(--eye-r, 58%); }
+.life-pet[data-family="fire"] .pet-lid,
+.kin-portrait[data-family="fire"] .pet-lid { animation-delay: 0.7s; }
+.life-pet[data-family="grass"] .pet-lid,
+.kin-portrait[data-family="grass"] .pet-lid { animation-delay: 1.3s; }
+.life-pet[data-family="electric"] .pet-lid,
+.kin-portrait[data-family="electric"] .pet-lid { animation-delay: 1.9s; }
+.life-pet.is-eating .pet-lid { animation: none; transform: scaleY(0); }
+@keyframes pet-blink {
+  0%, 88%, 100% { transform: scaleY(0); }
+  91%, 95% { transform: scaleY(1); }
+}
+@keyframes pet-px {
+  0%, 49% { transform: translateY(0); }
+  50%, 100% { transform: translateY(-8px); }
+}
+.gb-app.tab-play .life-pet.is-photo {
+  height: auto;
+}
+.gb-app.tab-farm .gb-slot .life-pet-face,
+.gb-app .shop-foil .life-pet-face {
+  height: 100%;
+}
+.gb-app.tab-play .life-pet.is-photo .life-pet-live,
+.gb-app.tab-play .life-pet.is-photo .life-pet-face,
+.gb-app.tab-play .life-pet.is-photo .life-pet-photo {
+  width: 100%;
+  height: auto;
+}
+.gb-app.tab-farm .gb-slot .life-pet.is-photo .life-pet-live,
+.gb-app.tab-play .life-pet.is-photo .life-pet-live,
+.gb-app .shop-foil .life-pet.is-photo .life-pet-live {
+  animation: pet-px 0.48s steps(2, end) infinite;
 }
 .gb-app .shop-foil .life-pet.is-photo {
   top: auto;
