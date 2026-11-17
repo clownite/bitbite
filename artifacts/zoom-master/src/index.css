@@ -7972,90 +7972,95 @@ html, body, #root { background: #000 !important; }
   user-select: none;
 }
 .gb-app.tab-lab .life-pet.is-photo {
-  width: min(54%, 210px);
-  max-height: 82%;
+  width: min(48%, 176px);
+  height: min(72%, 196px);
+  max-height: none;
   margin-left: 0;
   left: 50%;
   bottom: 2px;
   transform: translateX(-50%);
+  transform-origin: 50% 100%;
+  animation: pet-hop 1.05s ease-in-out infinite !important;
+}
+.gb-app.tab-lab .life-pet.is-photo.is-asleep {
+  animation: pet-sleep 2.4s ease-in-out infinite !important;
+}
+.gb-app.tab-lab .life-pet.is-photo.is-eating {
   animation: none !important;
+  transform: translateX(-50%);
+}
+@keyframes pet-hop {
+  0%, 42% { transform: translateX(-50%) translateY(0) scale(1, 1); }
+  58% { transform: translateX(-50%) translateY(-18px) scale(0.98, 1.03); }
+  74% { transform: translateX(-50%) translateY(0) scale(1.035, 0.95); }
+  86%, 100% { transform: translateX(-50%) translateY(0) scale(1, 1); }
+}
+@keyframes pet-sleep {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+.life-pet { --mouth: 57%; }
+.life-pet[data-family="electric"] { --mouth: 60%; }
+.life-pet[data-form="baby"],
+.life-pet[data-form="child"] { --mouth: 58%; }
+.life-pet-live {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .gb-app.tab-lab .life-pet.is-photo .life-pet-photo {
-  max-height: 100%;
-  width: auto;
-  margin: 0 auto;
-  transform-origin: 50% 80%;
-  animation: pet-live 3.6s ease-in-out infinite;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  animation: none;
 }
-.gb-app.tab-lab .life-pet.is-photo.is-asleep .life-pet-photo {
-  animation: gb-home-breathe 2.6s ease-in-out infinite;
+.life-pet-photo.is-chin {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  -webkit-mask-image: radial-gradient(ellipse 13% 7% at 50% var(--mouth), #000 64%, transparent 78%);
+  mask-image: radial-gradient(ellipse 13% 7% at 50% var(--mouth), #000 64%, transparent 78%);
+  animation: jaw-drop 2.1s ease-in-out 1 both;
 }
-.gb-app.tab-lab .life-pet.is-photo.is-eating .life-pet-photo {
-  animation: pet-chew-body 2.1s ease-in-out 1;
-}
-@keyframes pet-live {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  42% { transform: translateY(-5px) rotate(-1.6deg); }
-  74% { transform: translateY(-1px) rotate(1.5deg); }
-}
-@keyframes pet-chew-body {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  8% { transform: translateY(0) rotate(2.4deg); }
-  20% { transform: translateY(3px) rotate(0deg); }
-  32% { transform: translateY(0) rotate(2.4deg); }
-  44% { transform: translateY(3px) rotate(0deg); }
-  56% { transform: translateY(0) rotate(2.4deg); }
-  70% { transform: translateY(3px) rotate(0deg); }
-}
-.pet-mouth {
+.pet-hole {
   position: absolute;
   left: 50%;
-  top: 46%;
-  z-index: 6;
-  width: 16%;
+  top: var(--mouth);
+  z-index: 4;
+  width: 15%;
   height: 8%;
+  margin-left: -7.5%;
+  background: #1c0c0a;
   border-radius: 50%;
-  background: #3a1a16;
-  box-shadow: inset 0 -2px 0 #7a3030, inset 0 2px 0 #ffb0a8;
-  transform: translateX(-50%) scaleY(0.12);
-  transform-origin: center 20%;
-  animation: pet-chew 2.1s ease-in-out 1 both;
   pointer-events: none;
+  transform-origin: center 20%;
+  animation: jaw-hole 2.1s ease-in-out 1 both;
 }
-.life-pet[data-family="electric"] .pet-mouth { top: 55%; }
-.life-pet[data-family="grass"] .pet-mouth { top: 48%; }
-.life-pet[data-form="baby"] .pet-mouth,
-.life-pet[data-form="child"] .pet-mouth { top: 50%; }
-.life-pet[data-family="electric"][data-form="baby"] .pet-mouth,
-.life-pet[data-family="electric"][data-form="child"] .pet-mouth { top: 52%; }
 .pet-bite {
   position: absolute;
-  left: 60%;
-  top: 40%;
+  left: 58%;
+  top: calc(var(--mouth) - 10%);
   z-index: 7;
-  transform-origin: 0% 55%;
+  transform-origin: 0% 60%;
   animation: pet-bite 2.1s linear 1 both;
   pointer-events: none;
 }
-.life-pet[data-family="electric"] .pet-bite { top: 49%; }
-.life-pet[data-family="grass"] .pet-bite { top: 42%; }
-.life-pet[data-form="baby"] .pet-bite,
-.life-pet[data-form="child"] .pet-bite { top: 44%; }
-@keyframes pet-chew {
-  0% { transform: translateX(-50%) scaleY(0.12); }
-  8% { transform: translateX(-50%) scaleY(1); }
-  20% { transform: translateX(-50%) scaleY(0.12); }
-  32% { transform: translateX(-50%) scaleY(1); }
-  44% { transform: translateX(-50%) scaleY(0.12); }
-  56% { transform: translateX(-50%) scaleY(1); }
-  70%, 100% { transform: translateX(-50%) scaleY(0.12); }
+@keyframes jaw-drop {
+  0%, 18%, 42%, 66%, 100% { transform: translateY(0); }
+  8%, 32%, 56% { transform: translateY(8px); }
+}
+@keyframes jaw-hole {
+  0%, 18%, 42%, 66%, 100% { transform: translateY(-60%) scaleY(0.15); }
+  8%, 32%, 56% { transform: translateY(-30%) scaleY(1); }
 }
 @keyframes pet-bite {
   0%, 16% { transform: scale(1); opacity: 1; }
-  22%, 40% { transform: scale(0.5); opacity: 1; }
-  46%, 64% { transform: scale(0.25); opacity: 1; }
-  72% { transform: scale(0.08); opacity: 0.35; }
-  84%, 100% { transform: scale(0); opacity: 0; }
+  20%, 40% { transform: scale(0.5); opacity: 1; }
+  44%, 64% { transform: scale(0.25); opacity: 1; }
+  70% { transform: scale(0.08); opacity: 0.35; }
+  82%, 100% { transform: scale(0); opacity: 0; }
 }
 .life-egg.is-photo {
   width: 118px;

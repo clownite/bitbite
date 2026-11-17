@@ -185,15 +185,18 @@ export function LifeCreature({
       onPointerUp={onTap ? press : undefined}
       onTouchEnd={onTap ? press : undefined}
     >
-      <img src={photo} alt="" className="life-pet-photo" draggable={false} />
-      {eating ? (
-        <>
-          <span className="pet-mouth" aria-hidden />
-          <span className="pet-bite" aria-hidden>
-            <PixelCookie size={30} />
-          </span>
-        </>
-      ) : null}
+      <span className="life-pet-live">
+        <img src={photo} alt="" className="life-pet-photo" draggable={false} />
+        {eating ? (
+          <>
+            <span className="pet-hole" aria-hidden />
+            <img src={photo} alt="" className="life-pet-photo is-chin" draggable={false} />
+            <span className="pet-bite" aria-hidden>
+              <PixelCookie size={26} />
+            </span>
+          </>
+        ) : null}
+      </span>
       <canvas ref={shadowRef} className="life-pet-shadow" hidden />
       <canvas ref={bodyRef} className="life-pet-body" hidden />
       {flash ? <span className="life-pet-flash">{flash}</span> : null}
