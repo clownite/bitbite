@@ -22,9 +22,11 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
     const pull = () => setRows(xpLeaders());
     pull();
     window.addEventListener("focus", pull);
+    window.addEventListener("zoom-xp-board", pull);
     document.addEventListener("visibilitychange", pull);
     return () => {
       window.removeEventListener("focus", pull);
+      window.removeEventListener("zoom-xp-board", pull);
       document.removeEventListener("visibilitychange", pull);
     };
   }, []);
@@ -33,8 +35,7 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
   const you = getTelegramViewer();
   const youId = telegramId || you.id;
 
-  const podium = [rows[1], rows[0], rows[2]].filter(Boolean);
-  const order = [2, 1, 3];
+  const podium = [rows[1], rows[0], rows[2]];
 
   return (
     <div className="flex flex-col h-full overflow-hidden" style={{ background: "transparent", color: "#0f380f" }}>
@@ -49,8 +50,9 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
       <div className="flex-1 overflow-y-auto px-4 pb-6" style={{ minHeight: 0, WebkitOverflowScrolling: "touch" }}>
         <div className="grid grid-cols-3 gap-2 items-end mb-3">
           {podium.map((entry, index) => {
-            const place = order[index];
+            const place = [2, 1, 3][index];
             const tall = place === 1;
+            if (!entry) return <div key={place} />;
             return (
               <div
                 key={entry.telegramId}
@@ -65,6 +67,10 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
             );
           })}
         </div>
+
+        {rows.length === 0 ? (
+          <p className="text-center text-sm font-bold py-8" style={{ color: "#306230" }}>{t("rank.empty")}</p>
+        ) : null}
 
         <div className="flex flex-col gap-1.5">
           {rows.slice(3).map((entry, index) => {

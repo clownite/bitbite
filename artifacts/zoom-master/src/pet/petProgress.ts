@@ -2,6 +2,7 @@ import type { PetId } from "./catalog";
 import { settleFarm } from "./crumbs";
 import { focusLife } from "./life";
 import { humanJustTouched } from "./human";
+import { recordBoardXp } from "./xpBoard";
 
 /** One shared pet. Everyone starts on the same base form. */
 
@@ -249,8 +250,11 @@ function applyXp(amount: number) {
 
 /** A little XP that does not spend one of the four daily taps. */
 export function grantXp(amount: number) {
-  applyXp(amount);
+  const n = Math.floor(amount);
+  if (n <= 0 || state.finished) return;
+  applyXp(n);
   emit();
+  recordBoardXp(n);
 }
 
 export function getPet(): PetState {
@@ -325,12 +329,14 @@ export function xpBlocked(pet: PetState): "done" | "gate" | null {
   return null;
 }
 
-/** XP only comes from Earn. Extra past stage 3 is kept for the next cycle. */
+/** Tasks, taps, games, letters. The pet grows, and the same XP lands on the weekly board. */
 export function addPetXp(amount: number): number {
-  if (amount <= 0 || xpBlocked(state)) return 0;
-  applyXp(amount);
+  const n = Math.floor(amount);
+  if (n <= 0 || xpBlocked(state)) return 0;
+  applyXp(n);
   emit();
-  return amount;
+  recordBoardXp(n);
+  return n;
 }
 
 export type DailyXpStatus = {
