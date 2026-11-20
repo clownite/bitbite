@@ -4515,7 +4515,14 @@ body, body * {
   border: 3px solid #0f380f;
   overflow: hidden;
 }
-.gb-app .num-arena .life-pet { bottom: 16%; }
+.gb-app .num-arena .life-pet.is-photo {
+  bottom: 18%;
+  width: min(30%, 108px);
+  height: auto;
+  margin-left: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
 .gb-app .num-round {
   background: transparent;
   color: #0f380f;
@@ -6920,7 +6927,14 @@ body, body * {
   height: auto;
   min-height: 0;
 }
-.gb-app .cookie-arena .life-pet { bottom: 18%; }
+.gb-app .cookie-arena .life-pet.is-photo {
+  bottom: 72px;
+  width: min(32%, 112px);
+  height: auto;
+  margin-left: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
 .gb-app .cookie-hint {
   top: auto;
   bottom: 18px;
@@ -8044,7 +8058,7 @@ html, body, #root { background: #000 !important; }
   user-select: none;
 }
 .gb-app.tab-lab .life-pet.is-photo {
-  width: min(48%, 176px);
+  width: min(32%, 118px);
   height: auto;
   max-height: none;
   margin-left: 0;
