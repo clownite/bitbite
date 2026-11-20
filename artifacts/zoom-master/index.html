@@ -134,6 +134,14 @@
         text-shadow: 0 1px 0 rgba(15, 56, 15, 0.25), 0 0 8px rgba(255, 255, 255, 0.5);
         animation: boot-fall linear infinite;
       }
+      .boot-snow i.is-dot {
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.55);
+        color: transparent;
+        font-size: 0;
+        text-shadow: none;
+      }
       @keyframes boot-fall {
         from { transform: translate3d(0, -8dvh, 0); }
         to { transform: translate3d(var(--drift), 108dvh, 0); }
@@ -191,16 +199,31 @@
           <div class="gb-boot-speaker"><i></i><i></i><i></i></div>
         </div>
         <div class="boot-snow" aria-hidden="true">
-          <i style="left:6%;font-size:13px;animation-duration:16s;animation-delay:-2s;--drift:12px">❄</i>
-          <i style="left:16%;font-size:10px;animation-duration:19s;animation-delay:-9s;--drift:-16px">❄</i>
-          <i style="left:27%;font-size:15px;animation-duration:17s;animation-delay:-14s;--drift:18px">❄</i>
-          <i style="left:38%;font-size:11px;animation-duration:21s;animation-delay:-5s;--drift:-10px">❄</i>
-          <i style="left:48%;font-size:14px;animation-duration:18s;animation-delay:-12s;--drift:14px">❄</i>
-          <i style="left:58%;font-size:10px;animation-duration:22s;animation-delay:-3s;--drift:-20px">❄</i>
-          <i style="left:67%;font-size:16px;animation-duration:15s;animation-delay:-8s;--drift:8px">❄</i>
-          <i style="left:76%;font-size:12px;animation-duration:20s;animation-delay:-16s;--drift:-14px">❄</i>
-          <i style="left:86%;font-size:14px;animation-duration:17s;animation-delay:-6s;--drift:16px">❄</i>
-          <i style="left:93%;font-size:11px;animation-duration:23s;animation-delay:-11s;--drift:-8px">❄</i>
+          <i class="is-dot" style="left:4%;width:2px;height:2px;animation-duration:9s;animation-delay:-1s;--drift:8px"></i>
+          <i class="is-dot" style="left:9%;width:3px;height:3px;animation-duration:13s;animation-delay:-6s;--drift:-12px"></i>
+          <i class="is-dot" style="left:14%;width:2px;height:2px;animation-duration:8s;animation-delay:-3s;--drift:6px"></i>
+          <i class="is-dot" style="left:19%;width:4px;height:4px;animation-duration:15s;animation-delay:-11s;--drift:-18px"></i>
+          <i class="is-dot" style="left:24%;width:2px;height:2px;animation-duration:11s;animation-delay:-2s;--drift:10px"></i>
+          <i class="is-dot" style="left:29%;width:3px;height:3px;animation-duration:17s;animation-delay:-8s;--drift:-8px"></i>
+          <i class="is-dot" style="left:33%;width:2px;height:2px;animation-duration:10s;animation-delay:-14s;--drift:14px"></i>
+          <i class="is-dot" style="left:38%;width:5px;height:5px;animation-duration:18s;animation-delay:-4s;--drift:-16px"></i>
+          <i class="is-dot" style="left:43%;width:2px;height:2px;animation-duration:9s;animation-delay:-7s;--drift:9px"></i>
+          <i class="is-dot" style="left:47%;width:3px;height:3px;animation-duration:14s;animation-delay:-12s;--drift:-6px"></i>
+          <i class="is-dot" style="left:52%;width:2px;height:2px;animation-duration:8s;animation-delay:-1s;--drift:12px"></i>
+          <i class="is-dot" style="left:56%;width:4px;height:4px;animation-duration:16s;animation-delay:-9s;--drift:-14px"></i>
+          <i class="is-dot" style="left:61%;width:2px;height:2px;animation-duration:12s;animation-delay:-5s;--drift:7px"></i>
+          <i class="is-dot" style="left:66%;width:3px;height:3px;animation-duration:19s;animation-delay:-15s;--drift:-10px"></i>
+          <i class="is-dot" style="left:71%;width:2px;height:2px;animation-duration:10s;animation-delay:-3s;--drift:16px"></i>
+          <i class="is-dot" style="left:75%;width:5px;height:5px;animation-duration:17s;animation-delay:-8s;--drift:-8px"></i>
+          <i class="is-dot" style="left:80%;width:2px;height:2px;animation-duration:9s;animation-delay:-13s;--drift:11px"></i>
+          <i class="is-dot" style="left:85%;width:3px;height:3px;animation-duration:14s;animation-delay:-2s;--drift:-18px"></i>
+          <i class="is-dot" style="left:89%;width:2px;height:2px;animation-duration:11s;animation-delay:-6s;--drift:8px"></i>
+          <i class="is-dot" style="left:94%;width:4px;height:4px;animation-duration:16s;animation-delay:-10s;--drift:-12px"></i>
+          <i style="left:12%;font-size:13px;animation-duration:16s;animation-delay:-2s;--drift:12px">❄</i>
+          <i style="left:31%;font-size:15px;animation-duration:18s;animation-delay:-11s;--drift:-14px">❄</i>
+          <i style="left:54%;font-size:12px;animation-duration:20s;animation-delay:-5s;--drift:16px">❄</i>
+          <i style="left:73%;font-size:16px;animation-duration:15s;animation-delay:-8s;--drift:-8px">❄</i>
+          <i style="left:90%;font-size:11px;animation-duration:22s;animation-delay:-14s;--drift:10px">❄</i>
         </div>
       </div>
       <button type="button" id="splash-retry-btn">Riprova</button>

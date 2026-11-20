@@ -191,9 +191,14 @@ export function AdminPixel({
             placeholder="Messaggio di manutenzione"
             style={{ ...field, resize: "none" }}
           />
-          <button type="button" disabled={busy} onClick={() => void runMaint(!maintenanceOn)} style={{ ...(maintenanceOn ? ghost : danger), width: "100%" }}>
-            {maintenanceOn ? "Chiudi manutenzione" : "Manutenzione"}
+          <button type="button" disabled={busy} onClick={() => void runMaint(true)} style={{ ...danger, width: "100%" }}>
+            {maintenanceOn ? "Salva testo" : "Manutenzione"}
           </button>
+          {maintenanceOn ? (
+            <button type="button" disabled={busy} onClick={() => void runMaint(false)} style={{ ...ghost, width: "100%" }}>
+              Chiudi manutenzione
+            </button>
+          ) : null}
           {history.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", color: "#ffd36a" }}>CONFERME</div>

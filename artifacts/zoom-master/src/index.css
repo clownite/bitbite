@@ -2785,6 +2785,48 @@ body.animations-paused * {
   opacity: 1;
   box-shadow: none;
 }
+.maint-frame {
+  box-sizing: border-box;
+  height: var(--tg-viewport-stable-height, 100dvh);
+  max-height: 100dvh;
+  padding-top: calc(max(var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px)) + var(--tg-content-safe-area-inset-top, 0px));
+  padding-bottom: calc(max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px)) + var(--tg-content-safe-area-inset-bottom, 0px));
+}
+.maint-frame .gb-boot { height: 100%; }
+.maint-frame .gb-boot-stage { filter: none; }
+.maint-copy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 260px;
+  padding: 0 8px;
+  text-align: center;
+  color: #0f380f;
+}
+.maint-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.maint-note {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+.gb-load-track i.maint-meter {
+  animation: maint-meter 2.8s linear infinite;
+}
+@keyframes maint-meter {
+  0% { width: 0; }
+  82% { width: 100%; }
+  100% { width: 0; }
+}
 .zoom-splash-sub-maint {
   max-width: 280px;
   margin-left: auto;
@@ -3706,15 +3748,30 @@ body, body * {
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
+.christmas-snow span.is-puff {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.55);
+  filter: blur(0.4px);
+}
 .christmas-snow span.is-flake {
   width: auto;
   height: auto;
   background: none;
   box-shadow: none;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(255, 255, 255, 0.88);
   font-size: 13px;
   line-height: 1;
   text-shadow: 0 1px 0 rgba(15, 56, 15, 0.25), 0 0 8px rgba(255, 255, 255, 0.55);
+}
+.christmas-snow::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.28));
+  pointer-events: none;
 }
 @keyframes christmas-snow-fall {
   0% { transform: translate3d(0, -12px, 0); }
