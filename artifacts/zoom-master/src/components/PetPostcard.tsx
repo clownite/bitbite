@@ -6,14 +6,19 @@ import { hapticSoft } from "../utils/haptic";
 import { runTap } from "../utils/tap";
 import { PixelHeart } from "./PixelPop";
 
-/** First letter after a short while on Home, then a quiet gap, and only a few a day. */
+/** First letter after a short while on Home. The next one waits 15 to 20 minutes after it is opened. */
 const FIRST_MS = 18_000;
-const AGAIN_MS = 6 * 60_000;
-const DAY_CAP = 3;
+const GAP_MIN = 15 * 60_000;
+const GAP_MAX = 20 * 60_000;
+const DAY_CAP = 48;
 const LETTER_XP = 2;
 const KEY = "zoom-postcard-v1";
 
-type Saved = { day: string; count: number; nextAt: number; recent: number[] };
+type Saved = { day: string; count: number; nextAt: number; recent: number[]; hold: boolean };
+
+function nextGap(): number {
+  return GAP_MIN + Math.random() * (GAP_MAX - GAP_MIN);
+}
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
@@ -29,10 +34,11 @@ function load(): Saved {
         count: Number(parsed.count) || 0,
         nextAt: Number(parsed.nextAt) || 0,
         recent: Array.isArray(parsed.recent) ? parsed.recent.filter((n) => typeof n === "number") : [],
+        hold: parsed.hold === true,
       };
     }
   } catch { /**/ }
-  return { day, count: 0, nextAt: 0, recent: [] };
+  return { day, count: 0, nextAt: 0, recent: [], hold: false };
 }
 
 function save(saved: Saved) {
@@ -56,11 +62,16 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
   const full = lineId == null ? "" : postcardAt(lang, petName, lineId);
 
   useEffect(() => {
-    if (!active) return;
+    if (!active || phase) return;
     let timer = 0;
     const plan = () => {
       const saved = load();
       if (saved.count >= DAY_CAP) return;
+      if (saved.hold) {
+        saved.hold = false;
+        saved.nextAt = Date.now() + nextGap();
+        save(saved);
+      }
       if (soon && saved.count === 0 && (!saved.nextAt || saved.nextAt - Date.now() > 2000)) {
         saved.nextAt = Date.now() + 1200;
         save(saved);
@@ -76,11 +87,11 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
           return;
         }
         const now = load();
-        if (now.count >= DAY_CAP) return;
+        if (now.count >= DAY_CAP || now.hold) return;
         const line = postcardLine(lang, petName, now.recent);
         now.recent = [line.id, ...now.recent].slice(0, 8);
         now.count += 1;
-        now.nextAt = Date.now() + AGAIN_MS;
+        now.hold = true;
         save(now);
         setLineId(line.id);
         setShown("");
@@ -88,12 +99,11 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
         paid.current = false;
         setPhase("closed");
         hapticSoft();
-        plan();
       }, Math.max(0, due - Date.now()));
     };
     plan();
     return () => window.clearTimeout(timer);
-  }, [active, lang, petName, soon]);
+  }, [active, lang, petName, soon, phase]);
 
   useEffect(() => {
     if (phase !== "writing") return;
@@ -125,6 +135,10 @@ export function PetPostcard({ active, petName, soon = false }: { active: boolean
       if (!paid.current) {
         paid.current = true;
         grantXp(LETTER_XP);
+        const saved = load();
+        saved.hold = false;
+        saved.nextAt = Date.now() + nextGap();
+        save(saved);
       }
       hapticSoft();
       window.dispatchEvent(new Event("zoom-pet-hello"));

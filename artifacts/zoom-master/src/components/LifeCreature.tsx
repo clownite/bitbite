@@ -92,6 +92,7 @@ export function LifeCreature({
   asleep = false,
   asking = false,
   onTap = false,
+  cheer = 0,
 }: {
   family: FamilyId;
   form: LifeForm;
@@ -101,6 +102,8 @@ export function LifeCreature({
   asleep?: boolean;
   asking?: boolean;
   onTap?: boolean;
+  /** A catch on Play. The pet hops once and the hearts play above it. */
+  cheer?: number;
 }) {
   const bodyRef = useRef<HTMLCanvasElement>(null);
   const shadowRef = useRef<HTMLCanvasElement>(null);
@@ -175,7 +178,7 @@ export function LifeCreature({
   const width = Math.max(rows[0]?.length ?? 12, 12);
   return (
     <div
-      className={`life-pet is-photo${mini ? " is-mini" : ""}${asleep ? " is-asleep" : ""}${rising ? " is-rise" : ""}${form === "elder" ? " is-elder" : ""}${asking ? " is-asking" : ""}${eating ? " is-eating" : ""}`}
+      className={`life-pet is-photo${mini ? " is-mini" : ""}${asleep ? " is-asleep" : ""}${rising ? " is-rise" : ""}${form === "elder" ? " is-elder" : ""}${asking ? " is-asking" : ""}${eating ? " is-eating" : ""}${cheer > 0 ? " is-glad" : ""}`}
       data-family={family}
       data-form={form}
       style={photo ? undefined : { width: `calc(${width} * var(--cell))`, marginLeft: `calc(${width} * var(--cell) / -2)` }}
@@ -188,12 +191,17 @@ export function LifeCreature({
       <span className="life-pet-live">
         <span className="life-pet-face">
           <img src={photo} alt="" className="life-pet-photo" draggable={false} />
+          {photo && !eating ? (
+            <span className="pet-lids" aria-hidden>
+              <i className="pet-lid is-l" />
+              <i className="pet-lid is-r" />
+            </span>
+          ) : null}
           {eating ? (
             <>
-              <span className="pet-hole" aria-hidden />
-              <img src={photo} alt="" className="life-pet-photo is-chin" draggable={false} />
+              {form !== "egg" ? <span className="pet-mouth" aria-hidden /> : null}
               <span className="pet-bite" aria-hidden>
-                <PixelCookie size={26} />
+                <PixelCookie size={22} />
               </span>
             </>
           ) : null}
@@ -202,8 +210,8 @@ export function LifeCreature({
       <canvas ref={shadowRef} className="life-pet-shadow" hidden />
       <canvas ref={bodyRef} className="life-pet-body" hidden />
       {flash ? <span className="life-pet-flash">{flash}</span> : null}
-      {hearts > 0 ? (
-        <span className="pet-tap-hearts" key={hearts} aria-hidden>
+      {hearts > 0 || cheer > 0 ? (
+        <span className="pet-tap-hearts" key={cheer > 0 ? `c${cheer}` : hearts} aria-hidden>
           <PixelHeart />
           <PixelHeart />
           <PixelHeart />

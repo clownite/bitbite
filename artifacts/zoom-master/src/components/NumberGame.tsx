@@ -158,6 +158,14 @@ export function NumberGame({ pet, onPlayed }: { pet: PetState; color: string; li
     playRound(1, 0);
   };
 
+  useEffect(() => {
+    const locked = phase !== "idle" && phase !== "done";
+    window.dispatchEvent(new CustomEvent("zoom-play-lock", { detail: locked }));
+    return () => {
+      if (locked) window.dispatchEvent(new CustomEvent("zoom-play-lock", { detail: false }));
+    };
+  }, [phase]);
+
   const showTheirs = phase === "win" || phase === "lose";
   const life = readLife(pet.active);
 

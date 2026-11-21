@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { nextReset } from "../pet/invested";
 import { xpLeaders, type XpRow } from "../pet/gameXp";
 import { getTelegramViewer } from "../utils/telegram";
+import { TelegramAvatar } from "../components/TelegramAvatar";
 import { useT } from "../i18n/LanguageContext";
 
 interface RankPageProps {
@@ -59,6 +60,12 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
                 className="px-2 text-center"
                 style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", minHeight: 150 }}
               >
+                <TelegramAvatar
+                  photoUrl={youId && entry.telegramId === youId ? you.photoUrl : entry.photoUrl}
+                  name={entry.name}
+                  seed={entry.telegramId}
+                  size={tall ? 42 : 34}
+                />
                 <div className="font-black text-[13px] truncate" style={{ color: "#0f380f" }}>{entry.name.split(" ")[0]}</div>
                 <div className="font-black tabular-nums" style={{ color: "#0f380f", fontSize: tall ? 22 : 16 }}>{formatGram(entry.amount)}</div>
                 <div className="text-[10px] font-bold tracking-wide" style={{ color: "#306230" }}>XP</div>
@@ -89,6 +96,12 @@ export function RankPage({ telegramId, visible }: RankPageProps) {
                 <div className="font-black text-sm w-7 text-center flex-shrink-0" style={{ color: "#0f380f" }}>
                   {rank}
                 </div>
+                <TelegramAvatar
+                  photoUrl={isUser ? you.photoUrl : entry.photoUrl}
+                  name={entry.name}
+                  seed={entry.telegramId}
+                  size={28}
+                />
                 <div className="flex-1 min-w-0">
                   <div className="font-black text-sm truncate" style={{ color: "#0f380f" }}>
                     {entry.name}

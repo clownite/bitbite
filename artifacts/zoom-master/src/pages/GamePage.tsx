@@ -93,6 +93,8 @@ export function GamePage({ active }: { active: boolean }) {
   const [numberLeft, setNumberLeft] = useState(() => playsLeft(numberPlays()));
   const [boardOpen, setBoardOpen] = useState(false);
   const [hint, setHint] = useState(true);
+  const [glad, setGlad] = useState(0);
+  const gladTimer = useRef(0);
   const [mode, setMode] = useState<"cookies" | "numbers">("cookies");
   const [now, setNow] = useState(() => Date.now());
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -177,6 +179,14 @@ export function GamePage({ active }: { active: boolean }) {
     };
   }, [active, mode]);
 
+  useEffect(() => {
+    const locked = mode === "cookies" && run.phase === "play";
+    window.dispatchEvent(new CustomEvent("zoom-play-lock", { detail: locked }));
+    return () => {
+      if (locked) window.dispatchEvent(new CustomEvent("zoom-play-lock", { detail: false }));
+    };
+  }, [mode, run.phase]);
+
   const left = playsLeft(plays);
   const begin = () => {
     if (playsLeft(cookiePlays()) <= 0) {
@@ -199,6 +209,10 @@ export function GamePage({ active }: { active: boolean }) {
     if (next.caughtThisTick > 0) {
       playBite();
       hapticSoft();
+      const token = Date.now();
+      setGlad(token);
+      window.clearTimeout(gladTimer.current);
+      gladTimer.current = window.setTimeout(() => setGlad(0), 700);
     } else playClick();
   };
 
@@ -272,7 +286,7 @@ export function GamePage({ active }: { active: boolean }) {
             borderColor: "#0f380f",
           }}
         >
-          <LifeCreature family={familyOf(pet.active)} form={life.form} kin={life.kin} mark={life.mark} />
+          <LifeCreature family={familyOf(pet.active)} form={life.form} kin={life.kin} mark={life.mark} cheer={glad} />
           <div className="cookie-floor" />
           {size.w > 0 && run.drops.map((drop) => {
             const point = stagePoint(drop.x, drop.y, size.w, size.h);

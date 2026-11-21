@@ -51,11 +51,18 @@ export function startPetPayment(petId: PetId, name: string, price: number) {
 function commentOf(tx: unknown): string {
   const msg = (tx as { in_msg?: Record<string, unknown> })?.in_msg;
   if (!msg) return "";
-  const decoded = msg.decoded_body as { text?: string; comment?: string } | undefined;
-  const raw = decoded?.text || decoded?.comment || "";
-  if (typeof raw === "string" && raw) return raw;
-  const message = msg.message;
-  return typeof message === "string" ? message : "";
+  const parts: string[] = [];
+  const walk = (node: unknown, depth: number) => {
+    if (depth > 5 || node == null) return;
+    if (typeof node === "string") {
+      if (node.length > 0 && node.length < 240) parts.push(node);
+      return;
+    }
+    if (typeof node !== "object") return;
+    for (const value of Object.values(node as Record<string, unknown>)) walk(value, depth + 1);
+  };
+  walk(msg, 0);
+  return parts.join(" ");
 }
 
 function nanoOf(tx: unknown): number {
@@ -74,6 +81,10 @@ export function startStagePayment(price: number, nextLevel: 5 | 10) {
   const nano = Math.round(price * 1e9);
   const url = `https://app.tonkeeper.com/transfer/${PET_TREASURY}?amount=${nano}&text=${encodeURIComponent(comment)}`;
   openPayLink(url);
+}
+
+export function pendingPetOrders(): number {
+  return read().filter((order) => order.status === "pending").length;
 }
 
 /** When the treasury has the GRAM, the pet enters the collection and the weekly board moves. */
@@ -95,7 +106,7 @@ export async function settlePetPayments(): Promise<PetId[]> {
   for (const order of pending) {
     const hit = transactions.some((tx) => {
       const text = commentOf(tx);
-      return text.includes(order.id) && nanoOf(tx) + 1e6 >= order.price * 1e9;
+      return text.includes(order.comment) && nanoOf(tx) + 1e6 >= order.price * 1e9;
     });
     if (!hit) continue;
     const row = next.find((item) => item.id === order.id);

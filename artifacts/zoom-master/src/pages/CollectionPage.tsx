@@ -69,7 +69,6 @@ export function CollectionPage({
       <div className="gb-collection-grid">
         {Array.from({ length: PET_SLOTS }, (_, index) => {
           const id = pet.owned[index] as PetId | undefined;
-          const selected = id != null && id === pet.active;
           if (!id) {
             return (
               <button
@@ -106,7 +105,6 @@ export function CollectionPage({
               <div className="gb-slot-caption">
                 <div className="gb-slot-name">{petDef(id).name}</div>
                 <div className="gb-slot-kind">{t(`pet.element.${petDef(id).element.id}`)}</div>
-                {selected ? <div className="gb-slot-home">{t("pet.onHome")}</div> : null}
               </div>
             </div>
           );

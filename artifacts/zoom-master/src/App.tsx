@@ -30,7 +30,7 @@ import { FirstGuide, type GuideTab } from "./components/FirstGuide";
 import { hapticCalm, hapticSoft } from "./utils/haptic";
 import { runTap } from "./utils/tap";
 import { playClick } from "./audio/sfx";
-import { settlePetPayments } from "./pet/payPet";
+import { pendingPetOrders, settlePetPayments } from "./pet/payPet";
 import { syncPetCloud } from "./pet/cloud";
 import { resumeChiptune, setChiptuneMuted } from "./audio/chiptune";
 import { TonConnectUIProvider } from "@tonconnect/ui-react";
@@ -183,6 +183,8 @@ export default function App() {
 function AppShell() {
   const { t } = useT();
   const [tab, setTab] = useState<Tab>("lab");
+  const [playing, setPlaying] = useState(false);
+  const playingRef = useRef(false);
   const [gear, setGear] = useState(0);
   const shopFrom = useRef<Tab>("lab");
   const [held, setHeld] = useState<string | null>(null);
@@ -247,6 +249,10 @@ function AppShell() {
     window.addEventListener("focus", onShow);
     void settlePetPayments();
     const onPay = () => { if (!document.hidden) void settlePetPayments(); };
+    const payWatch = window.setInterval(() => {
+      if (document.hidden || pendingPetOrders() === 0) return;
+      void settlePetPayments();
+    }, 6000);
     document.addEventListener("visibilitychange", onPay);
     window.addEventListener("focus", onPay);
     return () => {
@@ -254,6 +260,7 @@ function AppShell() {
       window.removeEventListener("focus", onShow);
       document.removeEventListener("visibilitychange", onPay);
       window.removeEventListener("focus", onPay);
+      window.clearInterval(payWatch);
     };
   }, []);
 
@@ -319,6 +326,19 @@ function AppShell() {
     return () => { alive = false; window.clearInterval(id); };
   }, [admin]);
 
+  useEffect(() => {
+    const onLock = (event: Event) => {
+      const locked = Boolean((event as CustomEvent<boolean>).detail);
+      playingRef.current = locked;
+      setPlaying(locked);
+    };
+    window.addEventListener("zoom-play-lock", onLock);
+    return () => window.removeEventListener("zoom-play-lock", onLock);
+  }, []);
+  const goTab = (next: Tab | ((cur: Tab) => Tab)) => {
+    if (playingRef.current) return;
+    setTab(next);
+  };
   const press = (id: string, fn: () => void) => {
     setHeld(id);
     window.setTimeout(() => setHeld((cur) => (cur === id ? null : cur)), 160);
@@ -328,7 +348,7 @@ function AppShell() {
     const ids = NAV.map((item) => item.id);
     const at = ids.indexOf(tab as typeof ids[number]);
     const from = at < 0 ? 0 : at;
-    setTab(ids[(from + dir + ids.length) % ids.length]);
+    goTab(ids[(from + dir + ids.length) % ids.length] as Tab);
   };
 
   if (maintenance.enabled && !admin) return <MaintenanceScreen message={maintenance.message} />;
@@ -336,7 +356,7 @@ function AppShell() {
 
   return (
     <div
-      className={`gb-app tab-${tab} flex flex-col overflow-hidden relative${tab === "wallet" ? " is-profile" : ""}`}
+      className={`gb-app tab-${tab} flex flex-col overflow-hidden relative${tab === "wallet" ? " is-profile" : ""}${playing ? " is-playing" : ""}`}
       style={{
         marginTop: "calc(max(var(--tg-safe-area-inset-top, 0px), env(safe-area-inset-top, 0px)) + var(--tg-content-safe-area-inset-top, 0px))",
         marginBottom: "calc(max(var(--tg-safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px)) + var(--tg-content-safe-area-inset-bottom, 0px))",
@@ -405,8 +425,8 @@ function AppShell() {
                 <button
                   key={item.id}
                   className={`gb-nav-btn flex-1 flex flex-col items-center justify-center gap-1${active ? " is-on" : ""}${calling ? " nav-call" : ""}`}
-                  onPointerDown={(event) => runTap(event, () => setTab(item.id))}
-                  onTouchStart={(event) => runTap(event, () => setTab(item.id))}
+                  onPointerDown={(event) => runTap(event, () => goTab(item.id))}
+                  onTouchStart={(event) => runTap(event, () => goTab(item.id))}
                 >
                   <span className="gb-nav-ico">
                     <Icon size={18} strokeWidth={2.4} />
@@ -438,11 +458,11 @@ function AppShell() {
         </div>
         <div className="gb-pills">
           <button type="button" className={held === "select" ? "is-down" : ""} aria-label="Select" onPointerDown={(event) => runTap(event, () => press("select", () => setGear((n) => n + 1)))} onTouchStart={(event) => runTap(event, () => press("select", () => setGear((n) => n + 1)))} />
-          <button type="button" className={held === "start" ? "is-down" : ""} aria-label="Start" onPointerDown={(event) => runTap(event, () => press("start", () => setTab((cur) => {
+          <button type="button" className={held === "start" ? "is-down" : ""} aria-label="Start" onPointerDown={(event) => runTap(event, () => press("start", () => goTab((cur) => {
             if (cur === "shop") return shopFrom.current;
             shopFrom.current = cur;
             return "shop";
-          })))} onTouchStart={(event) => runTap(event, () => press("start", () => setTab((cur) => {
+          })))} onTouchStart={(event) => runTap(event, () => press("start", () => goTab((cur) => {
             if (cur === "shop") return shopFrom.current;
             shopFrom.current = cur;
             return "shop";

@@ -1,14 +1,14 @@
 /** Cookies score only when tapped in the air. A bomb ends the run only if it is tapped. */
 
-export const SERIES = 8;
+export const SERIES = 16;
 /** A drop that reaches this screen fraction has fallen. */
 export const FLOOR_Y = 0.9;
 export const PLAY_SPAN = 3.2;
 export const PLAY_CAM = 2 * Math.tan((32 * Math.PI) / 180 / 2) * 10;
 /** World Y so the feet sit on the arena floor, not in the air. */
 export const PLAY_BASE_Y = -1.55;
-const FALL = 0.52;
-const GAP = 0.85;
+const FALL = 0.74;
+const GAP = 0.42;
 
 export type DropKind = "cookie" | "bomb";
 
@@ -35,11 +35,11 @@ export type Run = {
   bombedThisTick: number;
 };
 
-/** First drop is a cookie. Three bombs sit in the rest of the series, with a cookie between them. */
+/** First drop is a cookie. Six bombs sit in the rest, with a cookie between them. */
 export function makeScript(random = Math.random): DropKind[] {
   const script: DropKind[] = Array.from({ length: SERIES }, () => "cookie");
   const shift = random() < 0.5 ? 0 : 1;
-  for (const slot of [2, 4, 6]) script[Math.min(SERIES - 1, slot + shift)] = "bomb";
+  for (const slot of [2, 4, 6, 9, 11, 14]) script[Math.min(SERIES - 1, slot + shift)] = "bomb";
   return script;
 }
 
@@ -138,7 +138,7 @@ export function stepRun(run: Run, dtIn: number): Run {
   let untilSpawn = run.untilSpawn - dt;
   let nextId = run.nextId;
   const alive = drops.filter((drop) => !drop.gone).length;
-  if (phase === "play" && untilSpawn <= 0 && spawned < run.script.length && alive < 3) {
+  if (phase === "play" && untilSpawn <= 0 && spawned < run.script.length && alive < 5) {
     drops.push(launch(run.script[spawned], nextId));
     nextId += 1;
     spawned += 1;

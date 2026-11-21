@@ -499,9 +499,24 @@ export function LabPage({
             </div>
             <div className="gb-stats">
               {stats.map((stat) => stat.id === "tap" ? (
-                <div key={stat.id} className="gb-stat is-taps" data-testid="stat-tap" aria-label={`${t("pet.tap")} ${taps.max - taps.count}/${taps.max}`}>
+                <button
+                  key={stat.id}
+                  type="button"
+                  className="gb-stat is-taps"
+                  data-testid="stat-tap"
+                  aria-label={`${t("pet.tap")} ${taps.max - taps.count}/${taps.max}`}
+                  aria-expanded={sheet === "tap"}
+                  onPointerDown={(event) => {
+                    event.stopPropagation();
+                    runTap(event, () => setSheet((open) => (open === "tap" ? null : "tap")));
+                  }}
+                  onTouchStart={(event) => {
+                    event.stopPropagation();
+                    runTap(event, () => setSheet((open) => (open === "tap" ? null : "tap")));
+                  }}
+                >
                   <TapHearts hearts={taps.hearts} />
-                </div>
+                </button>
               ) : (
                 <button
                   key={stat.id}
