@@ -7430,13 +7430,25 @@ body { background: #0c1008; }
   margin: 6px 16px 8px !important;
   padding: 0 !important;
   background: #9bbc0f !important;
+  background-clip: padding-box !important;
+  -webkit-background-clip: padding-box !important;
   border: 9px solid #12160e !important;
   border-radius: 20px !important;
   overflow: hidden !important;
+  /* The square screen used to poke out of this curve as a green triangle. */
+  clip-path: inset(0 round 20px);
   box-shadow:
     inset 0 0 0 3px #2a3422,
     0 0 0 4px #8d976c,
     0 14px 22px rgba(12, 16, 8, 0.28) !important;
+}
+.gb-app .gb-lcd > .relative {
+  border-radius: 11px 11px 0 0;
+  overflow: hidden !important;
+}
+.gb-app .gb-nav.is-in-screen {
+  border-radius: 0 0 11px 11px;
+  overflow: hidden;
 }
 .gb-app .gb-lcd::after { border-radius: 11px; }
 
@@ -7995,7 +8007,7 @@ body { background: #0c1008; }
 /* Same closed frame as the loading screen: the black lip seals the top. */
 .gb-app .gb-lcd > .relative {
   background: transparent;
-  border-radius: 0;
+  border-radius: 11px 11px 0 0;
   overflow: hidden !important;
   min-height: 0;
 }
