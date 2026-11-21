@@ -103,10 +103,10 @@ export function CollectionPage({
               {life.form === "egg" ? <LifeEgg family={familyOf(id)} mini /> : (
                 <LifeCreature family={familyOf(id)} form={life.form} kin={life.kin} mark={life.mark} mini />
               )}
-              <div style={{ position: "absolute", left: 8, right: 8, bottom: 8, textAlign: "center", pointerEvents: "none", color: "#0f380f" }}>
-                <div style={{ fontSize: 14, fontWeight: 900 }}>{petDef(id).name}</div>
-                <div style={{ fontSize: 11, fontWeight: 800 }}>{t(`pet.element.${petDef(id).element.id}`)}</div>
-                {selected ? <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: "0.06em" }}>{t("pet.onHome")}</div> : null}
+              <div className="gb-slot-caption">
+                <div className="gb-slot-name">{petDef(id).name}</div>
+                <div className="gb-slot-kind">{t(`pet.element.${petDef(id).element.id}`)}</div>
+                {selected ? <div className="gb-slot-home">{t("pet.onHome")}</div> : null}
               </div>
             </div>
           );

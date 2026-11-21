@@ -291,16 +291,43 @@ export function LabPage({
   }, []);
   useEffect(() => {
     if (!active || care.dark) return;
-    const kick = () => {
-      document.querySelectorAll<HTMLElement>(".gb-home-pet .life-pet-body").forEach((el) => {
-        el.style.setProperty("animation", "none", "important");
-        void el.offsetWidth;
-        el.style.removeProperty("animation");
-      });
+    const room = document.querySelector<HTMLElement>(".gb-home-pet");
+    if (!room) return;
+    let frame = 0;
+    const arm = () => {
+      room.classList.remove("is-hopping");
+      void room.offsetWidth;
+      room.classList.add("is-hopping");
     };
-    kick();
-    const frame = window.requestAnimationFrame(kick);
-    return () => window.cancelAnimationFrame(frame);
+    arm();
+    frame = window.requestAnimationFrame(arm);
+    const late = window.setTimeout(() => {
+      const el = room.querySelector<HTMLElement>(".life-pet-live, .life-egg-live");
+      const running = el?.getAnimations?.().some((item) => item.playState === "running") ?? false;
+      if (!running) arm();
+    }, 140);
+    const watch = window.setInterval(() => {
+      if (document.hidden) return;
+      const el = room.querySelector<HTMLElement>(".life-pet-live, .life-egg-live");
+      if (!el || el.closest(".is-eating")) return;
+      const box = el.getBoundingClientRect();
+      if (box.width < 2) return;
+      const running = el.getAnimations?.().some((item) => item.playState === "running") ?? false;
+      if (!running) arm();
+    }, 900);
+    const onShow = () => {
+      if (!document.hidden) window.setTimeout(arm, 40);
+    };
+    document.addEventListener("visibilitychange", onShow);
+    window.addEventListener("zoom-app-foreground", onShow);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(late);
+      window.clearInterval(watch);
+      document.removeEventListener("visibilitychange", onShow);
+      window.removeEventListener("zoom-app-foreground", onShow);
+      room.classList.remove("is-hopping");
+    };
   }, [active, care.dark]);
   useEffect(() => {
     if (!active) return;
@@ -363,7 +390,7 @@ export function LabPage({
             <span>BITBITE</span>
             <span>{life.givenName || chosen.name}</span>
           </div>
-          <div className={`gb-home-pet${fed ? " is-fed" : ""}${care.dark ? " is-dark" : ""}`} data-testid="pet-room">
+          <div className={`gb-home-pet${fed ? " is-fed" : ""}${care.dark ? " is-dark" : ""}${active && !care.dark ? " is-hopping" : ""}`} data-testid="pet-room">
             <CardReel petId={pet.active} petName={chosen.name} now={now} care={care} egg={life.form === "egg"}>
             {life.form === "egg" ? <LifeEgg family={familyOf(pet.active)} /> : (
               <LifeCreature

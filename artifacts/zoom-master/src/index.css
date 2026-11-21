@@ -8067,12 +8067,15 @@ html, body, #root { background: #000 !important; }
   transform: translateX(-50%);
   animation: none !important;
 }
-.gb-app.tab-lab .life-pet.is-photo .life-pet-live,
-.gb-app.tab-lab .life-egg.is-photo .life-egg-live {
+/* The hop starts only while Home is showing. Toggling .is-hopping
+   restarts it, because a steps() loop frozen under display:none
+   does not resume on its own in the Telegram webview. */
+.gb-app.tab-lab .gb-home-pet.is-hopping .life-pet.is-photo:not(.is-asleep):not(.is-eating) .life-pet-live,
+.gb-app.tab-lab .gb-home-pet.is-hopping .life-egg.is-photo .life-egg-live {
   animation: pet-px 0.48s steps(2, end) infinite;
 }
-.gb-app.tab-lab .life-pet.is-photo.is-asleep .life-pet-live {
-  animation: pet-sleep 2.4s ease-in-out infinite !important;
+.gb-app.tab-lab .gb-home-pet.is-hopping .life-pet.is-photo.is-asleep .life-pet-live {
+  animation: pet-sleep 2.4s ease-in-out infinite;
 }
 .gb-app.tab-lab .life-pet.is-photo.is-eating .life-pet-live {
   animation: none !important;
@@ -8165,13 +8168,42 @@ html, body, #root { background: #000 !important; }
   width: 56px;
   margin-left: -28px;
 }
+.gb-slot-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 8;
+  padding: 3px 6px 6px;
+  text-align: center;
+  pointer-events: none;
+  color: #0f380f;
+  background: #5f7e12;
+}
+.gb-slot-name {
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+.gb-slot-kind,
+.gb-slot-home {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+.gb-slot-home {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
 .gb-app.tab-farm .gb-slot .life-pet.is-photo.is-mini,
 .gb-app.tab-farm .gb-slot .life-egg.is-photo.is-mini {
-  top: auto;
-  bottom: 40px;
+  top: 4px;
+  bottom: 58px;
   left: 50%;
-  width: 108px;
-  height: 108px;
+  width: min(78%, 104px);
+  height: auto;
+  max-height: none;
   max-width: none;
   margin: 0;
   transform: translateX(-50%);
