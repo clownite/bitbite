@@ -33,8 +33,6 @@ const EGG_INK: Record<string, string> = {
 
 const MALE = ["......111", "......1.1", ".....1..1", ".1111.1..", "1....11..", "1....1...", "1....1...", ".1111...."];
 const FEMALE = [".11111.", "1.....1", "1.....1", "1.....1", ".11111.", "...1...", "..111..", "...1..."];
-const TREE = ["...33...", "..3223..", ".322223.", "22222222", "..2222..", "...11...", "...11...", "..1111.."];
-const FLOWER = [".2.3.2.", "2.232.2", ".22222.", "...1...", "...1..."];
 
 export const SHARE_W = 720;
 export const SHARE_H = 960;
@@ -219,13 +217,6 @@ export function drawShareCard(shot: ShareShot): { image: string; thumb: string }
 
   if (shot.form !== "egg" && shot.sex) {
     blit(ctx, shot.sex === "boy" ? MALE : FEMALE, { "1": "#0f380f" }, 56, 100, 5);
-    if (shot.road) {
-      const rows = shot.road === "wild" ? TREE : FLOWER;
-      const ink = shot.road === "wild"
-        ? { "1": "#8a5a32", "2": "#3fa84a", "3": "#8fd98a" }
-        : { "1": "#3fa84a", "2": "#ff4d8a", "3": "#ffe14a" };
-      blit(ctx, rows, ink, 36, 168, 5);
-    }
   }
 
   ctx.fillStyle = "#8bac0f";
