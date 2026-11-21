@@ -8117,106 +8117,63 @@ html, body, #root { background: #000 !important; }
   z-index: 2;
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 .life-pet-face {
   position: relative;
   display: block;
   width: 100%;
   height: auto;
+  aspect-ratio: calc(100 / var(--face, 110));
+}
+.life-pet.is-photo .life-pet-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
 }
 .gb-app.tab-lab .life-pet.is-photo .life-pet-live,
 .gb-app.tab-lab .life-pet.is-photo .life-pet-face {
   width: 100%;
   height: auto;
 }
-.gb-app.tab-lab .life-pet.is-photo .life-pet-photo {
-  width: 100%;
+.gb-app.tab-lab .life-pet.is-photo .life-pet-face {
   height: auto;
+  aspect-ratio: calc(100 / var(--face, 110));
+}
+.gb-app.tab-lab .life-pet.is-photo .life-pet-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: fill;
   animation: none;
 }
-/* Eyes stay open. A skin-colored lid drops over each eye, then lifts. */
-.life-pet.is-photo {
-  --eye-y: 42%;
-  --eye-l: 28%;
-  --eye-r: 62%;
-  --eye-w: 13%;
-  --eye-h: 18.6%;
-  --lid: #e8c090;
-}
-.life-pet[data-family="electric"][data-form="adult"],
-.life-pet[data-family="electric"][data-form="elder"],
-.life-pet[data-family="electric"][data-form="ascend"] {
-  --eye-y: 44.3%; --eye-l: 27.3%; --eye-r: 64.3%; --eye-w: 14.6%; --eye-h: 21.5%; --lid: #cd9b60;
-}
-.life-pet[data-family="electric"][data-form="baby"] {
-  --eye-y: 33.9%; --eye-l: 27%; --eye-r: 62%; --eye-w: 13.3%; --eye-h: 16.3%; --lid: #d19b5b;
-}
-.life-pet[data-family="electric"][data-form="child"] {
-  --eye-y: 43.2%; --eye-l: 27.8%; --eye-r: 63.6%; --eye-w: 13.5%; --eye-h: 16.9%; --lid: #d29a5d;
-}
-.life-pet[data-family="electric"][data-form="teen"] {
-  --eye-y: 42.6%; --eye-l: 28.3%; --eye-r: 65.3%; --eye-w: 14.6%; --eye-h: 22.9%; --lid: #cb995e;
-}
-.life-pet[data-family="fire"][data-form="adult"],
-.life-pet[data-family="fire"][data-form="elder"],
-.life-pet[data-family="fire"][data-form="ascend"] {
-  --eye-y: 41.3%; --eye-l: 30.3%; --eye-r: 62.9%; --eye-w: 12.7%; --eye-h: 14.1%; --lid: #e19c3d;
-}
-.life-pet[data-family="fire"][data-form="baby"] {
-  --eye-y: 52.9%; --eye-l: 28.9%; --eye-r: 66.8%; --eye-w: 11.8%; --eye-h: 13.0%; --lid: #df9638;
-}
-.life-pet[data-family="fire"][data-form="child"] {
-  --eye-y: 43.8%; --eye-l: 28.6%; --eye-r: 61.5%; --eye-w: 13.2%; --eye-h: 12.6%; --lid: #de993a;
-}
-.life-pet[data-family="fire"][data-form="teen"] {
-  --eye-y: 43.2%; --eye-l: 29.6%; --eye-r: 57.3%; --eye-w: 11.2%; --eye-h: 11.2%; --lid: #df983c;
-}
-.life-pet[data-family="grass"][data-form="adult"],
-.life-pet[data-family="grass"][data-form="elder"],
-.life-pet[data-family="grass"][data-form="ascend"] {
-  --eye-y: 43.4%; --eye-l: 27.8%; --eye-r: 60.8%; --eye-w: 13.6%; --eye-h: 25.9%; --lid: #abb869;
-}
-.life-pet[data-family="grass"][data-form="baby"] {
-  --eye-y: 40.9%; --eye-l: 26.7%; --eye-r: 60.5%; --eye-w: 13.1%; --eye-h: 23.7%; --lid: #a3b261;
-}
-.life-pet[data-family="grass"][data-form="child"] {
-  --eye-y: 42.9%; --eye-l: 24.9%; --eye-r: 59.9%; --eye-w: 13.7%; --eye-h: 25.9%; --lid: #a7b367;
-}
-.life-pet[data-family="grass"][data-form="teen"] {
-  --eye-y: 43.7%; --eye-l: 27.1%; --eye-r: 61.1%; --eye-w: 13.9%; --eye-h: 26.0%; --lid: #acb769;
-}
-.life-pet[data-family="water"][data-form="adult"],
-.life-pet[data-family="water"][data-form="elder"],
-.life-pet[data-family="water"][data-form="ascend"] {
-  --eye-y: 40.5%; --eye-l: 28%; --eye-r: 61.1%; --eye-w: 12.8%; --eye-h: 22.6%; --lid: #7db8c6;
-}
-.life-pet[data-family="water"][data-form="baby"] {
-  --eye-y: 44.2%; --eye-l: 25.5%; --eye-r: 59.8%; --eye-w: 13.5%; --eye-h: 17.7%; --lid: #7cb4c1;
-}
-.life-pet[data-family="water"][data-form="child"] {
-  --eye-y: 41%; --eye-l: 26.4%; --eye-r: 59.8%; --eye-w: 13.3%; --eye-h: 17.8%; --lid: #7ab4c2;
-}
-.life-pet[data-family="water"][data-form="teen"] {
-  --eye-y: 42.2%; --eye-l: 27.3%; --eye-r: 61.3%; --eye-w: 13.1%; --eye-h: 21.9%; --lid: #7cb6c4;
-}
+/* A lid the color of the face drops over each real eye, then lifts. */
 .pet-lids { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
 .pet-lid {
   position: absolute;
-  top: var(--eye-y);
-  width: var(--eye-w);
-  height: 0;
-  padding-bottom: var(--eye-h);
-  border-radius: 46% 46% 50% 50%;
-  background: var(--lid);
-  box-shadow: inset 0 -2px 0 rgba(40, 24, 10, 0.28);
+  border-radius: 50%;
+  box-shadow: inset 0 -1px 0 rgba(40, 24, 10, 0.18);
   transform: scaleY(0);
   transform-origin: center top;
   animation: pet-blink 4.6s ease-in-out infinite;
 }
-.pet-lid.is-l { left: var(--eye-l); }
-.pet-lid.is-r { left: var(--eye-r); }
+.pet-lid.is-l {
+  left: var(--eye-lx);
+  top: var(--eye-ly);
+  width: var(--eye-lw);
+  height: var(--eye-lh);
+  background: var(--lid-l, #e8c090);
+}
+.pet-lid.is-r {
+  left: var(--eye-rx);
+  top: var(--eye-ry);
+  width: var(--eye-rw);
+  height: var(--eye-rh);
+  background: var(--lid-r, #e8c090);
+}
 .life-pet[data-family="fire"] .pet-lid { animation-delay: 0.7s; }
 .life-pet[data-family="grass"] .pet-lid { animation-delay: 1.4s; }
 .life-pet[data-family="electric"] .pet-lid { animation-delay: 2.1s; }
@@ -8303,10 +8260,10 @@ html, body, #root { background: #000 !important; }
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  container-type: size;
 }
 .gb-app.tab-farm .gb-slot .life-pet.is-photo.is-mini .life-pet-live,
-.gb-app.tab-farm .gb-slot .life-egg.is-photo.is-mini .life-egg-live,
-.gb-app.tab-farm .gb-slot .life-pet.is-photo.is-mini .life-pet-face {
+.gb-app.tab-farm .gb-slot .life-egg.is-photo.is-mini .life-egg-live {
   width: 100%;
   height: 100%;
   display: flex;
@@ -8315,10 +8272,26 @@ html, body, #root { background: #000 !important; }
   animation: none !important;
   transform: none !important;
 }
+.gb-app.tab-farm .gb-slot .life-pet.is-photo.is-mini .life-pet-face {
+  width: min(100cqw, calc(100cqh * 100 / var(--face, 110)));
+  height: auto;
+  aspect-ratio: calc(100 / var(--face, 110));
+  flex: none;
+  display: block;
+}
 .gb-app.tab-play .life-egg.is-photo .life-egg-live {
   animation: pet-px 0.48s steps(2, end) infinite;
 }
-.gb-app.tab-farm .gb-slot .life-pet.is-photo.is-mini .life-pet-photo,
+.gb-app.tab-farm .gb-slot .life-pet.is-photo.is-mini .life-pet-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  object-fit: fill;
+  animation: none !important;
+}
 .gb-app.tab-farm .gb-slot .life-egg.is-photo.is-mini .life-egg-photo {
   width: auto;
   height: auto;
@@ -8356,15 +8329,20 @@ html, body, #root { background: #000 !important; }
 .gb-app.tab-play .life-pet.is-photo {
   height: auto;
 }
-.gb-app.tab-farm .gb-slot .life-pet-face,
 .gb-app .shop-foil .life-pet-face {
-  height: 100%;
+  width: min(100%, calc(100% * 100 / var(--face, 110)));
+  height: auto;
+  aspect-ratio: calc(100 / var(--face, 110));
+  flex: none;
 }
-.gb-app.tab-play .life-pet.is-photo .life-pet-live,
-.gb-app.tab-play .life-pet.is-photo .life-pet-face,
-.gb-app.tab-play .life-pet.is-photo .life-pet-photo {
+.gb-app.tab-play .life-pet.is-photo .life-pet-live {
   width: 100%;
   height: auto;
+}
+.gb-app.tab-play .life-pet.is-photo .life-pet-face {
+  width: 100%;
+  height: auto;
+  aspect-ratio: calc(100 / var(--face, 110));
 }
 .gb-app.tab-play .life-pet.is-photo .life-pet-live,
 .gb-app .shop-foil .life-pet.is-photo .life-pet-live {
@@ -8384,13 +8362,14 @@ html, body, #root { background: #000 !important; }
   justify-content: center;
 }
 .gb-app .shop-foil .life-pet.is-photo .life-pet-photo {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   max-width: none;
   max-height: none;
-  object-fit: contain;
-  object-position: center bottom;
-  margin: 0 auto;
+  object-fit: fill;
+  margin: 0;
   animation: none;
 }
 

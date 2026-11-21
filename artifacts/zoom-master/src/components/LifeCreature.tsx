@@ -1,8 +1,9 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import art from "../pet/kinArt.json";
 import type { FamilyId } from "../pet/kin";
 import type { LifeForm, LifeMark } from "../pet/life";
 import { stageImage } from "../pet/stageArt";
+import { stageGaze } from "../pet/eyes";
 import { tapPet } from "../pet/petProgress";
 import { translate, type Lang } from "../i18n/translations";
 import { noteHumanGesture } from "../pet/human";
@@ -175,13 +176,27 @@ export function LifeCreature({
   };
 
   const photo = stageImage(family, form);
+  const gaze = stageGaze(family, form);
   const width = Math.max(rows[0]?.length ?? 12, 12);
+  const eyeStyle = {
+    "--face": String(gaze.face),
+    "--lid-l": gaze.left.lid,
+    "--lid-r": gaze.right.lid,
+    "--eye-lx": `${gaze.left.x}%`,
+    "--eye-ly": `${gaze.left.y}%`,
+    "--eye-lw": `${gaze.left.w}%`,
+    "--eye-lh": `${gaze.left.h}%`,
+    "--eye-rx": `${gaze.right.x}%`,
+    "--eye-ry": `${gaze.right.y}%`,
+    "--eye-rw": `${gaze.right.w}%`,
+    "--eye-rh": `${gaze.right.h}%`,
+  } as CSSProperties;
   return (
     <div
       className={`life-pet is-photo${mini ? " is-mini" : ""}${asleep ? " is-asleep" : ""}${rising ? " is-rise" : ""}${form === "elder" ? " is-elder" : ""}${asking ? " is-asking" : ""}${eating ? " is-eating" : ""}${cheer > 0 ? " is-glad" : ""}`}
       data-family={family}
       data-form={form}
-      style={photo ? undefined : { width: `calc(${width} * var(--cell))`, marginLeft: `calc(${width} * var(--cell) / -2)` }}
+      style={photo ? eyeStyle : { width: `calc(${width} * var(--cell))`, marginLeft: `calc(${width} * var(--cell) / -2)` }}
       data-testid={mini ? "life-pet-mini" : "life-pet"}
       onPointerDown={onTap ? () => { drag.current = 0; } : undefined}
       onPointerMove={onTap ? (event) => { drag.current += Math.abs(event.movementX) + Math.abs(event.movementY); } : undefined}
