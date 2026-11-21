@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties } from "react";
-import { fetchAdminSession, releasePlayer, setMaintenance, suspendPlayer } from "../utils/api";
+import { fetchAdminSession, releasePlayer, sendNewsToAll, setMaintenance, suspendPlayer } from "../utils/api";
 import { getVerifiedTelegramUserId } from "../utils/telegram";
 
 export const ADMIN_TELEGRAM_ID = "8144744644";
@@ -70,6 +70,8 @@ export function AdminPixel({
   const [busy, setBusy] = useState(false);
   const [hint, setHint] = useState("");
   const [history, setHistory] = useState<ConfirmLog[]>(readConfirms);
+  const [news, setNews] = useState("");
+  const [newsConfirm, setNewsConfirm] = useState(false);
 
   useEffect(() => {
     if (!isAppAdmin()) return;
@@ -106,6 +108,26 @@ export function AdminPixel({
     const result = await releasePlayer(playerId);
     setBusy(false);
     setHint(result.ok ? "Sospensione tolta." : (result.error || "Non riuscito"));
+  };
+
+  const runNews = async () => {
+    const text = news.trim();
+    if (text.length < 2) return;
+    setBusy(true);
+    const result = await sendNewsToAll(text);
+    setBusy(false);
+    setNewsConfirm(false);
+    if (!result.ok) {
+      setHint(result.error === "A news note is already going out" ? "Una notizia è già in viaggio." : (result.error || "Non riuscito"));
+      return;
+    }
+    if (typeof result.sent === "number") {
+      setNews("");
+      setHint(`Arrivato a ${result.sent}. ${result.skipped ?? 0} non l'hanno ricevuto.`);
+      return;
+    }
+    setNews("");
+    setHint("Partito. Il bot ti scrive quando ha finito.");
   };
 
   const runMaint = async (enabled: boolean) => {
@@ -199,6 +221,29 @@ export function AdminPixel({
               Chiudi manutenzione
             </button>
           ) : null}
+          <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", color: "#ffd36a" }}>NOTIZIA NEL BOT</div>
+          <textarea
+            value={news}
+            onChange={(e) => { setNews(e.target.value.slice(0, 1000)); setNewsConfirm(false); }}
+            rows={4}
+            placeholder="Messaggio personale a tutti"
+            style={{ ...field, resize: "none" }}
+          />
+          {newsConfirm ? (
+            <div style={{ display: "flex", gap: 6 }}>
+              <button type="button" disabled={busy} onClick={() => void runNews()} style={danger}>Conferma a tutti</button>
+              <button type="button" disabled={busy} onClick={() => setNewsConfirm(false)} style={ghost}>No</button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              disabled={busy || news.trim().length < 2}
+              onClick={() => setNewsConfirm(true)}
+              style={{ ...danger, width: "100%" }}
+            >
+              Invia a tutti
+            </button>
+          )}
           {history.length > 0 ? (
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", color: "#ffd36a" }}>CONFERME</div>

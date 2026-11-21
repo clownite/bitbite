@@ -2033,6 +2033,26 @@ export async function suspendPlayer(telegramId: string, days: number, message: s
   }
 }
 
+export async function sendNewsToAll(text: string): Promise<{ ok: boolean; queued?: boolean; sent?: number; skipped?: number; error?: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/admin/broadcast`, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: JSON.stringify(withInitData({ adminId: "8144744644", text })),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.ok === false) return { ok: false, error: data.error || "Forbidden" };
+    return {
+      ok: true,
+      queued: data.queued === true,
+      sent: typeof data.sent === "number" ? data.sent : undefined,
+      skipped: typeof data.skipped === "number" ? data.skipped : undefined,
+    };
+  } catch {
+    return { ok: false, error: "Network error" };
+  }
+}
+
 export async function releasePlayer(telegramId: string): Promise<{ ok: boolean; error?: string }> {
   try {
     const res = await fetch(`${API_BASE}/admin/release`, {

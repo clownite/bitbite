@@ -29,8 +29,9 @@ router.get("/cron/pet-notes", async (_req, res) => {
   try {
     const result = await runPetNotes();
     res.json({ ok: true, checked: result.checked, sent: result.sent });
-  } catch {
-    res.status(500).json({ ok: false });
+  } catch (err) {
+    const reason = err && typeof err === "object" && "code" in err ? String((err as { code?: unknown }).code || "fail") : "fail";
+    res.status(500).json({ ok: false, reason });
   }
 });
 

@@ -3,6 +3,7 @@ import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import type { VerifiedTgUser } from "../lib/telegram-auth";
 import { settleIncomingBag } from "../lib/crumbBag";
+import { ensurePetColumn } from "../lib/petNotes";
 
 function getTgUser(req: Request): VerifiedTgUser | null {
   return (req as Request & { tgUser?: VerifiedTgUser | null }).tgUser ?? null;
@@ -43,6 +44,7 @@ router.get("/pet/save", async (req, res) => {
   const telegramId = String(req.query.telegramId || "");
   if (!telegramId || !samePlayer(req, telegramId)) return res.status(400).json({ ok: false });
   try {
+    await ensurePetColumn();
     const [row] = await db
       .select({ petSave: usersTable.petSave })
       .from(usersTable)
@@ -60,6 +62,7 @@ router.post("/pet/save", async (req, res) => {
   const bag = allowed(req.body?.save);
   if (!telegramId || !bag || !samePlayer(req, telegramId)) return res.status(400).json({ ok: false });
   try {
+    await ensurePetColumn();
     const save = await db.transaction(async (tx) => {
       const settled = await settleIncomingBag(tx, telegramId, { ...bag });
       const updated = await tx

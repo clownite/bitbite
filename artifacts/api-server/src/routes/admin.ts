@@ -2082,17 +2082,31 @@ router.post("/admin/test-withdrawal-channel", async (req, res) => {
   res.json({ ok, sent: ok });
 });
 
-// ----- Admin: broadcast Telegram message to all users -----
+// ----- Admin: a personal bot message to every player -----
+let newsBusy = false;
 router.post("/admin/broadcast", async (req, res) => {
-  const adminId = (req.body?.adminId as string) || "";
-  if (!isAdmin(adminId)) return res.status(403).json({ error: "Forbidden" });
+  if (!req.tgUser || !isAdmin(req.tgUser.id)) return res.status(403).json({ error: "Forbidden" });
   const text = (req.body?.text as string || "").trim();
   if (!text) return res.status(400).json({ error: "text is required" });
-  if (text.length > 4096) return res.status(400).json({ error: "Message too long (max 4096 chars)" });
+  if (text.length > 1000) return res.status(400).json({ error: "Message too long (max 1000 chars)" });
+  if (newsBusy) return res.status(429).json({ error: "A news note is already going out" });
 
-  const { broadcastBotMessageToAllUsers } = await import("../lib/notify");
-  const result = await broadcastBotMessageToAllUsers(text);
-  res.json({ ok: true, sent: result.sent, skipped: result.skipped });
+  const { broadcastBotMessageToAllUsers, sendBotMessage } = await import("../lib/notify");
+  const { ADMIN_ID } = await import("../lib/admin-ids");
+  newsBusy = true;
+  res.json({ ok: true, queued: true });
+  try {
+    const result = await broadcastBotMessageToAllUsers(text);
+    await sendBotMessage(
+      ADMIN_ID,
+      `News sent. It reached ${result.sent} people. ${result.skipped} did not get it.`,
+    );
+  } catch (err) {
+    logger.warn({ err }, "[admin] news broadcast failed");
+    await sendBotMessage(ADMIN_ID, "News failed before it finished. Try again from the admin panel.").catch(() => undefined);
+  } finally {
+    newsBusy = false;
+  }
 });
 
 // ----- PUBLIC: season epoch -----
