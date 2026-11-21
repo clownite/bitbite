@@ -1298,7 +1298,7 @@ export interface TonWithdrawal {
   username?: string | null;
 }
 
-export async function requestCrumbsWithdrawal(params: { telegramId: string; amount: number; walletAddress: string }): Promise<{ ok: boolean; error?: string; id?: number }> {
+export async function requestCrumbsWithdrawal(params: { telegramId: string; amount: number; walletAddress: string }): Promise<{ ok: boolean; error?: string; id?: number; updatedAt?: number }> {
   try {
     const res = await fetch(`${API_BASE}/withdrawals/crumbs`, {
       method: "POST",
@@ -1307,7 +1307,7 @@ export async function requestCrumbsWithdrawal(params: { telegramId: string; amou
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) return { ok: false, error: data?.error || "Request failed" };
-    return { ok: true, id: data.id };
+    return { ok: true, id: data.id, updatedAt: Number(data.updatedAt) || 0 };
   } catch {
     return { ok: false, error: "Network error" };
   }

@@ -26,13 +26,15 @@ type Ledger = {
   earned: number;
   lastTickAt: number;
   requests: CrumbRequest[];
+  /** Server withdrawal id → whether those Crumbs are still out, or were returned. */
+  applied: Record<string, "held" | "returned">;
 };
 
 const KEY = "biscotto-crumbs-v2";
 const listeners = new Set<() => void>();
 
 function empty(): Ledger {
-  return { balance: 0, pending: 0, earned: 0, lastTickAt: Date.now(), requests: [] };
+  return { balance: 0, pending: 0, earned: 0, lastTickAt: Date.now(), requests: [], applied: {} };
 }
 
 function round8(n: number): number {
@@ -50,12 +52,24 @@ function load(): Ledger {
     if (!raw) return empty();
     const p = JSON.parse(raw) as Partial<Ledger>;
     const balance = Math.max(0, Number(p.balance) || 0);
+    const requests = Array.isArray(p.requests) ? p.requests : [];
+    const applied: Ledger["applied"] = {};
+    if (p.applied && typeof p.applied === "object") {
+      for (const [key, value] of Object.entries(p.applied)) {
+        if (value === "held" || value === "returned") applied[key] = value;
+      }
+    }
+    for (const row of requests) {
+      if (!row.serverId || applied[String(row.serverId)]) continue;
+      applied[String(row.serverId)] = row.status === "rejected" ? "returned" : "held";
+    }
     return {
       balance,
       pending: Math.max(0, Number(p.pending) || 0),
       earned: Math.max(0, Number(p.earned ?? balance) || 0),
       lastTickAt: Math.max(0, Number(p.lastTickAt) || Date.now()),
-      requests: Array.isArray(p.requests) ? p.requests : [],
+      requests,
+      applied,
     };
   } catch {
     return empty();
@@ -192,20 +206,57 @@ export function refundRequest(localId: string) {
   emit();
 }
 
-export function markRequest(serverId: number, status: "paid" | "rejected") {
-  const row = state.requests.find((r) => r.serverId === serverId);
-  if (!row || row.status !== "pending") return;
-  if (status === "rejected") {
-    state = {
-      ...state,
-      balance: state.balance + row.amount,
-      requests: state.requests.map((r) => (r.serverId === serverId ? { ...r, status } : r)),
-    };
-  } else {
-    state = {
-      ...state,
-      requests: state.requests.map((r) => (r.serverId === serverId ? { ...r, status } : r)),
-    };
+export type CrumbHold = {
+  id: number;
+  amount: number;
+  wallet: string;
+  status: "pending" | "paid" | "rejected";
+  createdAt: number;
+};
+
+/** Move each withdrawal once. Accept leaves the Crumbs out. Reject puts them back. */
+export function applyHolds(holds: CrumbHold[]) {
+  let balance = state.balance;
+  let requests = state.requests.slice();
+  const applied = { ...(state.applied ?? {}) };
+  let changed = false;
+  for (const hold of holds) {
+    const amount = Math.round(hold.amount);
+    if (!Number.isFinite(hold.id) || amount <= 0) continue;
+    const key = String(hold.id);
+    const mark = applied[key];
+    const status = hold.status === "paid" ? "paid" : hold.status === "rejected" ? "rejected" : "pending";
+    if (status === "rejected") {
+      if (mark === "held") {
+        balance = round8(balance + amount);
+        changed = true;
+      }
+      if (mark !== "returned") changed = true;
+      applied[key] = "returned";
+    } else if (mark !== "held" && mark !== "returned") {
+      balance = round8(Math.max(0, balance - amount));
+      applied[key] = "held";
+      changed = true;
+    }
+    const idx = requests.findIndex((row) => row.serverId === hold.id);
+    if (idx >= 0) {
+      if (requests[idx].status !== status) {
+        requests[idx] = { ...requests[idx], status };
+        changed = true;
+      }
+    } else {
+      requests = [{
+        localId: `srv-${hold.id}`,
+        serverId: hold.id,
+        amount,
+        wallet: hold.wallet,
+        status,
+        createdAt: hold.createdAt,
+      }, ...requests].slice(0, 20);
+      changed = true;
+    }
   }
+  if (!changed) return;
+  state = { ...state, balance: round8(Math.max(0, balance)), requests, applied };
   emit();
 }

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import { KinPortrait } from "../components/KinPortrait";
 import { fetchMyWithdrawals, requestCrumbsWithdrawal } from "../utils/api";
+import { flushPetCloud, noteCloudStamp } from "../pet/cloud";
 import { useT } from "../i18n/LanguageContext";
 import { petDef } from "../pet/catalog";
 import { kinName, type FamilyId } from "../pet/kin";
@@ -22,13 +23,10 @@ import { getTelegramViewer } from "../utils/telegram";
 import { runTap } from "../utils/tap";
 import {
   CRUMB_GRAM,
+  applyHolds,
   formatCrumbs,
   getCrumbs,
-  markRequest,
-  addCrumbs,
-  rememberRequest,
   subscribeCrumbs,
-  takeCrumbs,
   WITHDRAW_MIN,
   type CrumbRequest,
 } from "../pet/crumbs";
@@ -133,11 +131,17 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
     const pull = async () => {
       const rows = await fetchMyWithdrawals(telegramId);
       if (cancel) return;
-      const mine = new Set(getCrumbs().requests.map((r) => r.serverId));
-      for (const row of rows) {
-        if (!mine.has(row.id)) continue;
-        if (row.status === "paid" || row.status === "rejected") markRequest(row.id, row.status);
-      }
+      applyHolds(rows.flatMap((row) => {
+        if (row.txHash !== "crumbs") return [];
+        const status = row.status === "paid" || row.status === "rejected" ? row.status : "pending";
+        return [{
+          id: row.id,
+          amount: Number(row.amountTon),
+          wallet: row.walletAddress,
+          status,
+          createdAt: Date.parse(row.createdAt) || Date.now(),
+        }];
+      }));
     };
     void pull();
     const id = window.setInterval(() => void pull(), 20000);
@@ -158,7 +162,7 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
       setNote(t("wallet.note.min", { n: WITHDRAW_MIN }));
       return;
     }
-    if (n > getCrumbs().balance) {
+    if (n > Math.floor(getCrumbs().balance + 1e-9)) {
       setNote(t("wallet.note.funds"));
       return;
     }
@@ -171,20 +175,15 @@ export function WalletPage({ telegramId, visible = true }: WalletPageProps) {
       return;
     }
     setBusy(true);
-    const localId = `${Date.now()}`;
-    if (!takeCrumbs(n)) {
-      setBusy(false);
-      setNote(t("wallet.note.funds"));
-      return;
-    }
+    await flushPetCloud(telegramId);
     const res = await requestCrumbsWithdrawal({ telegramId, amount: n, walletAddress: addr });
     if (!res.ok || !res.id) {
-      addCrumbs(n);
       setBusy(false);
       setNote(res.error || t("wallet.note.back"));
       return;
     }
-    rememberRequest({ localId, serverId: res.id, amount: n, wallet: addr, status: "pending", createdAt: Date.now() });
+    applyHolds([{ id: res.id, amount: n, wallet: addr, status: "pending", createdAt: Date.now() }]);
+    if (res.updatedAt) noteCloudStamp(res.updatedAt);
     setAmount("");
     setBusy(false);
     setNote(t("wallet.note.sent"));

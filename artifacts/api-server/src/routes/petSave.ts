@@ -2,6 +2,7 @@ import { Router, type IRouter, type Request } from "express";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import type { VerifiedTgUser } from "../lib/telegram-auth";
+import { settleIncomingBag } from "../lib/crumbBag";
 
 function getTgUser(req: Request): VerifiedTgUser | null {
   return (req as Request & { tgUser?: VerifiedTgUser | null }).tgUser ?? null;
@@ -58,16 +59,19 @@ router.post("/pet/save", async (req, res) => {
   const telegramId = String(req.body?.telegramId || "");
   const bag = allowed(req.body?.save);
   if (!telegramId || !bag || !samePlayer(req, telegramId)) return res.status(400).json({ ok: false });
-  const save = { ...bag, updatedAt: Date.now() };
   try {
-    const updated = await db
-      .update(usersTable)
-      .set({ petSave: save })
-      .where(eq(usersTable.telegramId, telegramId))
-      .returning({ telegramId: usersTable.telegramId });
-    if (!updated.length) {
-      await db.insert(usersTable).values({ telegramId, petSave: save });
-    }
+    const save = await db.transaction(async (tx) => {
+      const settled = await settleIncomingBag(tx, telegramId, { ...bag });
+      const updated = await tx
+        .update(usersTable)
+        .set({ petSave: settled })
+        .where(eq(usersTable.telegramId, telegramId))
+        .returning({ telegramId: usersTable.telegramId });
+      if (!updated.length) {
+        await tx.insert(usersTable).values({ telegramId, petSave: settled });
+      }
+      return settled;
+    });
     res.json({ ok: true, updatedAt: save.updatedAt });
   } catch {
     res.status(500).json({ ok: false });

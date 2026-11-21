@@ -12,6 +12,31 @@ const KEYS = [
 
 const STAMP = "biscotto-cloud-at";
 
+export function noteCloudStamp(at: number) {
+  if (!Number.isFinite(at) || at <= 0) return;
+  try { localStorage.setItem(STAMP, String(at)); } catch { /**/ }
+}
+
+/** Send this phone's wallet before a withdrawal, so the server reduces the same balance the player sees. */
+export async function flushPetCloud(telegramId: string): Promise<number | null> {
+  if (!telegramId) return null;
+  const save = { ...localBags(), updatedAt: Date.now() };
+  try {
+    const res = await fetch(`${API_BASE}/pet/save`, {
+      method: "POST",
+      headers: apiHeaders(),
+      body: JSON.stringify({ telegramId, save }),
+      keepalive: true,
+    });
+    if (!res.ok) return null;
+    const data = await res.json() as { updatedAt?: number };
+    if (data.updatedAt) noteCloudStamp(data.updatedAt);
+    return data.updatedAt ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function localBags(): Record<string, string> {
   const bags: Record<string, string> = {};
   for (const key of KEYS) {

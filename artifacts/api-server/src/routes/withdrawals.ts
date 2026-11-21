@@ -6,6 +6,8 @@ import { z } from "zod";
 import { sendWithdrawalChannelMessage, notifyAdminWithdrawalRequest, sendBotMessage } from "../lib/notify";
 import { recordHistoryAsync } from "../lib/history";
 import { verifyInitData } from "../lib/telegram-auth";
+import { crumbHolds, reapplyCrumbBag } from "../lib/crumbBag";
+import { mergeHolds, parseLedger } from "../lib/crumbLedger";
 
 const router = Router();
 
@@ -192,43 +194,97 @@ router.post("/withdrawals/request", async (req, res) => {
   }
 });
 
+const CRUMB_MIN = 15;
+const CRUMBS_KEY = "biscotto-crumbs-v2";
+
 const CrumbsBody = z.object({
   telegramId: z.string().min(1).max(32),
   amount: z.number().int().positive().max(100000),
   walletAddress: z.string().min(40).max(120),
 });
 
-/** 1 Crumb = 1 GRAM. Balance lives on the device. This only files the request for the bot. */
+/** 1 Crumb = 1 GRAM. The saved wallet is reduced here, in the same transaction as the request. */
 router.post("/withdrawals/crumbs", async (req, res) => {
   const parsed = CrumbsBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ ok: false, error: "Invalid request" });
   const { telegramId, amount, walletAddress } = parsed.data;
   const wallet = walletAddress.trim();
+  const verified = verifyInitData(req.header("x-telegram-init-data") || req.body?._initData);
+  if (!verified.ok || verified.user?.id !== telegramId) {
+    return res.status(403).json({ ok: false, error: "Open BitBite from Telegram again" });
+  }
   if (!isValidTonAddress(wallet)) {
     return res.status(400).json({ ok: false, error: "Wallet address is not valid" });
   }
-  if (amount < 1) return res.status(400).json({ ok: false, error: "Minimum is 1 Crumb" });
+  if (amount < CRUMB_MIN) return res.status(400).json({ ok: false, error: `Minimum is ${CRUMB_MIN} Crumbs` });
 
   try {
-    const [row] = await db
-      .insert(tonWithdrawalsTable)
-      .values({
-        telegramId,
-        amountTon: amount,
-        feeTon: 0,
-        walletAddress: wallet,
-        status: "pending",
-        txHash: "crumbs",
-      })
-      .returning();
+    const result = await db.transaction(async (tx) => {
+      await tx.insert(usersTable).values({ telegramId }).onConflictDoNothing();
+      const [user] = await tx
+        .select({
+          petSave: usersTable.petSave,
+          firstName: usersTable.firstName,
+          username: usersTable.username,
+          isDisabled: usersTable.isDisabled,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.telegramId, telegramId))
+        .for("update")
+        .limit(1);
+      if (!user) return { kind: "err" as const, status: 404, error: "Player not found" };
+      if (user.isDisabled) return { kind: "err" as const, status: 403, error: "Account disabled" };
+      const holds = await crumbHolds(tx, telegramId);
+      if (holds.some((hold) => hold.status === "pending")) {
+        return { kind: "err" as const, status: 409, error: "You already have a withdrawal waiting" };
+      }
+      const bag = user.petSave && typeof user.petSave === "object" ? { ...(user.petSave as Record<string, unknown>) } : {};
+      const ledger = parseLedger(typeof bag[CRUMBS_KEY] === "string" ? bag[CRUMBS_KEY] : null);
+      if (ledger.balance + 1e-9 < amount) {
+        return { kind: "err" as const, status: 400, error: "Not enough Crumbs" };
+      }
+      const [row] = await tx
+        .insert(tonWithdrawalsTable)
+        .values({
+          telegramId,
+          amountTon: amount,
+          feeTon: 0,
+          walletAddress: wallet,
+          status: "pending",
+          txHash: "crumbs",
+        })
+        .returning();
+      const next = mergeHolds(ledger, [...holds, {
+        id: row.id,
+        amount,
+        wallet,
+        status: "pending" as const,
+        createdAt: Date.now(),
+      }]);
+      const updatedAt = Date.now();
+      await tx
+        .update(usersTable)
+        .set({ petSave: { ...bag, [CRUMBS_KEY]: JSON.stringify(next), updatedAt } })
+        .where(eq(usersTable.telegramId, telegramId));
+      return {
+        kind: "ok" as const,
+        id: row.id,
+        updatedAt,
+        firstName: verified.user?.firstName || user.firstName,
+        username: verified.user?.username || user.username,
+      };
+    });
+    if (result.kind === "err") return res.status(result.status).json({ ok: false, error: result.error });
     void notifyAdminWithdrawalRequest({
-      withdrawalId: row.id,
+      withdrawalId: result.id,
       amountTon: amount,
       walletAddress: wallet,
       telegramId,
+      username: result.username,
+      firstName: result.firstName,
       crumbs: true,
     });
-    return res.json({ ok: true, id: row.id });
+    return res.json({ ok: true, id: result.id, updatedAt: result.updatedAt });
   } catch (err) {
     console.error("[withdrawals/crumbs] error:", err);
     return res.status(500).json({ ok: false, error: "Could not send the request" });
@@ -290,16 +346,27 @@ router.post("/admin/withdrawals/approve", async (req, res) => {
   if (!isAdmin(adminId)) return res.status(403).json({ ok: false, error: "Forbidden" });
 
   try {
-    const updated = await db
-      .update(tonWithdrawalsTable)
-      .set({
-        status: "paid",
-        txHash: txHash.trim(),
-        processedAt: new Date(),
-        processedBy: adminId,
-      })
-      .where(and(eq(tonWithdrawalsTable.id, withdrawalId), eq(tonWithdrawalsTable.status, "pending")))
-      .returning();
+    const updated = await db.transaction(async (tx) => {
+      const rows = await tx
+        .update(tonWithdrawalsTable)
+        .set({
+          status: "paid",
+          processedAt: new Date(),
+          processedBy: adminId,
+        })
+        .where(and(eq(tonWithdrawalsTable.id, withdrawalId), eq(tonWithdrawalsTable.status, "pending")))
+        .returning();
+      const row = rows[0];
+      if (!row) return rows;
+      if (row.txHash === "crumbs") await reapplyCrumbBag(tx, row.telegramId);
+      else {
+        await tx
+          .update(tonWithdrawalsTable)
+          .set({ txHash: txHash.trim() })
+          .where(eq(tonWithdrawalsTable.id, withdrawalId));
+      }
+      return rows;
+    });
 
     if (updated.length === 0) {
       return res.status(404).json({ ok: false, error: "Richiesta non trovata o già elaborata" });
@@ -307,15 +374,19 @@ router.post("/admin/withdrawals/approve", async (req, res) => {
 
     // Fire-and-forget channel announcement (don't block the response on Telegram).
     const w = updated[0];
-    const amount = Number(w.amountTon ?? 0).toFixed(4).replace(/\.?0+$/, "");
-    const addr = typeof w.walletAddress === "string" ? w.walletAddress : "";
-    const shortAddr = addr.length >= 12 ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : (addr || "—");
-    const msg =
-      `✅ <b>Withdrawal Paid</b>\n` +
-      `💎 <b>${amount} GRAM</b>\n` +
-      `👤 User ID: <code>${w.telegramId}</code>\n` +
-      `📬 ${shortAddr}`;
-    void sendWithdrawalChannelMessage(msg);
+    if (w.txHash === "crumbs") {
+      void sendBotMessage(w.telegramId, `Withdrawal accepted\n${Math.round(Number(w.amountTon))} Crumbs left your wallet. ${Math.round(Number(w.amountTon))} GRAM will be sent to your address.`);
+    } else {
+      const amount = Number(w.amountTon ?? 0).toFixed(4).replace(/\.?0+$/, "");
+      const addr = typeof w.walletAddress === "string" ? w.walletAddress : "";
+      const shortAddr = addr.length >= 12 ? `${addr.slice(0, 6)}…${addr.slice(-4)}` : (addr || "—");
+      const msg =
+        `✅ <b>Withdrawal Paid</b>\n` +
+        `💎 <b>${amount} GRAM</b>\n` +
+        `👤 User ID: <code>${w.telegramId}</code>\n` +
+        `📬 ${shortAddr}`;
+      void sendWithdrawalChannelMessage(msg);
+    }
 
     res.json({ ok: true, withdrawal: updated[0] });
   } catch (err) {
@@ -362,22 +433,27 @@ router.post("/admin/withdrawals/reject", async (req, res) => {
       }
 
       const w = updated[0]!;
-      // Crumb requests are tagged txHash "crumbs" and were never taken from ton_balance.
-      if (w.txHash !== "crumbs") {
-        const refund = w.amountTon + (w.feeTon ?? 0);
-        await tx
-          .update(usersTable)
-          .set({
-            tonBalance: sql`${usersTable.tonBalance} + ${refund}`,
-            balanceEpoch: sql`${usersTable.balanceEpoch} + 1`,
-          })
-          .where(eq(usersTable.telegramId, w.telegramId));
+      // Crumbs were taken from the saved wallet. Put that same amount back once.
+      if (w.txHash === "crumbs") {
+        await reapplyCrumbBag(tx, w.telegramId);
+        return { kind: "ok" as const, refund: w.amountTon, crumbs: true, telegramId: w.telegramId, amount: Number(w.amountTon) };
       }
+      const refund = w.amountTon + (w.feeTon ?? 0);
+      await tx
+        .update(usersTable)
+        .set({
+          tonBalance: sql`${usersTable.tonBalance} + ${refund}`,
+          balanceEpoch: sql`${usersTable.balanceEpoch} + 1`,
+        })
+        .where(eq(usersTable.telegramId, w.telegramId));
 
-      return { kind: "ok" as const, refund };
+      return { kind: "ok" as const, refund, crumbs: false, telegramId: w.telegramId, amount: Number(w.amountTon) };
     });
 
     if (result.kind === "err") return res.status(result.status).json({ ok: false, error: result.error });
+    if (result.crumbs) {
+      void sendBotMessage(result.telegramId, `Withdrawal declined\n${Math.round(result.amount)} Crumbs are back in your wallet.`);
+    }
     res.json({ ok: true, refunded: result.refund });
   } catch (err) {
     console.error("[withdrawals/reject] error:", err);

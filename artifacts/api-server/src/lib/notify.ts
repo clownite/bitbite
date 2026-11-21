@@ -262,17 +262,23 @@ export async function notifyAdminWithdrawalRequest(params: {
     logger.warn("[notify] BOT_TOKEN not set — skipping admin withdrawal notify");
     return false;
   }
+  const esc = (value: string) => value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const name = esc(params.firstName?.trim() || "Player");
+  const handle = params.username ? ` (@${esc(params.username.replace(/^@/, ""))})` : "";
   const who = params.username
-    ? `@${params.username}`
-    : (params.firstName || params.telegramId);
-  const amountLine = params.crumbs
-    ? `\u2003• Importo: <b>${params.amountTon} Crumbs = ${params.amountTon} GRAM</b>\n\u2003• Cambio: 1 Crumb = 1 GRAM`
-    : `\u2003• Importo: <b>${params.amountTon.toFixed(4)} TON</b>`;
-  const text =
-    `🔴 <b>Prelievo richiesto</b>\n` +
-    `${amountLine}\n` +
-    `\u2003• Wallet: <code>${params.walletAddress}</code>\n` +
-    `\u2003• Utente: ${who} (ID: <code>${params.telegramId}</code>)`;
+    ? `@${esc(params.username.replace(/^@/, ""))}`
+    : name;
+  const amount = Math.round(params.amountTon);
+  const text = params.crumbs
+    ? `<b>Withdrawal request</b>\n` +
+      `Name: ${name}${handle}\n` +
+      `Amount: <b>${amount} Crumbs = ${amount} GRAM</b>\n` +
+      `GRAM address:\n<code>${esc(params.walletAddress)}</code>\n` +
+      `Accept to keep it out of their wallet, then send the GRAM yourself. Reject to give the Crumbs back.`
+    : `🔴 <b>Prelievo richiesto</b>\n` +
+      `\u2003• Importo: <b>${params.amountTon.toFixed(4)} TON</b>\n` +
+      `\u2003• Wallet: <code>${esc(params.walletAddress)}</code>\n` +
+      `\u2003• Utente: ${who} (ID: <code>${esc(params.telegramId)}</code>)`;
   try {
     const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: "POST",
@@ -284,8 +290,8 @@ export async function notifyAdminWithdrawalRequest(params: {
         disable_web_page_preview: true,
         reply_markup: {
           inline_keyboard: [[
-            { text: "✅ Approva", callback_data: `withdraw_approve:${params.withdrawalId}` },
-            { text: "❌ Rifiuta", callback_data: `withdraw_reject:${params.withdrawalId}` },
+            { text: params.crumbs ? "Accept" : "✅ Approva", callback_data: `withdraw_approve:${params.withdrawalId}` },
+            { text: params.crumbs ? "Reject" : "❌ Rifiuta", callback_data: `withdraw_reject:${params.withdrawalId}` },
           ]],
         },
       }),

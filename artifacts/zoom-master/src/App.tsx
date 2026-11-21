@@ -22,7 +22,7 @@ import { LanguageProvider, useT } from "./i18n/LanguageContext";
 import { TelegramIdentity } from "./components/TelegramIdentity";
 import { ChristmasSnow } from "./components/ChristmasSnow";
 import { hideHtmlSplash } from "./components/SplashScreen";
-import { fetchGateStatus, fetchMaintenanceStatus } from "./utils/api";
+import { fetchGateStatus, fetchMaintenanceStatus, fetchMyWithdrawals } from "./utils/api";
 import { getVerifiedTelegramUserId } from "./utils/telegram";
 import { initVersionCheck } from "./utils/appVersion";
 import { noteVisit, subscribeQuests, tasksWaiting } from "./pet/quests";
@@ -38,7 +38,7 @@ import { careView, subscribeCare } from "./pet/care";
 import { eggLeft } from "./pet/life";
 import { getPet, subscribePet } from "./pet/petProgress";
 import { noteHumanGesture } from "./pet/human";
-import { crumbsEarned, subscribeCrumbs } from "./pet/crumbs";
+import { applyHolds, crumbsEarned, subscribeCrumbs } from "./pet/crumbs";
 import { SettingsMenu } from "./components/SettingsMenu";
 
 type MaintSnapshot = { enabled: boolean; message: string; updatedAt?: number };
@@ -204,6 +204,29 @@ function AppShell() {
       else if (done) stop = done;
     });
     return () => { dead = true; stop(); };
+  }, [session.telegramId]);
+  useEffect(() => {
+    const telegramId = session.telegramId;
+    if (!telegramId) return;
+    let dead = false;
+    const pull = async () => {
+      const rows = await fetchMyWithdrawals(telegramId);
+      if (dead) return;
+      applyHolds(rows.flatMap((row) => {
+        if (row.txHash !== "crumbs") return [];
+        const status = row.status === "paid" || row.status === "rejected" ? row.status : "pending";
+        return [{
+          id: row.id,
+          amount: Number(row.amountTon),
+          wallet: row.walletAddress,
+          status,
+          createdAt: Date.parse(row.createdAt) || Date.now(),
+        }];
+      }));
+    };
+    void pull();
+    const id = window.setInterval(() => void pull(), 15000);
+    return () => { dead = true; window.clearInterval(id); };
   }, [session.telegramId]);
   const [care, setCare] = useState(() => careView());
   const [taskCall, setTaskCall] = useState(false);

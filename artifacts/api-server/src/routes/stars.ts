@@ -12,6 +12,7 @@ import {
 } from "@workspace/game-models";
 import { broadcastBoxOpen } from "../lib/activityBus";
 import { sendWithdrawalChannelMessage, notifyAdminWithdrawalRequest, sendBotMessage, notifyAdminGramDeposit, notifyAdminZmcShopPurchase } from "../lib/notify";
+import { reapplyCrumbBag } from "../lib/crumbBag";
 import { logger } from "../lib/logger";
 import { registerLottoTicketPurchase } from "./lottery";
 import { recordHistoryAsync } from "../lib/history";
@@ -1813,63 +1814,75 @@ router.post("/stars/webhook", async (req, res) => {
 
         try {
           if (action === "withdraw_approve") {
-            const [w] = await db.select().from(tonWithdrawalsTable)
-              .where(eq(tonWithdrawalsTable.id, withdrawalId)).limit(1);
-            if (!w || w.status !== "pending") {
-              await editMarkup("⚠️ Già processata");
+            const updated = await db.transaction(async (tx) => {
+              const rows = await tx.update(tonWithdrawalsTable)
+                .set({ status: "paid", processedAt: new Date(), processedBy: String(chatId) })
+                .where(and(eq(tonWithdrawalsTable.id, withdrawalId), eq(tonWithdrawalsTable.status, "pending")))
+                .returning();
+              const row = rows[0];
+              if (!row) return null;
+              if (row.txHash === "crumbs") await reapplyCrumbBag(tx, row.telegramId);
+              else {
+                await tx.update(tonWithdrawalsTable)
+                  .set({ txHash: "pending" })
+                  .where(eq(tonWithdrawalsTable.id, withdrawalId));
+              }
+              return row;
+            });
+            if (!updated) {
+              await editMarkup("Already done");
               return;
             }
-            await db.update(tonWithdrawalsTable)
-              .set({ status: "paid", txHash: "pending", processedAt: new Date(), processedBy: String(chatId) })
-              .where(and(eq(tonWithdrawalsTable.id, withdrawalId), eq(tonWithdrawalsTable.status, "pending")));
-
-            // Notify user.
-            void sendBotMessage(w.telegramId,
-              `✅ Withdrawal approved!\n` +
-              `Amount: ${Number(w.amountTon).toFixed(4)} GRAM\n` +
-              `Will be sent to your wallet shortly.`);
-
-            // Announce in the public withdrawals channel.
-            const shortAddr = typeof w.walletAddress === "string" && w.walletAddress.length >= 12
-              ? `${w.walletAddress.slice(0, 6)}…${w.walletAddress.slice(-4)}`
-              : (w.walletAddress || "—");
-            const channelOk = await sendWithdrawalChannelMessage(
-              `✅ <b>Withdrawal Paid</b>\n` +
-              `💎 <b>${Number(w.amountTon).toFixed(4)} GRAM</b>\n` +
-              `👤 User: <code>${w.telegramId}</code>\n` +
-              `📬 ${shortAddr}`);
-            logger.info({ withdrawalId, channelOk }, "[webhook] withdrawal channel notification sent");
-
-            await editMarkup("✅ Approvato");
+            const isCrumbs = updated.txHash === "crumbs";
+            const amount = Math.round(Number(updated.amountTon));
+            void sendBotMessage(updated.telegramId,
+              isCrumbs
+                ? `Withdrawal accepted\n${amount} Crumbs left your wallet. ${amount} GRAM will be sent to your address.`
+                : `✅ Withdrawal approved!\nAmount: ${Number(updated.amountTon).toFixed(4)} GRAM\nWill be sent to your wallet shortly.`);
+            if (!isCrumbs) {
+              const shortAddr = typeof updated.walletAddress === "string" && updated.walletAddress.length >= 12
+                ? `${updated.walletAddress.slice(0, 6)}…${updated.walletAddress.slice(-4)}`
+                : (updated.walletAddress || "—");
+              const channelOk = await sendWithdrawalChannelMessage(
+                `✅ <b>Withdrawal Paid</b>\n` +
+                `💎 <b>${Number(updated.amountTon).toFixed(4)} GRAM</b>\n` +
+                `👤 User: <code>${updated.telegramId}</code>\n` +
+                `📬 ${shortAddr}`);
+              logger.info({ withdrawalId, channelOk }, "[webhook] withdrawal channel notification sent");
+            }
+            await editMarkup("Accepted");
 
           } else {
-            const [w] = await db.select().from(tonWithdrawalsTable)
-              .where(eq(tonWithdrawalsTable.id, withdrawalId)).limit(1);
-            if (!w || w.status !== "pending") {
-              await editMarkup("⚠️ Già processata");
-              return;
-            }
-            const isCrumbs = w.txHash === "crumbs";
-            const refund = Number(w.amountTon) + Number(w.feeTon ?? 0);
-            await db.transaction(async (tx) => {
-              await tx.update(tonWithdrawalsTable)
+            const updated = await db.transaction(async (tx) => {
+              const rows = await tx.update(tonWithdrawalsTable)
                 .set({ status: "rejected", processedAt: new Date(), processedBy: String(chatId) })
-                .where(and(eq(tonWithdrawalsTable.id, withdrawalId), eq(tonWithdrawalsTable.status, "pending")));
-              if (!isCrumbs) {
+                .where(and(eq(tonWithdrawalsTable.id, withdrawalId), eq(tonWithdrawalsTable.status, "pending")))
+                .returning();
+              const row = rows[0];
+              if (!row) return null;
+              if (row.txHash === "crumbs") {
+                await reapplyCrumbBag(tx, row.telegramId);
+              } else {
+                const refund = Number(row.amountTon) + Number(row.feeTon ?? 0);
                 await tx.update(usersTable)
                   .set({
                     tonBalance: sql`${usersTable.tonBalance} + ${refund}`,
                     balanceEpoch: sql`${usersTable.balanceEpoch} + 1`,
                   })
-                  .where(eq(usersTable.telegramId, w.telegramId));
+                  .where(eq(usersTable.telegramId, row.telegramId));
               }
+              return row;
             });
-
-            void sendBotMessage(w.telegramId,
+            if (!updated) {
+              await editMarkup("Already done");
+              return;
+            }
+            const isCrumbs = updated.txHash === "crumbs";
+            void sendBotMessage(updated.telegramId,
               isCrumbs
-                ? `❌ Withdrawal declined\n${Number(w.amountTon)} Crumbs return to your wallet when you open the app.`
-                : `❌ Withdrawal rejected\nAmount: ${Number(w.amountTon).toFixed(4)} GRAM\nFunds have been refunded to your GRAM balance.`);
-            await editMarkup("❌ Rifiutato");
+                ? `Withdrawal declined\n${Math.round(Number(updated.amountTon))} Crumbs are back in your wallet.`
+                : `❌ Withdrawal rejected\nAmount: ${Number(updated.amountTon).toFixed(4)} GRAM\nFunds have been refunded to your GRAM balance.`);
+            await editMarkup("Declined");
           }
         } catch (err) {
           logger.error({ err, action, withdrawalId }, "[webhook] inline withdrawal action failed");
