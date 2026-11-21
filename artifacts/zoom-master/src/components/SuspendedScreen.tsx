@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { resumeChiptune } from "../audio/chiptune";
 import { useT } from "../i18n/LanguageContext";
 import { hideHtmlSplash } from "./SplashScreen";
 
@@ -9,6 +10,7 @@ export function SuspendedScreen({ until, message }: { until: number; message: st
 
   useEffect(() => {
     hideHtmlSplash();
+    resumeChiptune();
   }, []);
 
   return (

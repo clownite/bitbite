@@ -109,6 +109,7 @@ function rememberEntry(status: { enabled: boolean; message: string; updatedAt?: 
 /** The cookie stays up until we know. A locked player never gets a frame of the game. */
 function BootSplashGate() {
   const [tapped, setTapped] = useState(cookieTapped);
+  useEffect(() => { resumeChiptune(); }, []);
   const [checked, setChecked] = useState(false);
   const [lock, setLock] = useState<EntryLock | null>(readEntryLock);
 

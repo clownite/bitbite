@@ -232,26 +232,40 @@
       (function() {
         var splash = document.getElementById("splash-screen");
         window.__zoomWantMusic = true;
-        try {
-          if (localStorage.getItem("zoom-bgm-muted") !== "1") {
-            var bootSong = new Audio("/audio/lonely-cherry-tree.mp3");
-            bootSong.loop = true;
-            bootSong.preload = "auto";
-            bootSong.volume = 0.5;
-            bootSong.setAttribute("playsinline", "true");
-            window.__bitbiteSong = bootSong;
-            var started = bootSong.play();
-            if (started && started.catch) started.catch(function () {});
-            var nudge = function () {
-              if (bootSong.paused) {
-                var again = bootSong.play();
-                if (again && again.catch) again.catch(function () {});
+        function startBitbiteSong() {
+          try {
+            if (localStorage.getItem("zoom-bgm-muted") === "1") return;
+          } catch (e) { return; }
+          var el = window.__bitbiteSong;
+          if (!el || !el.play) {
+            el = new Audio("/audio/lonely-cherry-tree.mp3");
+            el.loop = true;
+            el.preload = "auto";
+            el.autoplay = true;
+            el.volume = 0.5;
+            el.setAttribute("playsinline", "true");
+            el.setAttribute("webkit-playsinline", "true");
+            el.style.display = "none";
+            document.body.appendChild(el);
+            window.__bitbiteSong = el;
+            el.addEventListener("canplay", function () {
+              if (el.paused) {
+                var ready = el.play();
+                if (ready && ready.catch) ready.catch(function () {});
               }
-            };
-            window.addEventListener("pointerdown", nudge, true);
-            window.addEventListener("touchstart", nudge, true);
+            });
           }
-        } catch (e) {}
+          if (!el.paused) return;
+          el.volume = 0.5;
+          var started = el.play();
+          if (started && started.catch) started.catch(function () {});
+        }
+        window.__startBitbiteSong = startBitbiteSong;
+        startBitbiteSong();
+        [400, 1000, 2000, 3500].forEach(function (ms) { setTimeout(startBitbiteSong, ms); });
+        ["pointerdown", "touchstart", "touchend", "click"].forEach(function (name) {
+          window.addEventListener(name, startBitbiteSong, true);
+        });
         window.__zoomSplashStart = performance.now();
         var splashHidden = false;
 
@@ -312,6 +326,7 @@
         function arm() {
           barDone = true;
           window.__zoomCookieTapped = true;
+          startBitbiteSong();
           tryEnter();
         }
         var meter = document.getElementById("splash-meter-fill");
@@ -340,6 +355,8 @@
             if (!tg) return;
             tg.ready && tg.ready();
             tg.expand && tg.expand();
+            startBitbiteSong();
+            try { tg.onEvent && tg.onEvent("activated", startBitbiteSong); } catch (e) {}
             try { if (tg.requestFullscreen) tg.requestFullscreen(); } catch (e) {}
             try { if (tg.enableVerticalSwipes) tg.enableVerticalSwipes(); } catch (e) {}
             try { tg.setHeaderColor('#8d976c'); } catch (e) {}

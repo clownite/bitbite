@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { resumeChiptune } from "../audio/chiptune";
 import { useT } from "../i18n/LanguageContext";
 import { ChristmasSnow } from "./ChristmasSnow";
 import { hideHtmlSplash } from "./SplashScreen";
@@ -15,6 +16,7 @@ export function MaintenanceScreen({ message }: Props) {
 
   useEffect(() => {
     hideHtmlSplash();
+    resumeChiptune();
   }, []);
 
   return (

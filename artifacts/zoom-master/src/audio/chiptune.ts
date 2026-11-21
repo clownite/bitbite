@@ -38,7 +38,7 @@ function song(): HTMLAudioElement {
   el.setAttribute("aria-hidden", "true");
   el.dataset.bitbiteSong = "lonely-cherry-tree";
   el.style.display = "none";
-  document.body.appendChild(el);
+  if (!el.isConnected) document.body.appendChild(el);
   el.addEventListener("ended", () => {
     el.currentTime = 0;
     if (started && !muted) void el.play().catch(() => {});
@@ -55,6 +55,46 @@ function song(): HTMLAudioElement {
   return el;
 }
 
+let armed = false;
+
+function disarm() {
+  armed = false;
+  window.removeEventListener("pointerdown", kick, true);
+  window.removeEventListener("touchstart", kick, true);
+  window.removeEventListener("touchend", kick, true);
+  window.removeEventListener("click", kick, true);
+  document.removeEventListener("visibilitychange", kick);
+  window.removeEventListener("focus", kick);
+  window.removeEventListener("zoom-app-foreground", kick);
+}
+
+/** Browsers block the first play until the file is ready or a tap lands. Keep trying. */
+function kick() {
+  if (muted) return;
+  const el = song();
+  if (!el.paused) {
+    disarm();
+    return;
+  }
+  el.volume = SONG_VOLUME;
+  void el.play().then(() => {
+    if (!el.paused) disarm();
+  }).catch(() => {});
+}
+
+function arm() {
+  if (armed) return;
+  armed = true;
+  window.addEventListener("pointerdown", kick, true);
+  window.addEventListener("touchstart", kick, true);
+  window.addEventListener("touchend", kick, true);
+  window.addEventListener("click", kick, true);
+  document.addEventListener("visibilitychange", kick);
+  window.addEventListener("focus", kick);
+  window.addEventListener("zoom-app-foreground", kick);
+  for (const delay of [200, 700, 1500, 3000]) window.setTimeout(kick, delay);
+}
+
 function playSong() {
   const el = song();
   el.volume = muted ? 0 : SONG_VOLUME;
@@ -62,7 +102,19 @@ function playSong() {
     el.pause();
     return;
   }
-  void el.play().catch(() => {});
+  if (!el.paused) return;
+  const attempt = el.play();
+  if (attempt) {
+    void attempt.then(() => {
+      if (el.paused) arm();
+      else disarm();
+    }).catch(() => arm());
+  }
+  arm();
+  if (!el.dataset.bitbiteCanplay) {
+    el.dataset.bitbiteCanplay = "1";
+    el.addEventListener("canplay", kick);
+  }
 }
 
 export function setChiptuneMuted(next: boolean) {
