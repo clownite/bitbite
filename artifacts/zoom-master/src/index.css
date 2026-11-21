@@ -7883,7 +7883,7 @@ body { background: #0c1008; }
 .gb-app .gb-dir.is-down { left: 20px; bottom: 0; width: 38px; height: 30px; }
 .gb-app .gb-dir.is-left { left: 0; top: 22px; width: 30px; height: 34px; }
 .gb-app .gb-dir.is-right { right: 0; top: 22px; width: 30px; height: 34px; }
-.gb-app .gb-pills { bottom: 8px; gap: 12px; }
+.gb-app .gb-pills { bottom: 20px; gap: 12px; }
 .gb-app .gb-pills button { position: relative; width: 28px; height: 10px; }
 .gb-app .gb-pills button::before {
   content: "";
@@ -7895,8 +7895,8 @@ body { background: #0c1008; }
 }
 .gb-app .gb-face { right: 12px; top: 2px; width: 112px; height: 92px; }
 .gb-app .gb-console-a { width: 50px; height: 50px; }
-.gb-app .gb-console-b { width: 38px; height: 38px; }
-.gb-app .gb-speaker { bottom: 8px; right: 10px; }
+.gb-app .gb-console-b { bottom: 12px; width: 38px; height: 38px; }
+.gb-app .gb-speaker { bottom: 20px; right: 10px; }
 .gb-speaker {
   border: 0;
   padding: 0;
