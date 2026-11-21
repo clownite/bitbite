@@ -2,11 +2,12 @@ import http from "node:http";
 import app from "./app";
 import { logger } from "./lib/logger";
 import { sendBotMessageStatus, sendAlienChannelMessage } from "./lib/notify";
+import { runPetNotes } from "./lib/petNotes";
 import { fetchPendingFarmNotifications, lastFarmNotifiedAtByUser, stampFarmNotified } from "./routes/farm";
 import { runScheduledLotteryDrawTick } from "./routes/lottery";
 import { runScheduledLabSettlementTick } from "./routes/labRanking";
 import { purgeExpiredHistory } from "./lib/history";
-import { db, usersTable, pvpDailyPairsTable, appSettingsTable } from "@workspace/db";
+import { db, usersTable, pvpDailyPairsTable } from "@workspace/db";
 import { desc, eq, sql } from "drizzle-orm";
 import { readGlobal, readNotifiedExpiresAtMs, writeNotifiedExpiresAtMs, advanceGlobal } from "./routes/merchant";
 import { hasTreasurySigner, treasuryEnvKeyNames, treasuryMnemonicWordCount } from "./lib/zmc";
@@ -258,65 +259,12 @@ function startFarmNotificationCron() {
   setInterval(tick, intervalMs).unref();
 }
 
-const PET_AWAY_MS = 3 * 24 * 60 * 60 * 1000;
-const PET_NEED_MS = 45 * 60 * 1000;
-const PET_BOWL_MS = 10 * 60 * 60 * 1000;
-const PET_MESS_MS = 4 * 60 * 60 * 1000;
-const PET_SICK_MS = 2 * 60 * 60 * 1000;
-
-type PetBag = {
-  updatedAt?: number;
-  "biscotto-care-v1"?: string;
-  "biscotto-pet-v4"?: string;
-  "biscotto-life-v2"?: string;
-};
-
-function eggWaiting(bag: PetBag, now: number): boolean {
-  try {
-    const pet = JSON.parse(bag["biscotto-pet-v4"] || "") as { active?: string };
-    const life = JSON.parse(bag["biscotto-life-v2"] || "") as Record<string, { bornAt?: number }>;
-    const born = Number(life[pet.active || ""]?.bornAt) || 0;
-    return born > 0 && now - born < 24 * 60 * 60 * 1000;
-  } catch {
-    return false;
-  }
-}
-
-/** The phone steps care while the app is open. Project the same clock here so a closed app can still be hungry. */
-function petNeed(bag: PetBag, now: number): "sick" | "hungry" | "messy" | null {
-  try {
-    const raw = JSON.parse(bag["biscotto-care-v1"] || "") as {
-      at?: number;
-      bowl?: number;
-      nextMessAt?: number;
-      messes?: unknown[];
-      sick?: boolean;
-    };
-    const at = Number(raw.at) || 0;
-    const elapsed = Math.max(0, now - at);
-    const bowl = Math.max(0, Number(raw.bowl) - elapsed / PET_BOWL_MS);
-    const hadMess = Array.isArray(raw.messes) && raw.messes.length > 0;
-    const messDue = hadMess || (Number(raw.nextMessAt) > 0 && Number(raw.nextMessAt) <= now);
-    const hungry = bowl <= 0.05;
-    const sick = raw.sick === true || (hungry && messDue && elapsed >= PET_SICK_MS);
-    if (sick) return "sick";
-    if (hungry) return "hungry";
-    if (messDue) return "messy";
-  } catch { /**/ }
-  return null;
-}
-
-const PET_NOTE: Record<string, string> = {
-  away: "You have not opened BitBite for a few days. Your pet is waiting for you.",
-  sick: "Your pet is sick. Open BitBite and help it.",
-  hungry: "Your pet is hungry. Open BitBite and feed it.",
-  messy: "Your pet needs a clean. Open BitBite when you can.",
-};
-
 /**
  * Real bot messages only. A pet need is sent once after the player has
  * been away, and one absence note goes out after three days. Nothing is
  * sent when the pet is fine, and the same note is not sent again.
+ * The free host sleeps when nobody is in the app, so an outside ping
+ * also calls this as soon as the process wakes.
  */
 function startPetCallCron() {
   const intervalMs = 10 * 60 * 1000;
@@ -325,40 +273,8 @@ function startPetCallCron() {
     if (inFlight) return;
     inFlight = true;
     try {
-      const rows = await db
-        .select({ telegramId: usersTable.telegramId, petSave: usersTable.petSave })
-        .from(usersTable)
-        .where(sql`${usersTable.petSave} is not null`)
-        .limit(200);
-      let sent = 0;
-      for (const row of rows) {
-        if (sent >= 12) break;
-        if (!/^\d{5,16}$/.test(row.telegramId)) continue;
-        const bag = (row.petSave ?? null) as PetBag | null;
-        const seen = Number(bag?.updatedAt) || 0;
-        if (!bag || seen <= 0) continue;
-        const away = Date.now() - seen;
-        const now = Date.now();
-        const reason = away >= PET_AWAY_MS ? "away" : away >= PET_NEED_MS && !eggWaiting(bag, now) ? petNeed(bag, now) : null;
-        if (!reason) continue;
-        const stamp = `${seen}:${reason}`;
-        const key = `pet-note:${row.telegramId}`;
-        const [prev] = await db
-          .select({ valueText: appSettingsTable.valueText })
-          .from(appSettingsTable)
-          .where(eq(appSettingsTable.key, key))
-          .limit(1);
-        if (prev?.valueText === stamp) continue;
-        const result = await sendBotMessageStatus(row.telegramId, PET_NOTE[reason]);
-        if (result === "fail") continue;
-        if (prev) {
-          await db.update(appSettingsTable).set({ valueText: stamp, updatedAt: new Date() }).where(eq(appSettingsTable.key, key));
-        } else {
-          await db.insert(appSettingsTable).values({ key, valueText: stamp, valueNum: Date.now() });
-        }
-        sent += 1;
-        if (result === "ok") logger.info({ telegramId: row.telegramId, reason }, "[pet-cron] sent");
-      }
+      const result = await runPetNotes();
+      if (result.sent > 0) logger.info(result, "[pet-cron] pass");
     } catch (err) {
       logger.warn({ err }, "[pet-cron] tick failed");
     } finally {

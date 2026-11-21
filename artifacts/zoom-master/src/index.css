@@ -8101,8 +8101,8 @@ html, body, #root { background: #000 !important; }
   transform: none;
 }
 @keyframes pet-sleep {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
+  0%, 100% { top: 0; }
+  50% { top: -3px; }
 }
 .life-pet { --mouth: 56%; }
 .life-pet[data-family="electric"] { --mouth: 55%; }
@@ -8323,8 +8323,8 @@ html, body, #root { background: #000 !important; }
   width: 100%;
 }
 @keyframes pet-px {
-  0%, 49% { transform: translateY(0); }
-  50%, 100% { transform: translateY(-8px); }
+  0%, 49% { top: 0; }
+  50%, 100% { top: -8px; }
 }
 .gb-app.tab-play .life-pet.is-photo {
   height: auto;
