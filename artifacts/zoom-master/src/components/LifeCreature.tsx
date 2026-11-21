@@ -198,12 +198,9 @@ export function LifeCreature({
             </span>
           ) : null}
           {eating ? (
-            <>
-              {form !== "egg" ? <span className="pet-mouth" aria-hidden /> : null}
-              <span className="pet-bite" aria-hidden>
-                <PixelCookie size={22} />
-              </span>
-            </>
+            <span className="pet-bite" aria-hidden>
+              <PixelCookie size={22} />
+            </span>
           ) : null}
         </span>
       </span>

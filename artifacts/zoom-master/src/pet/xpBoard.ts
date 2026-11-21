@@ -11,16 +11,16 @@ export type XpRow = {
 
 /** A full board for the first weeks. Real scores sit in with these. */
 const GUESTS: XpRow[] = [
-  { telegramId: "guest-mira", name: "Mira", username: "mira", amount: 920 },
-  { telegramId: "guest-luca", name: "Luca", username: "luca", amount: 840 },
-  { telegramId: "guest-hana", name: "Hana", username: "hana", amount: 760 },
-  { telegramId: "guest-owen", name: "Owen", username: "owen", amount: 690 },
-  { telegramId: "guest-noor", name: "Noor", username: "noor", amount: 610 },
-  { telegramId: "guest-sasha", name: "Sasha", username: "sasha", amount: 540 },
-  { telegramId: "guest-jules", name: "Jules", username: "jules", amount: 470 },
-  { telegramId: "guest-theo", name: "Theo", username: "theo", amount: 390 },
-  { telegramId: "guest-mina", name: "Mina", username: "mina", amount: 310 },
-  { telegramId: "guest-aria", name: "Aria", username: "aria", amount: 240 },
+  { telegramId: "guest-mira", name: "Mira", username: "mira", amount: 180 },
+  { telegramId: "guest-luca", name: "Luca", username: "luca", amount: 165 },
+  { telegramId: "guest-hana", name: "Hana", username: "hana", amount: 150 },
+  { telegramId: "guest-owen", name: "Owen", username: "owen", amount: 135 },
+  { telegramId: "guest-noor", name: "Noor", username: "noor", amount: 120 },
+  { telegramId: "guest-sasha", name: "Sasha", username: "sasha", amount: 105 },
+  { telegramId: "guest-jules", name: "Jules", username: "jules", amount: 90 },
+  { telegramId: "guest-theo", name: "Theo", username: "theo", amount: 75 },
+  { telegramId: "guest-mina", name: "Mina", username: "mina", amount: 60 },
+  { telegramId: "guest-aria", name: "Aria", username: "aria", amount: 45 },
 ];
 
 /** v2 drops the old week, so the board starts empty. */
